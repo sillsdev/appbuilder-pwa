@@ -9,10 +9,6 @@ function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     const type = usfmType(context);
     return (
         !!type &&
-        // these other ones are handled separately
-        !isCellWrapper(context) &&
-        !isFigureWrapper(type) &&
-        !isJmplinkWrapper(type) &&
         // if glossary words are disabled, render as a normal wrapper with class 'w'
         (!isGlossaryWrapper(type) || !workspace.viewShowGlossaryWords) &&
         // don't bother adding a wrapper if it's words of Jesus and red-letters are disabled
@@ -26,7 +22,8 @@ function isWordsOfJesusWrapper(usfmType: string) {
 
 export const usfmWrappers = new FeatureSpec([
     {
-        eventTriggers: ['startWrapper'],
+        event: 'startWrapper',
+        default: true,
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
@@ -44,7 +41,8 @@ export const usfmWrappers = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['endWrapper'],
+        event: 'endWrapper',
+        default: true,
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {

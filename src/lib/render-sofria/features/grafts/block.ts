@@ -9,7 +9,8 @@ import type { BlockGraftScratch } from './common';
 
 export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
     {
-        eventTriggers: ['blockGraft'],
+        event: 'blockGraft',
+        default: true,
         action: (environment) => {
             const { context, workspace } = environment;
             if (workspace.logSettings.blockGraft) {

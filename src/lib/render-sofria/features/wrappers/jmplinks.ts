@@ -7,7 +7,7 @@ export function isJmplinkWrapper(usfmType: string) {
 
 export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
     {
-        eventTriggers: ['startWrapper'],
+        event: 'startWrapper',
         guard: ({ context }) => isJmplinkWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
@@ -64,7 +64,7 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
         }
     },
     {
-        eventTriggers: ['endWrapper'],
+        event: 'endWrapper',
         guard: ({ context }) => isJmplinkWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {

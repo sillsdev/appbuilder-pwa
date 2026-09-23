@@ -116,17 +116,36 @@ LOGGING:
             }
             if (enabled) {
                 for (const a of f.actions) {
-                    for (const t of a.eventTriggers) {
-                        if (result[t]) {
-                            result[t].push(a);
-                        } else {
-                            result[t] = [a];
-                        }
+                    if (result[a.event]) {
+                        result[a.event]!.push(a);
+                    } else {
+                        result[a.event] = [a];
                     }
                 }
             }
         }
+        let errorCount = 0;
+        for (const e in result) {
+            let hasDefault = '';
+            result[e as RenderEvent]?.forEach((a) => {
+                if (a.default) {
+                    if (hasDefault) {
+                        console.error(
+                            `Action handler ${e} has more than one default handler. Encountered: ${a.name}, Existing: ${hasDefault}`
+                        );
+                        errorCount++;
+                    } else {
+                        hasDefault = `${a.name}`;
+                    }
+                }
+            });
+            // sort default handlers to end
+            result[e as RenderEvent]?.sort((a, b) => (a.default ? 1 : b.default ? -1 : 0));
+        }
         console.warn('Compiled actions dictionary: %o', result);
+        if (errorCount) {
+            throw new Error(`Action compilation failed with ${errorCount} error(s).`);
+        }
         return result;
     });
 
@@ -221,26 +240,32 @@ LOGGING:
             renderWorkspaceInitialized = true;
         }
 
+        let useDefault = true;
+
         for (const a of actionsDict[eventName] ?? []) {
-            /* console.log(
-                'Processing action for event %s\naction: %o\nenv: %o',
-                eventName,
-                a,
-                environment
-            ); */
-            // cleanup table scope
             if (
-                scopeManager.getScope('table') &&
-                !scopeManager.getScope('row') &&
-                eventName !== 'startRow'
+                a.guard?.(environment) ||
+                (a.default && useDefault && (!a.guard || a.guard(environment)))
             ) {
-                const scope = scopeManager.removeScope('table');
-                if (scope?.contentRoot) {
-                    environment.workspace.root.appendChild(scope?.contentRoot);
+                /* console.log(
+                    'Processing action for event %s\naction: %o\nenv: %o',
+                    eventName,
+                    a,
+                    environment
+                ); */
+                // cleanup table scope
+                if (
+                    scopeManager.getScope('table') &&
+                    !scopeManager.getScope('row') &&
+                    eventName !== 'startRow'
+                ) {
+                    const scope = scopeManager.removeScope('table');
+                    if (scope?.contentRoot) {
+                        scopeManager.appendInnerContent(scope.contentRoot);
+                    }
                 }
-            }
-            if (!a.guard || a.guard(environment)) {
                 a.action(environment);
+                useDefault = false;
             } else {
                 //console.log('Skipped action for event %s', eventName);
             }

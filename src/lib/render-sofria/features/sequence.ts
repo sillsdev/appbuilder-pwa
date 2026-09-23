@@ -2,7 +2,7 @@ import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } f
 
 export const sequences = new FeatureSpec([
     {
-        eventTriggers: ['startSequence'],
+        event: 'startSequence',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
@@ -35,7 +35,7 @@ export const sequences = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['endSequence'],
+        event: 'endSequence',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const sequenceType = context.sequences[0].type;
