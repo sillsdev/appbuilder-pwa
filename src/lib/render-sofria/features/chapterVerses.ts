@@ -41,7 +41,7 @@ export const chapterVerses = new FeatureSpec([
                 workspace.scopeManager.addScope('verses', verseDiv);
             }
             if (workspace.logSettings.verses) {
-                console.log('IN: %o', workspace.scopeManager.getActiveContentRoot('paragraph'));
+                console.log('IN: %o', workspace.scopeManager.getScope('paragraph')?.contentRoot);
             }
         }
     },
@@ -56,7 +56,7 @@ export const chapterVerses = new FeatureSpec([
             workspace.currentTextPosition.verse = 'none';
 
             if (workspace.verseLayout === 'one-per-lin') {
-                const verseDiv = workspace.scopeManager.getActiveContentRoot('verses');
+                const verseDiv = workspace.scopeManager.getScope('verses')?.contentRoot;
                 if (verseDiv) {
                     workspace.scopeManager.appendInnerContent(verseDiv, 'paragraph');
                 }
