@@ -2,7 +2,7 @@ import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } f
 
 export const chapterVerses = new FeatureSpec([
     {
-        eventTriggers: ['startChapter'],
+        event: 'startChapter',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             if (workspace.logSettings.chapter) {
@@ -13,7 +13,7 @@ export const chapterVerses = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['endChapter'],
+        event: 'endChapter',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             if (workspace.logSettings.chapter) {
@@ -24,7 +24,7 @@ export const chapterVerses = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['startVerses'],
+        event: 'startVerses',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const element = context.sequences[0].element;
@@ -46,7 +46,7 @@ export const chapterVerses = new FeatureSpec([
         }
     },
     {
-        eventTriggers: ['endVerses'],
+        event: 'endVerses',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const element = context.sequences[0].element;
