@@ -46,6 +46,8 @@ While `npm run dev` or `npm run preview` is running, type `d` and press Enter to
 
 This uses `adb reverse` to forward the device's port to your computer. The app then loads from `http://localhost` rather than from your computer's network address. Browsers treat `localhost` as a secure context, so service workers and other PWA features work without setting up HTTPS. The forward is removed when the server stops.
 
+Run `npm run preview:device` instead of `npm run preview` to open the production build on the device as soon as the server starts. It opens only when exactly one device is connected (or the one set by `ANDROID_SERIAL`, see below). Otherwise it logs why it didn't, and the server runs as usual. Setting the `OPEN_ON_DEVICE` environment variable does the same for `npm run preview`.
+
 #### Setup
 
 -   Install the Android SDK Platform Tools, which provide `adb`. They come with Android Studio or the Android SDK used by Scripture App Builder, or you can [download them separately](https://developer.android.com/tools/releases/platform-tools).

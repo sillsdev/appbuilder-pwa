@@ -3,6 +3,8 @@
 // to this machine, so the page loads as http://localhost (a secure context, which service
 // workers require) instead of over the LAN address.
 // With several devices connected, set ANDROID_SERIAL to choose one (adb reads it directly).
+// With OPEN_ON_DEVICE set (see scripts/preview-device.ts), `vite preview` also opens the app on
+// the device once the server is listening, if a device is connected.
 import { execFile, execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -99,6 +101,15 @@ async function ensureReversed(port: string): Promise<void> {
     }
 }
 
+function describeAdbError(e: unknown): string {
+    const err = e as NodeJS.ErrnoException & { stderr?: string; killed?: boolean };
+    return err.code === 'ENOENT'
+        ? `adb not found (tried ${findAdb()}); set ADB or ANDROID_HOME, or add it to PATH`
+        : err.killed
+          ? `adb did not respond within ${ADB_TIMEOUT_MS / 1000}s`
+          : err.stderr?.trim() || err.message;
+}
+
 async function openOnDevice(server: ViteDevServer | PreviewServer): Promise<void> {
     const logger = server.config.logger;
     const localUrl = server.resolvedUrls?.local[0];
@@ -114,14 +125,48 @@ async function openOnDevice(server: ViteDevServer | PreviewServer): Promise<void
         await adb(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', url.href]);
         logger.info(`  Opened ${url.href} on Android device`);
     } catch (e) {
-        const err = e as NodeJS.ErrnoException & { stderr?: string; killed?: boolean };
-        const detail =
-            err.code === 'ENOENT'
-                ? `adb not found (tried ${findAdb()}); set ADB or ANDROID_HOME, or add it to PATH`
-                : err.killed
-                  ? `adb did not respond within ${ADB_TIMEOUT_MS / 1000}s`
-                  : err.stderr?.trim() || err.message;
-        logger.error(`  Failed to open on Android device: ${detail}`);
+        logger.error(`  Failed to open on Android device: ${describeAdbError(e)}`);
+    }
+}
+
+// Opens on the device only when the target is unambiguous: the ANDROID_SERIAL device if set,
+// otherwise the one connected device. Anything else is logged and skipped, since not finding a
+// device is an expected case here rather than an error.
+async function openOnConnectedDevice(server: PreviewServer): Promise<void> {
+    const logger = server.config.logger;
+    let devices: { serial: string; state: string }[];
+    try {
+        // Lines after the header are "<serial>\t<state>", e.g. state device, unauthorized, offline
+        devices = (await adb(['devices']))
+            .split('\n')
+            .slice(1)
+            .map((line) => line.trim().split(/\s+/))
+            .filter((fields) => fields.length >= 2)
+            .map(([serial, state]) => ({ serial, state }));
+    } catch (e) {
+        logger.warn(`  Not opening on Android device: ${describeAdbError(e)}`);
+        return;
+    }
+    const serial = process.env.ANDROID_SERIAL;
+    const candidates = serial ? devices.filter((d) => d.serial === serial) : devices;
+    const ready = candidates.filter((d) => d.state === 'device');
+    if (ready.length === 1) {
+        await openOnDevice(server);
+    } else if (ready.length > 1) {
+        logger.warn(
+            `  Not opening on Android device: ${ready.length} devices connected; ` +
+                'set ANDROID_SERIAL to choose one'
+        );
+    } else if (candidates.length > 0) {
+        const { serial: s, state } = candidates[0];
+        const hint = state === 'unauthorized' ? '; accept the USB debugging prompt on it' : '';
+        logger.warn(`  Not opening on Android device: ${s} is ${state}${hint}`);
+    } else {
+        logger.info(
+            serial
+                ? `  Not opening on Android device: ANDROID_SERIAL ${serial} is not connected`
+                : '  Not opening on Android device: no device connected'
+        );
     }
 }
 
@@ -137,6 +182,12 @@ export function androidDevice(): Plugin {
         },
         configurePreviewServer(server) {
             server.bindCLIShortcuts({ customShortcuts });
+            if (process.env.OPEN_ON_DEVICE) {
+                // resolvedUrls is set just after 'listening' fires, so wait a turn for it
+                server.httpServer.once('listening', () => {
+                    setImmediate(() => void openOnConnectedDevice(server));
+                });
+            }
         }
     };
 }
