@@ -11,6 +11,7 @@ import tailwindcss from '@tailwindcss/vite';
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { createLogger, defineConfig } from 'vite';
+import { androidDevice } from './scripts/vite-plugin-android-device';
 
 const logger = createLogger();
 const loggerWarn = logger.warn;
@@ -71,7 +72,7 @@ export default defineConfig(({ mode }) => {
     }
 
     return {
-        plugins: [sveltekit(), tailwindcss()],
+        plugins: [sveltekit(), tailwindcss(), androidDevice()],
         worker: {
             format: 'es',
             plugins: () => []

@@ -40,6 +40,39 @@ Run `npm run build:examples` to build an app with the example data.
 The production build can be viewed by running `npm run preview`.
 The production build can be deployed to a public webserver for testing using [Surge](https://surge.sh).
 
+### Running on Device
+
+While `npm run dev` or `npm run preview` is running, type `d` and press Enter to open the app in the default browser of an Android device connected over USB.
+
+This uses `adb reverse` to forward the device's port to your computer. The app then loads from `http://localhost` rather than from your computer's network address. Browsers treat `localhost` as a secure context, so service workers and other PWA features work without setting up HTTPS. The forward is removed when the server stops.
+
+#### Setup
+
+-   Install the Android SDK Platform Tools, which provide `adb`. They come with Android Studio or the Android SDK used by Scripture App Builder, or you can [download them separately](https://developer.android.com/tools/releases/platform-tools).
+-   On the device, enable **Developer options** and turn on **USB debugging**. Connect the device and accept the "Allow USB debugging?" prompt.
+-   Run `adb devices` to check that the device is listed as `device` rather than `unauthorized`.
+
+`adb` is looked for in this order:
+
+1. The `ADB` environment variable, set to the full path of the `adb` executable
+2. `$ANDROID_HOME/platform-tools`
+3. `$ANDROID_SDK_ROOT/platform-tools`
+4. The `PATH`
+
+If `adb` isn't found, the error message says what to set.
+
+#### Multiple Devices
+
+If more than one device or emulator is connected, set `ANDROID_SERIAL` to the serial number of the one to use, as shown by `adb devices`:
+
+```bash
+ANDROID_SERIAL=<serial> npm run dev
+```
+
+On Windows, run `set ANDROID_SERIAL=<serial>` (Command Prompt) or `$env:ANDROID_SERIAL="<serial>"` (PowerShell) before `npm run dev`.
+
+Use `chrome://inspect` in Chrome on your computer to open DevTools for the page running on the device.
+
 ### Testing
 
 Scripture App Builder PWA uses [Vitest](https://vitest.dev/guide/) for unit tests. See that added test files and tests adhere to the [Front End Testing Style Guide](https://github.com/nikeshghimire77/unit-testing-styleguide).
