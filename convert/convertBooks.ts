@@ -1,48 +1,48 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 ///<reference path="./proskomma.d.ts"/>
 
-import * as fs from "fs";
-import path, { basename, extname, join } from "path";
+import * as fs from 'fs';
+import path, { basename, extname, join } from 'path';
 import type {
-  BookConfig,
-  BookTabConfig,
-  Quiz,
-  QuizAnswer,
-  QuizExplanation,
-  QuizQuestion,
-  ScriptureConfig,
-} from "$config";
-import { freeze, postQueries, queries } from "../sab-proskomma-tools";
-import { SABProskomma } from "../src/lib/sab-proskomma";
-import type { ConfigTaskOutput } from "./convertConfig";
-import { convertMarkdownsToMilestones } from "./convertMarkdown";
+    BookConfig,
+    BookTabConfig,
+    Quiz,
+    QuizAnswer,
+    QuizExplanation,
+    QuizQuestion,
+    ScriptureConfig
+} from '$config';
+import { freeze, postQueries, queries } from '../sab-proskomma-tools';
+import { SABProskomma } from '../src/lib/sab-proskomma';
+import type { ConfigTaskOutput } from './convertConfig';
+import { convertMarkdownsToMilestones } from './convertMarkdown';
 import {
-  createHashedFile,
-  createOutputDir,
-  getHashedNameFromContents,
-  joinUrlPath,
-} from "./fileUtils";
-import { hasAudioExtension, hasImageExtension } from "./stringUtils";
-import { Promisable, Task, TaskOutput } from "./Task";
-import { verifyGlossaryEntries } from "./verifyGlossaryEntries";
+    createHashedFile,
+    createOutputDir,
+    getHashedNameFromContents,
+    joinUrlPath
+} from './fileUtils';
+import { hasAudioExtension, hasImageExtension } from './stringUtils';
+import { Promisable, Task, TaskOutput } from './Task';
+import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
-const base = process.env.BUILD_BASE_PATH || "";
+const base = process.env.BUILD_BASE_PATH || '';
 
 let bookCount = 0;
 let bookCountCollectionId: string;
 function displayBookId(bcId: string, bookId: string) {
-  if (bookCountCollectionId !== bcId) {
-    const header = `${bcId}:`;
-    const space = (4 - (header.length % 4)) % 4;
-    bookCount = (header.length + space) / 4;
-    process.stdout.write(header + " ".repeat(space));
-    bookCountCollectionId = bcId;
-  }
-  process.stdout.write(" " + bookId);
-  ++bookCount;
-  if (bookCount % 10 === 0) {
-    process.stdout.write("\n");
-  }
+    if (bookCountCollectionId !== bcId) {
+        const header = `${bcId}:`;
+        const space = (4 - (header.length % 4)) % 4;
+        bookCount = (header.length + space) / 4;
+        process.stdout.write(header + ' '.repeat(space));
+        bookCountCollectionId = bcId;
+    }
+    process.stdout.write(' ' + bookId);
+    ++bookCount;
+    if (bookCount % 10 === 0) {
+        process.stdout.write('\n');
+    }
 }
 /**
  * Loops through bookCollections property of configData.
@@ -52,353 +52,353 @@ function displayBookId(bcId: string, bookId: string) {
  */
 
 function replaceVideoTags(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
+    return text.replace(/\\video (.*)/g, '\\zvideo-s |id="$1"\\*\\zvideo-e\\*');
 }
 function replacePStyleTags(text: string, _bcId: string, _bookId: string): string {
-  return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
+    return text.replace(/\\(p_[^\s]+)/g, '\\m \\zstyle |id="$1"\\*');
 }
 function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string {
-  return text.replace(/\\(c_[^\s]+)(.*?)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
+    return text.replace(/\\(c_[^\s]+)(.*?)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
 }
 /**
  * Convert list tags to milestones
  */
 export function transformLists(text: string, _bcId: string, _bookId: string): string {
-  text = transformZuliTags(text);
-  text = transformZoliTags(text);
-  text = transformZonTags(text);
-  return text;
+    text = transformZuliTags(text);
+    text = transformZoliTags(text);
+    text = transformZonTags(text);
+    return text;
 }
 
 function transformZuliTags(usfm: string): string {
-  return usfm.replace(/(\\zuli\d+)/g, "\\nb $1\\*");
+    return usfm.replace(/(\\zuli\d+)/g, '\\nb $1\\*');
 }
 
 function transformZoliTags(usfm: string): string {
-  return usfm.replace(/(\\zoli\d+)/g, "\\nb $1\\*");
+    return usfm.replace(/(\\zoli\d+)/g, '\\nb $1\\*');
 }
 
 function transformZonTags(usfm: string): string {
-  return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
+    return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
 function loadGlossary(collection: any, dataDir: string): string[] {
-  const glossary: string[] = [];
-  for (const book of collection.books) {
-    if (book.type && book.type === "glossary") {
-      let glossaryBook = path.join(dataDir, "books", collection.id, book.file);
-      if (!fs.existsSync(glossaryBook)) {
-        const extension = extname(book.file);
-        const filename = basename(book.file, extension);
-        glossaryBook = path.join(dataDir, "books", collection.id, filename + "-000.sfm");
-        //process.stdout.write('Replacing filename: ' + glossaryBook);
-      }
-      const glossaryContent = fs.readFileSync(glossaryBook, "utf8");
-      // Regular expression pattern
-      const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
-      let match;
-      // Loop through all matches
-      while ((match = regex.exec(glossaryContent)) !== null) {
-        // match[1] contains the text between \k and \k*
-        glossary.push(match[1]);
-      }
+    const glossary: string[] = [];
+    for (const book of collection.books) {
+        if (book.type && book.type === 'glossary') {
+            let glossaryBook = path.join(dataDir, 'books', collection.id, book.file);
+            if (!fs.existsSync(glossaryBook)) {
+                const extension = extname(book.file);
+                const filename = basename(book.file, extension);
+                glossaryBook = path.join(dataDir, 'books', collection.id, filename + '-000.sfm');
+                //process.stdout.write('Replacing filename: ' + glossaryBook);
+            }
+            const glossaryContent = fs.readFileSync(glossaryBook, 'utf8');
+            // Regular expression pattern
+            const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
+            let match;
+            // Loop through all matches
+            while ((match = regex.exec(glossaryContent)) !== null) {
+                // match[1] contains the text between \k and \k*
+                glossary.push(match[1]);
+            }
+        }
     }
-  }
-  return glossary;
+    return glossary;
 }
 function removeStrongNumberReferences(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  //remove strong number references
-  // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
-  // \v 4  \wj  \+w Blessed|strong="G3107"\+w* \+w are|strong="G3107"\+w* \+w those|strong="G3588"\+w* \+w who|strong="G3588"\+w* \+w mourn|strong="G3996"\+w*,\wj*  (Matt 5:4 WEBBE)
-  return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, "$2");
+    //remove strong number references
+    // \v 1  \w In|strong="H0430"\w* \w the|strong="H0853"\w* \w beginning|strong="H7225"\w*, (Gen 1:1 WEBBE)
+    // \v 4  \wj  \+w Blessed|strong="G3107"\+w* \+w are|strong="G3107"\+w* \+w those|strong="G3588"\+w* \+w who|strong="G3588"\+w* \+w mourn|strong="G3996"\+w*,\wj*  (Matt 5:4 WEBBE)
+    return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
 }
 
 function removeMissingVerses(text: string, _bcId: string, _bookId: string): string {
-  // Regular expression to match the pattern:
-  // \v (any number of digits) followed by any number of such patterns
-  const regex = /(\\v\s\d+\s*)+/g;
+    // Regular expression to match the pattern:
+    // \v (any number of digits) followed by any number of such patterns
+    const regex = /(\\v\s\d+\s*)+/g;
 
-  // Replace matches with the last occurrence
-  return text.replace(regex, (match) => {
-    // Split the matched string by \v and filter out empty parts
-    const parts = match
-      .trim()
-      .split(/\\v\s*/)
-      .filter(Boolean);
+    // Replace matches with the last occurrence
+    return text.replace(regex, (match) => {
+        // Split the matched string by \v and filter out empty parts
+        const parts = match
+            .trim()
+            .split(/\\v\s*/)
+            .filter(Boolean);
 
-    // If there are multiple parts, return only the last one with \v prepended
-    if (parts.length > 1) {
-      return `\\v ${parts.pop()} `;
-    }
+        // If there are multiple parts, return only the last one with \v prepended
+        if (parts.length > 1) {
+            return `\\v ${parts.pop()} `;
+        }
 
-    // If only one part or none, return the match unchanged
-    return match;
-  });
+        // If only one part or none, return the match unchanged
+        return match;
+    });
 }
 
 export function encodeJmpLinks(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  // Regular expression to match \jmp tags
-  const jmpRegex = /\\jmp\s([^\\]+)\\jmp\*/g;
+    // Regular expression to match \jmp tags
+    const jmpRegex = /\\jmp\s([^\\]+)\\jmp\*/g;
 
-  // Replace the href in each \jmp tag with an encoded version (otherwise Proskomma will mess with it)
-  return text.replace(jmpRegex, (_, jmpContent) => {
-    // Split the content of the \jmp tag by pipe (|)
-    const parts = jmpContent.split("|");
+    // Replace the href in each \jmp tag with an encoded version (otherwise Proskomma will mess with it)
+    return text.replace(jmpRegex, (_, jmpContent) => {
+        // Split the content of the \jmp tag by pipe (|)
+        const parts = jmpContent.split('|');
 
-    // Extract the label and attributes
-    const label = parts[0];
-    const attributes = parts[1] || "";
+        // Extract the label and attributes
+        const label = parts[0];
+        const attributes = parts[1] || '';
 
-    // Extract the link from the attributes
-    const linkMatch = attributes.match(/href="([^"]+)"/);
-    const link = linkMatch ? linkMatch[1] : "";
+        // Extract the link from the attributes
+        const linkMatch = attributes.match(/href="([^"]+)"/);
+        const link = linkMatch ? linkMatch[1] : '';
 
-    // Encode the link
-    const encodedLink = encodeURIComponent(link);
+        // Encode the link
+        const encodedLink = encodeURIComponent(link);
 
-    // Extract the title from the attributes
-    const titleMatch = attributes.match(/title="([^"]+)"/);
-    const title = titleMatch ? titleMatch[1] : "";
+        // Extract the title from the attributes
+        const titleMatch = attributes.match(/title="([^"]+)"/);
+        const title = titleMatch ? titleMatch[1] : '';
 
-    // Encode the title
-    const encodedTitle = encodeURIComponent(title);
+        // Encode the title
+        const encodedTitle = encodeURIComponent(title);
 
-    // replace the original link with the encoded link
-    const newAttributes = attributes
-      .replace(/href="[^"]+"/, `href="${encodedLink}"`)
-      .replace(/title="[^"]+"/, `title="${encodedTitle}"`);
+        // replace the original link with the encoded link
+        const newAttributes = attributes
+            .replace(/href="[^"]+"/, `href="${encodedLink}"`)
+            .replace(/title="[^"]+"/, `title="${encodedTitle}"`);
 
-    // Return the modified \jmp tag
-    return `\\jmp ${label}|${newAttributes}\\jmp*`;
-  });
+        // Return the modified \jmp tag
+        return `\\jmp ${label}|${newAttributes}\\jmp*`;
+    });
 }
 
 // This is a HACK!!!
 // See https://github.com/Proskomma/proskomma-json-tools/issues/63
 //
 function handleNoCaptionFigures(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  // Regular expression to match \fig markers
-  const figRegex = /\\fig\s(.*?)\\fig\*/g;
+    // Regular expression to match \fig markers
+    const figRegex = /\\fig\s(.*?)\\fig\*/g;
 
-  // Replace each \fig marker with the appropriate action
-  return text.replace(figRegex, (match, figContent) => {
-    // Split the content of the \fig marker by pipe (|)
-    const parts = figContent.split("|");
+    // Replace each \fig marker with the appropriate action
+    return text.replace(figRegex, (match, figContent) => {
+        // Split the content of the \fig marker by pipe (|)
+        const parts = figContent.split('|');
 
-    // Extract the image caption
-    const imageCaption = parts[0];
+        // Extract the image caption
+        const imageCaption = parts[0];
 
-    // Check if the image caption is missing
-    if (!imageCaption) {
-      // Caption is missing, return "NO_CAPTION" as the caption inside of the original \fig marker
-      return match.replace("|", "NO_CAPTION|");
-    } else {
-      // Caption is present, return the original \fig marker
-      return match;
-    }
-  });
+        // Check if the image caption is missing
+        if (!imageCaption) {
+            // Caption is missing, return "NO_CAPTION" as the caption inside of the original \fig marker
+            return match.replace('|', 'NO_CAPTION|');
+        } else {
+            // Caption is present, return the original \fig marker
+            return match;
+        }
+    });
 }
 
 function removeMissingFigures(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  // Regular expression to match \fig markers
-  const figRegex = /\\fig\s(.*?)\\fig\*/g;
+    // Regular expression to match \fig markers
+    const figRegex = /\\fig\s(.*?)\\fig\*/g;
 
-  // Replace each \fig marker with the appropriate action
-  return text.replace(figRegex, (match, figContent) => {
-    // Split the content of the \fig marker by pipe (|)
-    const parts = figContent.split("|");
+    // Replace each \fig marker with the appropriate action
+    return text.replace(figRegex, (match, figContent) => {
+        // Split the content of the \fig marker by pipe (|)
+        const parts = figContent.split('|');
 
-    // Extract the image source from the first part
-    let imageSource;
-    if (parts.length < 2) {
-      // \fig filename.jpg\fig*
-      imageSource = figContent;
-    } else if (parts[1].includes('src="')) {
-      // \fig Caption|src="filename.jpg"\fig*
-      imageSource = parts[1].match(/src="([^"]+)"/)[1];
-    } else {
-      // \fig Caption|filename.jpg\fig*
-      imageSource = parts[1];
-    }
+        // Extract the image source from the first part
+        let imageSource;
+        if (parts.length < 2) {
+            // \fig filename.jpg\fig*
+            imageSource = figContent;
+        } else if (parts[1].includes('src="')) {
+            // \fig Caption|src="filename.jpg"\fig*
+            imageSource = parts[1].match(/src="([^"]+)"/)[1];
+        } else {
+            // \fig Caption|filename.jpg\fig*
+            imageSource = parts[1];
+        }
 
-    // Check if the image source is missing
-    if (isImageMissing(imageSource)) {
-      // Image is missing, return an empty string to strip the \fig marker
-      return "";
-    } else {
-      if (parts.length < 2) {
-        // Image is present, but needs formatting that works with Proskomma
-        return `\\fig NO_CAPTION|src="${imageSource}"\\fig*`;
-      } else {
-        // Image is present, return the original \fig marker
-        return match;
-      }
-    }
-  });
+        // Check if the image source is missing
+        if (isImageMissing(imageSource)) {
+            // Image is missing, return an empty string to strip the \fig marker
+            return '';
+        } else {
+            if (parts.length < 2) {
+                // Image is present, but needs formatting that works with Proskomma
+                return `\\fig NO_CAPTION|src="${imageSource}"\\fig*`;
+            } else {
+                // Image is present, return the original \fig marker
+                return match;
+            }
+        }
+    });
 }
 
 function updateImgTags(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  context: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    context: ConvertBookContext
 ): string {
-  return text.replace(
-    /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
-    (match, _path, fileName) => {
-      // If the image is missing in the "illustrations" folder, filter out the entire tag
-      if (isImageMissing(fileName)) {
-        return "";
-      } else {
-        const imagePath = createHashedFile(
-          context.dataDir,
-          joinUrlPath("illustrations", fileName),
-          context.verbose,
-        );
+    return text.replace(
+        /<img\b[^>]*\bsrc=["']([^"']*\/)?([^"']*)["'][^>]*>/gi,
+        (match, _path, fileName) => {
+            // If the image is missing in the "illustrations" folder, filter out the entire tag
+            if (isImageMissing(fileName)) {
+                return '';
+            } else {
+                const imagePath = createHashedFile(
+                    context.dataDir,
+                    joinUrlPath('illustrations', fileName),
+                    context.verbose
+                );
 
-        return match.replace(/src=["'][^"']*["']/, `src="${joinUrlPath(base, imagePath)}"`);
-      }
-    },
-  );
+                return match.replace(/src=["'][^"']*["']/, `src="${joinUrlPath(base, imagePath)}"`);
+            }
+        }
+    );
 }
 
 function trimTrailingWhitespace(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  const eol = text.includes("\r\n") ? "\r\n" : "\n";
-  return text
-    .split(/\r?\n/) // Split the text into lines
-    .map((line) => line.trimEnd()) // Trim trailing whitespace from each line
-    .join(eol); // Join the lines back together
+    const eol = text.includes('\r\n') ? '\r\n' : '\n';
+    return text
+        .split(/\r?\n/) // Split the text into lines
+        .map((line) => line.trimEnd()) // Trim trailing whitespace from each line
+        .join(eol); // Join the lines back together
 }
 
 // Function to check if an image is missing
 function isImageMissing(imageSource: string): boolean {
-  // Your logic to determine if the image is missing
-  // For example, you can use AJAX request to check if the image exists
-  // Here, I'm assuming a simple check by presence of src attribute
-  return !fs.existsSync(path.join("data", "illustrations", imageSource));
+    // Your logic to determine if the image is missing
+    // For example, you can use AJAX request to check if the image exists
+    // Here, I'm assuming a simple check by presence of src attribute
+    return !fs.existsSync(path.join('data', 'illustrations', imageSource));
 }
 
 function addParagraphMarkersAroundTableRows(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  return text.replace(/((?:\\tr [^\n]*\n)+)/g, "\n\\p\n$1\\p\n");
+    return text.replace(/((?:\\tr [^\n]*\n)+)/g, '\n\\p\n$1\\p\n');
 }
 
 function moveFigureToNextNonVerseMarker(
-  text: string,
-  _bcId: string,
-  _bookId: string,
-  _ctx: ConvertBookContext,
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    _ctx: ConvertBookContext
 ): string {
-  const result = [];
-  let carryOverFigures: string[] = [];
-  const eol = text.includes("\r\n") ? "\r\n" : "\n";
+    const result = [];
+    let carryOverFigures: string[] = [];
+    const eol = text.includes('\r\n') ? '\r\n' : '\n';
 
-  const lines = text.split(/\r?\n/);
-  for (const line of lines) {
-    // Add any figures that were carried over from the previous lines
+    const lines = text.split(/\r?\n/);
+    for (const line of lines) {
+        // Add any figures that were carried over from the previous lines
+        if (carryOverFigures.length > 0) {
+            if (!line.startsWith('\\v ') && !line.startsWith('\\fig')) {
+                result.push(...carryOverFigures);
+                carryOverFigures = [];
+            }
+        }
+
+        const figureMatches = line.match(/(\\fig.*?\\fig\*)/g);
+        if (figureMatches) {
+            // Remove the figure content from the current line and add it to the carry over list
+            let modifiedLine = line;
+            figureMatches.forEach((figure) => {
+                modifiedLine = modifiedLine.replace(figure, '');
+                carryOverFigures.push(figure);
+            });
+            if (modifiedLine.trim()) {
+                result.push(modifiedLine);
+            }
+        } else {
+            result.push(line);
+        }
+    }
+
+    // If there are any figures left to carry over, add them to the end of the document
     if (carryOverFigures.length > 0) {
-      if (!line.startsWith("\\v ") && !line.startsWith("\\fig")) {
         result.push(...carryOverFigures);
-        carryOverFigures = [];
-      }
     }
 
-    const figureMatches = line.match(/(\\fig.*?\\fig\*)/g);
-    if (figureMatches) {
-      // Remove the figure content from the current line and add it to the carry over list
-      let modifiedLine = line;
-      figureMatches.forEach((figure) => {
-        modifiedLine = modifiedLine.replace(figure, "");
-        carryOverFigures.push(figure);
-      });
-      if (modifiedLine.trim()) {
-        result.push(modifiedLine);
-      }
-    } else {
-      result.push(line);
-    }
-  }
-
-  // If there are any figures left to carry over, add them to the end of the document
-  if (carryOverFigures.length > 0) {
-    result.push(...carryOverFigures);
-  }
-
-  // Join the lines back together
-  return result.join(eol);
+    // Join the lines back together
+    return result.join(eol);
 }
 
 type FilterFunction = (
-  text: string,
-  bcId: string,
-  bookId: string,
-  context: ConvertBookContext,
+    text: string,
+    bcId: string,
+    bookId: string,
+    context: ConvertBookContext
 ) => string;
 
 const usfmFilterFunctions: FilterFunction[] = [
-  removeStrongNumberReferences,
-  replaceVideoTags,
-  replacePStyleTags,
-  replaceCStyleTags,
-  transformLists,
-  convertMarkdownsToMilestones,
-  encodeJmpLinks,
-  handleNoCaptionFigures,
-  removeMissingFigures,
-  trimTrailingWhitespace,
-  addParagraphMarkersAroundTableRows,
-  moveFigureToNextNonVerseMarker,
+    removeStrongNumberReferences,
+    replaceVideoTags,
+    replacePStyleTags,
+    replaceCStyleTags,
+    transformLists,
+    convertMarkdownsToMilestones,
+    encodeJmpLinks,
+    handleNoCaptionFigures,
+    removeMissingFigures,
+    trimTrailingWhitespace,
+    addParagraphMarkersAroundTableRows,
+    moveFigureToNextNonVerseMarker
 ];
 
 const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
 
 function applyFilters(
-  text: string,
-  filterFunctions: FilterFunction[],
-  bcId: string,
-  bookId: string,
-  context: ConvertBookContext,
-  bookType?: string,
+    text: string,
+    filterFunctions: FilterFunction[],
+    bcId: string,
+    bookId: string,
+    context: ConvertBookContext,
+    bookType?: string
 ): string {
-  let filteredText = text;
-  for (const filterFn of filterFunctions) {
-    filteredText = filterFn(filteredText, bcId, bookId, context);
-  }
-  return filteredText;
+    let filteredText = text;
+    for (const filterFn of filterFunctions) {
+        filteredText = filterFn(filteredText, bcId, bookId, context);
+    }
+    return filteredText;
 }
 
 //make final transformations to catalog entry before writing to file
@@ -407,639 +407,660 @@ function applyFilters(
 // 3. add htmlBooks to entry, if defined for docset
 // 4. add bloomBooks to entry, if defined for docset
 function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any, bloomBooks: any): any {
-  const ds = postQueries.parseChapterVerseMapInDocSets({
-    docSets: [entry.data.docSets[0]],
-  })[0];
-  ds.quizzes = quizzes[ds.id];
-  ds.htmlBooks = htmlBooks[ds.id];
-  ds.bloomBooks = bloomBooks[ds.id];
-  return ds;
+    const ds = postQueries.parseChapterVerseMapInDocSets({
+        docSets: [entry.data.docSets[0]]
+    })[0];
+    ds.quizzes = quizzes[ds.id];
+    ds.htmlBooks = htmlBooks[ds.id];
+    ds.bloomBooks = bloomBooks[ds.id];
+    return ds;
 }
 
 type ConvertBookContext = {
-  dataDir: string;
-  scriptureConfig: ScriptureConfig;
-  verbose: number;
-  lang: string;
-  docSet: string;
-  bcId: string;
+    dataDir: string;
+    scriptureConfig: ScriptureConfig;
+    verbose: number;
+    lang: string;
+    docSet: string;
+    bcId: string;
 };
 
-const unsupportedBookTypes = ["audio-only", "quiz", "undefined"];
+const unsupportedBookTypes = ['audio-only', 'quiz', 'undefined'];
 export async function convertBooks(
-  dataDir: string,
-  scriptureConfig: ScriptureConfig,
-  verbose: number,
+    dataDir: string,
+    scriptureConfig: ScriptureConfig,
+    verbose: number
 ): Promise<BooksTaskOutput> {
-  /**book collections from config*/
-  const collections = scriptureConfig.bookCollections;
-  /**map of docSets and frozen archives*/
-  const freezer = new Map<string, any>();
-  /**array of catalog query promises*/
-  const catalogEntries: Promise<any>[] = [];
-  /**quizzes by book collection*/
-  const quizzes: any = {};
-  /**htmlBooks by book collection*/
-  const htmlBooks: any = {};
-  /**bloomBooks by book collection*/
-  const bloomBooks: any = {};
-  /**array of files to be written*/
-  const files: any[] = [];
+    /**book collections from config*/
+    const collections = scriptureConfig.bookCollections;
+    /**map of docSets and frozen archives*/
+    const freezer = new Map<string, any>();
+    /**array of catalog query promises*/
+    const catalogEntries: Promise<any>[] = [];
+    /**quizzes by book collection*/
+    const quizzes: any = {};
+    /**htmlBooks by book collection*/
+    const htmlBooks: any = {};
+    /**bloomBooks by book collection*/
+    const bloomBooks: any = {};
+    /**array of files to be written*/
+    const files: any[] = [];
 
-  // copy book-related folder resources
-  ["quiz", "songs", "bloom-player"].forEach((folder) => {
-    const folderSrcDir = path.join(dataDir, folder);
-    const folderDstDir = path.join(
-      folder === "bloom-player"
-        ? path.join("static", "bloom-player")
-        : path.join("src", "gen-assets"),
-      folder,
-    );
-    if (fs.existsSync(folderSrcDir)) {
-      fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
-    } else {
-      if (fs.existsSync(folderDstDir)) {
-        fs.rmSync(folderDstDir, { recursive: true, force: true });
-      }
-    }
-  });
-
-  const usedLangs = new Set<string>();
-  //loop through collections
-  for (const collection of collections!) {
-    const pk = new SABProskomma();
-    const context: ConvertBookContext = {
-      dataDir,
-      scriptureConfig,
-      verbose,
-      lang: collection.languageCode,
-      docSet: collection.languageCode + "_" + collection.id,
-      bcId: collection.id,
-    };
-    let bcGlossary: string[] = [];
-    if (verbose && usedLangs.has(context.lang)) {
-      console.warn(
-        `Language ${context.lang} already used in another collection. Proceeding anyway.`,
-      );
-    }
-    usedLangs.add(context.lang);
-    if (verbose) {
-      console.log("converting collection: " + collection.id + " to docSet: " + context.docSet);
-    }
-    /**array of promises of Proskomma mutations*/
-    const inputFiles = await fs.promises.readdir(path.join(context.dataDir, "books", context.bcId));
-    const docs: Promise<void>[] = [];
-    //loop through books in collection
-    const ignoredBooks = [];
-    // If the collection has a glossary, load it
-    if (scriptureConfig.traits?.["has-glossary"]) {
-      bcGlossary = loadGlossary(collection, dataDir);
-    }
-    //add empty array of quizzes for book collection
-    quizzes[context.docSet] = [];
-    htmlBooks[context.docSet] = [];
-    bloomBooks[context.docSet] = [];
-    if (collection.books.find((b) => b.format === "html")) {
-      const illPath = join("static", "illustrations");
-      createOutputDir(illPath);
-      const collPath = join("static", "collections", collection.id);
-      createOutputDir(collPath);
-    }
-
-    //check if folder exists for collection
-    const collPath = path.join("src/gen-assets", "collections", context.bcId);
-    createOutputDir(collPath);
-
-    for (const book of collection.books) {
-      let bookConverted = false;
-
-      switch (book.type) {
-        case "audio-only":
-        case "undefined":
-          break;
-        case "bloom-player": {
-          bookConverted = true;
-          convertBloomBook(context, book, verbose);
-          displayBookId(context.bcId, book.id);
-
-          bloomBooks[context.docSet].push({ id: book.id, name: book.name });
-          break;
-        }
-        case "quiz":
-          bookConverted = true;
-          quizzes[context.docSet].push({ id: book.id, name: book.name });
-          files.push({
-            path: path.join(
-              "src/gen-assets",
-              "collections",
-              context.bcId,
-              "quizzes",
-              book.id + ".json",
-            ),
-            content: JSON.stringify(convertQuizBook(context, book), null, 2),
-          });
-          displayBookId(context.bcId, book.id);
-          break;
-        case "songs":
-        case "story":
-        default:
-          bookConverted = true;
-          if (book.format === "html") {
-            convertHtmlBook(context, book, files);
-            displayBookId(context.bcId, book.id);
-            htmlBooks[context.docSet].push({ id: book.id, name: book.name });
-          } else {
-            convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
-          }
-          if (book.bookTabs) {
-            for (const bookTab of book.bookTabs.tabs) {
-              convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles, bookTab);
-            }
-          }
-          break;
-      }
-      if (!bookConverted) {
-        // report which books were ignored at the end
-        ignoredBooks.push(book.id);
-        continue;
-      }
-    }
-    if (verbose) {
-      console.time("convert " + collection.id);
-    }
-    //wait for documents to finish being added to Proskomma
-    await Promise.all(docs);
-    if (ignoredBooks.length > 0) {
-      process.stdout.write(` -- Not Supported: ${ignoredBooks.join(" ")}`);
-    }
-    process.stdout.write("\n");
-    if (verbose) {
-      console.timeEnd("convert " + collection.id);
-    }
-    //start freezing process and map promise to docSet name
-    const frozen = freeze(pk);
-    freezer.set(context.docSet, frozen[context.docSet]);
-    //start catalog generation process
-    catalogEntries.push(
-      pk.gqlQuery(queries.catalogQuery({ cv: true })).then((j) => {
-        if (j.data.nDocSets > 0) {
-          return j;
+    // copy book-related folder resources
+    ['quiz', 'songs', 'bloom-player'].forEach((folder) => {
+        const folderSrcDir = path.join(dataDir, folder);
+        const folderDstDir = path.join(
+            folder === 'bloom-player'
+                ? path.join('static', 'bloom-player')
+                : path.join('src', 'gen-assets'),
+            folder
+        );
+        if (fs.existsSync(folderSrcDir)) {
+            fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
-          if (verbose) {
-            console.log(` -- Empty DocSet: ${context.docSet}`);
-          }
-          // return empty version of appropriate docSet,
-          // as the query failed due to lack of documents.
-          return {
-            data: {
-              nDocSets: 1,
-              nDocuments: 0,
-              docSets: [
-                {
-                  id: context.docSet,
-                  tagsKv: [],
-                  selectors: [
-                    {
-                      key: "lang",
-                      value: context.lang,
-                    },
-                    {
-                      key: "abbr",
-                      value: context.bcId,
-                    },
-                  ],
-                  hasMapping: false,
-                  documents: [],
-                },
-              ],
-            },
-          };
+            if (fs.existsSync(folderDstDir)) {
+                fs.rmSync(folderDstDir, { recursive: true, force: true });
+            }
         }
-      }),
-    );
-    //add quizzes path if necessary
-    if (quizzes[context.docSet].length > 0) {
-      const qPath = path.join("src/gen-assets", "collections", context.bcId, "quizzes");
-      createOutputDir(qPath);
-    }
-  }
-  //write catalog entries
-  const entries = await Promise.all(catalogEntries);
-  const catalogPath = path.join("src/gen-assets", "collections", "catalog");
-  createOutputDir(catalogPath);
-  entries.forEach((entry) => {
-    fs.writeFileSync(
-      path.join(catalogPath, entry.data.docSets[0].id + ".json"),
-      JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks, bloomBooks)),
-    );
-  });
-  if (verbose) {
-    console.time("freeze");
-  }
-  //write frozen archives for import
-  //const vals = await Promise.all(freezer.values());
-  //write frozen archives
-
-  //push files to be written to files array
-  freezer.forEach((value, key) => {
-    files.push({
-      path: path.join("src/gen-assets", "collections", key + ".pkf"),
-      content: value || "",
     });
-  });
 
-  //write index file
-  fs.writeFileSync(
-    path.join("src/gen-assets", "collections", "index.json"),
-    `[${(() => {
-      //export collection names as array
-      let s = "";
-      let i = 0;
-      for (const k of freezer.keys()) {
-        s += '"' + k + '"' + (i + 1 < freezer.size ? ", " : "");
-        i++;
-      }
-      return s;
-    })()}]`,
-  );
-  if (verbose) {
-    console.timeEnd("freeze");
-  }
-  return {
-    files,
-    taskName: "ConvertBooks",
-  };
+    const usedLangs = new Set<string>();
+    //loop through collections
+    for (const collection of collections!) {
+        const pk = new SABProskomma();
+        const context: ConvertBookContext = {
+            dataDir,
+            scriptureConfig,
+            verbose,
+            lang: collection.languageCode,
+            docSet: collection.languageCode + '_' + collection.id,
+            bcId: collection.id
+        };
+        let bcGlossary: string[] = [];
+        if (verbose && usedLangs.has(context.lang)) {
+            console.warn(
+                `Language ${context.lang} already used in another collection. Proceeding anyway.`
+            );
+        }
+        usedLangs.add(context.lang);
+        if (verbose) {
+            console.log(
+                'converting collection: ' + collection.id + ' to docSet: ' + context.docSet
+            );
+        }
+        /**array of promises of Proskomma mutations*/
+        const inputFiles = await fs.promises.readdir(
+            path.join(context.dataDir, 'books', context.bcId)
+        );
+        const docs: Promise<void>[] = [];
+        //loop through books in collection
+        const ignoredBooks = [];
+        // If the collection has a glossary, load it
+        if (scriptureConfig.traits?.['has-glossary']) {
+            bcGlossary = loadGlossary(collection, dataDir);
+        }
+        //add empty array of quizzes for book collection
+        quizzes[context.docSet] = [];
+        htmlBooks[context.docSet] = [];
+        bloomBooks[context.docSet] = [];
+        if (collection.books.find((b) => b.format === 'html')) {
+            const illPath = join('static', 'illustrations');
+            createOutputDir(illPath);
+            const collPath = join('static', 'collections', collection.id);
+            createOutputDir(collPath);
+        }
+
+        //check if folder exists for collection
+        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
+        createOutputDir(collPath);
+
+        for (const book of collection.books) {
+            let bookConverted = false;
+
+            switch (book.type) {
+                case 'audio-only':
+                case 'undefined':
+                    break;
+                case 'bloom-player': {
+                    bookConverted = true;
+                    convertBloomBook(context, book, verbose);
+                    displayBookId(context.bcId, book.id);
+
+                    bloomBooks[context.docSet].push({ id: book.id, name: book.name });
+                    break;
+                }
+                case 'quiz':
+                    bookConverted = true;
+                    quizzes[context.docSet].push({ id: book.id, name: book.name });
+                    files.push({
+                        path: path.join(
+                            'src/gen-assets',
+                            'collections',
+                            context.bcId,
+                            'quizzes',
+                            book.id + '.json'
+                        ),
+                        content: JSON.stringify(convertQuizBook(context, book), null, 2)
+                    });
+                    displayBookId(context.bcId, book.id);
+                    break;
+                case 'songs':
+                case 'story':
+                default:
+                    bookConverted = true;
+                    if (book.format === 'html') {
+                        convertHtmlBook(context, book, files);
+                        displayBookId(context.bcId, book.id);
+                        htmlBooks[context.docSet].push({ id: book.id, name: book.name });
+                    } else {
+                        convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
+                    }
+                    if (book.bookTabs) {
+                        for (const bookTab of book.bookTabs.tabs) {
+                            convertScriptureBook(
+                                pk,
+                                context,
+                                book,
+                                bcGlossary,
+                                docs,
+                                inputFiles,
+                                bookTab
+                            );
+                        }
+                    }
+                    break;
+            }
+            if (!bookConverted) {
+                // report which books were ignored at the end
+                ignoredBooks.push(book.id);
+                continue;
+            }
+        }
+        if (verbose) {
+            console.time('convert ' + collection.id);
+        }
+        //wait for documents to finish being added to Proskomma
+        await Promise.all(docs);
+        if (ignoredBooks.length > 0) {
+            process.stdout.write(` -- Not Supported: ${ignoredBooks.join(' ')}`);
+        }
+        process.stdout.write('\n');
+        if (verbose) {
+            console.timeEnd('convert ' + collection.id);
+        }
+        //start freezing process and map promise to docSet name
+        const frozen = freeze(pk);
+        freezer.set(context.docSet, frozen[context.docSet]);
+        //start catalog generation process
+        catalogEntries.push(
+            pk.gqlQuery(queries.catalogQuery({ cv: true })).then((j) => {
+                if (j.data.nDocSets > 0) {
+                    return j;
+                } else {
+                    if (verbose) {
+                        console.log(` -- Empty DocSet: ${context.docSet}`);
+                    }
+                    // return empty version of appropriate docSet,
+                    // as the query failed due to lack of documents.
+                    return {
+                        data: {
+                            nDocSets: 1,
+                            nDocuments: 0,
+                            docSets: [
+                                {
+                                    id: context.docSet,
+                                    tagsKv: [],
+                                    selectors: [
+                                        {
+                                            key: 'lang',
+                                            value: context.lang
+                                        },
+                                        {
+                                            key: 'abbr',
+                                            value: context.bcId
+                                        }
+                                    ],
+                                    hasMapping: false,
+                                    documents: []
+                                }
+                            ]
+                        }
+                    };
+                }
+            })
+        );
+        //add quizzes path if necessary
+        if (quizzes[context.docSet].length > 0) {
+            const qPath = path.join('src/gen-assets', 'collections', context.bcId, 'quizzes');
+            createOutputDir(qPath);
+        }
+    }
+    //write catalog entries
+    const entries = await Promise.all(catalogEntries);
+    const catalogPath = path.join('src/gen-assets', 'collections', 'catalog');
+    createOutputDir(catalogPath);
+    entries.forEach((entry) => {
+        fs.writeFileSync(
+            path.join(catalogPath, entry.data.docSets[0].id + '.json'),
+            JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks, bloomBooks))
+        );
+    });
+    if (verbose) {
+        console.time('freeze');
+    }
+    //write frozen archives for import
+    //const vals = await Promise.all(freezer.values());
+    //write frozen archives
+
+    //push files to be written to files array
+    freezer.forEach((value, key) => {
+        files.push({
+            path: path.join('src/gen-assets', 'collections', key + '.pkf'),
+            content: value || ''
+        });
+    });
+
+    //write index file
+    fs.writeFileSync(
+        path.join('src/gen-assets', 'collections', 'index.json'),
+        `[${(() => {
+            //export collection names as array
+            let s = '';
+            let i = 0;
+            for (const k of freezer.keys()) {
+                s += '"' + k + '"' + (i + 1 < freezer.size ? ', ' : '');
+                i++;
+            }
+            return s;
+        })()}]`
+    );
+    if (verbose) {
+        console.timeEnd('freeze');
+    }
+    return {
+        files,
+        taskName: 'ConvertBooks'
+    };
 }
 
 function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: any[]) {
-  const srcFile = path.join(context.dataDir, "books", context.bcId, book.file);
+    const srcFile = path.join(context.dataDir, 'books', context.bcId, book.file);
 
-  let content = fs.readFileSync(srcFile, "utf-8");
-  const before = getHashedNameFromContents(content, book.file);
-  content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id, context);
-  // file name already in config from before filtration
-  // don't want to modify config to account for filtration
-  files.push({
-    path: path.join("static", "collections", context.bcId, before),
-    content,
-  });
+    let content = fs.readFileSync(srcFile, 'utf-8');
+    const before = getHashedNameFromContents(content, book.file);
+    content = applyFilters(content, htmlFilterFunctions, context.bcId, book.id, context);
+    // file name already in config from before filtration
+    // don't want to modify config to account for filtration
+    files.push({
+        path: path.join('static', 'collections', context.bcId, before),
+        content
+    });
 }
 
 function convertBloomBook(context: ConvertBookContext, book: BookConfig, verbose: number) {
-  const collectionDir = path.join("static", "collections", context.bcId);
-  if (fs.existsSync(collectionDir)) {
-    for (const entry of fs.readdirSync(collectionDir, { withFileTypes: true })) {
-      if (entry.isDirectory() && (entry.name === book.id || entry.name.startsWith(`${book.id}.`))) {
-        fs.rmSync(path.join(collectionDir, entry.name), { recursive: true, force: true });
-      }
+    const collectionDir = path.join('static', 'collections', context.bcId);
+    if (fs.existsSync(collectionDir)) {
+        for (const entry of fs.readdirSync(collectionDir, { withFileTypes: true })) {
+            if (
+                entry.isDirectory() &&
+                (entry.name === book.id || entry.name.startsWith(`${book.id}.`))
+            ) {
+                fs.rmSync(path.join(collectionDir, entry.name), { recursive: true, force: true });
+            }
+        }
     }
-  }
 
-  const srcDir = path.join(context.dataDir, "books", context.bcId, book.id);
-  const destDir = path.join(collectionDir, book.hashedDir ?? book.id);
-  if (!fs.existsSync(srcDir)) {
-    console.warn(`Could not locate ${srcDir}`);
-    return;
-  }
+    const srcDir = path.join(context.dataDir, 'books', context.bcId, book.id);
+    const destDir = path.join(collectionDir, book.hashedDir ?? book.id);
+    if (!fs.existsSync(srcDir)) {
+        console.warn(`Could not locate ${srcDir}`);
+        return;
+    }
 
-  fs.mkdirSync(destDir, { recursive: true });
-  fs.cpSync(srcDir, destDir, { recursive: true });
-  normalizeBloomFileNames(destDir);
-  normalizeBloomRefs(destDir);
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.cpSync(srcDir, destDir, { recursive: true });
+    normalizeBloomFileNames(destDir);
+    normalizeBloomRefs(destDir);
 
-  // if .distribution is missing on the web version it has a console error
-  // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
-  const distPath = path.join(destDir, ".distribution");
-  if (!fs.existsSync(distPath)) {
-    fs.writeFileSync(distPath, "bloom-web");
-  }
+    // if .distribution is missing on the web version it has a console error
+    // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
+    const distPath = path.join(destDir, '.distribution');
+    if (!fs.existsSync(distPath)) {
+        fs.writeFileSync(distPath, 'bloom-web');
+    }
 
-  if (verbose >= 3) {
-    console.log(`Copied bloom book ${book.name} --> ${destDir}`);
-  }
+    if (verbose >= 3) {
+        console.log(`Copied bloom book ${book.name} --> ${destDir}`);
+    }
 }
 
 function normalizeBloomFileNames(dir: string) {
-  // This function insures that if a unicode character is not in the filename
-  const names = fs.readdirSync(dir);
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const nfcName = entry.name.normalize("NFC");
-    let entryPath = path.join(dir, entry.name);
-    if (nfcName !== entry.name) {
-      if (names.includes(nfcName)) {
-        console.warn(`Cannot normalize ${entryPath}: ${nfcName} already exists`);
-      } else {
-        const nfcPath = path.join(dir, nfcName);
-        fs.renameSync(entryPath, nfcPath);
-        entryPath = nfcPath;
-      }
+    // This function insures that if a unicode character is not in the filename
+    const names = fs.readdirSync(dir);
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const nfcName = entry.name.normalize('NFC');
+        let entryPath = path.join(dir, entry.name);
+        if (nfcName !== entry.name) {
+            if (names.includes(nfcName)) {
+                console.warn(`Cannot normalize ${entryPath}: ${nfcName} already exists`);
+            } else {
+                const nfcPath = path.join(dir, nfcName);
+                fs.renameSync(entryPath, nfcPath);
+                entryPath = nfcPath;
+            }
+        }
+        if (entry.isDirectory()) {
+            normalizeBloomFileNames(entryPath);
+        }
     }
-    if (entry.isDirectory()) {
-      normalizeBloomFileNames(entryPath);
-    }
-  }
 }
 
 const BLOOM_REF_REGEXES: RegExp[] = [
-  /(\b(?:src|href|data-backgroundaudio)\s*=\s*)(["'])([^"']*)\2/gi,
-  /(url\(\s*)(["']?)([^"')]*)\2/gi,
+    /(\b(?:src|href|data-backgroundaudio)\s*=\s*)(["'])([^"']*)\2/gi,
+    /(url\(\s*)(["']?)([^"')]*)\2/gi
 ];
 
 function normalizeBloomRef(value: string): string {
-  if (!/[\u0080-￿]|%[89A-F][0-9A-F]/i.test(value)) {
-    return value;
-  }
-  let decoded = value;
-  try {
-    decoded = decodeURIComponent(value);
-  } catch {
-    return value.normalize("NFC");
-  }
-  const normalized = decoded.normalize("NFC");
-  if (normalized === decoded) {
-    return value;
-  }
-  return decoded === value ? normalized : encodeURI(normalized);
+    if (!/[\u0080-￿]|%[89A-F][0-9A-F]/i.test(value)) {
+        return value;
+    }
+    let decoded = value;
+    try {
+        decoded = decodeURIComponent(value);
+    } catch {
+        return value.normalize('NFC');
+    }
+    const normalized = decoded.normalize('NFC');
+    if (normalized === decoded) {
+        return value;
+    }
+    return decoded === value ? normalized : encodeURI(normalized);
 }
 
 function normalizeBloomRefs(dir: string) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const entryPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      normalizeBloomRefs(entryPath);
-      continue;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            normalizeBloomRefs(entryPath);
+            continue;
+        }
+        if (!['.htm', '.html', '.css'].includes(path.extname(entry.name).toLowerCase())) {
+            continue;
+        }
+        const content = fs.readFileSync(entryPath, 'utf-8');
+        let updated = content;
+        for (const regex of BLOOM_REF_REGEXES) {
+            updated = updated.replace(
+                regex,
+                (_match, prefix, quote, value) =>
+                    `${prefix}${quote}${normalizeBloomRef(value)}${quote}`
+            );
+        }
+        if (updated !== content) {
+            fs.writeFileSync(entryPath, updated);
+        }
     }
-    if (![".htm", ".html", ".css"].includes(path.extname(entry.name).toLowerCase())) {
-      continue;
-    }
-    const content = fs.readFileSync(entryPath, "utf-8");
-    let updated = content;
-    for (const regex of BLOOM_REF_REGEXES) {
-      updated = updated.replace(
-        regex,
-        (_match, prefix, quote, value) => `${prefix}${quote}${normalizeBloomRef(value)}${quote}`,
-      );
-    }
-    if (updated !== content) {
-      fs.writeFileSync(entryPath, updated);
-    }
-  }
 }
 
 function convertQuizBook(context: ConvertBookContext, book: BookConfig): Quiz {
-  if (context.verbose) {
-    console.log("Converting QuizBook:", book.id);
-  }
-  const quizSFM = fs.readFileSync(
-    path.join(context.dataDir, "books", context.bcId, book.file),
-    "utf8",
-  );
-  const quiz: Quiz = {
-    id: quizSFM.match(/\\id ([^\\\r\n]+)/i)![1],
-    name: quizSFM.match(/\\qn ([^\\\r\n]+)/i)?.at(1),
-    shortName: quizSFM.match(/\\qs ([^\\\r\n]+)/i)?.at(1),
-    rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map((m) => {
-      return m.match(/\\ra ([^\\\r\n]+)/i)![1];
-    }),
-    wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/gi)?.map((m) => {
-      return m.match(/\\wa ([^\\\r\n]+)/i)![1];
-    }),
-    questions: [], //questions handled below
-    scoreMessageBefore: quizSFM.match(/\\sb ([^\\\r\n]+)/i)?.at(1),
-    scoreMessageAfter: quizSFM.match(/\\sa ([^\\\r\n]+)/i)?.at(1),
-    commentary: quizSFM.match(/\\sc ([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/gi)?.map((m) => {
-      const parsed = m.match(/([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/i)!;
-      return {
-        rangeMin: parseInt(parsed[1]),
-        rangeMax: parsed[2] ? parseInt(parsed[2].replace("-", "")) : parseInt(parsed[1]),
-        message: parsed[3],
-      };
-    }),
-    passScore: quizSFM.match(/\\pm ([0-9]+)/i)?.at(1)
-      ? parseInt(quizSFM.match(/\\pm ([0-9]+)/i)![1])
-      : undefined,
-  };
-  let aCount = 0;
-  let question: QuizQuestion = { text: "", answers: [] };
-  let answer: QuizAnswer = { correct: false };
-  quizSFM.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/gi)?.forEach((m) => {
-    const parsed = m.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/i)!;
-    switch (parsed[1]) {
-      case "qu":
-        if (aCount > 0) {
-          quiz.questions.push(question);
-          question = { text: "", answers: [] };
-          aCount = 0;
-        }
-        if (hasImageExtension(parsed[2])) {
-          question.image = parsed[2];
-        } else if (hasAudioExtension(parsed[2])) {
-          question.audio = parsed[2];
-        } else {
-          question.text = parsed[2];
-        }
-        break;
-      case "ar":
-        if (!hasAudioExtension(parsed[2])) {
-          answer.correct = true;
-        }
-      /**es-lint-ignore-no-fallthrough */
-      case "aw":
-        //answer can have either an image, or text with optional audio
-        if (hasImageExtension(parsed[2])) {
-          answer.image = parsed[2];
-          question.answers.push(answer);
-          answer = { correct: false };
-          aCount++;
-        } else if (hasAudioExtension(parsed[2])) {
-          question.answers[aCount - 1].audio = parsed[2];
-        } else {
-          answer.text = parsed[2];
-          question.answers.push(answer);
-          answer = { correct: false };
-          aCount++;
-        }
-        break;
-      case "ac":
-        question.columns = parseInt(parsed[2]);
-        break;
-      case "ae":
-        {
-          const isAudio = hasAudioExtension(parsed[2]);
-          const hasExplanationsInAnswers = isAudio
-            ? question.answers.some((answer) => answer.explanation?.audio !== undefined)
-            : question.answers.some((answer) => answer.explanation?.text != undefined);
-
-          if (aCount == 0) {
-            // Question-level explanation
-            question.explanation = updateExplanation(question.explanation, parsed[2]);
-          } else {
-            if (aCount == 1 || hasExplanationsInAnswers) {
-              // Answer-specific explanation
-              question.answers[aCount - 1].explanation = updateExplanation(
-                question.answers[aCount - 1].explanation,
-                parsed[2],
-              );
-            } else {
-              // Question-level explanation (same for all answers)
-              question.explanation = updateExplanation(question.explanation, parsed[2]);
-            }
-          }
-        }
-        break;
+    if (context.verbose) {
+        console.log('Converting QuizBook:', book.id);
     }
-  });
-  quiz.questions.push(question);
-  return quiz;
+    const quizSFM = fs.readFileSync(
+        path.join(context.dataDir, 'books', context.bcId, book.file),
+        'utf8'
+    );
+    const quiz: Quiz = {
+        id: quizSFM.match(/\\id ([^\\\r\n]+)/i)![1],
+        name: quizSFM.match(/\\qn ([^\\\r\n]+)/i)?.at(1),
+        shortName: quizSFM.match(/\\qs ([^\\\r\n]+)/i)?.at(1),
+        rightAnswerAudio: quizSFM.match(/\\ra ([^\\\r\n]+)/gi)?.map((m) => {
+            return m.match(/\\ra ([^\\\r\n]+)/i)![1];
+        }),
+        wrongAnswerAudio: quizSFM.match(/\\wa ([^\\\r\n]+)/gi)?.map((m) => {
+            return m.match(/\\wa ([^\\\r\n]+)/i)![1];
+        }),
+        questions: [], //questions handled below
+        scoreMessageBefore: quizSFM.match(/\\sb ([^\\\r\n]+)/i)?.at(1),
+        scoreMessageAfter: quizSFM.match(/\\sa ([^\\\r\n]+)/i)?.at(1),
+        commentary: quizSFM.match(/\\sc ([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/gi)?.map((m) => {
+            const parsed = m.match(/([0-9]+)( *- *[0-9]+)? ([^\\\r\n]+)/i)!;
+            return {
+                rangeMin: parseInt(parsed[1]),
+                rangeMax: parsed[2] ? parseInt(parsed[2].replace('-', '')) : parseInt(parsed[1]),
+                message: parsed[3]
+            };
+        }),
+        passScore: quizSFM.match(/\\pm ([0-9]+)/i)?.at(1)
+            ? parseInt(quizSFM.match(/\\pm ([0-9]+)/i)![1])
+            : undefined
+    };
+    let aCount = 0;
+    let question: QuizQuestion = { text: '', answers: [] };
+    let answer: QuizAnswer = { correct: false };
+    quizSFM.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/gi)?.forEach((m) => {
+        const parsed = m.match(/\\(qu|aw|ar|ae|ac) ([^\\\r\n]+)/i)!;
+        switch (parsed[1]) {
+            case 'qu':
+                if (aCount > 0) {
+                    quiz.questions.push(question);
+                    question = { text: '', answers: [] };
+                    aCount = 0;
+                }
+                if (hasImageExtension(parsed[2])) {
+                    question.image = parsed[2];
+                } else if (hasAudioExtension(parsed[2])) {
+                    question.audio = parsed[2];
+                } else {
+                    question.text = parsed[2];
+                }
+                break;
+            case 'ar':
+                if (!hasAudioExtension(parsed[2])) {
+                    answer.correct = true;
+                }
+            /**es-lint-ignore-no-fallthrough */
+            case 'aw':
+                //answer can have either an image, or text with optional audio
+                if (hasImageExtension(parsed[2])) {
+                    answer.image = parsed[2];
+                    question.answers.push(answer);
+                    answer = { correct: false };
+                    aCount++;
+                } else if (hasAudioExtension(parsed[2])) {
+                    question.answers[aCount - 1].audio = parsed[2];
+                } else {
+                    answer.text = parsed[2];
+                    question.answers.push(answer);
+                    answer = { correct: false };
+                    aCount++;
+                }
+                break;
+            case 'ac':
+                question.columns = parseInt(parsed[2]);
+                break;
+            case 'ae':
+                {
+                    const isAudio = hasAudioExtension(parsed[2]);
+                    const hasExplanationsInAnswers = isAudio
+                        ? question.answers.some((answer) => answer.explanation?.audio !== undefined)
+                        : question.answers.some((answer) => answer.explanation?.text != undefined);
+
+                    if (aCount == 0) {
+                        // Question-level explanation
+                        question.explanation = updateExplanation(question.explanation, parsed[2]);
+                    } else {
+                        if (aCount == 1 || hasExplanationsInAnswers) {
+                            // Answer-specific explanation
+                            question.answers[aCount - 1].explanation = updateExplanation(
+                                question.answers[aCount - 1].explanation,
+                                parsed[2]
+                            );
+                        } else {
+                            // Question-level explanation (same for all answers)
+                            question.explanation = updateExplanation(
+                                question.explanation,
+                                parsed[2]
+                            );
+                        }
+                    }
+                }
+                break;
+        }
+    });
+    quiz.questions.push(question);
+    return quiz;
 }
 
 function updateExplanation(
-  explanation: QuizExplanation | undefined,
-  text: string,
+    explanation: QuizExplanation | undefined,
+    text: string
 ): QuizExplanation {
-  if (!explanation) {
-    explanation = {};
-  }
-  if (hasAudioExtension(text)) {
-    explanation.audio = text;
-  } else {
-    explanation.text = text;
-  }
-  return explanation;
+    if (!explanation) {
+        explanation = {};
+    }
+    if (hasAudioExtension(text)) {
+        explanation.audio = text;
+    } else {
+        explanation.text = text;
+    }
+    return explanation;
 }
 
 function firstFiveLines(text: string): string {
-  const eol = text.includes("\r\n") ? "\r\n" : "\n";
-  return text.split(/\r?\n/).slice(0, 5).join(eol);
+    const eol = text.includes('\r\n') ? '\r\n' : '\n';
+    return text.split(/\r?\n/).slice(0, 5).join(eol);
 }
 
 function convertScriptureBook(
-  pk: SABProskomma,
-  context: ConvertBookContext,
-  book: BookConfig,
-  bcGlossary: string[],
-  docs: Promise<void>[],
-  files: string[],
-  bookTab?: BookTabConfig,
+    pk: SABProskomma,
+    context: ConvertBookContext,
+    book: BookConfig,
+    bcGlossary: string[],
+    docs: Promise<void>[],
+    files: string[],
+    bookTab?: BookTabConfig
 ) {
-  const file = bookTab ? bookTab.file : book.file;
-  const id = bookTab ? book.id + bookTab.bookTabID : book.id; //Book tab ID is derived from the book ID because book tabs don't have distinct IDs.
-  function processBookContent(resolve: () => void, err: any, content: string) {
-    //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
-    if (err) {
-      throw err;
-    }
-
-    content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
-    if (bookTab) {
-      //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
-      const firstLine = content.split(/\r?\n/)[0];
-      const remainingLines = content.slice(content.indexOf("\n"));
-      content =
-        firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +
-        "\n" +
-        remainingLines;
-    }
-    if (context.scriptureConfig.traits?.["has-glossary"]) {
-      content = verifyGlossaryEntries(content, bcGlossary);
-    }
-    if (context.scriptureConfig.mainFeatures["hide-empty-verses"] === true) {
-      content = removeMissingVerses(content, context.bcId, id);
-    }
-    // Cannot use GraphQL mutation asynchronously since content with triple double quotes
-    // in the contents (see Scriptoria project 3949 for an example) will fail to load.
-    if (context.verbose > 10) {
-      const bookFullDir = path.join(context.dataDir, "books-full", context.bcId);
-      const bookPath = path.join(bookFullDir, file);
-      console.log(`Writing file: ${bookPath}`);
-      createOutputDir(bookFullDir);
-      fs.writeFileSync(bookPath, content);
-    }
-    const selectors = { lang: context.lang, abbr: context.bcId };
-    const contentType = "usfm"; //USFM is the only supported content type for now
-    const tags = [`sections:${book.section}`, `testament:${book.testament}`];
-    try {
-      const pkDoc = pk.importDoc(selectors, contentType, content, tags);
-      if (pkDoc) {
-        if (context.verbose) {
-          console.log(
-            context.docSet +
-              " <- " +
-              book.name +
-              ": " +
-              path.join(context.dataDir, "books", context.bcId, file),
-          );
+    const file = bookTab ? bookTab.file : book.file;
+    const id = bookTab ? book.id + bookTab.bookTabID : book.id; //Book tab ID is derived from the book ID because book tabs don't have distinct IDs.
+    function processBookContent(resolve: () => void, err: any, content: string) {
+        //process.stdout.write(`processBookContent: bookId:${book.id}, error:${err}\n`);
+        if (err) {
+            throw err;
         }
-        displayBookId(context.bcId, id);
-      }
-      resolve();
-    } catch (err) {
-      console.log(err);
-      const bookPath = path.join(context.dataDir, "books", context.bcId, file);
-      throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
-    }
-  }
-  //push new Proskomma import to docs array
-  docs.push(
-    new Promise<void>((resolve) => {
-      const bookPath = path.join(context.dataDir, "books", context.bcId, file);
-      //process.stdout.write(`Checking for book: ${bookPath}\n`);
-      if (fs.existsSync(bookPath)) {
-        //read the single usfm file (pre-12.0)
-        fs.readFile(bookPath, "utf8", (err, content) => processBookContent(resolve, err, content));
-      } else {
-        //read multiple files that have been split up (so that portions parameter is processed)
-        const extension = extname(bookPath);
-        const baseFilename = basename(bookPath, extension).normalize("NFC");
 
-        //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
-        const matchingFiles = files.filter((file) => {
-          const ext = extname(file);
-          const filenameWithoutExt = basename(file, ext).normalize("NFC");
-
-          // Check if the filename starts with baseFilename
-          if (!filenameWithoutExt.startsWith(baseFilename)) {
-            return false;
-          }
-
-          // Get the part after baseFilename
-          const suffix = filenameWithoutExt.slice(baseFilename.length);
-
-          // Check if it matches `-###` pattern
-          return suffix.startsWith("-") && /^\d{3}$/.test(suffix.slice(1));
-        });
-
-        matchingFiles.sort();
-        //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
-
-        const fileContents: string[] = [];
-        matchingFiles.map((file) => {
-          const filePath = path.join(context.dataDir, "books", context.bcId, file);
-          fileContents.push(fs.readFileSync(filePath, "utf-8"));
-        });
-        // Collect the file contents into a single document
-        let usfm: string;
-
-        if (book.type === "story") {
-          // The first file contains meta-content (id, title, etc)
-          usfm = fileContents[0];
-
-          // Subsequent files represent storybook pages.
-          // SAB deletes the \page tags. Replace them with chapter tags.
-          for (let i = 1; i < fileContents.length; i++) {
-            usfm += `\\c ${i} ${fileContents[i]}`;
-          }
-        } else {
-          usfm = fileContents.join("");
+        content = applyFilters(content, usfmFilterFunctions, context.bcId, id, context);
+        if (bookTab) {
+            //The book tab ID in the sfm file gets cut off, which results in it having the same ID as the book. Generate a new ID based on the book ID and book tab ID.
+            const firstLine = content.split(/\r?\n/)[0];
+            const remainingLines = content.slice(content.indexOf('\n'));
+            content =
+                firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +
+                '\n' +
+                remainingLines;
         }
-        processBookContent(resolve, null, usfm);
-      }
-    }),
-  );
+        if (context.scriptureConfig.traits?.['has-glossary']) {
+            content = verifyGlossaryEntries(content, bcGlossary);
+        }
+        if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
+            content = removeMissingVerses(content, context.bcId, id);
+        }
+        // Cannot use GraphQL mutation asynchronously since content with triple double quotes
+        // in the contents (see Scriptoria project 3949 for an example) will fail to load.
+        if (context.verbose > 10) {
+            const bookFullDir = path.join(context.dataDir, 'books-full', context.bcId);
+            const bookPath = path.join(bookFullDir, file);
+            console.log(`Writing file: ${bookPath}`);
+            createOutputDir(bookFullDir);
+            fs.writeFileSync(bookPath, content);
+        }
+        const selectors = { lang: context.lang, abbr: context.bcId };
+        const contentType = 'usfm'; //USFM is the only supported content type for now
+        const tags = [`sections:${book.section}`, `testament:${book.testament}`];
+        try {
+            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
+            if (pkDoc) {
+                if (context.verbose) {
+                    console.log(
+                        context.docSet +
+                            ' <- ' +
+                            book.name +
+                            ': ' +
+                            path.join(context.dataDir, 'books', context.bcId, file)
+                    );
+                }
+                displayBookId(context.bcId, id);
+            }
+            resolve();
+        } catch (err) {
+            console.log(err);
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, file);
+            throw Error(`Adding document, likely not USFM? : ${bookPath}\n${JSON.stringify(err)}`);
+        }
+    }
+    //push new Proskomma import to docs array
+    docs.push(
+        new Promise<void>((resolve) => {
+            const bookPath = path.join(context.dataDir, 'books', context.bcId, file);
+            //process.stdout.write(`Checking for book: ${bookPath}\n`);
+            if (fs.existsSync(bookPath)) {
+                //read the single usfm file (pre-12.0)
+                fs.readFile(bookPath, 'utf8', (err, content) =>
+                    processBookContent(resolve, err, content)
+                );
+            } else {
+                //read multiple files that have been split up (so that portions parameter is processed)
+                const extension = extname(bookPath);
+                const baseFilename = basename(bookPath, extension).normalize('NFC');
+
+                //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
+                const matchingFiles = files.filter((file) => {
+                    const ext = extname(file);
+                    const filenameWithoutExt = basename(file, ext).normalize('NFC');
+
+                    // Check if the filename starts with baseFilename
+                    if (!filenameWithoutExt.startsWith(baseFilename)) {
+                        return false;
+                    }
+
+                    // Get the part after baseFilename
+                    const suffix = filenameWithoutExt.slice(baseFilename.length);
+
+                    // Check if it matches `-###` pattern
+                    return suffix.startsWith('-') && /^\d{3}$/.test(suffix.slice(1));
+                });
+
+                matchingFiles.sort();
+                //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
+
+                const fileContents: string[] = [];
+                matchingFiles.map((file) => {
+                    const filePath = path.join(context.dataDir, 'books', context.bcId, file);
+                    fileContents.push(fs.readFileSync(filePath, 'utf-8'));
+                });
+                // Collect the file contents into a single document
+                let usfm: string;
+
+                if (book.type === 'story') {
+                    // The first file contains meta-content (id, title, etc)
+                    usfm = fileContents[0];
+
+                    // Subsequent files represent storybook pages.
+                    // SAB deletes the \page tags. Replace them with chapter tags.
+                    for (let i = 1; i < fileContents.length; i++) {
+                        usfm += `\\c ${i} ${fileContents[i]}`;
+                    }
+                } else {
+                    usfm = fileContents.join('');
+                }
+                processBookContent(resolve, null, usfm);
+            }
+        })
+    );
 }
 
 export interface BooksTaskOutput extends TaskOutput {
-  taskName: "ConvertBooks";
+    taskName: 'ConvertBooks';
 }
 /**
  * Internally calls convertBooks, which
@@ -1049,68 +1070,68 @@ export interface BooksTaskOutput extends TaskOutput {
  * to an associated pkf (ProsKomma Freeze) file to be thawed later in src/routes/data/proskomma.js
  */
 export class ConvertBooks extends Task {
-  public triggerFiles: string[] = ["books", "quiz", "songs", "appdef.xml"];
+    public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
 
-  public static lastBookCollections: ScriptureConfig["bookCollections"];
+    public static lastBookCollections: ScriptureConfig['bookCollections'];
 
-  constructor(dataDir: string) {
-    super(dataDir);
-  }
-  public run(
-    verbose: number,
-    outputs: Map<string, TaskOutput>,
-    modifiedPaths: string[],
-  ): Promisable<BooksTaskOutput> {
-    const config = outputs.get("ConvertConfig") as ConfigTaskOutput;
-    const scriptureConfig = config.data as ScriptureConfig;
-    // runs step only if necessary, as the step is fairly expensive
-    if (
-      !modifiedPaths.some((p) => p.startsWith("books")) &&
-      deepCompareObjects(
-        ConvertBooks.lastBookCollections,
-        scriptureConfig.bookCollections,
-        new Set(["id", "books", "languageCode"]),
-      )
-    ) {
-      return {
-        taskName: "ConvertBooks",
-        files: [],
-      };
+    constructor(dataDir: string) {
+        super(dataDir);
     }
+    public run(
+        verbose: number,
+        outputs: Map<string, TaskOutput>,
+        modifiedPaths: string[]
+    ): Promisable<BooksTaskOutput> {
+        const config = outputs.get('ConvertConfig') as ConfigTaskOutput;
+        const scriptureConfig = config.data as ScriptureConfig;
+        // runs step only if necessary, as the step is fairly expensive
+        if (
+            !modifiedPaths.some((p) => p.startsWith('books')) &&
+            deepCompareObjects(
+                ConvertBooks.lastBookCollections,
+                scriptureConfig.bookCollections,
+                new Set(['id', 'books', 'languageCode'])
+            )
+        ) {
+            return {
+                taskName: 'ConvertBooks',
+                files: []
+            };
+        }
 
-    const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
-    ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
-    return ret;
-  }
+        const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
+        ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
+        return ret;
+    }
 }
 /**
  * recursively deep-compares two objects based on properties passed in include.
  */
 function deepCompareObjects(obj1: any, obj2: any, include: Set<string> = new Set()): boolean {
-  if (typeof obj1 !== typeof obj2) {
-    return false;
-  }
-  if (typeof obj1 === "object") {
-    if (Array.isArray(obj1)) {
-      if (obj1.length !== obj2.length) {
+    if (typeof obj1 !== typeof obj2) {
         return false;
-      }
-      for (let i = 0; i < obj1.length; i++) {
-        if (!deepCompareObjects(obj1[i], obj2[i])) {
-          return false;
-        }
-      }
-    } else {
-      for (const k in obj1) {
-        if (include.has(k)) {
-          if (!deepCompareObjects(obj1[k], obj2[k])) {
-            return false;
-          }
-        }
-      }
     }
-  } else {
-    return obj1 === obj2;
-  }
-  return true;
+    if (typeof obj1 === 'object') {
+        if (Array.isArray(obj1)) {
+            if (obj1.length !== obj2.length) {
+                return false;
+            }
+            for (let i = 0; i < obj1.length; i++) {
+                if (!deepCompareObjects(obj1[i], obj2[i])) {
+                    return false;
+                }
+            }
+        } else {
+            for (const k in obj1) {
+                if (include.has(k)) {
+                    if (!deepCompareObjects(obj1[k], obj2[k])) {
+                        return false;
+                    }
+                }
+            }
+        }
+    } else {
+        return obj1 === obj2;
+    }
+    return true;
 }
