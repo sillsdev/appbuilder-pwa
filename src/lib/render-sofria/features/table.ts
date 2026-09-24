@@ -13,17 +13,13 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             if (workspace.logSettings.row) {
                 console.log('Start Row %o', context.sequences[0].element);
             }
-            const scope = workspace.scopeManager.getScope('table');
-            if (!scope || !scope.contentRoot) {
+            const scope = workspace.scopeManager.find('table');
+            if (!scope) {
                 const tableElement = workspace.document.createElement('table');
                 tableElement.setAttribute('cellpadding', '5');
-                if (!scope) {
-                    workspace.scopeManager.addScope('table', tableElement);
-                } else {
-                    scope.contentRoot = tableElement;
-                }
+                workspace.scopeManager.push('table', tableElement);
             }
-            workspace.scopeManager.addScope('row', workspace.document.createElement('tr'));
+            workspace.scopeManager.push('row', workspace.document.createElement('tr'));
             addToScratchPad(workspace.scratch, 'table', { colIndex: 0 });
         }
     },
@@ -50,7 +46,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             const tableCellElement = workspace.document.createElement('td');
             tableCellElement.classList.add(`tc${colIndex}`);
 
-            workspace.scopeManager.addScope('wrapper:cell', tableCellElement);
+            workspace.scopeManager.push('wrapper:cell', tableCellElement);
         }
     },
     {

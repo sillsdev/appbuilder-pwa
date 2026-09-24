@@ -244,7 +244,7 @@ LOGGING:
 
         for (const a of actionsDict[eventName] ?? []) {
             if (
-                a.guard?.(environment) ||
+                (!a.default && a.guard?.(environment)) ||
                 (a.default && useDefault && (!a.guard || a.guard(environment)))
             ) {
                 /* console.log(
@@ -255,13 +255,13 @@ LOGGING:
                 ); */
                 // cleanup table scope
                 if (
-                    scopeManager.getScope('table') &&
-                    !scopeManager.getScope('row') &&
+                    scopeManager.find('table') &&
+                    !scopeManager.find('row') &&
                     eventName !== 'startRow'
                 ) {
-                    const scope = scopeManager.removeScope('table');
-                    if (scope?.contentRoot) {
-                        scopeManager.appendInnerContent(scope.contentRoot);
+                    const scope = scopeManager.remove('table');
+                    if (scope?.root) {
+                        scopeManager.appendContent(scope.root);
                     }
                 }
                 a.action(environment);

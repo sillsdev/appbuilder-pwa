@@ -16,7 +16,7 @@ export const sequences = new FeatureSpec([
                     div.setAttribute('data-verse', 'title');
                     div.setAttribute('data-phrase', 'none');
                     div.classList.add('scroll-item');
-                    workspace.scopeManager.addScope('sequence:title', div);
+                    workspace.scopeManager.push('sequence:title', div);
                     break;
                 }
                 case 'heading':
@@ -46,7 +46,7 @@ export const sequences = new FeatureSpec([
             switch (sequenceType) {
                 case 'title': {
                     workspace.textType.pop();
-                    const div = workspace.scopeManager.getScope('sequence:title')?.contentRoot;
+                    const div = workspace.scopeManager.find('sequence:title')?.root;
                     if (div) {
                         div.innerHTML += `<div class="b"></div><div class="b"></div>`;
                         if (workspace.logSettings.sequence) {

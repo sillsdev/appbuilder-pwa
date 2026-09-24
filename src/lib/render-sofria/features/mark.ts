@@ -46,7 +46,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     const chapterNumDiv = workspace.document.createElement('div');
                     chapterNumDiv.innerText = chapterNumText;
                     chapterNumDiv.classList.add('c');
-                    workspace.scopeManager.appendInnerContent(chapterNumDiv, 'document');
+                    workspace.scopeManager.appendContent(chapterNumDiv, 'document');
                 }
             }
         },
@@ -64,7 +64,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
                 }
 
-                const currentParagraph = workspace.scopeManager.getScope('paragraph')?.contentRoot;
+                const currentParagraph = workspace.scopeManager.find('paragraph')?.root;
                 if (currentParagraph) {
                     const chapterNumDiv = workspace.document.createElement('div');
                     chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
@@ -135,7 +135,7 @@ function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
         const spanVsp = workspace.document.createElement('span');
         spanVsp.classList.add('vsp');
         spanVsp.innerText = '\u00A0'; // &nbsp
-        workspace.scopeManager.appendInnerContent(spanV);
-        workspace.scopeManager.appendInnerContent(spanVsp);
+        workspace.scopeManager.appendContent(spanV);
+        workspace.scopeManager.appendContent(spanVsp);
     }
 }

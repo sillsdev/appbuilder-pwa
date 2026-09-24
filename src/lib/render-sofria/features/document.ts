@@ -10,14 +10,15 @@ export const documentFeature = new FeatureSpec([
             baseDiv.setAttribute('data-phrase', 'none');
             // TODO: reset selections
             workspace.root.appendChild(baseDiv);
-            workspace.scopeManager.addScope('document', workspace.root);
+            workspace.scopeManager.push('document', workspace.root);
         }
     },
     {
         event: 'endDocument',
         default: true,
         action({ workspace, output }) {
-            workspace.scopeManager.removeScope('document');
+            console.log([...workspace.scopeManager.stack]);
+            workspace.scopeManager.pop('document');
             // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
         }

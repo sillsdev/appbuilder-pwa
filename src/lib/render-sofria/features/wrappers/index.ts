@@ -1,13 +1,17 @@
-import { FeatureSpec, type RenderEnvironment } from '$lib/render-sofria/common';
-import { isCellWrapper } from '../table';
+import {
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro,
+    type RenderEnvironment
+} from '$lib/render-sofria/common';
 import { usfmType } from './common';
-import { figures, isFigureWrapper } from './figures';
+import { figures } from './figures';
 import { glossary, isGlossaryWrapper } from './glossary';
-import { isJmplinkWrapper, jmplinks } from './jmplinks';
+import { jmplinks } from './jmplinks';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     const type = usfmType(context);
     return (
+        renderIfRegularOrIfHackedIntro(workspace) &&
         !!type &&
         // if glossary words are disabled, render as a normal wrapper with class 'w'
         (!isGlossaryWrapper(type) || !workspace.viewShowGlossaryWords) &&
@@ -37,7 +41,7 @@ export const usfmWrappers = new FeatureSpec([
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
-            workspace.scopeManager.addScope('wrapper', spanElement);
+            workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
         }
     },
     {
@@ -52,7 +56,7 @@ export const usfmWrappers = new FeatureSpec([
             workspace.textType.pop();
             workspace.usfmWrapperType = '';
 
-            workspace.scopeManager.promoteContent('wrapper');
+            workspace.scopeManager.promoteContent(`wrapper:${usfmType(context)}`);
         }
     }
 ]);
