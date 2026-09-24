@@ -99,7 +99,6 @@ LOGGING:
         type Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount, untrack } from 'svelte';
-    import { fromStore } from 'svelte/store';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -178,7 +177,7 @@ LOGGING:
             planDivObserver = null; // Clear the observer reference
         }
         if (planDivInChapter() && !$plan.completed) {
-            const target = document.getElementById('PLAN-next');
+            const target = container?.querySelector('#PLAN-next');
             if (target) {
                 planObservationCompleted = false;
                 planDivObserver = new IntersectionObserver(
@@ -658,7 +657,7 @@ LOGGING:
             return;
         }
         const element = target.textContent;
-        const verseSelection = document.querySelector('[data-verse="' + element + '"]');
+        const verseSelection = container?.querySelector('[data-verse="' + element + '"]');
         const verseId = verseSelection?.getAttribute('id');
         if (verseId) {
             seekToVerse(verseId);
@@ -743,7 +742,7 @@ LOGGING:
     function remoteAudioClipHandler(event: MouseEvent, target: HTMLElement) {
         event.stopPropagation();
         const address = target.getAttribute('filelink');
-        const el = document.querySelector(`audio[id="${address}" ]`);
+        const el = container?.querySelector(`audio[id="${address}" ]`);
         if (el) {
             const urlString = el.getAttribute('src');
             if (urlString) {
@@ -823,7 +822,6 @@ LOGGING:
     function addBookmarkedVerses() {
         bookmarks.then((bookmarks) => {
             for (var j = 0; j < bookmarks.length; j++) {
-                // const bookmarksSpan = document.getElementById('bookmarks' + bookmarks[j].verse);
                 const bookmarksSpan = container?.querySelector(`#bookmarks${bookmarks[j].verse}`);
                 if (!bookmarksSpan) {
                     console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
@@ -1110,7 +1108,7 @@ LOGGING:
         return null; // No matching element found
     }
     function findDataElementForVerse(verse: number, verseRangeSeparator: string) {
-        const elements = document.querySelectorAll('[data-verse][data-phrase="a"]');
+        const elements = container?.querySelectorAll('[data-verse][data-phrase="a"]') ?? [];
 
         for (const element of elements) {
             const verseData = element.getAttribute('data-verse');
@@ -1174,7 +1172,7 @@ LOGGING:
         }
     }
     function addVideos(videos: Videos) {
-        if (videos && container) {
+        if (videos?.length && container) {
             videos.forEach((video, index) => {
                 if (video.placement) {
                     // ref can be MAT 1:1 or MAT.1.1
