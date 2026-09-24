@@ -249,22 +249,12 @@ export function parseItemLink(
     link.linkLocation = linkTags[0]?.attributes.getNamedItem('location')?.value;
 
     if (link.linkType === 'reference') {
-        const preferredCollections = layoutCollection?.length
-            ? scriptureConfig.bookCollections?.filter((collection) =>
-                  layoutCollection.includes(collection.id)
-              )
-            : undefined;
+        // In the native app, app of the books are handled by the BookFragment.
+        // In the PWA, we have different routes for different book types since
+        // Proskomma can only handle USFM and the other book types include non-
+        // standard SFM tags.
 
-        const searchOrder = preferredCollections?.length
-            ? [
-                  ...preferredCollections,
-                  ...(scriptureConfig.bookCollections?.filter(
-                      (collection) => !layoutCollection!.includes(collection.id)
-                  ) ?? [])
-              ]
-            : scriptureConfig.bookCollections;
-
-        searchOrder?.some((collection) => {
+        scriptureConfig.bookCollections?.some((collection) => {
             if (verbose) {
                 console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
             }
