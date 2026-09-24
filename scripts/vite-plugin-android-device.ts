@@ -11,6 +11,12 @@ import type { CLIShortcut, Plugin, PreviewServer, ViteDevServer } from 'vite';
 
 const execFileAsync = promisify(execFile);
 
+// Bounds on each adb call so an unresponsive adb server can't hang the shortcut (vite ignores
+// other shortcuts while one is running) or delay exit. The first call can include adb starting
+// its server, which takes a few seconds; the exit cleanup gets less time since it blocks exit.
+const ADB_TIMEOUT_MS = 15_000;
+const ADB_CLEANUP_TIMEOUT_MS = 3_000;
+
 // adb is looked up in order: the ADB env var, the SDK's platform-tools (ANDROID_HOME, then
 // ANDROID_SDK_ROOT), and finally plain `adb` from PATH.
 function findAdb(): string {
@@ -30,7 +36,7 @@ function findAdb(): string {
 }
 
 async function adb(args: string[]): Promise<string> {
-    const { stdout } = await execFileAsync(findAdb(), args);
+    const { stdout } = await execFileAsync(findAdb(), args, { timeout: ADB_TIMEOUT_MS });
     return stdout.trim();
 }
 
@@ -42,7 +48,10 @@ const reversedPorts = new Set<string>();
 function removeReversedPorts() {
     for (const port of reversedPorts) {
         try {
-            execFileSync(findAdb(), ['reverse', '--remove', `tcp:${port}`], { stdio: 'ignore' });
+            execFileSync(findAdb(), ['reverse', '--remove', `tcp:${port}`], {
+                stdio: 'ignore',
+                timeout: ADB_CLEANUP_TIMEOUT_MS
+            });
         } catch {
             // Nothing to clean up
         }
@@ -76,11 +85,13 @@ async function openOnDevice(server: ViteDevServer | PreviewServer): Promise<void
         await adb(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', url.href]);
         logger.info(`  Opened ${url.href} on Android device`);
     } catch (e) {
-        const err = e as NodeJS.ErrnoException & { stderr?: string };
+        const err = e as NodeJS.ErrnoException & { stderr?: string; killed?: boolean };
         const detail =
             err.code === 'ENOENT'
                 ? `adb not found (tried ${findAdb()}); set ADB or ANDROID_HOME, or add it to PATH`
-                : err.stderr?.trim() || err.message;
+                : err.killed
+                  ? `adb did not respond within ${ADB_TIMEOUT_MS / 1000}s`
+                  : err.stderr?.trim() || err.message;
         logger.error(`  Failed to open on Android device: ${detail}`);
     }
 }
