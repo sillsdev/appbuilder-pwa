@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { ConfigTaskOutput } from 'convertConfig';
-import { isDAB } from '../src/lib/scripts/configUtils';
+import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { createOutputDir, joinUrlPath } from './fileUtils';
 import { compareVersions } from './stringUtils';
 import { Task, TaskOutput } from './Task';
@@ -160,6 +160,10 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
             '.plan-day-box-content { position:absolute; top:50%; left:50%; transform: translate(-50%, -50%); }'
         );
         tempStyles.push('.plan-checkbox-image { display:block; }');
+    }
+
+    if (isSAB(configData.data)) {
+        tempStyles.push("#container.plan-chooser:hover { cursor: pointer; transform: translate(-1px, -1px); }");
     }
 
     if (isDAB(configData.data)) {
