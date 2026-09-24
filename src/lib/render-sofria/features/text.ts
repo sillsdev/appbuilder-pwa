@@ -37,15 +37,15 @@ export const text = new FeatureSpec<
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
-                workspace.scopeManager.addScope('paragraph', paragraphDiv);
+                workspace.scopeManager.addScope('paragraph:main', paragraphDiv);
             } else if (sequenceType === 'introduction') {
                 const introductionDiv = workspace.document.createElement('div');
                 introductionDiv.classList.add(paraClass);
-                workspace.scopeManager.addScope('paragraph', introductionDiv);
+                workspace.scopeManager.addScope('paragraph:introduction', introductionDiv);
             } else if (sequenceType === 'title') {
                 const titleDiv = workspace.document.createElement('div');
                 titleDiv.classList.add(paraClass);
-                workspace.scopeManager.addScope('paragraph', titleDiv);
+                workspace.scopeManager.addScope('paragraph:title', titleDiv);
             } else if (sequenceType === 'heading') {
                 const headerDiv = document.createElement('div');
                 headerDiv.classList.add(paraClass);
@@ -57,7 +57,7 @@ export const text = new FeatureSpec<
                 const count = countSubheadingPrefixes(subheaders, prefix);
 
                 headerDiv.id = prefix + count;
-                workspace.scopeManager.addScope('paragraph', headerDiv);
+                workspace.scopeManager.addScope('paragraph:heading', headerDiv);
             }
         }
     },
@@ -132,15 +132,16 @@ export const text = new FeatureSpec<
             if (workspace.logSettings.paragraph) {
                 console.log('End Paragraph %o %o', sequenceType, context.sequences[0].block);
             }
+            terminatePhrase(workspace);
             if (sequenceType === 'main' && !workspace.hackRenderIntro) {
-                workspace.scopeManager.promoteContent();
+                workspace.scopeManager.promoteContent('paragraph:main');
                 // TODO: videoDiv? verseDiv?
             } else if (sequenceType === 'introduction') {
-                workspace.scopeManager.promoteContent();
+                workspace.scopeManager.promoteContent('paragraph:introduction');
             } else if (sequenceType === 'title') {
-                workspace.scopeManager.promoteContent();
+                workspace.scopeManager.promoteContent('paragraph:title');
             } else if (sequenceType === 'heading') {
-                workspace.scopeManager.promoteContent();
+                workspace.scopeManager.promoteContent('paragraph:heading');
             }
         }
     }
@@ -201,7 +202,7 @@ function addPhrases(workspace: RenderWorkspace, text: string) {
 }
 
 function addTableText(workspace: RenderWorkspace, text: string) {
-    if (workspace.scopeManager.getScope('cell')) {
+    if (workspace.scopeManager.getScope('wrapper:cell')) {
         if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
             const references = text.split('; ');
             for (let i = 0; i < references.length; i++) {
@@ -235,7 +236,6 @@ function addGraftText(
         if (callerRoot && contentRoot && callerRoot.getAttribute('data-graft') === contentRoot.id) {
             if (workspace.textType.includes('note_caller')) {
                 const caller = getFootnoteCallerCharacter(workspace, text, textType);
-                console.log(caller);
                 if (!caller) {
                     // Do not include the footnote
                     workspace.scopeManager.removeScope('inlineGraft:note_caller');
