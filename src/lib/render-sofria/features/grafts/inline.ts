@@ -1,5 +1,10 @@
 import type { RenderElement } from 'proskomma-json-tools';
-import { addToScratchPad, FeatureSpec, type RenderWorkspace } from '../../common';
+import {
+    addToScratchPad,
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro,
+    type RenderWorkspace
+} from '../../common';
 import { renderGraftedSequence, type BlockGraftScratch } from './common';
 
 type InlineGraftScratch = { inlineGraft?: { footnoteIdIndex?: number } };
@@ -8,6 +13,7 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
     {
         event: 'inlineGraft',
         default: true,
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: (environment) => {
             const { context, workspace } = environment;
             const element = context.sequences[0].element;

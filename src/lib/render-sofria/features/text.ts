@@ -193,7 +193,7 @@ function addPhrases(workspace: RenderWorkspace, text: string) {
         const phraseDiv = getPhraseDiv(workspace);
         phraseDiv.innerHTML += phrase;
 
-        if (!phrases.length || phraseTerminated(workspace, phrases[phrases.length - 1])) {
+        if (phrases.length <= 1 || phraseTerminated(workspace, phrases[phrases.length - 1])) {
             workspace.scopeManager.appendInnerContent(phraseDiv);
         } else {
             workspace.scopeManager.addScope('phrase', phraseDiv);
