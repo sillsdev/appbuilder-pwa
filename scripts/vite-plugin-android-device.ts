@@ -69,6 +69,36 @@ function trackReversedPort(port: string) {
     reversedPorts.add(port);
 }
 
+// --no-rebind keeps a mapping owned by another tool (or a manual `adb reverse`) from being
+// replaced here and then removed on exit. It also fails when the existing mapping is identical,
+// so in that case the mapping is reused, but not tracked, since this process didn't create it.
+async function ensureReversed(port: string): Promise<void> {
+    if (reversedPorts.has(port)) {
+        return;
+    }
+    const spec = `tcp:${port}`;
+    try {
+        await adb(['reverse', '--no-rebind', spec, spec]);
+        trackReversedPort(port);
+    } catch (e) {
+        const err = e as { stderr?: string };
+        if (!err.stderr?.includes('cannot rebind')) {
+            throw e;
+        }
+        // Each line of the list is "<transport> <device spec> <local spec>"
+        const existing = (await adb(['reverse', '--list']))
+            .split('\n')
+            .map((line) => line.trim().split(/\s+/))
+            .find((fields) => fields[1] === spec);
+        if (existing?.[2] !== spec) {
+            throw new Error(
+                `${spec} on the device is already forwarded to ${existing?.[2] ?? 'another port'}; ` +
+                    `remove it with \`adb reverse --remove ${spec}\``
+            );
+        }
+    }
+}
+
 async function openOnDevice(server: ViteDevServer | PreviewServer): Promise<void> {
     const logger = server.config.logger;
     const localUrl = server.resolvedUrls?.local[0];
@@ -80,8 +110,7 @@ async function openOnDevice(server: ViteDevServer | PreviewServer): Promise<void
     const port = url.port || (url.protocol === 'https:' ? '443' : '80');
     url.hostname = 'localhost';
     try {
-        await adb(['reverse', `tcp:${port}`, `tcp:${port}`]);
-        trackReversedPort(port);
+        await ensureReversed(port);
         await adb(['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', url.href]);
         logger.info(`  Opened ${url.href} on Android device`);
     } catch (e) {
