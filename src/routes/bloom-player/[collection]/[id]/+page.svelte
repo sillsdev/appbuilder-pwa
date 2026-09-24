@@ -68,7 +68,6 @@
         )
     );
     const lang = $derived(data.book?.resolvedLang ?? data.bookCollection?.languageCode ?? '');
-    console.log(`Lang: ${lang}`);
 </script>
 
 <div class="h-screen">
