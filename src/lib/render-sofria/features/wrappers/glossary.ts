@@ -28,7 +28,7 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add('glossary');
-            workspace.scopeManager.addScope('wrapper', spanElement);
+            workspace.scopeManager.addScope('wrapper:glossary', spanElement);
         }
     },
     {
@@ -43,7 +43,7 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
             workspace.textType.pop();
             workspace.usfmWrapperType = '';
 
-            const wrapper = workspace.scopeManager.removeScope('wrapper');
+            const wrapper = workspace.scopeManager.removeScope('wrapper:glossary');
 
             if (wrapper?.contentRoot) {
                 const aElement = workspace.document.createElement('a');
@@ -56,6 +56,8 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
                 aElement.innerHTML = wrapper.contentRoot.innerHTML;
 
                 wrapper.contentRoot.replaceChildren(aElement);
+
+                workspace.scopeManager.appendInnerContent(wrapper.contentRoot);
             }
 
             addToScratchPad(workspace.scratch, 'wrapper', { lemma: undefined });

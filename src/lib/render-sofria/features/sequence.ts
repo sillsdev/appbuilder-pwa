@@ -16,7 +16,7 @@ export const sequences = new FeatureSpec([
                     div.setAttribute('data-verse', 'title');
                     div.setAttribute('data-phrase', 'none');
                     div.classList.add('scroll-item');
-                    workspace.scopeManager.addScope('sequence', div);
+                    workspace.scopeManager.addScope('sequence:title', div);
                     break;
                 }
                 case 'heading':
@@ -46,14 +46,14 @@ export const sequences = new FeatureSpec([
             switch (sequenceType) {
                 case 'title': {
                     workspace.textType.pop();
-                    const div = workspace.scopeManager.removeScope('sequence')?.contentRoot;
+                    const div = workspace.scopeManager.getScope('sequence:title')?.contentRoot;
                     if (div) {
                         div.innerHTML += `<div class="b"></div><div class="b"></div>`;
                         if (workspace.logSettings.sequence) {
                             console.log('TITLE DIV %o', div);
                         }
-                        workspace.root.append(div);
                     }
+                    workspace.scopeManager.promoteContent('sequence:title');
                     break;
                 }
                 case 'heading':

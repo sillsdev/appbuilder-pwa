@@ -31,7 +31,7 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
 
                 renderGraftedSequence(environment, graftRecord.sequence);
 
-                workspace.scopeManager.promoteContent();
+                workspace.scopeManager.promoteContent(`blockGraft:${currentBlock.subType?.toLowerCase() as Lowercase<string>}`);
             }
 
             if (workspace.logSettings.blockGraft) {

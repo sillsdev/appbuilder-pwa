@@ -60,7 +60,7 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
                     jmpTitle: element.atts['title'][0]
                 });
             }
-            workspace.scopeManager.addScope('wrapper');
+            workspace.scopeManager.addScope('wrapper:jmp');
         }
     },
     {
@@ -71,7 +71,7 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
             workspace.textType.pop();
-            const jmpLink = workspace.scopeManager.removeScope('wrapper');
+            const jmpLink = workspace.scopeManager.removeScope('wrapper:jmp');
             if (jmpLink?.contentRoot) {
                 if (workspace.scratch.wrapper?.jmpTitle) {
                     // must use inline style
