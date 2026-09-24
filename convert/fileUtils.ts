@@ -18,7 +18,7 @@ export function getHashedName(dataDir: string, src: string) {
         if (existsSync(fullPath)) {
             return getHashedNameFromContents(String(readFileSync(fullPath)), src);
         } else {
-            console.warn(`Could not locate ${fullPath}`);
+            console.warn(`Could not locate ${src}`);
             return '';
         }
     } catch (e) {
