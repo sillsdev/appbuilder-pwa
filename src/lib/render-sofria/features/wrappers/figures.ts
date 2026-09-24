@@ -38,7 +38,7 @@ export const figures = new FeatureSpec([
                     srcFromAtts,
                     null
                 );
-                workspace.scopeManager.addScope('wrapper:figure', imageBlockDiv);
+                workspace.scopeManager.push('wrapper:figure', imageBlockDiv);
                 checkImageExists(mappedSource, imageBlockDiv);
             }
         }

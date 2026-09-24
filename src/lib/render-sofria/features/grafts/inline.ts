@@ -36,8 +36,8 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
             if (element.subType === 'xref' || element.subType === 'footnote') {
                 workspace.textType.push('footnote');
                 const [callerRoot, contentRoot] = createFootnoteDiv(workspace, element);
-                workspace.scopeManager.addScope('inlineGraft:note_caller', callerRoot);
-                workspace.scopeManager.addScope('inlineGraft:footnote', contentRoot);
+                workspace.scopeManager.push('inlineGraft:note_caller', callerRoot);
+                workspace.scopeManager.push('inlineGraft:footnote', contentRoot);
             } else if (element.subType === 'note_caller') {
                 workspace.textType.push(element.subType);
             }
@@ -45,21 +45,15 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
             renderGraftedSequence(environment, graftRecord.sequence);
 
             if (element.subType === 'xref' || element.subType === 'footnote') {
-                const callerRoot =
-                    workspace.scopeManager.getScope('inlineGraft:note_caller')?.contentRoot;
-                const contentRoot =
-                    workspace.scopeManager.removeScope('inlineGraft:footnote')?.contentRoot;
-                if (
-                    callerRoot &&
-                    contentRoot &&
-                    callerRoot.getAttribute('data-graft') === contentRoot.id
-                ) {
-                    workspace.scopeManager.removeScope('inlineGraft:note_caller');
+                const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
+                const contentRoot = workspace.scopeManager.pop('inlineGraft:footnote').root;
+                if (callerRoot?.getAttribute('data-graft') === contentRoot.id) {
+                    workspace.scopeManager.pop('inlineGraft:note_caller');
                     callerRoot.appendChild(contentRoot);
-                    workspace.scopeManager.appendInnerContent(callerRoot);
+                    workspace.scopeManager.appendContent(callerRoot);
                     // Add space after footnote if there are multiple footnotes.
                     // TODO: How do we tell there are multiple???
-                    workspace.scopeManager.appendInnerContent(
+                    workspace.scopeManager.appendContent(
                         workspace.document.createTextNode('\u00A0')
                     );
                 }

@@ -38,10 +38,10 @@ export const chapterVerses = new FeatureSpec([
             if (workspace.verseLayout === 'one-per-lin') {
                 const verseDiv = workspace.document.createElement('div');
                 verseDiv.classList.add('verse-block');
-                workspace.scopeManager.addScope('verses', verseDiv);
+                workspace.scopeManager.push('verses', verseDiv);
             }
             if (workspace.logSettings.verses) {
-                console.log('IN: %o', workspace.scopeManager.getScope('paragraph')?.contentRoot);
+                console.log('IN: %o', workspace.scopeManager.find('paragraph')?.root);
             }
         }
     },
@@ -56,9 +56,9 @@ export const chapterVerses = new FeatureSpec([
             workspace.currentTextPosition.verse = 'none';
 
             if (workspace.verseLayout === 'one-per-lin') {
-                const verseDiv = workspace.scopeManager.getScope('verses')?.contentRoot;
+                const verseDiv = workspace.scopeManager.find('verses')?.root;
                 if (verseDiv) {
-                    workspace.scopeManager.appendInnerContent(verseDiv, 'paragraph');
+                    workspace.scopeManager.appendContent(verseDiv, 'paragraph');
                 }
             }
 

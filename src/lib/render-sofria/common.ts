@@ -24,7 +24,7 @@ export type RenderScopeLevel =
     | Lowercase<(typeof boundedScopes)[number]>
     | (typeof independentScopes | typeof additionalScopes)[number];
 
-export type RenderScopeWithSubType = RenderScopeLevel | `${RenderScopeLevel}:${Lowercase<string>}`;
+export type RenderScopeWithSubType = RenderScopeLevel | `${RenderScopeLevel}:${string}`;
 
 export enum RenderEventPosition {
     scopeStart,
@@ -57,16 +57,16 @@ export class RenderEventDescriptor {
 }
 
 export class RenderScope {
-    constructor(doc: Document, level: RenderScopeWithSubType, contentRoot?: HTMLElement) {
+    constructor(doc: Document, level: RenderScopeWithSubType, root: HTMLElement) {
         const parts = level.split(':');
         this.level = parts[0] as RenderScopeLevel;
         this.subType = parts[1];
-        this.contentRoot = contentRoot;
+        this.root = root;
     }
 
     level: RenderScopeLevel;
     subType?: string;
-    contentRoot?: HTMLElement;
+    root: HTMLElement;
 
     match(level: RenderScopeWithSubType) {
         const parts = level.split(':');
@@ -171,8 +171,8 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
  * 3. Proskomma has encountered a title block graft and we are rendering the introduction instead of chapter 1.
  */
 export function renderIfRegularOrIfHackedIntro(workspace: RenderWorkspace) {
-    const hasIntroductionGraft = !!workspace.scopeManager.getScope('blockGraft:introduction');
-    const hasTitleGraft = !!workspace.scopeManager.getScope('blockGraft:title');
+    const hasIntroductionGraft = !!workspace.scopeManager.find('blockGraft:introduction');
+    const hasTitleGraft = !!workspace.scopeManager.find('blockGraft:title');
     return (
         hasIntroductionGraft === workspace.hackRenderIntro ||
         (hasTitleGraft && workspace.hackRenderIntro)

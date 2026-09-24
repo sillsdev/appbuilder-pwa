@@ -18,7 +18,7 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
             let jmpLink: HTMLElement;
 
             workspace.textType.push('jmp');
-            let href = element.atts['href'][0] ?? '';
+            let href = element.atts['href']?.[0] ?? '';
             try {
                 href = decodeURIComponent(href);
             } catch {
@@ -50,17 +50,22 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
                     }
                     jmpLink.addEventListener('click', (e) => e.stopPropagation());
                 }
+            } else {
+                jmpLink = workspace.document.createElement('span');
             }
+
+            let jmpTitle = element.atts['title']?.[0] ?? '';
             try {
-                addToScratchPad(workspace.scratch, 'wrapper', {
-                    jmpTitle: decodeURIComponent(element.atts['title'][0])
-                });
+                jmpTitle = decodeURIComponent(jmpTitle);
             } catch {
-                addToScratchPad(workspace.scratch, 'wrapper', {
-                    jmpTitle: element.atts['title'][0]
-                });
+                // empty
             }
-            workspace.scopeManager.addScope('wrapper:jmp');
+
+            jmpLink.style.display = 'inline';
+            jmpLink.classList.add('dy-tooltip');
+            jmpLink.setAttribute('data-tip', jmpTitle);
+
+            workspace.scopeManager.push('wrapper:jmp', jmpLink);
         }
     },
     {
@@ -71,23 +76,9 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
             workspace.textType.pop();
-            const jmpLink = workspace.scopeManager.removeScope('wrapper:jmp');
-            if (jmpLink?.contentRoot) {
-                if (workspace.scratch.wrapper?.jmpTitle) {
-                    // must use inline style
-                    const tip = document.createElement('span');
-                    tip.style.display = 'inline';
-                    tip.classList.add('dy-tooltip');
-                    tip.setAttribute('data-tip', workspace.scratch.wrapper.jmpTitle);
-                    tip.appendChild(jmpLink.contentRoot);
-                    workspace.scopeManager.appendInnerContent(tip);
-                } else {
-                    workspace.scopeManager.appendInnerContent(jmpLink.contentRoot);
-                }
-            }
-            addToScratchPad(workspace.scratch, 'wrapper', {
-                jmpTitle: undefined
-            });
+            workspace.scopeManager.promoteContent('wrapper:jmp');
+
+            // TODO add link behavior
         }
     }
 ]);

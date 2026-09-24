@@ -37,15 +37,15 @@ export const text = new FeatureSpec<
                     paragraphDiv.innerHTML += '&nbsp;';
                 }
 
-                workspace.scopeManager.addScope('paragraph:main', paragraphDiv);
+                workspace.scopeManager.push('paragraph:main', paragraphDiv);
             } else if (sequenceType === 'introduction') {
                 const introductionDiv = workspace.document.createElement('div');
                 introductionDiv.classList.add(paraClass);
-                workspace.scopeManager.addScope('paragraph:introduction', introductionDiv);
+                workspace.scopeManager.push('paragraph:introduction', introductionDiv);
             } else if (sequenceType === 'title') {
                 const titleDiv = workspace.document.createElement('div');
                 titleDiv.classList.add(paraClass);
-                workspace.scopeManager.addScope('paragraph:title', titleDiv);
+                workspace.scopeManager.push('paragraph:title', titleDiv);
             } else if (sequenceType === 'heading') {
                 const headerDiv = document.createElement('div');
                 headerDiv.classList.add(paraClass);
@@ -57,7 +57,7 @@ export const text = new FeatureSpec<
                 const count = countSubheadingPrefixes(subheaders, prefix);
 
                 headerDiv.id = prefix + count;
-                workspace.scopeManager.addScope('paragraph:heading', headerDiv);
+                workspace.scopeManager.push('paragraph:heading', headerDiv);
             }
         }
     },
@@ -91,7 +91,7 @@ export const text = new FeatureSpec<
                 const refText = generateHTML(text, 'header-ref');
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain workspace.references inline
-                const headerDiv = workspace.scopeManager.getScope('paragraph')?.contentRoot;
+                const headerDiv = workspace.scopeManager.find('paragraph')?.root;
                 if (headerDiv) {
                     headerDiv.innerHTML += refText;
                 }
@@ -100,7 +100,7 @@ export const text = new FeatureSpec<
                 // see https://github.com/Proskomma/proskomma-json-tools/issues/63
                 if (text !== 'NO_CAPTION') {
                     const divFigureText = createIllustrationCaptionBlock(text);
-                    workspace.scopeManager.appendInnerContent(divFigureText, 'wrapper:figure');
+                    workspace.scopeManager.appendContent(divFigureText, 'wrapper:figure');
                 }
             } else if (subType === 'usfm:x') {
                 addGraftText(workspace, text, 'xref', 'usfm:x');
@@ -115,7 +115,7 @@ export const text = new FeatureSpec<
                 spanV.innerHTML = refText;
                 const phraseDiv = getPhraseDiv(workspace);
                 phraseDiv.appendChild(spanV);
-                workspace.scopeManager.addScope('phrase', phraseDiv);
+                workspace.scopeManager.push('phrase', phraseDiv);
             }
             // title, heading without cross-ref, jmp, audioc, reflink, intro paras, and everything else
             else {
@@ -155,7 +155,7 @@ function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
 }
 
 function getPhraseDiv(workspace: RenderWorkspace) {
-    const previousPhrase = workspace.scopeManager.removeScope('phrase')?.contentRoot;
+    const previousPhrase = workspace.scopeManager.remove('phrase')?.root;
     const phraseDiv = previousPhrase ?? workspace.document.createElement('div');
     if (!previousPhrase) {
         const phraseIndex = createLetterIndex(workspace.currentTextPosition.phraseIndex ?? 0);
@@ -181,9 +181,9 @@ function getPhraseDiv(workspace: RenderWorkspace) {
 }
 
 export function terminatePhrase(workspace: RenderWorkspace) {
-    const previousPhrase = workspace.scopeManager.removeScope('phrase')?.contentRoot;
+    const previousPhrase = workspace.scopeManager.remove('phrase')?.root;
     if (previousPhrase?.innerHTML) {
-        workspace.scopeManager.appendInnerContent(previousPhrase);
+        workspace.scopeManager.appendContent(previousPhrase);
     }
 }
 
@@ -194,15 +194,15 @@ function addPhrases(workspace: RenderWorkspace, text: string) {
         phraseDiv.innerHTML += phrase;
 
         if (phrases.length <= 1 || phraseTerminated(workspace, phrases[phrases.length - 1])) {
-            workspace.scopeManager.appendInnerContent(phraseDiv);
+            workspace.scopeManager.appendContent(phraseDiv);
         } else {
-            workspace.scopeManager.addScope('phrase', phraseDiv);
+            workspace.scopeManager.push('phrase', phraseDiv);
         }
     }
 }
 
 function addTableText(workspace: RenderWorkspace, text: string) {
-    if (workspace.scopeManager.getScope('wrapper:cell')) {
+    if (workspace.scopeManager.find('wrapper:cell')) {
         if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
             const references = text.split('; ');
             for (let i = 0; i < references.length; i++) {
@@ -211,15 +211,13 @@ function addTableText(workspace: RenderWorkspace, text: string) {
                 const refText = generateHTML(text, 'header-ref');
                 spanV.innerHTML = refText;
                 // TODO spanV.addEventListener('click', onClick, false);
-                workspace.scopeManager.appendInnerContent(spanV);
+                workspace.scopeManager.appendContent(spanV);
                 if (i < references.length - 1) {
-                    workspace.scopeManager.appendInnerContent(
-                        workspace.document.createTextNode('; ')
-                    );
+                    workspace.scopeManager.appendContent(workspace.document.createTextNode('; '));
                 }
             }
         } else {
-            workspace.scopeManager.appendInnerContent(workspace.document.createTextNode(text));
+            workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
         }
     }
 }
@@ -231,14 +229,14 @@ function addGraftText(
     usfmType: string
 ) {
     if (workspace.textType.includes(textType)) {
-        const callerRoot = workspace.scopeManager.getScope('inlineGraft:note_caller')?.contentRoot;
-        const contentRoot = workspace.scopeManager.getScope('inlineGraft:footnote')?.contentRoot;
+        const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
+        const contentRoot = workspace.scopeManager.find('inlineGraft:footnote')?.root;
         if (callerRoot && contentRoot && callerRoot.getAttribute('data-graft') === contentRoot.id) {
             if (workspace.textType.includes('note_caller')) {
                 const caller = getFootnoteCallerCharacter(workspace, text, textType);
                 if (!caller) {
                     // Do not include the footnote
-                    workspace.scopeManager.removeScope('inlineGraft:note_caller');
+                    workspace.scopeManager.remove('inlineGraft:note_caller');
                 } else {
                     // Assign the caller to the footnote sup
                     const elements = callerRoot?.querySelectorAll('sup.footnote');
@@ -247,7 +245,7 @@ function addGraftText(
                     }
                 }
             } else {
-                workspace.scopeManager.appendInnerContent(workspace.document.createTextNode(text));
+                workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
             }
         }
     } else {

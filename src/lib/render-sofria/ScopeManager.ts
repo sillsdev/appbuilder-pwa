@@ -9,35 +9,62 @@ class ScopeManager {
     document: Document;
     stack: Array<RenderScope>;
 
-    addScope(level: RenderScopeWithSubType, root?: HTMLElement) {
+    push(level: RenderScopeWithSubType, root: HTMLElement) {
         this.stack.push(new RenderScope(this.document, level, root));
     }
 
-    removeScope(level?: RenderScopeWithSubType) {
-        if (!level) {
-            return this.stack.pop();
-        } else {
-            for (let i = this.stack.length - 1; i >= 0; i--) {
-                if (this.stack[i].match(level)) {
-                    return this.stack.splice(i, 1)[0];
+    /**
+     * remove scope from anywhere in the stack
+     */
+    remove(level: RenderScopeWithSubType) {
+        for (let i = this.stack.length - 1; i >= 0; i--) {
+            if (this.stack[i].match(level)) {
+                if (i + 1 < this.stack.length) {
+                    console.warn(
+                        'Removed scope %o with %o scopes above',
+                        this.stack.at(i),
+                        this.stack.length - i
+                    );
                 }
+                return this.stack.splice(i, 1)[0];
             }
         }
+    }
+
+    /**
+     * remove scope from top of stack, asserting that the scope type matches
+     */
+    pop(assertScopeType: RenderScopeWithSubType) {
+        const layers = this.stack.length;
+        if (layers < 1) {
+            throw new Error('Tried to pop empty stack');
+        }
+
+        const topScope = this.stack.at(-1)!;
+
+        if (!topScope.match(assertScopeType)) {
+            throw new Error(
+                `Tried to pop scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
+            );
+        }
+
+        return this.stack.pop()!;
     }
 
     reset() {
         this.stack = [];
     }
 
-    getScope(level?: RenderScopeWithSubType) {
+    find(level?: RenderScopeWithSubType) {
         return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
     }
 
-    appendInnerContent(content: HTMLElement | Text, level?: RenderScopeWithSubType) {
-        const root = this.getScope(level)?.contentRoot;
+    appendContent(content: HTMLElement | Text, level?: RenderScopeWithSubType) {
+        const root = this.find(level)?.root;
         if (root) {
             root.appendChild(content);
         } else {
+            console.log([...this.stack]);
             throw new Error(
                 `Tried to append ${content} to undefined content root at level ${level ?? 'top'}`
             );
@@ -53,20 +80,21 @@ class ScopeManager {
         const topScope = this.stack.at(-1)!;
 
         if (!topScope.match(assertScopeType)) {
+            console.log([...this.stack]);
             throw new Error(
                 `Tried to promote scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
             );
         }
 
-        const innerRoot = this.stack.pop()?.contentRoot;
+        const innerRoot = this.stack.pop()?.root;
         if (layers > 1) {
             if (innerRoot) {
                 const outerScope = this.stack.at(-1);
                 if (outerScope) {
-                    if (outerScope.contentRoot) {
-                        outerScope.contentRoot.appendChild(innerRoot);
+                    if (outerScope.root) {
+                        outerScope.root.appendChild(innerRoot);
                     } else {
-                        outerScope.contentRoot = innerRoot;
+                        outerScope.root = innerRoot;
                     }
                 }
             }
