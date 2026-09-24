@@ -28,7 +28,7 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add('glossary');
-            workspace.scopeManager.addScope('wrapper:glossary', spanElement);
+            workspace.scopeManager.push('wrapper:glossary', spanElement);
         }
     },
     {
@@ -43,22 +43,19 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
             workspace.textType.pop();
             workspace.usfmWrapperType = '';
 
-            const wrapper = workspace.scopeManager.removeScope('wrapper:glossary');
+            const wrapper = workspace.scopeManager.pop('wrapper:glossary').root;
 
-            if (wrapper?.contentRoot) {
-                const aElement = workspace.document.createElement('a');
-                const matchWord =
-                    workspace.scratch.wrapper.lemma || wrapper?.contentRoot?.innerText || '';
-                aElement.setAttribute('match', matchWord.trim());
-                aElement.setAttribute('href', ' ');
-                aElement.classList.add('glossary');
+            const aElement = workspace.document.createElement('a');
+            const matchWord = workspace.scratch.wrapper.lemma || wrapper.innerText || '';
+            aElement.setAttribute('match', matchWord.trim());
+            aElement.setAttribute('href', ' ');
+            aElement.classList.add('glossary');
 
-                aElement.innerHTML = wrapper.contentRoot.innerHTML;
+            aElement.innerHTML = wrapper.innerHTML;
 
-                wrapper.contentRoot.replaceChildren(aElement);
+            wrapper.replaceChildren(aElement);
 
-                workspace.scopeManager.appendInnerContent(wrapper.contentRoot);
-            }
+            workspace.scopeManager.appendContent(wrapper);
 
             addToScratchPad(workspace.scratch, 'wrapper', { lemma: undefined });
         }
