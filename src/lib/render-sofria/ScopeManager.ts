@@ -44,10 +44,18 @@ class ScopeManager {
         }
     }
 
-    promoteContent() {
+    promoteContent(assertScopeType: RenderScopeWithSubType) {
         const layers = this.stack.length;
         if (layers < 1) {
             throw new Error('Tried to promote content on empty scope stack');
+        }
+
+        const topScope = this.stack.at(-1)!;
+
+        if (!topScope.match(assertScopeType)) {
+            throw new Error(
+                `Tried to promote scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
+            );
         }
 
         const innerRoot = this.stack.pop()?.contentRoot;

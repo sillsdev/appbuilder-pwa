@@ -52,7 +52,7 @@ export const figures = new FeatureSpec([
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
             if (shouldShowImage(workspace)) {
-                workspace.scopeManager.promoteContent();
+                workspace.scopeManager.promoteContent('wrapper:figure');
             }
         }
     }

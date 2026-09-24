@@ -34,7 +34,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             if (workspace.logSettings.row) {
                 console.log('End Row %o', context.sequences[0].element);
             }
-            workspace.scopeManager.promoteContent();
+            workspace.scopeManager.promoteContent('row');
         }
     },
     {
@@ -50,7 +50,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             const tableCellElement = workspace.document.createElement('td');
             tableCellElement.classList.add(`tc${colIndex}`);
 
-            workspace.scopeManager.addScope('cell', tableCellElement);
+            workspace.scopeManager.addScope('wrapper:cell', tableCellElement);
         }
     },
     {
@@ -60,7 +60,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
-            workspace.scopeManager.promoteContent();
+            workspace.scopeManager.promoteContent('wrapper:cell');
         }
     }
 ]);

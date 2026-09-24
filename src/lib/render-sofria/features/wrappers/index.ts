@@ -52,7 +52,7 @@ export const usfmWrappers = new FeatureSpec([
             workspace.textType.pop();
             workspace.usfmWrapperType = '';
 
-            workspace.scopeManager.promoteContent();
+            workspace.scopeManager.promoteContent('wrapper');
         }
     }
 ]);
