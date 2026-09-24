@@ -22,16 +22,22 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
                 sequence: {}
             };
 
+            const subType = currentBlock.subType?.toLowerCase() as Lowercase<string>;
+
             if (currentBlock.sequence) {
                 const div = workspace.document.createElement('div');
-                workspace.scopeManager.addScope(
-                    `blockGraft:${currentBlock.subType?.toLowerCase() as Lowercase<string>}`,
-                    div
-                );
+                workspace.scopeManager.addScope(`blockGraft:${subType}`, div);
 
                 renderGraftedSequence(environment, graftRecord.sequence);
 
-                workspace.scopeManager.promoteContent(`blockGraft:${currentBlock.subType?.toLowerCase() as Lowercase<string>}`);
+                if (subType !== 'introduction' || workspace.hackRenderIntro) {
+                    workspace.scopeManager.promoteContent(`blockGraft:${subType}`);
+                } else {
+                    const scope = workspace.scopeManager.removeScope(`blockGraft:${subType}`);
+                    if (workspace.logSettings.blockGraft) {
+                        console.log('Skipping block %o', scope);
+                    }
+                }
             }
 
             if (workspace.logSettings.blockGraft) {
