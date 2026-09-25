@@ -2,7 +2,11 @@ import type { ScriptureConfig } from '$config';
 import type { ScriptureLogConfig } from '$lib/data/stores';
 import type { ReferenceStore } from '$lib/data/stores/reference';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
-import type { RenderContext } from 'proskomma-json-tools';
+import type {
+    RenderWorkspace as PKRenderWorkspace,
+    RenderConfig,
+    RenderContext
+} from 'proskomma-json-tools';
 import type ScopeManager from './ScopeManager';
 
 const boundedScopes = [
@@ -82,7 +86,7 @@ export class RenderScope {
  * This should eventually go in proskomma.d.ts
  */
 export type RenderEnvironment<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
-    config: any;
+    config: RenderConfig;
     context: RenderContext;
     workspace: RenderWorkspace<Scratch>;
     output: any;
@@ -134,33 +138,34 @@ export function addToScratchPad<
 
 export type SequenceType = 'main' | 'title' | 'introduction';
 
-export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
-    document: Document;
-    references: ReferenceStore;
-    currentTextPosition: {
-        chapter: string;
-        verse: string;
-        phraseIndex?: number;
+export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpad> =
+    PKRenderWorkspace & {
+        document: Document;
+        references: ReferenceStore;
+        currentTextPosition: {
+            chapter: string;
+            verse: string;
+            phraseIndex?: number;
+        };
+        showVerseNumbers: boolean;
+        verseRangeNumber?: string;
+        sequenceTypes: Array<SequenceType>;
+        root: HTMLDivElement;
+        scopeManager: ScopeManager;
+        logSettings: ScriptureLogConfig;
+        scratch: RenderScratchpad<Scratch>;
+        separatorRegex: RegExp;
+        numeralSystem: NumeralSystem;
+        verseLayout: string;
+        viewShowBibleImages: string;
+        viewShowIllustrations: boolean;
+        viewShowGlossaryWords: boolean;
+        viewShowRedLetters: boolean;
+        usfmWrapperType: string;
+        textType: string[];
+        config: Readonly<ScriptureConfig>;
+        hackRenderIntro: boolean;
     };
-    showVerseNumbers: boolean;
-    verseRangeNumber?: string;
-    sequenceTypes: Array<SequenceType>;
-    root: HTMLDivElement;
-    scopeManager: ScopeManager;
-    logSettings: ScriptureLogConfig;
-    scratch: RenderScratchpad<Scratch>;
-    separatorRegex: RegExp;
-    numeralSystem: NumeralSystem;
-    verseLayout: string;
-    viewShowBibleImages: string;
-    viewShowIllustrations: boolean;
-    viewShowGlossaryWords: boolean;
-    viewShowRedLetters: boolean;
-    usfmWrapperType: string;
-    textType: string[];
-    config: Readonly<ScriptureConfig>;
-    hackRenderIntro: boolean;
-};
 
 /**
  * returns true if:
