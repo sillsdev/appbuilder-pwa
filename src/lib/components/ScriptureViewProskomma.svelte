@@ -236,6 +236,7 @@ LOGGING:
         //console.log('Handling function called for %s on %o', eventName, environment);
 
         if (!renderWorkspaceInitialized) {
+            console.log(environment);
             initRenderWorkspace(environment, workspaceOptions);
             renderWorkspaceInitialized = true;
         }
@@ -253,17 +254,6 @@ LOGGING:
                     a,
                     environment
                 ); */
-                // cleanup table scope
-                if (
-                    scopeManager.find('table') &&
-                    !scopeManager.find('row') &&
-                    eventName !== 'startRow'
-                ) {
-                    const scope = scopeManager.remove('table');
-                    if (scope?.root) {
-                        scopeManager.appendContent(scope.root);
-                    }
-                }
                 a.action(environment);
                 useDefault = false;
             } else {
