@@ -3,6 +3,9 @@ import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
     AudioConfig,
+    BloomLang,
+    BloomMetaData,
+    BloomTitle,
     BookCollectionAudioConfig,
     BookCollectionConfig,
     BookTabConfig,
@@ -19,7 +22,8 @@ import { isDAB, isSAB } from '../src/lib/scripts/configUtils';
 import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
 import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
-import { getHashedName } from './fileUtils';
+import { getDirHash, getHashedName } from './fileUtils';
+import { getLangTagLookup, resolveLangTag } from './langtags';
 import { compareVersions, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
@@ -119,6 +123,41 @@ export function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleC
         verseNumbers: stylesInfoTag
             .getElementsByTagName('verse-number-style')[0]
             .attributes.getNamedItem('value')!.value
+    };
+}
+
+function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
+    if (!existsSync(jsonPath)) {
+        console.error(`Could not open ${jsonPath}`);
+    }
+
+    const meta = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+    const langs: BloomLang[] = [];
+    const titles: BloomTitle[] = [];
+    for (const k of Object.entries(meta['language-display-names'])) {
+        const key = k[0];
+        langs.push({ lang: key, name: meta['language-display-names'][key] });
+    }
+
+    // Pull the titles from meta.json. The allTitles is a string literal that
+    // contains a serlized json string. However some of these strings have
+    // unneeded and unwanted whitespace that causes the JSON parser to fail.
+    // This sanitation is how we remove that unwanted whitespace.
+    const sanitizedAllTitles = meta.allTitles.replace(/[\r\n\t]+/g, ' ');
+    const allTitles = JSON.parse(sanitizedAllTitles);
+    for (const k of Object.entries(allTitles)) {
+        const key = k[0];
+        titles.push({ lang: key, name: (allTitles[key] as string).trim() });
+    }
+
+    if (verbose >= 3) {
+        console.log(`Bloom titles found: ${titles.length}`);
+        console.log(`Bloom languages found: ${langs.length}`);
+    }
+
+    return {
+        languages: langs,
+        titles: titles
     };
 }
 
@@ -228,6 +267,12 @@ function openConfigAsXMLDocument(dataDir: string) {
     return document;
 }
 
+function documentHasBloomPlayerBooks(document: Document): boolean {
+    return Array.from(document.getElementsByTagName('book')).some(
+        (book) => book.attributes.getNamedItem('type')?.value === 'bloom-player'
+    );
+}
+
 function extractProgramType(document: Document) {
     const appDefinition = document.getElementsByTagName('app-definition')[0];
     const programType = appDefinition.attributes.getNamedItem('type')!.value;
@@ -295,7 +340,10 @@ async function convertConfig(dataDir: string, verbose: number) {
 
     if (isSAB(data)) {
         data.traits = parseTraits(document, dataDir, verbose);
-        data.bookCollections = parseBookCollections(document, dataDir, verbose);
+        const langTagLookup = documentHasBloomPlayerBooks(document)
+            ? await getLangTagLookup(verbose)
+            : new Map<string, string>();
+        data.bookCollections = parseBookCollections(document, dataDir, verbose, langTagLookup);
 
         // After all the book collections have been parsed, we can determine some traits
         data.traits['has-glossary'] =
@@ -633,7 +681,12 @@ export function parseTraits(document: Document, dataDir: string, verbose: number
     return traits;
 }
 
-export function parseBookCollections(document: Document, dataDir: string, verbose: number) {
+export function parseBookCollections(
+    document: Document,
+    dataDir: string,
+    verbose: number,
+    langTagLookup: Map<string, string>
+) {
     const booksTags = document.getElementsByTagName('books');
     const bookCollections = [];
 
@@ -872,6 +925,24 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                     i++;
                 }
             }
+            let hashedFileName: string | undefined;
+            let hashedDir: string | undefined;
+            let bloomMetaData: Record<string, unknown> = {};
+            const bookType = book.attributes.getNamedItem('type')?.value;
+            if (bookType !== undefined && ['html', 'bloom-player'].includes(bookType)) {
+                if (bookType === 'html') {
+                    hashedFileName = getHashedName(join(dataDir, 'books', tag.id), file);
+                }
+
+                if (bookType === 'bloom-player') {
+                    const dirHash = getDirHash(join(dataDir, 'books', tag.id, book.id));
+                    hashedDir = dirHash ? `${book.id}.${dirHash}` : undefined;
+                    bloomMetaData = parseBloomMeta(
+                        join(dataDir, 'books', tag.id, book.id, 'meta.json'),
+                        verbose
+                    );
+                }
+            }
 
             books.push({
                 portions: book.getElementsByTagName('portions')[0]?.attributes.getNamedItem('value')
@@ -890,11 +961,10 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 abbreviation: book.getElementsByTagName('v')[0]?.innerHTML,
                 audio,
                 file: format ? file : file.replace(/\.\w*$/, '.usfm'), // Default format is USFM and multiple files are combined into single .usfm
-                hashedFileName:
-                    format === 'html'
-                        ? getHashedName(join(dataDir, 'books', tag.id), file)
-                        : undefined,
+                hashedFileName: hashedFileName,
+                ...(hashedDir !== undefined && { hashedDir }),
                 features: bookFeatures,
+                bloomMeta: bloomMetaData,
                 quizFeatures,
                 style,
                 styles,
@@ -941,6 +1011,27 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
         const languageName = writingSystem
             .getElementsByTagName('display-names')[0]
             ?.getElementsByTagName('form')[0].innerHTML;
+
+        const collectionCanonical =
+            resolveLangTag(languageCode, langTagLookup) ??
+            resolveLangTag(languageName, langTagLookup);
+        for (const book of books) {
+            if (book.type !== 'bloom-player' || !book.bloomMeta?.languages?.length) {
+                continue;
+            }
+            let resolvedLang = languageCode;
+            if (collectionCanonical) {
+                const match = book.bloomMeta.languages.find(
+                    (l) =>
+                        resolveLangTag(l.lang, langTagLookup) === collectionCanonical ||
+                        resolveLangTag(l.name, langTagLookup) === collectionCanonical
+                );
+                if (match) {
+                    resolvedLang = match.lang;
+                }
+            }
+            book.resolvedLang = resolvedLang;
+        }
         const collectionDescriptionTags = tag.getElementsByTagName('book-collection-description');
         const collectionDescription = collectionDescriptionTags[0]?.innerHTML.length
             ? collectionDescriptionTags[0].innerHTML

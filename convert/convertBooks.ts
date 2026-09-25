@@ -405,12 +405,14 @@ function applyFilters(
 // 1. compress the chapter/verse map, if it exists
 // 2. add quizzes to entry, if defined for docset
 // 3. add htmlBooks to entry, if defined for docset
-function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
+// 4. add bloomBooks to entry, if defined for docset
+function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any, bloomBooks: any): any {
     const ds = postQueries.parseChapterVerseMapInDocSets({
         docSets: [entry.data.docSets[0]]
     })[0];
     ds.quizzes = quizzes[ds.id];
     ds.htmlBooks = htmlBooks[ds.id];
+    ds.bloomBooks = bloomBooks[ds.id];
     return ds;
 }
 
@@ -423,7 +425,7 @@ type ConvertBookContext = {
     bcId: string;
 };
 
-const unsupportedBookTypes = ['audio-only', 'bloom-player', 'quiz', 'undefined'];
+const unsupportedBookTypes = ['audio-only', 'quiz', 'undefined'];
 export async function convertBooks(
     dataDir: string,
     scriptureConfig: ScriptureConfig,
@@ -439,13 +441,20 @@ export async function convertBooks(
     const quizzes: any = {};
     /**htmlBooks by book collection*/
     const htmlBooks: any = {};
+    /**bloomBooks by book collection*/
+    const bloomBooks: any = {};
     /**array of files to be written*/
     const files: any[] = [];
 
     // copy book-related folder resources
-    ['quiz', 'songs'].forEach((folder) => {
+    ['quiz', 'songs', 'bloom-player'].forEach((folder) => {
         const folderSrcDir = path.join(dataDir, folder);
-        const folderDstDir = path.join('src/gen-assets', folder);
+        const folderDstDir = path.join(
+            folder === 'bloom-player'
+                ? path.join('static', 'bloom-player')
+                : path.join('src', 'gen-assets'),
+            folder
+        );
         if (fs.existsSync(folderSrcDir)) {
             fs.cpSync(folderSrcDir, folderDstDir, { recursive: true });
         } else {
@@ -493,19 +502,33 @@ export async function convertBooks(
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
         htmlBooks[context.docSet] = [];
+        bloomBooks[context.docSet] = [];
         if (collection.books.find((b) => b.format === 'html')) {
             const illPath = join('static', 'illustrations');
             createOutputDir(illPath);
             const collPath = join('static', 'collections', collection.id);
             createOutputDir(collPath);
         }
+
+        //check if folder exists for collection
+        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
+        createOutputDir(collPath);
+
         for (const book of collection.books) {
             let bookConverted = false;
+
             switch (book.type) {
                 case 'audio-only':
-                case 'bloom-player':
                 case 'undefined':
                     break;
+                case 'bloom-player': {
+                    bookConverted = true;
+                    convertBloomBook(context, book, verbose);
+                    displayBookId(context.bcId, book.id);
+
+                    bloomBooks[context.docSet].push({ id: book.id, name: book.name });
+                    break;
+                }
                 case 'quiz':
                     bookConverted = true;
                     quizzes[context.docSet].push({ id: book.id, name: book.name });
@@ -606,9 +629,6 @@ export async function convertBooks(
                 }
             })
         );
-        //check if folder exists for collection
-        const collPath = path.join('src/gen-assets', 'collections', context.bcId);
-        createOutputDir(collPath);
         //add quizzes path if necessary
         if (quizzes[context.docSet].length > 0) {
             const qPath = path.join('src/gen-assets', 'collections', context.bcId, 'quizzes');
@@ -622,7 +642,7 @@ export async function convertBooks(
     entries.forEach((entry) => {
         fs.writeFileSync(
             path.join(catalogPath, entry.data.docSets[0].id + '.json'),
-            JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks))
+            JSON.stringify(transformCatalogEntry(entry, quizzes, htmlBooks, bloomBooks))
         );
     });
     if (verbose) {
@@ -675,6 +695,111 @@ function convertHtmlBook(context: ConvertBookContext, book: BookConfig, files: a
         path: path.join('static', 'collections', context.bcId, before),
         content
     });
+}
+
+function convertBloomBook(context: ConvertBookContext, book: BookConfig, verbose: number) {
+    const collectionDir = path.join('static', 'collections', context.bcId);
+    if (fs.existsSync(collectionDir)) {
+        for (const entry of fs.readdirSync(collectionDir, { withFileTypes: true })) {
+            if (
+                entry.isDirectory() &&
+                (entry.name === book.id || entry.name.startsWith(`${book.id}.`))
+            ) {
+                fs.rmSync(path.join(collectionDir, entry.name), { recursive: true, force: true });
+            }
+        }
+    }
+
+    const srcDir = path.join(context.dataDir, 'books', context.bcId, book.id);
+    const destDir = path.join(collectionDir, book.hashedDir ?? book.id);
+    if (!fs.existsSync(srcDir)) {
+        console.warn(`Could not locate ${srcDir}`);
+        return;
+    }
+
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.cpSync(srcDir, destDir, { recursive: true });
+    normalizeBloomFileNames(destDir);
+    normalizeBloomRefs(destDir);
+
+    // if .distribution is missing on the web version it has a console error
+    // App Builders removes this file. Simply adding it back with the text: 'bloom-web' fixes this issue
+    const distPath = path.join(destDir, '.distribution');
+    if (!fs.existsSync(distPath)) {
+        fs.writeFileSync(distPath, 'bloom-web');
+    }
+
+    if (verbose >= 3) {
+        console.log(`Copied bloom book ${book.name} --> ${destDir}`);
+    }
+}
+
+function normalizeBloomFileNames(dir: string) {
+    // This function insures that if a unicode character is not in the filename
+    const names = fs.readdirSync(dir);
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const nfcName = entry.name.normalize('NFC');
+        let entryPath = path.join(dir, entry.name);
+        if (nfcName !== entry.name) {
+            if (names.includes(nfcName)) {
+                console.warn(`Cannot normalize ${entryPath}: ${nfcName} already exists`);
+            } else {
+                const nfcPath = path.join(dir, nfcName);
+                fs.renameSync(entryPath, nfcPath);
+                entryPath = nfcPath;
+            }
+        }
+        if (entry.isDirectory()) {
+            normalizeBloomFileNames(entryPath);
+        }
+    }
+}
+
+const BLOOM_REF_REGEXES: RegExp[] = [
+    /(\b(?:src|href|data-backgroundaudio)\s*=\s*)(["'])([^"']*)\2/gi,
+    /(url\(\s*)(["']?)([^"')]*)\2/gi
+];
+
+function normalizeBloomRef(value: string): string {
+    if (!/[\u0080-￿]|%[89A-F][0-9A-F]/i.test(value)) {
+        return value;
+    }
+    let decoded = value;
+    try {
+        decoded = decodeURIComponent(value);
+    } catch {
+        return value.normalize('NFC');
+    }
+    const normalized = decoded.normalize('NFC');
+    if (normalized === decoded) {
+        return value;
+    }
+    return decoded === value ? normalized : encodeURI(normalized);
+}
+
+function normalizeBloomRefs(dir: string) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const entryPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            normalizeBloomRefs(entryPath);
+            continue;
+        }
+        if (!['.htm', '.html', '.css'].includes(path.extname(entry.name).toLowerCase())) {
+            continue;
+        }
+        const content = fs.readFileSync(entryPath, 'utf-8');
+        let updated = content;
+        for (const regex of BLOOM_REF_REGEXES) {
+            updated = updated.replace(
+                regex,
+                (_match, prefix, quote, value) =>
+                    `${prefix}${quote}${normalizeBloomRef(value)}${quote}`
+            );
+        }
+        if (updated !== content) {
+            fs.writeFileSync(entryPath, updated);
+        }
+    }
 }
 
 function convertQuizBook(context: ConvertBookContext, book: BookConfig): Quiz {
