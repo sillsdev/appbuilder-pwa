@@ -49,6 +49,17 @@ export const milestones = new FeatureSpec<{ milestone?: { listNums?: Record<numb
                         para.classList.add('list-[square]');
                     }
                 }
+            } else if (element.subType === 'usfm:zstyle') {
+                const styles = element.atts['id'] as unknown as string[];
+                const para = workspace.scopeManager.find('paragraph')?.root;
+                if (para) {
+                    para.classList.add(...styles);
+                }
+            } else if (element.subType === 'usfm:zcstyle') {
+                const styles = element.atts['id'] as unknown as string[];
+                const span = workspace.document.createElement('span');
+                span.classList.add(...styles);
+                workspace.scopeManager.push('milestone:zcstyle', span);
             }
         }
     },
@@ -59,6 +70,9 @@ export const milestones = new FeatureSpec<{ milestone?: { listNums?: Record<numb
             const element = context.sequences[0].element;
             if (workspace.logSettings.milestone) {
                 console.log('End Milestone %o', element);
+            }
+            if (element.subType === 'usfm:zcstyle') {
+                workspace.scopeManager.promoteContent('milestone:zcstyle');
             }
         }
     }
