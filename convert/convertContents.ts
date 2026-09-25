@@ -254,7 +254,11 @@ export function parseItemLink(
         // Proskomma can only handle USFM and the other book types include non-
         // standard SFM tags.
 
-        scriptureConfig.bookCollections?.some((collection) => {
+        const collections = scriptureConfig.bookCollections ?? [];
+        const preferred = collections.filter(
+            (c) => layoutCollection?.includes(c.id) && c.books.some((x) => x.id === link.linkTarget)
+        );
+        (preferred.length > 0 ? preferred : collections).some((collection) => {
             if (verbose) {
                 console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
             }
