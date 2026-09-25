@@ -7,17 +7,33 @@ export function isCellWrapper(context: RenderContext) {
 
 export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
     {
+        event: 'startTable',
+        default: true,
+        action: ({ context, workspace }) => {
+            if (workspace.logSettings.table) {
+                console.log('Start Table %o', context.sequences[0].element);
+            }
+            const table = workspace.document.createElement('table');
+            table.setAttribute('cellpadding', '5');
+            workspace.scopeManager.push('table', table);
+        }
+    },
+    {
+        event: 'endTable',
+        default: true,
+        action: ({ context, workspace }) => {
+            if (workspace.logSettings.table) {
+                console.log('End Table %o', context.sequences[0].element);
+            }
+            workspace.scopeManager.promoteContent('table');
+        }
+    },
+    {
         event: 'startRow',
         default: true,
         action: ({ context, workspace }) => {
             if (workspace.logSettings.row) {
                 console.log('Start Row %o', context.sequences[0].element);
-            }
-            const scope = workspace.scopeManager.find('table');
-            if (!scope) {
-                const tableElement = workspace.document.createElement('table');
-                tableElement.setAttribute('cellpadding', '5');
-                workspace.scopeManager.push('table', tableElement);
             }
             workspace.scopeManager.push('row', workspace.document.createElement('tr'));
             addToScratchPad(workspace.scratch, 'table', { colIndex: 0 });
@@ -37,16 +53,20 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'startWrapper',
         guard: ({ context }) => isCellWrapper(context),
         action: ({ context, workspace }) => {
+            const element = context.sequences[0].element;
             if (workspace.logSettings.wrapper) {
-                console.log('Start Wrapper %o', context.sequences[0].element);
+                console.log('Start Cell %o', element);
             }
 
-            const colIndex = (workspace.scratch.table?.colIndex ?? 0) + 1;
-            addToScratchPad(workspace.scratch, 'table', { colIndex });
-            const tableCellElement = workspace.document.createElement('td');
-            tableCellElement.classList.add(`tc${colIndex}`);
+            const nCols = Number(element.atts['nCols']);
 
-            workspace.scopeManager.push('wrapper:cell', tableCellElement);
+            const colIndex = (workspace.scratch.table?.colIndex ?? 0) + nCols;
+            addToScratchPad(workspace.scratch, 'table', { colIndex });
+            const td = workspace.document.createElement('td');
+            td.classList.add(`tc${colIndex}`);
+            td.colSpan = colIndex;
+
+            workspace.scopeManager.push('wrapper:cell', td);
         }
     },
     {
@@ -54,7 +74,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         guard: ({ context }) => isCellWrapper(context),
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {
-                console.log('End Wrapper %o', context.sequences[0].element);
+                console.log('End Cell %o', context.sequences[0].element);
             }
             workspace.scopeManager.promoteContent('wrapper:cell');
         }

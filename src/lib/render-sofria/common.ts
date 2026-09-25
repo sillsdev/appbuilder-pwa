@@ -17,12 +17,13 @@ const boundedScopes = [
     'Sequence',
     'Wrapper',
     'Milestone',
-    'Row'
+    'Row',
+    'Table'
 ] as const;
 type StartScope = `start${(typeof boundedScopes)[number]}`;
 type EndScope = `end${(typeof boundedScopes)[number]}`;
 const independentScopes = ['text', 'metaContent', 'mark', 'blockGraft', 'inlineGraft'] as const;
-const additionalScopes = ['table', 'unsupported', 'phrase'] as const;
+const additionalScopes = ['unsupported', 'phrase'] as const;
 
 export type RenderScopeLevel =
     | Lowercase<(typeof boundedScopes)[number]>
