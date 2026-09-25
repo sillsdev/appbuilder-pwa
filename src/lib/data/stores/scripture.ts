@@ -389,6 +389,7 @@ export type ScriptureLogConfig = {
     mark: number;
     meta: number;
     row: number;
+    table: number;
     placement: number;
 };
 
