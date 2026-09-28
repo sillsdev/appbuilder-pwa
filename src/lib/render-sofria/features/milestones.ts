@@ -1,6 +1,12 @@
 import { addToScratchPad, FeatureSpec } from '$lib/render-sofria/common';
+import { createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
+import type { SharedParaScratch } from './text';
 
-export const milestones = new FeatureSpec<{ milestone?: { listNums?: Record<number, number> } }>([
+export const milestones = new FeatureSpec<
+    {
+        milestone?: { listNums?: Record<number, number>; currentVideoIndex?: number };
+    } & SharedParaScratch
+>([
     {
         event: 'startMilestone',
         default: true,
@@ -60,6 +66,28 @@ export const milestones = new FeatureSpec<{ milestone?: { listNums?: Record<numb
                 const span = workspace.document.createElement('span');
                 span.classList.add(...styles);
                 workspace.scopeManager.push('milestone:zcstyle', span);
+            } else if (element.subType === 'usfm:zvideo') {
+                const id = element.atts['id'][0];
+                const video = workspace.config.videos?.find((x) => x.id === id);
+                let div: HTMLElement | null = null;
+                if (video) {
+                    const idx = workspace.scratch.milestone?.currentVideoIndex ?? 0;
+                    div = createVideoBlock(document, video, idx);
+                    addToScratchPad(workspace.scratch, 'milestone', { currentVideoIndex: idx + 1 });
+                } else {
+                    // Proskomma did replacement of slashes in id
+                    const videoUrl = id.replace(/÷/g, '/');
+                    div = createVideoBlockFromUrl(
+                        document,
+                        videoUrl,
+                        workspace.config.mainFeatures
+                    );
+                }
+                if (div) {
+                    const deferredEls = workspace.scratch.paragraph?.deferredEls ?? [];
+                    deferredEls.push(div);
+                    addToScratchPad(workspace.scratch, 'paragraph', { deferredEls });
+                }
             }
         }
     },
