@@ -36,6 +36,7 @@ type Options = {
     indexUrl: string;
     project?: string;
     list: boolean;
+    runAll: boolean;
 };
 
 function parseArgs(argv: string[]): Options {
@@ -44,7 +45,8 @@ function parseArgs(argv: string[]): Options {
     }
     const options: Options = {
         indexUrl: process.env['BLOOM_TEST_INDEX_URL'] || DEFAULT_INDEX_URL,
-        list: false
+        list: false,
+        runAll: false
     };
     for (let i = 0; i < argv.length; i++) {
         const arg = argv[i];
@@ -57,6 +59,9 @@ function parseArgs(argv: string[]): Options {
                 break;
             case '--list':
                 options.list = true;
+                break;
+            case '--run-all':
+                options.runAll = true;
                 break;
             default:
                 throw new Error(`Unknown argument "${arg}"`);
@@ -121,7 +126,14 @@ function describeProject(project: BloomProject, n: number): string {
     return `${n}) ${project.name}${program} — ${project.description} (${project.size})`;
 }
 
-async function chooseProjects(projects: BloomProject[], name?: string): Promise<BloomProject[]> {
+async function chooseProjects(
+    projects: BloomProject[],
+    name?: string,
+    runAll = false
+): Promise<BloomProject[]> {
+    if (runAll) {
+        return projects;
+    }
     if (name) {
         const match = projects.find((p) => p.name === name);
         if (!match) {
@@ -310,7 +322,7 @@ async function testProject(project: BloomProject, indexUrl: string): Promise<num
             return;
         }
 
-        const selected = await chooseProjects(projects, options.project);
+        const selected = await chooseProjects(projects, options.project, options.runAll);
         if (selected.length === 1) {
             process.exitCode = await testProject(selected[0], options.indexUrl);
             return;
@@ -336,7 +348,16 @@ async function testProject(project: BloomProject, indexUrl: string): Promise<num
         }
 
         console.log('\n=== Bloom test summary ===');
-        results.forEach((r) => console.log(`  ${r.status.padEnd(8)} ${r.name}`));
+        const statusColors: Record<string, string> = {
+            passed: '\x1b[32m',
+            failed: '\x1b[31m',
+            error: '\x1b[38;5;88m'
+        };
+        results.forEach((r) => {
+            const color = statusColors[r.status];
+            const status = r.status.padEnd(8);
+            console.log(`  ${color ? `${color}${status}\x1b[0m` : status} ${r.name}`);
+        });
         if (results.some((r) => r.status === 'failed' || r.status === 'error')) {
             process.exitCode = 1;
         }
