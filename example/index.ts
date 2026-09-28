@@ -3,6 +3,7 @@ import { createReadStream, existsSync, readdirSync } from 'fs';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import unzipper from 'unzipper';
 import type IndexData from '../test_data/projects/index.json';
 
@@ -13,7 +14,7 @@ const TEMP_DIR = path.join(os.platform() === 'linux' ? os.homedir() : os.tmpdir(
 const APP_DEF_EXT = '.appDef';
 
 // Determine the appropriate execution command for `scripture-app-builder`
-const getExecutionCommand = (program: string): string => {
+export const getExecutionCommand = (program: string): string => {
     const appName = program === 'sab' ? 'Scripture App Builder' : 'Dictionary App Builder';
     const jarName = program === 'sab' ? 'scripture-app-builder.jar' : 'dictionary-app-builder.jar';
     const exeName = program === 'sab' ? 'scripture-app-builder' : 'dictionary-app-builder';
@@ -69,7 +70,7 @@ function checkCommandExists(command: string, argument: string): boolean {
 }
 
 // Ensure the temp directory exists
-async function ensureTempDir(): Promise<void> {
+export async function ensureTempDir(): Promise<void> {
     try {
         // if temp dir already exists, delete and recreate
         if (existsSync(TEMP_DIR)) {
@@ -98,7 +99,7 @@ async function getProjectProps(projectName: string): Promise<[string, string]> {
 }
 
 // Extract the ZIP file
-async function extractZip(zipFilePath: string): Promise<void> {
+export async function extractZip(zipFilePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
         createReadStream(zipFilePath)
             .pipe(unzipper.Extract({ path: TEMP_DIR }))
@@ -108,38 +109,50 @@ async function extractZip(zipFilePath: string): Promise<void> {
 }
 
 // Find the `.appDef` file
-async function findAppDefFile(): Promise<string> {
+export async function findAppDefFile(): Promise<string> {
     try {
-        const files = readdirSync(TEMP_DIR);
-        const appDefFile = files.find((file) => file.endsWith(APP_DEF_EXT));
-        if (!appDefFile) {
-            throw new Error('No .appDef file found in the extracted directory');
+        const entries = readdirSync(TEMP_DIR, { withFileTypes: true });
+        const appDefFile = entries.find((entry) => entry.name.endsWith(APP_DEF_EXT));
+        if (appDefFile) {
+            return path.join(TEMP_DIR, appDefFile.name);
         }
-        return path.join(TEMP_DIR, appDefFile);
+        for (const dir of entries.filter((entry) => entry.isDirectory())) {
+            const nested = readdirSync(path.join(TEMP_DIR, dir.name)).find((file) =>
+                file.endsWith(APP_DEF_EXT)
+            );
+            if (nested) {
+                return path.join(TEMP_DIR, dir.name, nested);
+            }
+        }
+        throw new Error('No .appDef file found in the extracted directory');
     } catch (error) {
         throw new Error(`Error finding .appDef file: ${error.message}`);
     }
 }
 
 // Run the application
-function runCommand(executionCommand: string, appDefFile: string): void {
+export function runCommand(executionCommand: string, appDefFile: string): Promise<boolean> {
     const command = `${executionCommand} -load "${appDefFile}" -build-modern-pwa-data-files -no-save -fp pwa-repo="${process.cwd()}"`;
     console.log(`Running: ${command}`);
 
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-        }
-        console.log(`stdout: ${stdout}`);
+    return new Promise((resolve) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error: ${error.message}`);
+                resolve(false);
+                return;
+            }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
+            console.log(`stdout: ${stdout}`);
+            resolve(true);
+        });
     });
 }
 
 // Main function
-(async function main(): Promise<void> {
+async function main(): Promise<void> {
     const projectName = process.argv[2];
     if (!projectName) {
         console.error('Error: Please provide a project name (e.g., web_gospels)');
@@ -170,4 +183,8 @@ function runCommand(executionCommand: string, appDefFile: string): void {
     } catch (error) {
         console.error(`Failed: ${error.message}`);
     }
-})();
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    main();
+}
