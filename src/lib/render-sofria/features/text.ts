@@ -9,12 +9,14 @@ import {
 import { createLetterIndex, phraseTerminated, subdividePhrases } from '../util';
 import { createIllustrationCaptionBlock } from './wrappers/figures';
 
+export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
 type TextScratch = { text?: { introductionIndex?: number; footnoteCallerIndex?: number } };
 
 export const text = new FeatureSpec<
     {
         paragraph?: { subheadingPrefixes?: string[] };
-    } & TextScratch
+    } & TextScratch &
+        SharedParaScratch
 >([
     {
         event: 'startParagraph',
@@ -134,8 +136,12 @@ export const text = new FeatureSpec<
             }
             terminatePhrase(workspace);
             if (sequenceType === 'main' && !workspace.hackRenderIntro) {
+                workspace.scratch.paragraph?.deferredEls?.forEach((el) =>
+                    workspace.scopeManager.appendContent(el, 'paragraph:main')
+                );
+                addToScratchPad(workspace.scratch, 'paragraph', { deferredEls: [] });
                 workspace.scopeManager.promoteContent('paragraph:main');
-                // TODO: videoDiv? verseDiv?
+                // TODO: verseDiv?
             } else if (sequenceType === 'introduction') {
                 workspace.scopeManager.promoteContent('paragraph:introduction');
             } else if (sequenceType === 'title') {
