@@ -19,12 +19,15 @@ npm run test:bloom
 This will:
 
 1. Download `index.json` and list the available projects
-2. Ask which project to use
+2. Ask which project to use, or whether to run all projects one after the other
 3. Download the project zip into `test_data/bloom/` and verify its size and SHA-1 hash. A
    valid zip that was downloaded before is reused. A zip that fails verification is deleted.
 4. Run `npm run clean:all`, build the project's data files with Scripture App Builder, and
    run `npm run convert`
-5. Run the unit tests and the bloom tests
+5. Run the bloom tests
+
+When running all projects, steps 3–5 repeat for each project and a summary of passed, failed and
+skipped projects is printed at the end.
 
 The downloaded project replaces whatever is in `data/`, the same as `npm run extract:example`.
 
@@ -33,12 +36,12 @@ Options:
 | Option             | Description                                 |
 | ------------------ | ------------------------------------------- |
 | `--project <name>` | Use the named project instead of asking     |
+| `--run-all`        | Run all projects instead of asking          |
 | `--list`           | List the available projects and exit        |
-| `--bloom-only`     | Run only the bloom tests                    |
 | `--index <url>`    | Use this `index.json` URL instead of `.env` |
 
 Options are passed after `--`, for example
-`npm run test:bloom -- --project my_project --bloom-only`.
+`npm run test:bloom -- --project my_project`.
 
 Once a bloom project has been converted into `data/`, the bloom tests can be rerun directly with
 `npx vitest --project bloom`.

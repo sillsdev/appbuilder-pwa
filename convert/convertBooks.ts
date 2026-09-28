@@ -734,7 +734,7 @@ function convertBloomBook(context: ConvertBookContext, book: BookConfig, verbose
     }
 }
 
-function normalizeBloomFileNames(dir: string) {
+export function normalizeBloomFileNames(dir: string) {
     // This function insures that if a unicode character is not in the filename
     const names = fs.readdirSync(dir);
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -760,7 +760,7 @@ const BLOOM_REF_REGEXES: RegExp[] = [
     /(url\(\s*)(["']?)([^"')]*)\2/gi
 ];
 
-function normalizeBloomRef(value: string): string {
+export function normalizeBloomRef(value: string): string {
     if (!/[\u0080-￿]|%[89A-F][0-9A-F]/i.test(value)) {
         return value;
     }

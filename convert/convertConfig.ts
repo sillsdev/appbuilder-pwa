@@ -126,7 +126,7 @@ export function parseStylesInfo(stylesInfoTag: Element, verbose: number): StyleC
     };
 }
 
-function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
+export function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData {
     if (!existsSync(jsonPath)) {
         console.error(`Could not open ${jsonPath}`);
     }
