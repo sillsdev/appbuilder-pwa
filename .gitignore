@@ -13,6 +13,7 @@ data-*/*
 !data-sandbox/*
 data-sandbox/node_modules
 !data/.empty
+test_data/bloom/
 static/sab-stylesheet.css
 static/bloom-player
 static/illustrations
