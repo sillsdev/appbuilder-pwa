@@ -121,24 +121,29 @@ function describeProject(project: BloomProject, n: number): string {
     return `${n}) ${project.name}${program} — ${project.description} (${project.size})`;
 }
 
-async function chooseProject(projects: BloomProject[], name?: string): Promise<BloomProject> {
+async function chooseProjects(projects: BloomProject[], name?: string): Promise<BloomProject[]> {
     if (name) {
         const match = projects.find((p) => p.name === name);
         if (!match) {
             throw new Error(`Project "${name}" not found in index.json`);
         }
-        return match;
+        return [match];
     }
+    const count = projects.length + 1;
     console.log('\nAvailable bloom test projects:');
-    projects.forEach((p, i) => console.log(`  ${describeProject(p, i + 1)}`));
+    console.log(`  1) All projects (run one after the other)`);
+    projects.forEach((p, i) => console.log(`  ${describeProject(p, i + 2)}`));
     const rl = createInterface({ input, output });
-    const ask = () => output.write(`\nChoose a project [1-${projects.length}]: `);
+    const ask = () => output.write(`\nChoose a project [1-${count}]: `);
     try {
         ask();
         for await (const line of rl) {
             const choice = Number(line.trim());
-            if (Number.isInteger(choice) && choice >= 1 && choice <= projects.length) {
-                return projects[choice - 1];
+            if (choice === 1) {
+                return projects;
+            }
+            if (Number.isInteger(choice) && choice >= 2 && choice <= count) {
+                return [projects[choice - 2]];
             }
             console.log('Invalid choice.');
             ask();
@@ -271,6 +276,30 @@ async function run(command: string[], label: string): Promise<void> {
     }
 }
 
+function checkProgram(project: BloomProject): void {
+    if (!BLOOM_PROGRAMS.includes(project.program)) {
+        throw new Error(
+            `Program "${project.program}" does not use bloom books. Bloom projects must be one of: ${BLOOM_PROGRAMS.join(', ')}`
+        );
+    }
+    if (!BUILDABLE_PROGRAMS.includes(project.program)) {
+        throw new Error(`Program "${project.program}" is not supported yet`);
+    }
+}
+
+async function testProject(project: BloomProject, indexUrl: string): Promise<number> {
+    checkProgram(project);
+
+    const zipPath = await downloadProject(project, indexUrl);
+
+    const appDefFile = await prepareProject(zipPath);
+    await run(['run', 'clean:all'], 'Clean');
+    await buildProject(project.program, appDefFile);
+    await run(['run', 'convert'], 'Convert');
+
+    return runNpmScript(['exec', '--', 'vitest', 'run', '--project', 'bloom']);
+}
+
 (async function main(): Promise<void> {
     try {
         const options = parseArgs(process.argv.slice(2));
@@ -281,31 +310,36 @@ async function run(command: string[], label: string): Promise<void> {
             return;
         }
 
-        const project = await chooseProject(projects, options.project);
-        if (!BLOOM_PROGRAMS.includes(project.program)) {
-            throw new Error(
-                `Program "${project.program}" does not use bloom books. Bloom projects must be one of: ${BLOOM_PROGRAMS.join(', ')}`
-            );
-        }
-        if (!BUILDABLE_PROGRAMS.includes(project.program)) {
-            throw new Error(`Program "${project.program}" is not supported yet`);
+        const selected = await chooseProjects(projects, options.project);
+        if (selected.length === 1) {
+            process.exitCode = await testProject(selected[0], options.indexUrl);
+            return;
         }
 
-        const zipPath = await downloadProject(project, options.indexUrl);
+        const results: { name: string; status: string }[] = [];
+        for (const [i, project] of selected.entries()) {
+            console.log(`\n=== [${i + 1}/${selected.length}] ${project.name} ===`);
+            try {
+                checkProgram(project);
+            } catch (error) {
+                console.log(`Skipping: ${(error as Error).message}`);
+                results.push({ name: project.name, status: 'skipped' });
+                continue;
+            }
+            try {
+                const code = await testProject(project, options.indexUrl);
+                results.push({ name: project.name, status: code === 0 ? 'passed' : 'failed' });
+            } catch (error) {
+                console.error(`Failed: ${(error as Error).message}`);
+                results.push({ name: project.name, status: 'error' });
+            }
+        }
 
-        const appDefFile = await prepareProject(zipPath);
-        await run(['run', 'clean:all'], 'Clean');
-        await buildProject(project.program, appDefFile);
-        await run(['run', 'convert'], 'Convert');
-
-        process.exitCode = await runNpmScript([
-            'exec',
-            '--',
-            'vitest',
-            'run',
-            '--project',
-            'bloom'
-        ]);
+        console.log('\n=== Bloom test summary ===');
+        results.forEach((r) => console.log(`  ${r.status.padEnd(8)} ${r.name}`));
+        if (results.some((r) => r.status === 'failed' || r.status === 'error')) {
+            process.exitCode = 1;
+        }
     } catch (error) {
         console.error(`Failed: ${(error as Error).message}`);
         process.exitCode = 1;
