@@ -1,5 +1,10 @@
-import { addToScratchPad, FeatureSpec } from '$lib/render-sofria/common';
-import { ensureTrailingSlash, filenameWithoutPath, padWithInitialZeros } from '$lib/scripts/stringUtils';
+import { addToScratchPad, FeatureSpec, type RenderWorkspace } from '$lib/render-sofria/common';
+import {
+    ensureTrailingSlash,
+    filenameWithoutPath,
+    padWithInitialZeros,
+    splitString
+} from '$lib/scripts/stringUtils';
 import { createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
 import { terminatePhrase, type SharedParaScratch } from './text';
 
@@ -105,6 +110,32 @@ export const milestones = new FeatureSpec<
                 const a = workspace.document.createElement('a');
                 a.href = decodeURIComponent(element.atts['link'][0]);
                 workspace.scopeManager.push('milestone:zaudioc', a);
+            } else if (element.subType === 'usfm:zreflink') {
+                workspace.textType.push('reflink');
+                const link = decodeURIComponent(element.atts['link'][0]);
+                const title = decodeURIComponent(element.atts['title']?.[0] ?? '');
+
+                const a = workspace.document.createElement('a');
+                a.classList.add('web-link', 'ref-link', 'dy-tooltip');
+                a.setAttribute('data-tip', title);
+                a.style.display = 'inline';
+                a.href = 'javascript:void(0)';
+                a.addEventListener('click', function referenceLinkClickHandler(event: MouseEvent) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const [docSet, book, chapter, verse] = splitString(link, '.');
+                    let refDocSet = workspace.references.docSet;
+                    const refBc = workspace.config.bookCollections?.find((x) => x.id === docSet);
+                    if (refBc) {
+                        refDocSet = refBc.languageCode + '_' + refBc.id;
+                    } else {
+                        // Invalid collection
+                        return;
+                    }
+                    workspace.eventNavigate({ docSet: refDocSet, book, chapter, verse });
+                });
+
+                workspace.scopeManager.push('milestone:zreflink', a);
             }
         }
     },
@@ -177,7 +208,25 @@ export const milestones = new FeatureSpec<
                     workspace.scopeManager.appendContent(span);
                 }
                 workspace.textType.pop();
+            } else if (element.subType === 'usfm:zreflink') {
+                workspace.scopeManager.promoteContent('milestone:zreflink');
             }
         }
     }
 ]);
+
+// handles clicks on in text markdown reference links
+function referenceLinkClickHandler(workspace: RenderWorkspace, target: HTMLElement) {
+    const linkRef = target.getAttribute('ref') ?? '';
+    const [docSet, book, chapter, verse] = splitString(linkRef, '.');
+    let refDocSet = workspace.references.docSet;
+    const refBc = workspace.config.bookCollections?.find((x) => x.id === docSet);
+    if (refBc) {
+        refDocSet = refBc.languageCode + '_' + refBc.id;
+    } else {
+        // Invalid collection
+        return;
+    }
+    workspace.eventNavigate({ docSet: refDocSet, book, chapter, verse });
+    return;
+}
