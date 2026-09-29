@@ -111,8 +111,8 @@ function extractFigureSource(element: RenderElement) {
 
 function shouldShowImage(workspace: RenderWorkspace) {
     return (
-        workspace.viewShowIllustrations &&
-        (!isBibleBook(workspace.references) || workspace.viewShowBibleImages === 'normal')
+        workspace.viewSettings.illustrations &&
+        (!isBibleBook(workspace.references) || workspace.viewSettings.bibleImages === 'normal')
     );
 }
 

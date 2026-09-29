@@ -35,7 +35,7 @@ export const chapterVerses = new FeatureSpec([
                 console.log('verses %o start phrase', element.atts.number);
             }
 
-            if (workspace.verseLayout === 'one-per-lin') {
+            if (workspace.viewSettings.verseLayout === 'one-per-lin') {
                 const verseDiv = workspace.document.createElement('div');
                 verseDiv.classList.add('verse-block');
                 workspace.scopeManager.push('verses', verseDiv);
@@ -55,7 +55,7 @@ export const chapterVerses = new FeatureSpec([
             }
             workspace.currentTextPosition.verse = 'none';
 
-            if (workspace.verseLayout === 'one-per-lin') {
+            if (workspace.viewSettings.verseLayout === 'one-per-lin') {
                 const verseDiv = workspace.scopeManager.find('verses')?.root;
                 if (verseDiv) {
                     workspace.scopeManager.appendContent(verseDiv, 'paragraph');

@@ -34,12 +34,9 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
                 text: ''
             };
             if (element.subType === 'xref' || element.subType === 'footnote') {
-                workspace.textType.push('footnote');
                 const [callerRoot, contentRoot] = createFootnoteDiv(workspace, element);
                 workspace.scopeManager.push('inlineGraft:note_caller', callerRoot);
                 workspace.scopeManager.push('inlineGraft:footnote', contentRoot);
-            } else if (element.subType === 'note_caller') {
-                workspace.textType.push(element.subType);
             }
 
             renderGraftedSequence(environment, graftRecord.sequence);
@@ -57,9 +54,6 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
                         workspace.document.createTextNode('\u00A0')
                     );
                 }
-                workspace.textType.pop();
-            } else if (element.subType === 'note_caller') {
-                workspace.textType.pop();
             }
             if (workspace.logSettings.inlineGraft) {
                 console.log('Inline Graft End');

@@ -26,7 +26,6 @@ LOGGING:
         viewShowBibleImages: string;
         viewShowBibleVideos: string;
         viewShowIllustrations: boolean;
-        viewShowVerses: boolean;
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
@@ -44,17 +43,10 @@ LOGGING:
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { scriptureLogs, type GlossaryQueryResult } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
-    import EntryView from '$lib/lexicon/components/EntryView.svelte';
-    import { navigateToText } from '$lib/navigate';
     import { renderFeatures } from '$lib/render-sofria';
     import {
-        RenderEventDescriptor,
-        RenderEventPosition,
         renderEvents,
-        RenderScope,
         type ActionDictionary,
-        type FeatureSpec,
-        type RenderAction,
         type RenderEnvironment,
         type RenderEvent,
         type RenderWorkspace
@@ -62,7 +54,7 @@ LOGGING:
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
-    import { checkFeatureValueIs, getFeatureValueBoolean } from '$lib/scripts/configUtils';
+    import { checkFeatureValueIs } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
@@ -83,7 +75,6 @@ LOGGING:
         viewShowBibleImages,
         viewShowBibleVideos,
         viewShowIllustrations,
-        viewShowVerses,
         viewShowGlossaryWords,
         font,
         proskomma,
@@ -93,8 +84,6 @@ LOGGING:
     const currentBook = $derived(references.book);
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
-
-    // const openScopes: Array<RenderScope> = $state([]);
     const scopeManager = $state(new ScopeManager(document, []));
 
     const actionsDict: ActionDictionary = $derived.by(() => {
@@ -199,26 +188,28 @@ LOGGING:
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = scopeManager;
-        workspace.sequenceTypes = [];
         workspace.references = references;
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
             chapter: 'none',
             verse: 'none'
         };
-        workspace.showVerseNumbers = viewShowVerses;
         workspace.logSettings = $scriptureLogs;
         workspace.scratch = {};
-        workspace.numeralSystem = numeralSystem;
-        workspace.separatorRegex = getSeparatorRegex(audioPhraseEndChars);
-        workspace.verseLayout = verseLayout;
-        workspace.viewShowBibleImages = viewShowBibleImages;
-        workspace.viewShowIllustrations = viewShowIllustrations;
-        workspace.viewShowGlossaryWords = viewShowGlossaryWords;
-        workspace.viewShowRedLetters = redLetters;
-        workspace.usfmWrapperType = '';
-        workspace.textType = [];
+        workspace.textConfig = {
+            numeralSystem,
+            separatorRegex: getSeparatorRegex(audioPhraseEndChars)
+        };
+        workspace.viewSettings = {
+            bibleImages: viewShowBibleImages,
+            illustrations: viewShowIllustrations,
+            glossaryWords: viewShowGlossaryWords,
+            redLetters,
+            verseLayout
+        };
         workspace.config = scriptureConfig;
-        workspace.eventNavigate = setReference;
+        workspace.events = {
+            navigate: setReference
+        };
 
         Object.assign(workspace, workspaceOptions);
     }
