@@ -10,7 +10,7 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     {
         event: 'startWrapper',
         guard: ({ context, workspace }) =>
-            isGlossaryWrapper(usfmType(context)) && workspace.viewShowGlossaryWords,
+            isGlossaryWrapper(usfmType(context)) && workspace.viewSettings.glossaryWords,
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
             if (workspace.logSettings.wrapper) {
@@ -23,8 +23,6 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
             });
 
             const usfmWrapperType = usfmType(context);
-            workspace.textType.push('usfm');
-            workspace.usfmWrapperType = usfmWrapperType;
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add('glossary');
@@ -34,14 +32,11 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     {
         event: 'endWrapper',
         guard: ({ context, workspace }) =>
-            isGlossaryWrapper(usfmType(context)) && workspace.viewShowGlossaryWords,
+            isGlossaryWrapper(usfmType(context)) && workspace.viewSettings.glossaryWords,
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
-
-            workspace.textType.pop();
-            workspace.usfmWrapperType = '';
 
             const wrapper = workspace.scopeManager.pop('wrapper:glossary').root;
 

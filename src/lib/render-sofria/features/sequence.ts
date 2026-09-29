@@ -9,28 +9,12 @@ export const sequences = new FeatureSpec([
             if (workspace.logSettings.sequence) {
                 console.log('Start sequence |%o|', sequenceType);
             }
-            switch (sequenceType) {
-                case 'title': {
-                    workspace.textType.push('title');
-                    const div = document.createElement('div');
-                    div.setAttribute('data-verse', 'title');
-                    div.setAttribute('data-phrase', 'none');
-                    div.classList.add('scroll-item');
-                    workspace.scopeManager.push('sequence:title', div);
-                    break;
-                }
-                case 'heading':
-                case 'main':
-                case 'introduction':
-                case 'fig':
-                case 'footnote':
-                case 'xref': {
-                    workspace.textType.push(sequenceType);
-                    break;
-                }
-                default: {
-                    break;
-                }
+            if (sequenceType === 'title') {
+                const div = document.createElement('div');
+                div.setAttribute('data-verse', 'title');
+                div.setAttribute('data-phrase', 'none');
+                div.classList.add('scroll-item');
+                workspace.scopeManager.push('sequence:title', div);
             }
         }
     },
@@ -43,31 +27,15 @@ export const sequences = new FeatureSpec([
                 console.log('End sequence |%o|', sequenceType);
             }
 
-            switch (sequenceType) {
-                case 'title': {
-                    workspace.textType.pop();
-                    const div = workspace.scopeManager.find('sequence:title')?.root;
-                    if (div) {
-                        div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                        if (workspace.logSettings.sequence) {
-                            console.log('TITLE DIV %o', div);
-                        }
+            if (sequenceType === 'title') {
+                const div = workspace.scopeManager.find('sequence:title')?.root;
+                if (div) {
+                    div.innerHTML += `<div class="b"></div><div class="b"></div>`;
+                    if (workspace.logSettings.sequence) {
+                        console.log('TITLE DIV %o', div);
                     }
-                    workspace.scopeManager.promoteContent('sequence:title');
-                    break;
                 }
-                case 'heading':
-                case 'main':
-                case 'introduction':
-                case 'fig':
-                case 'footnote':
-                case 'xref': {
-                    workspace.textType.pop();
-                    break;
-                }
-                default: {
-                    break;
-                }
+                workspace.scopeManager.promoteContent('sequence:title');
             }
         }
     }
