@@ -1,6 +1,6 @@
 import type { ScriptureConfig } from '$config';
 import type { ScriptureLogConfig } from '$lib/data/stores';
-import type { ReferenceStore } from '$lib/data/stores/reference';
+import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
 import type {
     RenderWorkspace as PKRenderWorkspace,
@@ -166,6 +166,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         textType: string[];
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;
+        eventNavigate: (refs: Reference) => void;
     };
 
 /**
