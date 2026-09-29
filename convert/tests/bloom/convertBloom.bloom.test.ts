@@ -42,6 +42,18 @@ function safeDecode(value: string): string {
     }
 }
 
+function readCatalog(collection: BookCollections[number]) {
+    const catalogPath = path.join(
+        'src',
+        'gen-assets',
+        'collections',
+        'catalog',
+        `${collection.languageCode}_${collection.id}.json`
+    );
+    expect(existsSync(catalogPath)).toBe(true);
+    return JSON.parse(readFileSync(catalogPath, 'utf-8'));
+}
+
 function refToPath(ref: string): string {
     return safeDecode(ref.split(/[?#]/)[0]);
 }
@@ -85,7 +97,7 @@ describe.skipIf(!isBloomProjectLoaded())('bloom project conversion', () => {
         expect(existsSync(path.join(dataDir, 'books', collectionId, bookId))).toBe(true);
     });
 
-    describe('config', () => {
+    describe('Bloom Books config', () => {
         test.each(books)(
             'book $collectionId/$bookId hashedDir matches source hash and output folder',
             ({ collectionId, bookId }) => {
@@ -160,7 +172,7 @@ describe.skipIf(!isBloomProjectLoaded())('bloom project conversion', () => {
         );
     });
 
-    describe('converted files', () => {
+    describe('Bloom Books converted files', () => {
         test.each(books)(
             'book $collectionId/$bookId file names are NFC',
             ({ collectionId, bookId }) => {
@@ -223,19 +235,7 @@ describe.skipIf(!isBloomProjectLoaded())('bloom project conversion', () => {
         );
     });
 
-    describe('catalog', () => {
-        function readCatalog(collection: BookCollections[number]) {
-            const catalogPath = path.join(
-                'src',
-                'gen-assets',
-                'collections',
-                'catalog',
-                `${collection.languageCode}_${collection.id}.json`
-            );
-            expect(existsSync(catalogPath)).toBe(true);
-            return JSON.parse(readFileSync(catalogPath, 'utf-8'));
-        }
-
+    describe('Bloom Books catalog', () => {
         test('every collection has a catalog with bloomBooks matching the config', () => {
             for (const collection of collections) {
                 const expected = collection.books
@@ -255,7 +255,7 @@ describe.skipIf(!isBloomProjectLoaded())('bloom project conversion', () => {
         });
     });
 
-    describe('app config', () => {
+    describe('Bloom Books app config (for SAB or RAB)', () => {
         test('font files used by the project exist', () => {
             const missing = parseFonts(document, 0)
                 .map((f) => f.file)
