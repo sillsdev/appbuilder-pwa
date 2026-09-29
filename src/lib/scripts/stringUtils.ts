@@ -237,3 +237,9 @@ export function compareVersions(version1: string, version2: string): number {
 
     return 0;
 }
+export function ensureTrailingSlash(url: string | undefined) {
+    if (!url?.endsWith('/')) {
+        return url + '/';
+    }
+    return url;
+}
