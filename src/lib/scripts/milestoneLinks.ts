@@ -38,21 +38,6 @@ export function checkForMilestoneLinks(
             appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
-        case 'usfm:zweblink': {
-            const reflink = getWebLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
-            break;
-        }
-        case 'usfm:ztellink': {
-            const reflink = getTelephoneLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
-            break;
-        }
-        case 'usfm:zelink': {
-            const reflink = getEmailLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
-            break;
-        }
         default: {
             break;
         }
@@ -74,33 +59,6 @@ function appendMilestoneElement(
     if (pop) {
         textType.pop();
     }
-}
-
-function getWebLinkHtml(link: string, text: string): HTMLElement {
-    const a = document.createElement('a');
-    a.href = link;
-    a.setAttribute('target', '_blank');
-    a.classList.add('web-link');
-    a.innerHTML = text;
-    return a;
-}
-
-function getEmailLinkHtml(link: string, text: string): HTMLElement {
-    const a = document.createElement('a');
-    a.href = link;
-    a.setAttribute('target', '_blank');
-    a.classList.add('email-link');
-    a.innerHTML = text;
-    return a;
-}
-
-function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
-    const a = document.createElement('a');
-    a.href = link;
-    a.setAttribute('target', '_blank');
-    a.classList.add('tel-link');
-    a.innerHTML = text;
-    return a;
 }
 function getAudioLinkHtml(
     link: string,
