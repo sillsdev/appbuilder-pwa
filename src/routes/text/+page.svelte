@@ -12,10 +12,9 @@
     } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScripturePager from '$lib/components/ScripturePager.svelte';
-    import ScriptureViewProskomma from '$lib/components/ScriptureViewProskomma.svelte';
-    import ScriptureViewSofria, {
-        type Props as ScriptureViewSofriaProps
-    } from '$lib/components/ScriptureViewSofria.svelte';
+    import ScriptureViewProskomma, {
+        type Props as ScriptureViewProskommaProps
+    } from '$lib/components/ScriptureViewProskomma.svelte';
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
@@ -156,6 +155,17 @@
                 $refs.book
             )
     );
+    async function prevChapter() {
+        await navigateToTextChapterInDirection(-1);
+    }
+    async function nextChapter() {
+        await navigateToTextChapterInDirection(1);
+    }
+
+    const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
+    const navigateBetweenBooksNext = $derived(swipeBetweenBooks || $refs.next.book === $refs.book);
+    const hasPrev = $derived($refs.prev.chapter !== null);
+    const hasNext = $derived($refs.next.chapter !== null);
 
     const audioPhraseEndChars = $derived(
         getFeatureValueString(
@@ -202,14 +212,13 @@
                         'display-videos-in-bible-text'
                     ] as string,
                     viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                    viewShowVerses,
                     viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
                     font: $currentFont!,
                     proskomma: data?.proskomma,
-                    setReference: refs.set,
-                    setBookTab: refs.setBookTab,
-                    selectedVerses
-                } satisfies ScriptureViewSofriaProps)
+                    setReference: refs.set
+                    //setBookTab: refs.setBookTab,
+                    //selectedVerses
+                } satisfies ScriptureViewProskommaProps)
               : {}
     );
 
@@ -547,7 +556,7 @@
                         <!-- {...settings as ScriptureViewSofriaProps} -->
                         <!-- /> -->
                         <ScriptureViewProskomma
-                            {...settings as ScriptureViewSofriaProps}
+                            {...settings as ScriptureViewProskommaProps} />
                     {/if}
                 {/snippet}
             </ScripturePager>

@@ -32,7 +32,6 @@ export const text = new FeatureSpec<
                 context.sequences[0].block.subType ||
                 '';
             if (sequenceType === 'main' && !workspace.hackRenderIntro) {
-                workspace.sequenceTypes.push('main');
                 const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass);
                 if (paraClass === 'b') {
@@ -76,7 +75,6 @@ export const text = new FeatureSpec<
             // See https://community.scripture.software.sil.org/t/issues-with-cross-workspace.references-in-pwa-modern/4476
             text = text === '|default=""' ? '| ' : text;
 
-            const textType = workspace.textType.at(-1);
             const subType = context.sequences[0].block.subType;
 
             if (workspace.logSettings.text) {
@@ -86,18 +84,14 @@ export const text = new FeatureSpec<
                     context.sequences[0].element.text,
                     context.sequences[0].block
                 );
-                console.log('Text Type: %o', textType);
             }
 
-            if (textType === 'heading' && subType === 'usfm:r') {
-                const refText = generateHTML(text, 'header-ref');
+            if (workspace.scopeManager.find('paragraph:heading') && subType === 'usfm:r') {
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain workspace.references inline
-                const headerDiv = workspace.scopeManager.find('paragraph')?.root;
-                if (headerDiv) {
-                    headerDiv.innerHTML += refText;
-                }
-            } else if (workspace.usfmWrapperType === 'fig') {
+                const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
+                headerDiv.innerHTML += generateHTML(text, 'header-ref');
+            } else if (workspace.scopeManager.find('wrapper:figure')) {
                 // This is a HACK!
                 // see https://github.com/Proskomma/proskomma-json-tools/issues/63
                 if (text !== 'NO_CAPTION') {
@@ -105,12 +99,33 @@ export const text = new FeatureSpec<
                     workspace.scopeManager.appendContent(divFigureText, 'wrapper:figure');
                 }
             } else if (subType === 'usfm:x') {
-                addGraftText(workspace, text, 'xref', 'usfm:x');
+                addGraftText(workspace, text, 'crossref');
             } else if (subType === 'usfm:f') {
-                addGraftText(workspace, text, 'footnote', 'usfm:f');
+                addGraftText(workspace, text, 'footnote');
             } else if (subType === 'usfm:tr') {
-                addTableText(workspace, text);
-            } else if (workspace.usfmWrapperType === 'usfm:xt') {
+                if (workspace.scopeManager.find('wrapper:cell')) {
+                    if (workspace.scopeManager.find('wrapper:xt')) {
+                        const references = text.split('; ');
+                        for (let i = 0; i < references.length; i++) {
+                            const spanV = document.createElement('span');
+                            spanV.classList.add('reflink');
+                            const refText = generateHTML(text, 'header-ref');
+                            spanV.innerHTML = refText;
+                            // TODO spanV.addEventListener('click', onClick, false);
+                            workspace.scopeManager.appendContent(spanV);
+                            if (i < references.length - 1) {
+                                workspace.scopeManager.appendContent(
+                                    workspace.document.createTextNode('; ')
+                                );
+                            }
+                        }
+                    } else {
+                        workspace.scopeManager.appendContent(
+                            workspace.document.createTextNode(text)
+                        );
+                    }
+                }
+            } else if (workspace.scopeManager.find('wrapper:xt')) {
                 const spanV = document.createElement('span');
                 spanV.classList.add('reflink');
                 const refText = generateHTML(text, 'header-ref');
@@ -207,20 +222,19 @@ function addPhrases(workspace: RenderWorkspace, text: string) {
     }
 }
 
-function addTableText(workspace: RenderWorkspace, text: string) {
-    if (workspace.scopeManager.find('wrapper:cell')) {
-        if (workspace.textType.includes('usfm') && workspace.usfmWrapperType === 'xt') {
-            const references = text.split('; ');
-            for (let i = 0; i < references.length; i++) {
-                const spanV = document.createElement('span');
-                spanV.classList.add('reflink');
-                const refText = generateHTML(text, 'header-ref');
-                spanV.innerHTML = refText;
-                // TODO spanV.addEventListener('click', onClick, false);
-                workspace.scopeManager.appendContent(spanV);
-                if (i < references.length - 1) {
-                    workspace.scopeManager.appendContent(workspace.document.createTextNode('; '));
-                }
+function addGraftText(workspace: RenderWorkspace, text: string, textType: 'crossref' | 'footnote') {
+    const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
+    const contentRoot = workspace.scopeManager.find('inlineGraft:footnote')?.root;
+    if (callerRoot && contentRoot && callerRoot.getAttribute('data-graft') === contentRoot.id) {
+        const sup = callerRoot.querySelector('sup.footnote');
+        if (sup && !sup.innerHTML) {
+            const caller = getFootnoteCallerCharacter(workspace, text, textType);
+            if (!caller) {
+                // Do not include the footnote
+                workspace.scopeManager.remove('inlineGraft:note_caller');
+            } else {
+                // Assign the caller to the footnote sup
+                sup.innerHTML = caller;
             }
         } else {
             workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
@@ -228,94 +242,36 @@ function addTableText(workspace: RenderWorkspace, text: string) {
     }
 }
 
-function addGraftText(
-    workspace: RenderWorkspace,
-    text: string,
-    textType: 'xref' | 'footnote',
-    usfmType: string
-) {
-    if (workspace.textType.includes(textType)) {
-        const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
-        const contentRoot = workspace.scopeManager.find('inlineGraft:footnote')?.root;
-        if (callerRoot && contentRoot && callerRoot.getAttribute('data-graft') === contentRoot.id) {
-            if (workspace.textType.includes('note_caller')) {
-                const caller = getFootnoteCallerCharacter(workspace, text, textType);
-                if (!caller) {
-                    // Do not include the footnote
-                    workspace.scopeManager.remove('inlineGraft:note_caller');
-                } else {
-                    // Assign the caller to the footnote sup
-                    const elements = callerRoot?.querySelectorAll('sup.footnote');
-                    if (elements && elements.length > 0) {
-                        elements[0].innerHTML = caller;
-                    }
-                }
-            } else {
-                workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
-            }
-        }
-    } else {
-        console.warn('%s ignored: %s', usfmType, text);
-    }
-}
-
 function getFootnoteCallerCharacter(
     workspace: RenderWorkspace<TextScratch>,
     initialCallerSymbol: string,
-    footnoteType: 'xref' | 'footnote'
+    footnoteType: 'crossref' | 'footnote'
 ) {
-    let callerType = 'default';
-    let callerSymbol: string | null = initialCallerSymbol;
-    let callerCustomSymbol = '';
-    let callerNoCallerToAuto = false;
-    switch (footnoteType) {
-        case 'xref':
-            callerType = getFeatureValueString(
-                workspace.config,
-                'crossref-caller-type',
-                workspace.references.collection,
-                workspace.references.book
-            );
-            callerCustomSymbol = getFeatureValueString(
-                workspace.config,
-                'crossref-caller-symbol',
-                workspace.references.collection,
-                workspace.references.book
-            );
-            callerNoCallerToAuto = getFeatureValueBoolean(
-                workspace.config,
-                'crossref-caller-no-caller-to-auto',
-                workspace.references.collection,
-                workspace.references.book
-            );
-            break;
+    const callerType =
+        getFeatureValueString(
+            workspace.config,
+            `${footnoteType}-caller-type`,
+            workspace.references.collection,
+            workspace.references.book
+        ) || 'default';
+    const callerNoCallerToAuto = getFeatureValueBoolean(
+        workspace.config,
+        `${footnoteType}-caller-no-caller-to-auto`,
+        workspace.references.collection,
+        workspace.references.book
+    );
 
-        default:
-            callerType = getFeatureValueString(
-                workspace.config,
-                'footnote-caller-type',
-                workspace.references.collection,
-                workspace.references.book
-            );
-            callerCustomSymbol = getFeatureValueString(
-                workspace.config,
-                'footnote-caller-symbol',
-                workspace.references.collection,
-                workspace.references.book
-            );
-            callerNoCallerToAuto = getFeatureValueBoolean(
-                workspace.config,
-                'footnote-caller-no-caller-to-auto',
-                workspace.references.collection,
-                workspace.references.book
-            );
-            break;
-    }
+    let callerSymbol: string | null = initialCallerSymbol;
 
     if (callerType === 'custom-symbol') {
         // Use whatever is specified as the custom symbol, even '-' or '+'
         // This matches native app. Sigh.
-        return callerCustomSymbol;
+        return getFeatureValueString(
+            workspace.config,
+            `${footnoteType}-caller-symbol`,
+            workspace.references.collection,
+            workspace.references.book
+        );
     } else if (callerType === 'abc') {
         callerSymbol = '+';
     } else if (callerNoCallerToAuto && callerSymbol === '-') {
@@ -323,14 +279,12 @@ function getFootnoteCallerCharacter(
     }
 
     if (callerSymbol === '-') {
-        callerSymbol = null;
-    }
-
-    if (callerSymbol === '+') {
+        return null;
+    } else if (callerSymbol === '+') {
         const idx = workspace.scratch.text?.footnoteCallerIndex ?? 0;
-        callerSymbol = createLetterIndex(idx);
         addToScratchPad(workspace.scratch, 'text', { footnoteCallerIndex: idx + 1 });
+        return createLetterIndex(idx);
+    } else {
+        return callerSymbol;
     }
-
-    return callerSymbol;
 }
