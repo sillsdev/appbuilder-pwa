@@ -1,5 +1,5 @@
 import type { AudioConfig } from '$config';
-import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
+import { ensureTrailingSlash, filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 
 const clips = import.meta.glob('./*', {
     import: 'default',
@@ -167,11 +167,4 @@ function getReferenceLinkHtml(link: string, text: string, title: string): HTMLEl
         return span;
     }
     return a;
-}
-
-function ensureTrailingSlash(url) {
-    if (!url.endsWith('/')) {
-        return url + '/';
-    }
-    return url;
 }
