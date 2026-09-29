@@ -148,25 +148,27 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             verse: string;
             phraseIndex?: number;
         };
-        showVerseNumbers: boolean;
-        verseRangeNumber?: string;
-        sequenceTypes: Array<SequenceType>;
         root: HTMLDivElement;
         scopeManager: ScopeManager;
         logSettings: ScriptureLogConfig;
         scratch: RenderScratchpad<Scratch>;
-        separatorRegex: RegExp;
-        numeralSystem: NumeralSystem;
-        verseLayout: string;
-        viewShowBibleImages: string;
-        viewShowIllustrations: boolean;
-        viewShowGlossaryWords: boolean;
-        viewShowRedLetters: boolean;
-        usfmWrapperType: string;
-        textType: string[];
+        textConfig: {
+            separatorRegex: RegExp;
+            numeralSystem: NumeralSystem;
+        };
+        viewSettings: {
+            bibleImages: string;
+            illustrations: boolean;
+            glossaryWords: boolean;
+            redLetters: boolean;
+            verseLayout: string;
+            verseRangeNumber?: string;
+        };
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;
-        eventNavigate: (refs: Reference) => void;
+        events: {
+            navigate: (refs: Reference) => void;
+        };
     };
 
 /**

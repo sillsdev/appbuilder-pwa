@@ -28,7 +28,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
                 }
                 const chapterNumText = numerals.formatNumber(
-                    workspace.numeralSystem,
+                    workspace.textConfig.numeralSystem,
                     element.atts['number']
                 );
 
@@ -119,23 +119,21 @@ export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>(
 );
 
 function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
-    if (workspace.showVerseNumbers) {
-        const spanV = workspace.document.createElement('span');
-        spanV.classList.add('v');
-        const direction =
-            scriptureConfig.bookCollections?.find((x) => x.id === workspace.references.collection)
-                ?.style?.textDirection ?? 'ltr';
-        // 'number' can be a range of verse numbers
-        spanV.innerText = numerals.formatNumberRange(
-            workspace.numeralSystem,
-            element.atts['number'],
-            direction
-        );
+    const spanV = workspace.document.createElement('span');
+    spanV.classList.add('v');
+    const direction =
+        scriptureConfig.bookCollections?.find((x) => x.id === workspace.references.collection)
+            ?.style?.textDirection ?? 'ltr';
+    // 'number' can be a range of verse numbers
+    spanV.innerText = numerals.formatNumberRange(
+        workspace.textConfig.numeralSystem,
+        element.atts['number'],
+        direction
+    );
 
-        const spanVsp = workspace.document.createElement('span');
-        spanVsp.classList.add('vsp');
-        spanVsp.innerText = '\u00A0'; // &nbsp
-        workspace.scopeManager.appendContent(spanV);
-        workspace.scopeManager.appendContent(spanVsp);
-    }
+    const spanVsp = workspace.document.createElement('span');
+    spanVsp.classList.add('vsp');
+    spanVsp.innerText = '\u00A0'; // &nbsp
+    workspace.scopeManager.appendContent(spanV);
+    workspace.scopeManager.appendContent(spanVsp);
 }

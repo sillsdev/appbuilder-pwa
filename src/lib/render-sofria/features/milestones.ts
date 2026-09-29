@@ -106,12 +106,10 @@ export const milestones = new FeatureSpec<
                     addToScratchPad(workspace.scratch, 'paragraph', { deferredEls });
                 }
             } else if (element.subType === 'usfm:zaudioc') {
-                workspace.textType.push('audioc');
                 const a = workspace.document.createElement('a');
                 a.href = decodeURIComponent(element.atts['link'][0]);
                 workspace.scopeManager.push('milestone:zaudioc', a);
             } else if (element.subType === 'usfm:zreflink') {
-                workspace.textType.push('reflink');
                 const link = decodeURIComponent(element.atts['link'][0]);
                 const title = decodeURIComponent(element.atts['title']?.[0] ?? '');
 
@@ -132,7 +130,7 @@ export const milestones = new FeatureSpec<
                         // Invalid collection
                         return;
                     }
-                    workspace.eventNavigate({ docSet: refDocSet, book, chapter, verse });
+                    workspace.events.navigate({ docSet: refDocSet, book, chapter, verse });
                 });
 
                 workspace.scopeManager.push('milestone:zreflink', a);
@@ -207,7 +205,6 @@ export const milestones = new FeatureSpec<
                     span.innerHTML = a.innerHTML;
                     workspace.scopeManager.appendContent(span);
                 }
-                workspace.textType.pop();
             } else if (element.subType === 'usfm:zreflink') {
                 workspace.scopeManager.promoteContent('milestone:zreflink');
             }
@@ -227,6 +224,6 @@ function referenceLinkClickHandler(workspace: RenderWorkspace, target: HTMLEleme
         // Invalid collection
         return;
     }
-    workspace.eventNavigate({ docSet: refDocSet, book, chapter, verse });
+    workspace.events.navigate({ docSet: refDocSet, book, chapter, verse });
     return;
 }

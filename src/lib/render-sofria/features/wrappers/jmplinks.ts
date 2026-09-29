@@ -17,7 +17,6 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
 
             let jmpLink: HTMLElement;
 
-            workspace.textType.push('jmp');
             let href = element.atts['href']?.[0] ?? '';
             try {
                 href = decodeURIComponent(href);
@@ -75,7 +74,6 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
-            workspace.textType.pop();
             workspace.scopeManager.promoteContent('wrapper:jmp');
 
             // TODO add link behavior

@@ -14,9 +14,9 @@ function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
         renderIfRegularOrIfHackedIntro(workspace) &&
         !!type &&
         // if glossary words are disabled, render as a normal wrapper with class 'w'
-        (!isGlossaryWrapper(type) || !workspace.viewShowGlossaryWords) &&
+        (!isGlossaryWrapper(type) || !workspace.viewSettings.glossaryWords) &&
         // don't bother adding a wrapper if it's words of Jesus and red-letters are disabled
-        (!isWordsOfJesusWrapper(type) || workspace.viewShowRedLetters)
+        (!isWordsOfJesusWrapper(type) || workspace.viewSettings.redLetters)
     );
 }
 
@@ -36,8 +36,6 @@ export const usfmWrappers = new FeatureSpec([
             }
 
             const usfmWrapperType = usfmType(context);
-            workspace.textType.push('usfm');
-            workspace.usfmWrapperType = usfmWrapperType;
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
@@ -52,9 +50,6 @@ export const usfmWrappers = new FeatureSpec([
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
-
-            workspace.textType.pop();
-            workspace.usfmWrapperType = '';
 
             workspace.scopeManager.promoteContent(`wrapper:${usfmType(context)}`);
         }
