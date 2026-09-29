@@ -56,6 +56,7 @@ export type BloomTitle = {
 export type BloomMetaData = {
     titles?: BloomTitle[];
     languages?: BloomLang[];
+    features?: string[];
 };
 
 export type BookConfig = {

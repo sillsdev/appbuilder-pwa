@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'fs';
+import { exists, existsSync, readdirSync, readFileSync } from 'fs';
 import path from 'path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { parseBookCollections, parseColorThemes, parseFonts } from '../../convertConfig';
@@ -120,6 +120,63 @@ describe.skipIf(!isBloomProjectLoaded())('bloom project conversion', () => {
                         path.join(outputDir(collectionId, bookId), book.file.normalize('NFC'))
                     )
                 ).toBe(true);
+            }
+        );
+
+        test.each(books)(
+            'book activities directory exists if features list it as having a widget',
+            ({ collectionId, bookId }) => {
+                const { book } = findBook(collections, collectionId, bookId);
+                expect(book.file).toBeTruthy();
+                if (book.bloomMeta?.features?.includes('widget')) {
+                    expect(
+                        existsSync(path.join(outputDir(collectionId, bookId), 'activities'))
+                    ).toBe(true);
+                } else {
+                    expect(
+                        existsSync(path.join(outputDir(collectionId, bookId), 'activities'))
+                    ).toBe(false);
+                }
+            }
+        );
+
+        test.each(books)(
+            'book audio directory exists if features list talkingBook',
+            ({ collectionId, bookId }) => {
+                const { book } = findBook(collections, collectionId, bookId);
+                expect(book.file).toBeTruthy();
+                if (
+                    book.bloomMeta?.features?.includes('talkingBook') ||
+                    book.bloomMeta?.features?.includes('drag-game')
+                ) {
+                    expect(existsSync(path.join(outputDir(collectionId, bookId), 'audio'))).toBe(
+                        true
+                    );
+                } else {
+                    expect(existsSync(path.join(outputDir(collectionId, bookId), 'audio'))).toBe(
+                        false
+                    );
+                }
+            }
+        );
+
+        test.each(books)(
+            'book video directory exists if features list talkingBook',
+            ({ collectionId, bookId }) => {
+                const { book } = findBook(collections, collectionId, bookId);
+                expect(book.file).toBeTruthy();
+                if (
+                    book.bloomMeta?.features?.includes('video') ||
+                    book.bloomMeta?.features?.includes('signLanguage')
+                ) {
+                    expect(existsSync(path.join(outputDir(collectionId, bookId), 'video'))).toBe(
+                        true
+                    );
+                } else {
+                    expect(existsSync(path.join(outputDir(collectionId, bookId), 'video'))).toBe(
+                        false
+                    );
+                }
             }
         );
 

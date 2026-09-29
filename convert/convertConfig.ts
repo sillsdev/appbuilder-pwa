@@ -157,7 +157,8 @@ export function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData
 
     return {
         languages: langs,
-        titles: titles
+        titles: titles,
+        features: meta.features
     };
 }
 
