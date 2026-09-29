@@ -30,6 +30,7 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
+        setReference: (value: Reference) => void;
     }
 </script>
 
@@ -42,8 +43,9 @@ LOGGING:
     import type { NoteItem } from '$lib/data/notes';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import { scriptureLogs, type GlossaryQueryResult } from '$lib/data/stores';
-    import type { ReferenceStore } from '$lib/data/stores/reference';
+    import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import EntryView from '$lib/lexicon/components/EntryView.svelte';
+    import { navigateToText } from '$lib/navigate';
     import { renderFeatures } from '$lib/render-sofria';
     import {
         RenderEventDescriptor,
@@ -84,7 +86,8 @@ LOGGING:
         viewShowVerses,
         viewShowGlossaryWords,
         font,
-        proskomma
+        proskomma,
+        setReference
     }: Props = $props();
 
     const currentBook = $derived(references.book);
@@ -215,6 +218,7 @@ LOGGING:
         workspace.usfmWrapperType = '';
         workspace.textType = [];
         workspace.config = scriptureConfig;
+        workspace.eventNavigate = setReference;
 
         Object.assign(workspace, workspaceOptions);
     }
