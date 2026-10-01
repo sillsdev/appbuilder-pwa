@@ -1,4 +1,5 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } from '../common';
+import { addPlanDiv } from './plans';
 
 export const chapterVerses = new FeatureSpec([
     {
@@ -63,6 +64,7 @@ export const chapterVerses = new FeatureSpec([
             }
 
             // TODO add bookmarks, notes, plans
+            addPlanDiv(workspace, element.atts['number']);
         }
     }
 ]);
