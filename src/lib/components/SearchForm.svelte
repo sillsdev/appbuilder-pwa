@@ -76,6 +76,7 @@
                 style:background-color="var(--PopupBackgroundColor)"
                 style:color="var(--SearchTextColor)"
                 style:border-color="var(--SettingsSeparatorColor)"
+                style:outline-color="var(--AccentColor)"
                 size="1"
                 inputmode="search"
                 enterkeyhint="search"
