@@ -291,7 +291,6 @@ LOGGING:
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = scopeManager;
-        workspace.references = references;
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
             chapter: 'none',
             verse: 'none'
@@ -349,6 +348,7 @@ LOGGING:
             }
         };
         workspace.stores = {
+            references,
             plan: $plan,
             currentPlanState: $currentPlanState,
             currentPlanData: $currentPlanData,

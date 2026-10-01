@@ -148,7 +148,6 @@ export type SequenceType = 'main' | 'title' | 'introduction';
 export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpad> =
     PKRenderWorkspace & {
         document: Document;
-        references: ReferenceStore;
         currentTextPosition: {
             chapter: string;
             verse: string;
@@ -179,6 +178,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             setPlanStore: (data: PlanStore) => void;
         };
         stores: {
+            references: ReferenceStore;
             plan: PlanStore;
             currentPlanState: string;
             currentPlanData: PlansData | null;

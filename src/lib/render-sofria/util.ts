@@ -33,7 +33,7 @@ export function createLetterIndex(index: number) {
 
 export function subdividePhrases(workspace: RenderWorkspace, text: string) {
     // Only subdivide into phrase divs if we're in a non-intro audio chapter
-    if (!workspace.hackRenderIntro && workspace.references.hasAudio) {
+    if (!workspace.hackRenderIntro && workspace.stores.references.hasAudio) {
         return parsePhrase(text, workspace.textConfig.separatorRegex);
     } else {
         return [text];
