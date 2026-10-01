@@ -40,12 +40,24 @@ LOGGING:
     import type { BookmarkItem } from '$lib/data/bookmarks';
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
+    import {
+        addPlanProgressItem,
+        deleteAllProgressItemsForPlan,
+        getFirstIncompleteDay
+    } from '$lib/data/planProgressItems';
+    import { addPlanState, getLastPlanState } from '$lib/data/planStates';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import {
+        currentPlanData,
+        currentPlanState,
         footnotes,
+        language,
+        plan,
         scriptureLogs,
+        t,
         type GlossaryBlock,
         type GlossaryQueryResult,
+        type PlanStore,
     } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
@@ -56,6 +68,7 @@ LOGGING:
         type RenderEvent,
         type RenderWorkspace
     } from '$lib/render-sofria/common';
+    import { planDivInChapter } from '$lib/render-sofria/features/plans';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
@@ -66,6 +79,7 @@ LOGGING:
     } from '$lib/scripts/scripture-reference-utils';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
+    import { onDestroy, onMount } from 'svelte';
 
     let {
         audioPhraseEndChars,
@@ -165,6 +179,87 @@ LOGGING:
     let loading = $state(true);
     let renderWorkspaceInitialized = $state(false);
 
+    let planDivObserver: IntersectionObserver | null = $state(null); // To store the observer instance
+    let planObservationCompleted = $state(false);
+    // Function to observe the visibility of the plan div
+    function observeVisibility() {
+        if (planDivObserver) {
+            planDivObserver.disconnect(); // Disconnect any previous observer before creating a new one
+            planDivObserver = null; // Clear the observer reference
+        }
+        if (planDivInChapter($plan, references) && !$plan.completed) {
+            const target = document.getElementById('PLAN-next');
+            if (target) {
+                planObservationCompleted = false;
+                planDivObserver = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting && !planObservationCompleted) {
+                                $plan.completed = true;
+                                planObservationCompleted = true;
+                                planDivObserver?.disconnect(); // Stop observing after it becomes visible
+                                planDivObserver = null; // Clear the observer reference after disconnecting
+                                addPlanProgressItem({
+                                    id: $plan.planId,
+                                    day: $plan.planDay,
+                                    itemIndex: $plan.planEntry
+                                });
+                                if (lastPlanReference) {
+                                    addPlanState({
+                                        id: $plan.planId,
+                                        state: 'completed'
+                                    });
+                                    deleteAllProgressItemsForPlan($plan.planId);
+                                }
+                            }
+                        });
+                    },
+                    {
+                        threshold: 0.1 // Adjust as needed
+                    }
+                );
+
+                planDivObserver.observe(target);
+            }
+        }
+    }
+    onMount(() => {
+        if (planDivInChapter($plan, references)) {
+            observeVisibility();
+        }
+    });
+    onDestroy(() => {
+        if (planDivObserver) {
+            planDivObserver.disconnect();
+            planDivObserver = null;
+        }
+    });
+
+    let nextPlanDay: number | null = $state(null);
+    let lastPlanReference = $state(false);
+    $effect(() => {
+        if ($currentPlanData && $plan.planDay) {
+            getFirstIncompleteDay($currentPlanData, $plan.planDay).then((day) => {
+                nextPlanDay = day;
+                if ($plan.planId) {
+                    // The first is true before the end of plan div becomes visible
+                    // When it becomes visible, the records are deleted and nextPlanDay
+                    // is 1 but the plan status is now completed.  So must check both
+                    // to know if the reference being viewed is the last.
+                    if ($plan.planNextReference === '' && nextPlanDay === -1) {
+                        lastPlanReference = true;
+                    } else {
+                        getLastPlanState($plan.planId).then((state) => {
+                            lastPlanReference = state === 'completed';
+                        });
+                    }
+                }
+            });
+        } else {
+            nextPlanDay = null;
+        }
+    });
+
     async function getCurrentDocumentID(docSet: string, bookCode: string) {
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         const bookDocuments = proskomma.gqlQuerySync(
@@ -248,7 +343,18 @@ LOGGING:
                     const glossaryHTML = glossaryDiv.outerHTML;
                     footnotes.push(glossaryHTML);
                 }
+            },
+            setPlanStore(data: PlanStore) {
+                plan.set(data);
             }
+        };
+        workspace.stores = {
+            plan: $plan,
+            currentPlanState: $currentPlanState,
+            currentPlanData: $currentPlanData,
+            t: $t,
+            language: $language,
+            lastPlanReference
         };
         workspace.queries = {
             glossary
