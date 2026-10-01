@@ -122,7 +122,7 @@ export const milestones = new FeatureSpec<
                     event.stopPropagation();
                     event.preventDefault();
                     const [docSet, book, chapter, verse] = splitString(link, '.');
-                    let refDocSet = workspace.references.docSet;
+                    let refDocSet = workspace.stores.references.docSet;
                     const refBc = workspace.config.bookCollections?.find((x) => x.id === docSet);
                     if (refBc) {
                         refDocSet = refBc.languageCode + '_' + refBc.id;
@@ -216,7 +216,7 @@ export const milestones = new FeatureSpec<
 function referenceLinkClickHandler(workspace: RenderWorkspace, target: HTMLElement) {
     const linkRef = target.getAttribute('ref') ?? '';
     const [docSet, book, chapter, verse] = splitString(linkRef, '.');
-    let refDocSet = workspace.references.docSet;
+    let refDocSet = workspace.stores.references.docSet;
     const refBc = workspace.config.bookCollections?.find((x) => x.id === docSet);
     if (refBc) {
         refDocSet = refBc.languageCode + '_' + refBc.id;

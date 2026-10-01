@@ -36,8 +36,8 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     getFeatureValueString(
                         scriptureConfig,
                         'chapter-number-format',
-                        workspace.references.collection,
-                        workspace.references.book
+                        workspace.stores.references.collection,
+                        workspace.stores.references.book
                     ) === 'drop-cap';
 
                 addToScratchPad(workspace.scratch, 'mark', { chapterNumText, deferChapterNum });
@@ -72,7 +72,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     chapterNumDiv.classList.add('c-drop');
 
                     const direction = scriptureConfig.bookCollections?.find(
-                        (x) => x.id === workspace.references.collection
+                        (x) => x.id === workspace.stores.references.collection
                     )?.style?.textDirection;
                     chapterNumDiv.style.float =
                         direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
@@ -122,8 +122,9 @@ function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
     const spanV = workspace.document.createElement('span');
     spanV.classList.add('v');
     const direction =
-        scriptureConfig.bookCollections?.find((x) => x.id === workspace.references.collection)
-            ?.style?.textDirection ?? 'ltr';
+        scriptureConfig.bookCollections?.find(
+            (x) => x.id === workspace.stores.references.collection
+        )?.style?.textDirection ?? 'ltr';
     // 'number' can be a range of verse numbers
     spanV.innerText = numerals.formatNumberRange(
         workspace.textConfig.numeralSystem,
