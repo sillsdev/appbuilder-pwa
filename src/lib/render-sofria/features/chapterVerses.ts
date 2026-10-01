@@ -1,5 +1,6 @@
-import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } from '../common';
+import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderWorkspace } from '../common';
 import { addPlanDiv } from './plans';
+import { terminatePhrase } from './text';
 
 export const chapterVerses = new FeatureSpec([
     {
@@ -56,6 +57,8 @@ export const chapterVerses = new FeatureSpec([
             }
             workspace.currentTextPosition.verse = 'none';
 
+            terminatePhrase(workspace);
+
             if (workspace.viewSettings.verseLayout === 'one-per-lin') {
                 const verseDiv = workspace.scopeManager.find('verses')?.root;
                 if (verseDiv) {
@@ -63,8 +66,19 @@ export const chapterVerses = new FeatureSpec([
                 }
             }
 
-            // TODO add bookmarks, notes, plans
+            addSpanAfterVerse(workspace, 'bookmarks');
+            addSpanAfterVerse(workspace, 'notes');
             addPlanDiv(workspace, element.atts['number']);
         }
     }
 ]);
+
+function addSpanAfterVerse(workspace: RenderWorkspace, idPrefix: string) {
+    const span = workspace.document.createElement('span');
+    span.id = idPrefix + workspace.currentTextPosition.verse;
+    const queryString = `div[data-verse="${workspace.currentTextPosition.verse}"][data-phrase="${workspace.currentTextPosition.phraseIndex}"]`;
+    const el =
+        workspace.scopeManager.find('paragraph')?.root.querySelector(queryString) ??
+        workspace.root.querySelector(queryString);
+    el?.parentNode?.insertBefore(span, el.nextSibling);
+}
