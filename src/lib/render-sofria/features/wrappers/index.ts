@@ -3,6 +3,7 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderEnvironment
 } from '$lib/render-sofria/common';
+import { terminatePhrase } from '../text';
 import { usfmType } from './common';
 import { figures } from './figures';
 import { glossary, isGlossaryWrapper } from './glossary';
@@ -50,6 +51,7 @@ export const usfmWrappers = new FeatureSpec([
             if (workspace.logSettings.wrapper) {
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
+            terminatePhrase(workspace);
 
             workspace.scopeManager.promoteContent(`wrapper:${usfmType(context)}`);
         }

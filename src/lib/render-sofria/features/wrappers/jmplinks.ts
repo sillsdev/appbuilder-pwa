@@ -75,8 +75,6 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
                 console.log('End Wrapper %o', context.sequences[0].element);
             }
             workspace.scopeManager.promoteContent('wrapper:jmp');
-
-            // TODO add link behavior
         }
     }
 ]);

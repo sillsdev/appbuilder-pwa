@@ -30,10 +30,13 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
 
                 renderGraftedSequence(environment, graftRecord.sequence);
 
+                const scope = workspace.scopeManager.pop(`blockGraft:${subType}`);
+
                 if (subType !== 'introduction' || workspace.hackRenderIntro) {
-                    workspace.scopeManager.promoteContent(`blockGraft:${subType}`);
+                    for (const child of scope.root.children) {
+                        workspace.scopeManager.appendContent(child);
+                    }
                 } else {
-                    const scope = workspace.scopeManager.pop(`blockGraft:${subType}`);
                     if (workspace.logSettings.blockGraft) {
                         console.log('Skipping block %o', scope);
                     }
