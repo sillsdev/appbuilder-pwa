@@ -18,12 +18,12 @@
 
     let { bodyFontSize, bodyLineHeight, font }: Props = $props();
 
-    let stack: HTMLDivElement;
+    let stack = $state<HTMLDivElement>();
     let listening = false;
     const PrimaryColor = $derived($themeColors['PrimaryColor']);
 
     function clickOutside(event: Event) {
-        if (event.target && !stack.contains(event.target as HTMLElement)) {
+        if (event.target && stack && !stack.contains(event.target as HTMLElement)) {
             footnotes.pop();
         }
     }

@@ -16,8 +16,7 @@
     let textarea: HTMLTextAreaElement | undefined = $state();
     const note = $derived(data.note);
     const isNew = $derived(note ? false : true);
-    // svelte-ignore state_referenced_locally
-    let text = $state(note?.text ?? '');
+    let text = $derived(note?.text ?? '');
     const reference = $derived(note?.reference ?? $selectedVerses[0]?.reference);
     const title = $derived(isNew ? 'Annotation_Note_Add' : 'Annotation_Note_Edit');
 
