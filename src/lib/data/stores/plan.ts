@@ -4,7 +4,7 @@ import { getPlanData, type PlansData } from '../plansData';
 import { getLastPlanState, planStatesLastUpdated } from '../planStates';
 import { persistedLocal } from './storage';
 
-interface PlanStore {
+export interface PlanStore {
     planId: string;
     planDay: number;
     planEntry: number;
