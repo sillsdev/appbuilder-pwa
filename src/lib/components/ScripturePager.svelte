@@ -14,6 +14,8 @@ concern of the caller, not the pager).
     export interface Props {
         viewSettings: Record<string, any>;
         panel: Snippet<[Record<string, any>]>;
+        /** Bindable, read-only: the panel element currently in the center (visible) position */
+        activePanel?: HTMLElement;
     }
 </script>
 
@@ -27,7 +29,7 @@ concern of the caller, not the pager).
     import { pinch, swipe, type PinchPointerEventDetail } from 'svelte-gestures';
     import { Tween } from 'svelte/motion';
 
-    let { viewSettings, panel }: Props = $props();
+    let { viewSettings, panel, activePanel = $bindable() }: Props = $props();
 
     const borders = import.meta.glob('./*', {
         import: 'default',
@@ -73,6 +75,13 @@ concern of the caller, not the pager).
     let momentum = 0;
     let maxMomentum = 0;
     let transitionDone = true;
+    let panelElements: HTMLElement[] = $state([]);
+
+    // The center panel is the one positioned at x = 0; it moves between the three
+    // panel slots as they rotate during prev/next navigation.
+    $effect(() => {
+        activePanel = panelElements[panels_X.indexOf(0)];
+    });
 
     const settings0 = $derived({
         // Initial settings for left panel
@@ -427,6 +436,7 @@ concern of the caller, not the pager).
     >
         {#each [0, 1, 2] as i (i)}
             <div
+                bind:this={panelElements[i]}
                 class="p-2 w-full overflow-y-hidden"
                 style="position: absolute; left: {panels_X[i]}px; display: {Math.abs(
                     panels_X[i] + x.current
