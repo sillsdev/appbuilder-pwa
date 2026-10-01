@@ -266,11 +266,16 @@ LOGGING:
         const bookDocuments = proskomma.gqlQuerySync(
             '{documents { docSetId id bookCode: header(id: "bookCode") } }'
         );
-        console.warn('book query result: %o', bookDocuments);
+
+        if ($scriptureLogs.docResult) {
+            console.warn('book query result: %o', bookDocuments);
+        }
 
         for (const doc of bookDocuments?.data?.documents ?? []) {
-            console.warn(`Checking current doc ${doc.bookCode} against id ${bookCode}`);
-            if (doc.bookCode === bookCode) {
+            if ($scriptureLogs.docResult) {
+                console.warn(`Checking current doc ${doc.bookCode} against id ${bookCode}`);
+            }
+            if (doc.docSetId === docSet && doc.bookCode === bookCode) {
                 return doc.id;
             }
         }
@@ -289,6 +294,11 @@ LOGGING:
     ) {
         scriptureRoot.replaceChildren();
         scopeManager.reset();
+
+        if ($scriptureLogs.root) {
+            console.log('START: %o', scriptureRoot);
+        }
+
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = scopeManager;
@@ -456,7 +466,9 @@ LOGGING:
             output
         });
 
-        console.warn('Final rendering output: %o', output.root);
+        if ($scriptureLogs.root) {
+            console.warn('Final rendering output: %o', output.root);
+        }
         loading = false;
     }
 

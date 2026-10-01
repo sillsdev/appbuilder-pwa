@@ -186,8 +186,8 @@ export const milestones = new FeatureSpec<
                         'click',
                         function remoteAudioClipHandler(event: MouseEvent) {
                             event.stopPropagation();
-                            const el: HTMLAudioElement | null = workspace.document.querySelector(
-                                `audio[id="${audioId}" ]`
+                            const el: HTMLAudioElement | null = workspace.root.querySelector(
+                                `audio[id="${audioId}"]`
                             );
                             el?.play();
                         },
