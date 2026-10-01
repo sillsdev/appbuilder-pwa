@@ -1,4 +1,5 @@
 import { FeatureSpec } from '../common';
+import { addPlanDiv } from './plans';
 
 export const documentFeature = new FeatureSpec([
     {
@@ -18,6 +19,9 @@ export const documentFeature = new FeatureSpec([
         default: true,
         action({ workspace, output }) {
             console.log([...workspace.scopeManager.stack]);
+            if (!workspace.hackRenderIntro) {
+                addPlanDiv(workspace, '-1');
+            }
             workspace.scopeManager.pop('document');
             // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
