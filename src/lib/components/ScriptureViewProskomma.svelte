@@ -41,7 +41,11 @@ LOGGING:
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
-    import { scriptureLogs, type GlossaryQueryResult } from '$lib/data/stores';
+    import {
+        footnotes,
+        scriptureLogs,
+        type GlossaryQueryResult,
+    } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
     import {
@@ -56,6 +60,9 @@ LOGGING:
     import type { SABProskomma } from '$lib/sab-proskomma';
     import { checkFeatureValueIs } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
+    import {
+        generateHTML
+    } from '$lib/scripts/scripture-reference-utils';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
 
@@ -208,7 +215,24 @@ LOGGING:
         };
         workspace.config = scriptureConfig;
         workspace.events = {
-            navigate: setReference
+            navigate(ref: Reference) {
+                setReference(ref);
+                footnotes.reset();
+            },
+            openFootnoote(event: MouseEvent, footnoteId: string) {
+                if ($footnotes.length === 0) {
+                    event.stopPropagation();
+                    const footnote = workspace.document?.querySelector(`div#${footnoteId}`);
+                    const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
+                    const spans = workingSpan?.querySelectorAll('span.xt');
+                    // Loop through each span and modify its inner HTML
+                    spans.forEach((span) => {
+                        span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+                    });
+                    const parsed = workingSpan?.innerHTML;
+                    footnotes.push(parsed);
+                }
+            }
         };
 
         Object.assign(workspace, workspaceOptions);
