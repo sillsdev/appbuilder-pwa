@@ -71,8 +71,6 @@ function createFootnoteDiv(workspace: RenderWorkspace<InlineGraftScratch>, eleme
     contentRoot.style.display = 'none';
     contentRoot.setAttribute('type', element.subType);
 
-    // TODO: add click handler?
-
     const callerRoot = workspace.document.createElement('span');
     callerRoot.setAttribute('data-graft', footnoteId);
     const a = workspace.document.createElement('a');
@@ -81,6 +79,7 @@ function createFootnoteDiv(workspace: RenderWorkspace<InlineGraftScratch>, eleme
     a.appendChild(sup);
     a.classList.add('cursor-pointer');
     callerRoot.appendChild(a);
+    callerRoot.addEventListener('click', (e) => workspace.events.openFootnoote(e, footnoteId));
     if (workspace.logSettings.inlineGraft) {
         console.log('Create Footnote %o %o', callerRoot, contentRoot);
     }
