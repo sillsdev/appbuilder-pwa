@@ -1,8 +1,12 @@
 import type { ScriptureConfig } from '$config';
+import type { BookmarkItem } from '$lib/data/bookmarks';
+import type { HighlightItem } from '$lib/data/highlights';
+import type { NoteItem } from '$lib/data/notes';
 import type { PlansData } from '$lib/data/plansData';
 import type {
     GlossaryBlock,
     GlossaryQueryResult,
+    Modal,
     PlanStore,
     ScriptureLogConfig
 } from '$lib/data/stores';
@@ -160,6 +164,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         textConfig: {
             separatorRegex: RegExp;
             numeralSystem: NumeralSystem;
+            verseRangeSeparator: string;
         };
         viewSettings: {
             bibleImages: string;
@@ -185,8 +190,13 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             t: Record<string, string>;
             language: string;
             lastPlanReference: boolean;
+            themeColors: Record<string, string>;
+            modal: Modal;
         };
         queries: {
+            notes: Promise<NoteItem[]>;
+            bookmarks: Promise<BookmarkItem[]>;
+            highlights: Promise<HighlightItem[]>;
             glossary: Promise<GlossaryQueryResult>;
         };
     };

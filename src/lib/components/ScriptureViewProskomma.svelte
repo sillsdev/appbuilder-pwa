@@ -52,6 +52,7 @@ LOGGING:
         currentPlanState,
         footnotes,
         language,
+        modal,
         plan,
         scriptureLogs,
         t,
@@ -299,7 +300,10 @@ LOGGING:
         workspace.scratch = {};
         workspace.textConfig = {
             numeralSystem,
-            separatorRegex: getSeparatorRegex(audioPhraseEndChars)
+            separatorRegex: getSeparatorRegex(audioPhraseEndChars),
+            verseRangeSeparator: scriptureConfig.bookCollections?.find(
+                (x) => x.id === references.collection
+            )?.features['ref-verse-range-separator'] as string
         };
         workspace.viewSettings = {
             bibleImages: viewShowBibleImages,
@@ -354,9 +358,14 @@ LOGGING:
             currentPlanData: $currentPlanData,
             t: $t,
             language: $language,
-            lastPlanReference
+            lastPlanReference,
+            themeColors,
+            modal
         };
         workspace.queries = {
+            notes,
+            bookmarks,
+            highlights,
             glossary
         };
 
