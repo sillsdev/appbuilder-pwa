@@ -128,6 +128,7 @@
     }
 
     let pager: ScripturePager;
+    let activePanel: HTMLElement | undefined = $state();
 
     const book = $derived(
         scriptureConfig?.bookCollections
@@ -276,8 +277,8 @@
         if (el) {
             if (el.classList.contains('scroll-item')) {
                 const rect = el.getBoundingClientRect();
-                const win = document
-                    .getElementsByClassName('container')[0]
+                const win = activePanel
+                    ?.getElementsByClassName('container')[0]
                     ?.getBoundingClientRect();
                 if (scrollingDiv) {
                     const scrollTop = scrollingDiv.scrollTop;
@@ -301,14 +302,14 @@
         const verseNum = Number(verseNumStr);
 
         // Try direct match first
-        let el = document.querySelector(
+        let el = activePanel?.querySelector(
             `div[data-verse="${verseNumStr}"][data-phrase="${phrase}"]`
         );
         if (el) {
             return el;
         }
         // Fall back: look for ranges
-        const candidates = document.querySelectorAll(`div[data-phrase="${phrase}"]`);
+        const candidates = activePanel?.querySelectorAll(`div[data-phrase="${phrase}"]`) ?? [];
 
         for (const candidate of candidates) {
             const verseAttr = candidate.getAttribute('data-verse');
@@ -330,7 +331,7 @@
     let currentVerse = '';
     /**updates highlight*/
     const updateHighlight = (elementIds: string[], color: string) => {
-        let container = document.getElementsByClassName('container')[0];
+        let container = activePanel?.getElementsByClassName('container')[0];
         // Remove highlighting for currently highlighted verses
         const elements = container?.getElementsByClassName('highlighting');
         for (let i = 0; i < elements?.length; i++) {
@@ -345,8 +346,8 @@
         for (const elementId of elementIds) {
             let containsAlpha = /[a-z]/.test(elementId);
             const adjustedId = containsAlpha ? elementId : elementId + 'a';
-            const element = document.getElementById(adjustedId);
-            if (element === null) {
+            const element = activePanel?.querySelector(`[id="${adjustedId}"]`);
+            if (!element) {
                 break;
             }
             element.setAttribute('style', 'background-color: ' + color + ';');
@@ -534,7 +535,7 @@
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
         >
-            <ScripturePager bind:this={pager} {viewSettings}>
+            <ScripturePager bind:this={pager} bind:activePanel {viewSettings}>
                 {#snippet panel(settings)}
                     {#if book?.format === 'html'}
                         <HtmlBookView {...settings as HtmlBookViewProps} />
