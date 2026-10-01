@@ -76,7 +76,8 @@ LOGGING:
     import { checkFeatureValueIs } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
     import {
-        generateHTML
+        generateHTML,
+        isBibleBook
     } from '$lib/scripts/scripture-reference-utils';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
@@ -175,7 +176,6 @@ LOGGING:
     );
 
     const output: { root?: HTMLDivElement } = {};
-    let container: HTMLElement | undefined = $state();
     let scriptureRoot = $state(document.createElement('div'));
     let loading = $state(true);
     let renderWorkspaceInitialized = $state(false);
@@ -306,7 +306,9 @@ LOGGING:
             )?.features['ref-verse-range-separator'] as string
         };
         workspace.viewSettings = {
+            isBibleBook: isBibleBook(references),
             bibleImages: viewShowBibleImages,
+            bibleVideos: viewShowBibleVideos,
             illustrations: viewShowIllustrations,
             glossaryWords: viewShowGlossaryWords,
             redLetters,
@@ -463,7 +465,47 @@ LOGGING:
     });
 </script>
 
-<article class="container" bind:this={container}>
+<svelte:head>
+    <style>
+        /* Add CSS for fullscreen popup */
+        .fullscreen-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .fullscreen-popup img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border: 2px solid white;
+        }
+        .fullscreen-popup .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 40px;
+            background: none;
+            border: none;
+            font-size: 35px;
+            color: white;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .fullscreen-popup .close-btn::before {
+            content: '\\2190'; /* Unicode for left arrow */
+        }
+    </style>
+</svelte:head>
+
+<article class="container">
     {#if loading}
         <span class="spin"></span>
     {/if}
