@@ -1,4 +1,5 @@
 import { ModalType, monoIconColor } from '$lib/data/stores';
+import { addVideoLinks, createVideoBlock } from '$lib/video';
 import { get } from 'svelte/store';
 import { FeatureSpec, type RenderWorkspace } from '../common';
 import { addPlanDiv } from './plans';
@@ -26,8 +27,17 @@ export const documentFeature = new FeatureSpec([
                 addNotedVerses(workspace);
                 addBookmarkedVerses(workspace);
                 addHighlightedVerses(workspace);
+                if (showVideo(workspace)) {
+                    addVideos(workspace);
+                }
+                if (showImage(workspace)) {
+                    addIllustrations(workspace);
+                }
                 addPlanDiv(workspace, '-1');
             }
+
+            addFooter(workspace);
+
             workspace.scopeManager.pop('document');
             // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
@@ -105,3 +115,206 @@ function addHighlightedVerses(workspace: RenderWorkspace) {
     });
 }
 
+function showImage(workspace: RenderWorkspace) {
+    return workspace.viewSettings.illustrations && showImageInBook(workspace);
+}
+function showImageInBook(workspace: RenderWorkspace) {
+    const showBibleImage = workspace.viewSettings.bibleImages === 'normal';
+    const showImages = !workspace.viewSettings.isBibleBook || showBibleImage;
+    return showImages;
+}
+function showVideo(workspace: RenderWorkspace) {
+    const showBibleVideo = workspace.viewSettings.bibleVideos === 'normal';
+    const showVideos = !workspace.viewSettings.isBibleBook || showBibleVideo;
+    return showVideos;
+}
+
+function videosForChapter(workspace: RenderWorkspace) {
+    const collection = workspace.stores.references.docSet.split('_')[1];
+    return workspace.config.videos?.filter(
+        (x) =>
+            x.placement &&
+            x.placement.collection === collection &&
+            (x.placement.ref.startsWith(
+                workspace.stores.references.book + ' ' + workspace.stores.references.chapter + ':'
+            ) ||
+                x.placement.ref.startsWith(
+                    workspace.stores.references.book +
+                        '.' +
+                        workspace.stores.references.chapter +
+                        '.'
+                ))
+    );
+}
+
+function illustrationsForChapter(workspace: RenderWorkspace) {
+    const collection = workspace.stores.references.docSet.split('_')[1];
+    return workspace.config.illustrations?.filter(
+        (x) =>
+            x.placement &&
+            x.placement.collection === collection &&
+            (x.placement.ref.startsWith(
+                workspace.stores.references.book + ' ' + workspace.stores.references.chapter + ':'
+            ) ||
+                x.placement.ref.startsWith(
+                    workspace.stores.references.book +
+                        '.' +
+                        workspace.stores.references.chapter +
+                        '.'
+                ))
+    );
+}
+
+function addVideos(workspace: RenderWorkspace) {
+    const videos = videosForChapter(workspace);
+    if (videos && workspace.root) {
+        videos.forEach((video, index) => {
+            if (video.placement) {
+                // ref can be MAT 1:1 or MAT.1.1
+                const verse = video.placement.ref.split(/[:.]/).at(-1);
+                if (verse) {
+                    const videoBlockDiv = createVideoBlock(document, video, index);
+                    placeElement(workspace, videoBlockDiv, video.placement.pos, verse);
+                }
+            }
+        });
+        addVideoLinks(workspace.document, videos);
+    }
+}
+
+function addIllustrations(workspace: RenderWorkspace) {
+    const illustrations = illustrationsForChapter(workspace);
+    if (illustrations && workspace.root) {
+        illustrations.forEach((illustration, index) => {
+            if (illustration.placement) {
+                const verse = illustration.placement.ref.split(/[:.]/).at(-1);
+                if (verse) {
+                    const { imageBlockDiv: illustrationBlockDiv } = createIllustrationBlock(
+                        { document },
+                        illustration.filename,
+                        illustration.placement.caption
+                    );
+                    placeElement(
+                        workspace,
+                        illustrationBlockDiv,
+                        illustration.placement.pos,
+                        verse
+                    );
+                }
+            }
+        });
+    }
+}
+
+function addFooter(workspace: RenderWorkspace) {
+    const collection = workspace.stores.references.docSet.split('_')[1];
+    let footer = workspace.config.bookCollections?.find((x) => x.id === collection)?.footer;
+    const bookFooter = workspace.config.bookCollections
+        ?.find((x) => x.id === collection)
+        ?.books.find((x) => x.id === workspace.stores.references.book)?.footer;
+    if (bookFooter) {
+        footer = bookFooter;
+    }
+
+    if (footer && workspace.root.getElementsByClassName('footer').length == 0) {
+        const divFooter = workspace.document.createElement('div');
+        divFooter.classList.add('footer');
+        divFooter.classList.add('md:footer-horizontal');
+        const divFooterLine = workspace.document.createElement('div');
+        divFooterLine.classList.add('footer-line');
+        divFooter.appendChild(divFooterLine);
+        const spanFooter = workspace.document.createElement('span');
+        spanFooter.classList.add('footer');
+        spanFooter.classList.add('md:footer-horizontal');
+        spanFooter.innerHTML = footer;
+        divFooterLine.appendChild(spanFooter);
+        workspace.root.appendChild(divFooter);
+    }
+}
+
+function placeElement(
+    workspace: RenderWorkspace,
+    element: HTMLElement,
+    pos: string,
+    verse: string
+) {
+    if (workspace.logSettings.placement) {
+        console.log('Placing element:', element, 'at', pos, 'of verse', verse);
+    }
+    if (pos === 'after') {
+        // Place after the bookmark element for the verse
+        const el = findBookmarkElementForVerse(workspace, parseInt(verse));
+        if (el) {
+            if (workspace.logSettings.placement) {
+                console.log(`Found bookmark element for verse ${verse} at ${el.id}`);
+            }
+            el.insertAdjacentElement('afterend', element);
+        } else {
+            console.log('Could not find bookmark element for verse', verse);
+        }
+    } else if (pos === 'before') {
+        let el = findDataElementForVerse(workspace, parseInt(verse));
+        if (el) {
+            if (el.previousElementSibling?.classList.contains('c-drop')) {
+                el = el.previousElementSibling;
+            }
+            el.insertAdjacentElement('beforebegin', element);
+        } else {
+            console.log('Could not find data element for verse', verse);
+        }
+    } else if (pos === 'top') {
+        const el = workspace.root.getElementsByClassName('m')[0];
+        el.insertAdjacentElement('beforebegin', element);
+    } else if (pos === 'bottom') {
+        const els = workspace.root.querySelectorAll('span[id^=bookmarks]');
+        const el = els[els.length - 1];
+        el.insertAdjacentElement('afterend', element);
+    }
+}
+
+function findBookmarkElementForVerse(workspace: RenderWorkspace, verse: number) {
+    const elements = workspace.root.querySelectorAll('[id^="bookmarks"]');
+
+    for (const element of elements) {
+        const id = element.id.replace('bookmarks', '');
+        const separatorRegex = workspace.textConfig.verseRangeSeparator.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            '\\$&'
+        ); // Escape regex characters
+        const rangeMatch = id.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
+
+        if (rangeMatch) {
+            const start = parseInt(rangeMatch[1], 10);
+            const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : start;
+
+            if (verse >= start && verse <= end) {
+                return element;
+            }
+        }
+    }
+
+    return null; // No matching element found
+}
+function findDataElementForVerse(workspace: RenderWorkspace, verse: number) {
+    const elements = workspace.root.querySelectorAll('[data-verse][data-phrase="a"]');
+
+    for (const element of elements) {
+        const verseData = element.getAttribute('data-verse');
+        const separatorRegex = workspace.textConfig.verseRangeSeparator.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            '\\$&'
+        ); // Escape regex characters
+        const rangeMatch = verseData?.match(new RegExp(`^(\\d+)(?:${separatorRegex}(\\d+))?$`));
+
+        if (rangeMatch) {
+            const start = parseInt(rangeMatch[1], 10);
+            const end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : start;
+
+            if (verse >= start && verse <= end) {
+                return element;
+            }
+        }
+    }
+
+    return null; // No matching element found
+}
