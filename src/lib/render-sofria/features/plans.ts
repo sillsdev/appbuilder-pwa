@@ -44,7 +44,7 @@ function matchesVerse(planToVerse: number, verseNumber: string): boolean {
 
 export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
     if (
-        planDivInChapter(workspace.stores.plan, workspace.references) &&
+        planDivInChapter(workspace.stores.plan, workspace.stores.references) &&
         matchesVerse(workspace.stores.plan.planToVerse, verseNumber)
     ) {
         const planDiv = document.createElement('div');
@@ -101,7 +101,7 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                 '',
                 getPlanReferenceString(
                     workspace.stores.plan.planReference,
-                    workspace.references
+                    workspace.stores.references
                 ),
                 false,
                 workspace
@@ -133,7 +133,7 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                     '',
                     getPlanReferenceString(
                         workspace.stores.plan.planNextReference,
-                        workspace.references
+                        workspace.stores.references
                     ),
                     false,
                     workspace
@@ -150,7 +150,7 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
         }
         workspace.scopeManager.appendContent(planDiv);
     } else if (
-        planDivInChapter(workspace.stores.plan, workspace.references) === false &&
+        planDivInChapter(workspace.stores.plan, workspace.stores.references) === false &&
         workspace.stores.plan.completed === true
     ) {
         // If we are no longer in the plan chapter and the plan section
@@ -198,7 +198,7 @@ function planClicked(workspace: RenderWorkspace) {
 }
 
 async function gotoPlanReference(workspace: RenderWorkspace) {
-    const currentBookCollectionId = workspace.references.collection;
+    const currentBookCollectionId = workspace.stores.references.collection;
     const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
         workspace.stores.plan.planNextReference
     );
