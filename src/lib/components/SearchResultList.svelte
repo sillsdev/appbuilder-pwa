@@ -9,7 +9,7 @@
         themeColors
     } from '$lib/data/stores';
     import type { SearchResult } from '$lib/search/domain/entities';
-    import { onMount } from 'svelte';
+    import { onMount, untrack } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
 
     interface Props {
@@ -24,8 +24,7 @@
     // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
-    // svelte-ignore state_referenced_locally
-    let displayQueryId = $state(queryId);
+    let displayQueryId = untrack(() => queryId);
 
     const resultCountText = $derived(formatResultCount(results.length));
 
