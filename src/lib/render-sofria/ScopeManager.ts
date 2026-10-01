@@ -59,10 +59,10 @@ class ScopeManager {
         return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
     }
 
-    appendContent(content: HTMLElement | Text, level?: RenderScopeWithSubType) {
+    appendContent(content: Element | Text, level?: RenderScopeWithSubType) {
         const root = this.find(level)?.root;
         if (root) {
-            root.appendChild(content);
+            root.append(content);
         } else {
             console.log([...this.stack]);
             throw new Error(

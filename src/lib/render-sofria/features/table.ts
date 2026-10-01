@@ -64,7 +64,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
             addToScratchPad(workspace.scratch, 'table', { colIndex });
             const td = workspace.document.createElement('td');
             td.classList.add(`tc${colIndex}`);
-            td.colSpan = colIndex;
+            td.colSpan = nCols;
 
             workspace.scopeManager.push('wrapper:cell', td);
         }
