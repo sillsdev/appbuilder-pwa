@@ -1,7 +1,7 @@
 <script lang="ts">
     import Navbar from '$lib/components/Navbar.svelte';
     import { addNote, editNote, removeNote } from '$lib/data/notes';
-    import { actionBarColor, selectedVerses, t } from '$lib/data/stores';
+    import { actionBarColor, convertStyle, s, selectedVerses, t } from '$lib/data/stores';
     import { triggerAnnotationHint } from '$lib/data/stores/annotation';
     import { CheckIcon, DeleteIcon } from '$lib/icons';
     import { onMount } from 'svelte';
@@ -108,7 +108,16 @@
     </Navbar>
 
     <div class="flex justify-center mt-7 h-full max-w-breakpoint-md mx-auto">
-        <textarea bind:this={textarea} bind:value={text} class="dy-textarea w-full h-5/6 shadow-md">
+        <textarea
+            bind:this={textarea}
+            bind:value={text}
+            class="dy-textarea w-full h-5/6 shadow-md"
+            style={convertStyle($s?.['ui.search.entry-text'])}
+            style:color="var(--SearchTextColor)"
+            style:border-color="var(--SettingsSeparatorColor)"
+            style:background-color="var(--PopupBackgroundColor)"
+            style:outline-color="var(--AccentColor)"
+        >
         </textarea>
     </div>
 </div>
