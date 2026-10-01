@@ -72,7 +72,7 @@ export const text = new FeatureSpec<
             let text: string = context.sequences[0].element.text;
 
             // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
-            // See https://community.scripture.software.sil.org/t/issues-with-cross-workspace.references-in-pwa-modern/4476
+            // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
             text = text === '|default=""' ? '| ' : text;
 
             const subType = context.sequences[0].block.subType;
@@ -88,7 +88,7 @@ export const text = new FeatureSpec<
 
             if (workspace.scopeManager.find('paragraph:heading') && subType === 'usfm:r') {
                 // This is for usfm:r like you will find in CUK Headers
-                // which contain workspace.references inline
+                // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
                 headerDiv.innerHTML += generateHTML(text, 'header-ref');
             } else if (workspace.scopeManager.find('wrapper:figure')) {
@@ -251,14 +251,14 @@ function getFootnoteCallerCharacter(
         getFeatureValueString(
             workspace.config,
             `${footnoteType}-caller-type`,
-            workspace.references.collection,
-            workspace.references.book
+            workspace.stores.references.collection,
+            workspace.stores.references.book
         ) || 'default';
     const callerNoCallerToAuto = getFeatureValueBoolean(
         workspace.config,
         `${footnoteType}-caller-no-caller-to-auto`,
-        workspace.references.collection,
-        workspace.references.book
+        workspace.stores.references.collection,
+        workspace.stores.references.book
     );
 
     let callerSymbol: string | null = initialCallerSymbol;
@@ -269,8 +269,8 @@ function getFootnoteCallerCharacter(
         return getFeatureValueString(
             workspace.config,
             `${footnoteType}-caller-symbol`,
-            workspace.references.collection,
-            workspace.references.book
+            workspace.stores.references.collection,
+            workspace.stores.references.book
         );
     } else if (callerType === 'abc') {
         callerSymbol = '+';
