@@ -114,7 +114,7 @@ API), falling back to IndexedDB storage when disconnected.
             {$t[setting.title] || setting.title}
         </div>
     </div>
-    <div class="settings-summary py-0 flex items-center justify-between gap-2">
+    <div class="settings-summary py-2 flex items-center justify-between gap-2">
         <div style:font-size="{fontSize}%">
             {#if status.connected && status.needsPermission}
                 {$t['Settings_Audio_Storage_Needs_Permission'] || 'Permission needed'}
@@ -127,19 +127,35 @@ API), falling back to IndexedDB storage when disconnected.
             {/if}
         </div>
         {#if !status.connected}
-            <button type="button" class="dy-btn dy-btn-sm" onclick={chooseFolder}>
+            <button
+                type="button"
+                class="dy-btn dy-btn-sm message-button storage-button"
+                onclick={chooseFolder}
+            >
                 {$t['Settings_Audio_Storage_Choose'] || 'Choose folder'}
             </button>
         {:else if status.needsPermission}
-            <button type="button" class="dy-btn dy-btn-sm" onclick={reconnect}>
+            <button
+                type="button"
+                class="dy-btn dy-btn-sm message-button storage-button"
+                onclick={reconnect}
+            >
                 {$t['Settings_Audio_Storage_Reconnect'] || 'Reconnect'}
             </button>
         {:else}
             <div class="flex items-center gap-2">
-                <button type="button" class="dy-btn dy-btn-sm" onclick={chooseFolder}>
+                <button
+                    type="button"
+                    class="dy-btn dy-btn-sm message-button storage-button"
+                    onclick={chooseFolder}
+                >
                     {$t['Settings_Audio_Storage_Change'] || 'Change'}
                 </button>
-                <button type="button" class="dy-btn dy-btn-sm" onclick={disconnect}>
+                <button
+                    type="button"
+                    class="dy-btn dy-btn-sm message-button storage-button"
+                    onclick={disconnect}
+                >
                     {$t['Settings_Audio_Storage_Disconnect'] || 'Stop'}
                 </button>
             </div>
@@ -153,3 +169,11 @@ API), falling back to IndexedDB storage when disconnected.
         </div>
     {/if}
 </div>
+
+<style>
+    /* Outline the flat dialog-style buttons so they read as buttons inside a settings row */
+    .storage-button {
+        border: 1px solid var(--TitlesColor);
+        border-radius: 4px;
+    }
+</style>
