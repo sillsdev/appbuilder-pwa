@@ -44,6 +44,7 @@ LOGGING:
     import {
         footnotes,
         scriptureLogs,
+        type GlossaryBlock,
         type GlossaryQueryResult,
     } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
@@ -232,7 +233,25 @@ LOGGING:
                     const parsed = workingSpan?.innerHTML;
                     footnotes.push(parsed);
                 }
+            },
+            openGlossary(glossaryLink: string, block: GlossaryBlock) {
+                if ($footnotes.length === 0) {
+                    const glossaryDiv = document.createElement('div');
+                    glossaryDiv.classList.add('txs');
+                    const glossarySpan = document.createElement('span');
+                    glossarySpan.classList.add('k');
+                    //const titleText = document.createTextNode(glossaryLink);
+                    glossarySpan.append(block.key);
+                    glossaryDiv.append(glossarySpan);
+                    const blockText = block.text.slice(glossaryLink?.length);
+                    glossaryDiv.innerHTML += blockText;
+                    const glossaryHTML = glossaryDiv.outerHTML;
+                    footnotes.push(glossaryHTML);
+                }
             }
+        };
+        workspace.queries = {
+            glossary
         };
 
         Object.assign(workspace, workspaceOptions);

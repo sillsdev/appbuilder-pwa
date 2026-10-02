@@ -111,8 +111,10 @@ export async function getVerseText(item: Selection, item2?: Selection) {
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
 
-type Block = { key: string; text: string; tokens: { payload: string }[] };
-export type GlossaryQueryResult = { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+export type GlossaryBlock = { key: string; text: string; tokens: { payload: string }[] };
+export type GlossaryQueryResult = {
+    data: { docSets: { document?: { mainBlocks: GlossaryBlock[] } }[] };
+};
 
 /*
  *  glossary is returning a Promise
@@ -143,7 +145,7 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ';
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
-        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
+        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: GlossaryBlock) => {
             let key = '';
             block.tokens.forEach((token) => {
                 key = key + token.payload;

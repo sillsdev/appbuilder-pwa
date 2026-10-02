@@ -1,5 +1,5 @@
 import type { ScriptureConfig } from '$config';
-import type { ScriptureLogConfig } from '$lib/data/stores';
+import type { GlossaryBlock, GlossaryQueryResult, ScriptureLogConfig } from '$lib/data/stores';
 import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
 import type {
@@ -169,6 +169,10 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         events: {
             navigate: (refs: Reference) => void;
             openFootnoote: (event: MouseEvent, footnoteId: string) => void;
+            openGlossary: (link: string, block: GlossaryBlock) => void;
+        };
+        queries: {
+            glossary: Promise<GlossaryQueryResult>;
         };
     };
 
