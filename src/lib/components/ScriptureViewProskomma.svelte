@@ -30,6 +30,7 @@ LOGGING:
         font: string;
         proskomma: SABProskomma;
         setReference: (value: Reference) => void;
+        setBookTab: (value: number) => void;
     }
 </script>
 
@@ -102,7 +103,8 @@ LOGGING:
         viewShowGlossaryWords,
         font,
         proskomma,
-        setReference
+        setReference,
+        setBookTab
     }: Props = $props();
 
     const currentBook = $derived(references.book);
@@ -260,6 +262,28 @@ LOGGING:
             nextPlanDay = null;
         }
     });
+
+    const bookTabs = $derived(
+        scriptureConfig.bookCollections
+            ?.find((x) => x.id === references.collection)
+            ?.books.find((x) => x.id === references.book)?.bookTabs
+    );
+
+    $effect(() => {
+        if (!bookTabs && references.bookTab > 0) {
+            setBookTab(0);
+        }
+    });
+
+    function chapterCount(book: string) {
+        if (references.bookTab > 0 && bookTabs?.tabs[references.bookTab - 1].chapters === 1) {
+            return 0;
+        }
+        const count = Object.keys(
+            references.catalog.documents.find((x) => x.bookCode === book)?.versesByChapters ?? {}
+        ).length;
+        return count;
+    }
 
     async function getCurrentDocumentID(docSet: string, bookCode: string) {
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
@@ -462,7 +486,7 @@ LOGGING:
         });
         pkRenderer.renderDocument({
             docId,
-            config: { chapters: [chapter] },
+            config: chapterCount(references.book) ? { chapters: [chapter] } : {},
             output
         });
 
@@ -473,7 +497,13 @@ LOGGING:
     }
 
     $effect(() => {
-        renderDocumentSofria(currentDocset, currentBook, currentChapter);
+        renderDocumentSofria(
+            currentDocset,
+            references.bookTab > 0
+                ? currentBook + bookTabs?.tabs[references.bookTab - 1].bookTabID
+                : currentBook,
+            currentChapter
+        );
     });
 </script>
 
