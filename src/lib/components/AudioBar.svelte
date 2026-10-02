@@ -188,6 +188,7 @@ TODO:
             <progress
                 id="progress-bar"
                 class="dy-progress audio-progress"
+                style={convertStyle($s?.['ui.bar.audio.icon'])}
                 value={$audioPlayer.progress}
                 max={$audioPlayer.duration}
                 onclick={seekAudio}
