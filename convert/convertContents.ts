@@ -226,7 +226,8 @@ export function parseItemAudio(
 export function parseItemLink(
     tag: Element | HTMLElement | undefined,
     scriptureConfig: ScriptureConfig,
-    verbose: number
+    verbose: number,
+    layoutCollection?: Array<string>
 ): LinkMeta {
     const link: LinkMeta = {};
     if (tag === undefined) {
@@ -253,7 +254,11 @@ export function parseItemLink(
         // Proskomma can only handle USFM and the other book types include non-
         // standard SFM tags.
 
-        scriptureConfig.bookCollections?.some((collection) => {
+        const collections = scriptureConfig.bookCollections ?? [];
+        const preferred = collections.filter(
+            (c) => layoutCollection?.includes(c.id) && c.books.some((x) => x.id === link.linkTarget)
+        );
+        (preferred.length > 0 ? preferred : collections).some((collection) => {
             if (verbose) {
                 console.log(`Searching for ${link.linkTarget} in ${collection.id}`);
             }
@@ -421,13 +426,18 @@ export function convertContents(
                 imageFilename = parseItemImage(itemTag, contentsDir, verbose, hasContentsDir);
             }
 
-            const link: LinkMeta = parseItemLink(itemTag, scriptureConfig, verbose);
+            const layoutCollection = parseItemLayoutCollection(itemTag);
+
+            const link: LinkMeta = parseItemLink(
+                itemTag,
+                scriptureConfig,
+                verbose,
+                layoutCollection
+            );
 
             const features: any = parseItemFeatures(itemTag);
 
             const layoutMode = parseItemLayoutMode(itemTag); //= layoutTags[0]?.attributes.getNamedItem('mode')?.value;
-
-            const layoutCollection = parseItemLayoutCollection(itemTag);
 
             // Children items
             const children: ContentItem[] = [];
@@ -458,10 +468,15 @@ export function convertContents(
                             verbose,
                             hasContentsDir
                         );
-                        const cLink: LinkMeta = parseItemLink(itemChild, scriptureConfig, verbose);
+                        const cLayoutCollection = parseItemLayoutCollection(itemChild);
+                        const cLink: LinkMeta = parseItemLink(
+                            itemChild,
+                            scriptureConfig,
+                            verbose,
+                            cLayoutCollection
+                        );
                         const cFeatures: any = parseItemFeatures(itemChild);
                         const cLayoutMode = parseItemLayoutMode(itemChild);
-                        const cLayoutCollection = parseItemLayoutCollection(itemChild);
 
                         children.push({
                             id: cId,
