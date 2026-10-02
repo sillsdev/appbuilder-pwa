@@ -9,7 +9,7 @@
         themeColors
     } from '$lib/data/stores';
     import type { SearchResult } from '$lib/search/domain/entities';
-    import { onMount, untrack } from 'svelte';
+    import { onMount } from 'svelte';
     import SearchResultCard from './SearchResultCard.svelte';
 
     interface Props {
@@ -21,13 +21,12 @@
     }
     let { collection, results, queryDone, restore, queryId }: Props = $props();
 
-    // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
-    let displayQueryId = untrack(() => queryId);
 
     const resultCountText = $derived(formatResultCount(results.length));
 
+    // A new query (queryId changed) clears the results shown from the previous one
     $effect(() => {
         clearResults(queryId);
     });
@@ -47,11 +46,8 @@
         ensureScreenFilled();
     }
 
-    function clearResults(query: number) {
-        if (query !== displayQueryId) {
-            displayQueryId = query;
-            resultsShown = [];
-        }
+    function clearResults(_queryId: number) {
+        resultsShown = [];
     }
 
     function formatResultCount(count: number): string {
