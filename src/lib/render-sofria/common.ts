@@ -183,6 +183,12 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             openFootnoote: (event: MouseEvent, footnoteId: string) => void;
             openGlossary: (link: string, block: GlossaryBlock) => void;
             setPlanStore: (data: PlanStore) => void;
+            clickHeaderRef: (
+                event: MouseEvent,
+                target: HTMLElement,
+                workspace: RenderWorkspace
+            ) => void;
+            clickText: (event: MouseEvent) => void;
         };
         stores: {
             references: ReferenceStore;

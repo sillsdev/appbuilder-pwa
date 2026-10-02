@@ -246,8 +246,8 @@
                     font: $currentFont!,
                     proskomma: data?.proskomma,
                     setReference: refs.set,
-                    setBookTab: refs.setBookTab
-                    //selectedVerses
+                    setBookTab: refs.setBookTab,
+                    selectedVerses
                 } satisfies ScriptureViewProskommaProps)
               : {}
     );

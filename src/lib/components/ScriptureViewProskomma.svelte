@@ -31,6 +31,7 @@ LOGGING:
         proskomma: SABProskomma;
         setReference: (value: Reference) => void;
         setBookTab: (value: number) => void;
+        selectedVerses: SelectedVersesStore;
     }
 </script>
 
@@ -49,6 +50,7 @@ LOGGING:
     import { addPlanState, getLastPlanState } from '$lib/data/planStates';
     import { loadDocSetIfNotLoaded } from '$lib/data/scripture';
     import {
+        audioPlayer,
         currentPlanData,
         currentPlanState,
         footnotes,
@@ -60,6 +62,7 @@ LOGGING:
         type GlossaryBlock,
         type GlossaryQueryResult,
         type PlanStore,
+        type SelectedVersesStore
     } from '$lib/data/stores';
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
@@ -78,8 +81,10 @@ LOGGING:
     import * as numerals from '$lib/scripts/numeralSystem';
     import {
         generateHTML,
+        handleHeaderLinkPressed,
         isBibleBook
     } from '$lib/scripts/scripture-reference-utils';
+    import { onClickText, updateSelections } from '$lib/scripts/verseSelectUtil';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, onMount } from 'svelte';
@@ -104,7 +109,8 @@ LOGGING:
         font,
         proskomma,
         setReference,
-        setBookTab
+        setBookTab,
+        selectedVerses
     }: Props = $props();
 
     const currentBook = $derived(references.book);
@@ -285,6 +291,12 @@ LOGGING:
         return count;
     }
 
+    $effect(() => {
+        if (scriptureRoot && $selectedVerses) {
+            updateSelections(scriptureRoot, selectedVerses);
+        }
+    });
+
     async function getCurrentDocumentID(docSet: string, bookCode: string) {
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
         const bookDocuments = proskomma.gqlQuerySync(
@@ -385,6 +397,26 @@ LOGGING:
             },
             setPlanStore(data: PlanStore) {
                 plan.set(data);
+            },
+            clickHeaderRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
+                event.stopPropagation();
+                const start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
+                const end =
+                    target.getAttribute('data-end-ref') === 'undefined'
+                        ? undefined
+                        : JSON.parse(target.getAttribute('data-end-ref') || '{}');
+                if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
+                    workspace.events.navigate(start);
+                } else {
+                    handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
+                        footnotes.push(footnoteHTML)
+                    );
+                }
+            },
+            clickText: (e) => {
+                if (!$audioPlayer.playing) {
+                    onClickText(e, maxSelections);
+                }
             }
         };
         workspace.stores = {
