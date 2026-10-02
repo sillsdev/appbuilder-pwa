@@ -150,8 +150,8 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
         }
         workspace.scopeManager.appendContent(planDiv);
     } else if (
-        planDivInChapter(workspace.stores.plan, workspace.stores.references) === false &&
-        workspace.stores.plan.completed === true
+        !planDivInChapter(workspace.stores.plan, workspace.stores.references) &&
+        workspace.stores.plan.completed
     ) {
         // If we are no longer in the plan chapter and the plan section
         // has been read, clear plan so that the plan item will not

@@ -87,7 +87,7 @@ LOGGING:
     import { onClickText, updateSelections } from '$lib/scripts/verseSelectUtil';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy } from 'svelte';
 
     let {
         audioPhraseEndChars,
@@ -197,7 +197,7 @@ LOGGING:
             planDivObserver = null; // Clear the observer reference
         }
         if (planDivInChapter($plan, references) && !$plan.completed) {
-            const target = document.getElementById('PLAN-next');
+            const target = scriptureRoot.querySelector('#PLAN-next');
             if (target) {
                 planObservationCompleted = false;
                 planDivObserver = new IntersectionObserver(
@@ -232,11 +232,6 @@ LOGGING:
             }
         }
     }
-    onMount(() => {
-        if (planDivInChapter($plan, references)) {
-            observeVisibility();
-        }
-    });
     onDestroy(() => {
         if (planDivObserver) {
             planDivObserver.disconnect();
@@ -526,6 +521,10 @@ LOGGING:
             console.warn('Final rendering output: %o', output.root);
         }
         loading = false;
+
+        if (references) {
+            observeVisibility();
+        }
     }
 
     $effect(() => {
