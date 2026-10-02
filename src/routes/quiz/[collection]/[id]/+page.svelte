@@ -432,14 +432,20 @@
                 {/if}
                 {#if showCorrectAnswer}
                     <div class="flex justify-center items-center">
-                        <button
-                            class="dy-btn dy-btn-active p-2 px-8 mt-4"
-                            onclick={() => {
-                                nextQuestion();
+                        <div
+                            class="quiz-button px-8"
+                            role="button"
+                            tabindex="0"
+                            onclick={nextQuestion}
+                            onkeydown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    nextQuestion();
+                                }
                             }}
                         >
-                            <ArrowForwardIcon />
-                        </button>
+                            <ArrowForwardIcon color="currentColor" />
+                        </div>
                     </div>
                 {/if}
             </div>
