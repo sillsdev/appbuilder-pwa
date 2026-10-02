@@ -18,7 +18,7 @@
 
     let { bodyFontSize, bodyLineHeight, font }: Props = $props();
 
-    let stack = $state<HTMLDivElement>();
+    let stack: HTMLDivElement | undefined = $state();
     let listening = false;
     const PrimaryColor = $derived($themeColors['PrimaryColor']);
 
