@@ -110,7 +110,7 @@ function modifyClassOfElement(
 ): boolean {
     let found = false;
     let i = 0;
-    let el = container.querySelector(`#${id}`);
+    let el = container.querySelector(`[id="${id}"]`);
 
     while (el) {
         if (select) {
@@ -121,7 +121,7 @@ function modifyClassOfElement(
             el.classList.remove(clsName);
         }
         i++;
-        el = container.querySelector(`#${id}+${i}`);
+        el = container.querySelector(`[id="${id}+${i}"]`);
         found = true;
     }
 
