@@ -364,7 +364,7 @@ LOGGING:
             openFootnoote(event: MouseEvent, footnoteId: string) {
                 if ($footnotes.length === 0) {
                     event.stopPropagation();
-                    const footnote = workspace.document?.querySelector(`div#${footnoteId}`);
+                    const footnote = workspace.document?.querySelector(`div[id="${footnoteId}"]`);
                     const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
                     const spans = workingSpan?.querySelectorAll('span.xt');
                     // Loop through each span and modify its inner HTML
