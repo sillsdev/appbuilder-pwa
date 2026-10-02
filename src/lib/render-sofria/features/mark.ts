@@ -1,4 +1,5 @@
 import { scriptureConfig } from '$assets/config';
+import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
 import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
 import type { RenderElement } from 'proskomma-json-tools';
@@ -126,11 +127,22 @@ function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
             (x) => x.id === workspace.stores.references.collection
         )?.style?.textDirection ?? 'ltr';
     // 'number' can be a range of verse numbers
-    spanV.innerText = numerals.formatNumberRange(
+    spanV.textContent = numerals.formatNumberRange(
         workspace.textConfig.numeralSystem,
         element.atts['number'],
         direction
     );
+
+    spanV.addEventListener('click', function audioClickHandler() {
+        if (!hasAudioPlayed()) {
+            return;
+        }
+        const verseSelection = document.querySelector('[data-verse="' + spanV.textContent + '"]');
+        const verseId = verseSelection?.getAttribute('id');
+        if (verseId) {
+            seekToVerse(verseId);
+        }
+    });
 
     const spanVsp = workspace.document.createElement('span');
     spanVsp.classList.add('vsp');

@@ -1,4 +1,5 @@
 import { ModalType, monoIconColor } from '$lib/data/stores';
+import { deselectAllElements } from '$lib/scripts/verseSelectUtil';
 import { addVideoLinks, createVideoBlock } from '$lib/video';
 import { get } from 'svelte/store';
 import { FeatureSpec, type RenderWorkspace } from '../common';
@@ -13,7 +14,7 @@ export const documentFeature = new FeatureSpec([
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
             baseDiv.setAttribute('data-phrase', 'none');
-            // TODO: reset selections
+            deselectAllElements(workspace.root);
             workspace.root.appendChild(baseDiv);
             workspace.scopeManager.push('document', workspace.root);
         }
@@ -22,7 +23,6 @@ export const documentFeature = new FeatureSpec([
         event: 'endDocument',
         default: true,
         action({ workspace, output }) {
-            console.log([...workspace.scopeManager.stack]);
             if (!workspace.hackRenderIntro) {
                 addNotedVerses(workspace);
                 addBookmarkedVerses(workspace);
@@ -38,8 +38,21 @@ export const documentFeature = new FeatureSpec([
 
             addFooter(workspace);
 
+            workspace.root.querySelectorAll('a.header-ref').forEach((el) => {
+                el.addEventListener('click', (e) =>
+                    workspace.events.clickHeaderRef(
+                        e as MouseEvent,
+                        el as HTMLAnchorElement,
+                        workspace
+                    )
+                );
+            });
+
+            workspace.root.querySelectorAll('.seltxt').forEach((el) => {
+                el.addEventListener('click', (e) => workspace.events.clickText(e as MouseEvent));
+            });
+
             workspace.scopeManager.pop('document');
-            // TODO: event handlers, illustrations, annotations, plans
             output.root = workspace.root;
         }
     }
