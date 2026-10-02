@@ -245,8 +245,8 @@
                     viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
                     font: $currentFont!,
                     proskomma: data?.proskomma,
-                    setReference: refs.set
-                    //setBookTab: refs.setBookTab,
+                    setReference: refs.set,
+                    setBookTab: refs.setBookTab
                     //selectedVerses
                 } satisfies ScriptureViewProskommaProps)
               : {}
