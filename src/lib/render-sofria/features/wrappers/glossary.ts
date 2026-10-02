@@ -1,4 +1,5 @@
 import { addToScratchPad, FeatureSpec } from '$lib/render-sofria/common';
+import { ciEquals } from '$lib/scripts/stringUtils';
 import { usfmType } from './common';
 
 export function isGlossaryWrapper(usfmType: string) {
@@ -22,8 +23,6 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
                 lemma: element.atts['lemma']?.[0]
             });
 
-            const usfmWrapperType = usfmType(context);
-
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add('glossary');
             workspace.scopeManager.push('wrapper:glossary', spanElement);
@@ -40,15 +39,30 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
 
             const wrapper = workspace.scopeManager.pop('wrapper:glossary').root;
 
-            const aElement = workspace.document.createElement('a');
+            const a = workspace.document.createElement('a');
             const matchWord = workspace.scratch.wrapper.lemma || wrapper.innerText || '';
-            aElement.setAttribute('match', matchWord.trim());
-            aElement.setAttribute('href', ' ');
-            aElement.classList.add('glossary');
+            a.setAttribute('match', matchWord.trim());
+            a.setAttribute('href', 'javascript:void(0)');
+            a.classList.add('glossary');
 
-            aElement.innerHTML = wrapper.innerHTML;
+            a.innerHTML = wrapper.innerHTML;
 
-            wrapper.replaceChildren(aElement);
+            wrapper.replaceChildren(a);
+
+            wrapper.addEventListener('click', function glossaryClickHandler(event: MouseEvent) {
+                event.stopPropagation();
+                event.preventDefault();
+                const glossaryLink = a.getAttribute('match');
+                workspace.queries.glossary.then((glossaryResults) => {
+                    if (glossaryResults.data.docSets[0].document) {
+                        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block) => {
+                            if (ciEquals(block.key, glossaryLink)) {
+                                workspace.events.openGlossary(glossaryLink!, block);
+                            }
+                        });
+                    }
+                });
+            });
 
             workspace.scopeManager.appendContent(wrapper);
 
