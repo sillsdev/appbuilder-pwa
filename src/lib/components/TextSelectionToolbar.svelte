@@ -11,6 +11,7 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
     import { addHighlights, removeHighlights } from '$lib/data/highlights';
     import {
         audioActive,
+        backgroundColor,
         modal,
         ModalType,
         refs,
@@ -139,14 +140,13 @@ Enables users to copy, highlight, bookmark, share, and annotate selected verses.
         }
     }
 
-    const backgroundColor = $derived($s?.['ui.bar.text-select']['background-color']);
+    const toolbarColor = $derived(
+        $s?.['ui.bar.text-select']?.['background-color'] ?? $backgroundColor
+    );
     const iconColor = $derived($s?.['ui.bar.text-select.icon']['color']);
 </script>
 
-<div
-    class="relative h-12 bg-base-100 mx-auto flex items-center flex-col"
-    style:background-color={backgroundColor}
->
+<div class="relative h-12 mx-auto flex items-center flex-col" style:background-color={toolbarColor}>
     <div class="flex flex-col justify-center w-11/12 grow">
         <!-- Controls -->
         <div class="place-self-center">
