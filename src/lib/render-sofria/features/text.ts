@@ -156,6 +156,23 @@ export const text = new FeatureSpec<
                 );
                 addToScratchPad(workspace.scratch, 'paragraph', { deferredEls: [] });
 
+                /**
+                 * The goal of this code, and its counterpart in `startVerses` is to create a single `div` to hold a full verse.
+                 * This is necessary to efficiently implement Issue [#1115](https://github.com/sillsdev/appbuilder-pwa/issues/1115).
+                 *
+                 * A verse `div`, and corresponding scope, is created in `startVerses`, but this could have happened in a separate paragraph, or there may be multiple such verse scopes on top of this paragraph.
+                 * 
+                 * If the current paragraph is at the top of the scope stack (depth = 0), then the verse div is located elsewhere in the context, most likely appended as content to the scope before the current paragraph.
+                 * In this case, we want to locate the pre-existing verse div, and attach the current paragraph to it.
+                 * 
+                 * If there is one and only one verse (depth = 1), then we want to wrap the current paragraph in the verse div.
+                 * This could also feed into a future paragraph with depth 0 that would be handled as above.
+                 * 
+                 * If there are more than one verses in the scope (depth > 1), then we just want to append all of them to the current paragraph.
+                 * 
+                 * This may run into issues if there is a paragraph with only one verse, but that verse is continued in a following paragraph.
+                 * Under the current code, if this scenario is encountered, there shouldn't be any errors, but the resulting div structure may be undesirable.
+                 */
                 const depth = workspace.scopeManager.depth('paragraph:main');
                 switch (depth) {
                     // continuation of preexisting verse...
