@@ -6,6 +6,7 @@
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import {
         actionBarColor,
+        backgroundColor,
         fontChoices,
         modal,
         ModalType,
@@ -30,8 +31,9 @@
 </script>
 
 <div
-    class="flex flex-col fixed bg-base-100 h-screen w-screen"
-    style="background-color: {$themeColors['BackgroundColor']}; color: {$themeColors['TextColor']};"
+    class="flex flex-col fixed h-screen w-screen"
+    style:background-color={$backgroundColor}
+    style:color={$themeColors['TextColor']}
 >
     <Navbar
         showBackButton={inSearchRoute || !!selectedWord.value}

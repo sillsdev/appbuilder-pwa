@@ -72,9 +72,8 @@
     function switchLanguage(language: string) {
         currentReversal.languageId = language;
         selectedLetter = currentAlphabet?.[0];
-        const scrollableDiv = document.querySelector('.flex-1.overflow-y-auto.bg-base-100');
-        if (scrollableDiv) {
-            scrollableDiv.scrollTop = 0;
+        if (scrollContainer) {
+            scrollContainer.scrollTop = 0;
         }
     }
 
