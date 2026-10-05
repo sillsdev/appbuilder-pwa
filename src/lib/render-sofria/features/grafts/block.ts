@@ -33,9 +33,7 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
                 const scope = workspace.scopeManager.pop(`blockGraft:${subType}`);
 
                 if (subType !== 'introduction' || workspace.hackRenderIntro) {
-                    for (const child of scope.root.children) {
-                        workspace.scopeManager.appendContent(child);
-                    }
+                    workspace.scopeManager.appendChildrenFromContainer(scope.root);
                 } else {
                     if (workspace.logSettings.blockGraft) {
                         console.log('Skipping block %o', scope);

@@ -37,24 +37,16 @@ export const chapterVerses = new FeatureSpec([
                 console.log('verses %o start phrase', element.atts.number);
             }
 
-            const initDiv =
-                workspace.scopeManager.remove('verses:init')?.root ??
-                workspace.document.createElement('div');
-            const existingDiv = workspace.scopeManager.find(
-                `verses:${workspace.currentTextPosition.verse}`
-            )?.root;
-
-            if (!existingDiv) {
-                initDiv.setAttribute('data-verse', element.atts['number']);
-                if (workspace.viewSettings.verseLayout === 'one-per-line') {
-                    initDiv.classList.add('verse-block');
-                } else {
-                    initDiv.classList.add('txs');
-                }
-                workspace.scopeManager.push(`verses:${element.atts['number']}`, initDiv);
+            const verseDiv = workspace.document.createElement('div');
+            verseDiv.setAttribute('data-verse', element.atts['number']);
+            
+            if (workspace.viewSettings.verseLayout === 'one-per-line') {
+                verseDiv.classList.add('verse-block');
             } else {
-                workspace.scopeManager.push('verses:init', initDiv);
+                verseDiv.classList.add('txs');
             }
+
+            workspace.scopeManager.push(`verses:${element.atts['number']}`, verseDiv);
             if (workspace.logSettings.verses) {
                 console.log('IN: %o', workspace.scopeManager.find('paragraph')?.root);
             }
