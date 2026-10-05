@@ -72,7 +72,7 @@ export class RenderEventDescriptor {
 }
 
 export class RenderScope {
-    constructor(doc: Document, level: RenderScopeWithSubType, root: HTMLElement) {
+    constructor(level: RenderScopeWithSubType, root: HTMLElement) {
         const parts = level.split(':');
         this.level = parts[0] as RenderScopeLevel;
         this.subType = parts[1];

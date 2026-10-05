@@ -116,7 +116,6 @@ LOGGING:
     const currentBook = $derived(references.book);
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
-    const scopeManager = $state(new ScopeManager(document, []));
 
     const actionsDict: ActionDictionary = $derived.by(() => {
         const result: ActionDictionary = {};
@@ -324,7 +323,6 @@ LOGGING:
         workspaceOptions: Partial<RenderWorkspace> = {}
     ) {
         scriptureRoot.replaceChildren();
-        scopeManager.reset();
 
         if ($scriptureLogs.root) {
             console.log('START: %o', scriptureRoot);
@@ -332,7 +330,7 @@ LOGGING:
 
         workspace.document = document;
         workspace.root = scriptureRoot;
-        workspace.scopeManager = scopeManager;
+        workspace.scopeManager = new ScopeManager();
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
             chapter: 'none',
             verse: 'none'
