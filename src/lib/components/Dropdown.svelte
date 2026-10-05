@@ -3,7 +3,7 @@
 A simple dropdown menu from DaisyUI.
 -->
 <script lang="ts">
-    import { convertStyle, s } from '$lib/data/stores';
+    import { backgroundColor } from '$lib/data/stores';
     import { onDestroy } from 'svelte';
 
     let { cols = 6, navEnd = function () {}, label, content } = $props();
@@ -46,10 +46,10 @@ A simple dropdown menu from DaisyUI.
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
         bind:this={container}
-        class="dy-dropdown-content dy-menu shadow-lg mt-2.5 bg-base-100 z-10 max-sm:absolute max-sm:inset-s-1.5"
+        class="dy-dropdown-content dy-menu shadow-lg mt-2.5 z-10 max-sm:absolute max-sm:inset-s-1.5"
         class:min-w-[22rem]={cols == 6}
         class:min-w-[18rem]={cols == 5}
-        style={convertStyle($s?.['ui.background'])}
+        style:background-color={$backgroundColor}
         onblur={() => navEnd()}
     >
         {@render content?.()}

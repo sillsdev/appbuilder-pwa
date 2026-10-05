@@ -10,6 +10,7 @@ The sidebar/drawer.
     import nav_drawer_2x from '$assets/images/nav_drawer@2x.png';
     import type { MenuItemConfig } from '$config';
     import {
+        backgroundColor,
         direction,
         fontChoices,
         language,
@@ -122,7 +123,6 @@ The sidebar/drawer.
     const iconColor = $derived(
         $s?.['ui.drawer.item.icon']?.['color'] || $themeColors['DrawItemIconColor']
     );
-    const contentBackgroundColor = $derived($s?.['ui.background']['background-color']);
     const drawerBackgroundColor = $derived($s?.['ui.drawer']['background-color']);
 </script>
 
@@ -130,7 +130,7 @@ The sidebar/drawer.
 
 <div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
-    <div class="dy-drawer-content flex flex-col" style:background-color={contentBackgroundColor}>
+    <div class="dy-drawer-content flex flex-col" style:background-color={$backgroundColor}>
         <!-- Page content here -->
         {@render children()}
     </div>

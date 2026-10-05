@@ -4,7 +4,7 @@ A drop-down menu for use in ColorCard, HistoryCard, and IconCard.
 Dispatches a menuaction event when an option is selected from the menu.
 -->
 <script lang="ts">
-    import { convertStyle, monoIconColor, s, themeColors } from '$lib/data/stores';
+    import { backgroundColor, monoIconColor, themeColors } from '$lib/data/stores';
     import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
 
     let { menuaction, actions = [''] } = $props();
@@ -29,7 +29,7 @@ Dispatches a menuaction event when an option is selected from the menu.
     <ul
         tabindex="0"
         class="dy-dropdown-content dy-menu shadow-sm z-10"
-        style={convertStyle($s?.['ui.background'])}
+        style:background-color={$backgroundColor}
         style:--color-base-content={$themeColors['TextColor']}
     >
         {#each actions as a}
