@@ -88,6 +88,20 @@ class ScopeManager {
         }
     }
 
+    appendChildrenFromContainer(container: Element, level?: RenderScopeWithSubType) {
+        const root = this.find(level)?.root;
+        if (root) {
+            for (const child of container.children) {
+                root.append(child);
+            }
+        } else {
+            this.debug();
+            throw new Error(
+                `Tried to append children of ${container} to undefined content root at level ${level ?? 'top'}`
+            );
+        }
+    }
+
     promoteContent(assertScopeType: RenderScopeWithSubType) {
         const layers = this.stack.length;
         if (layers < 1) {

@@ -39,7 +39,6 @@ export const text = new FeatureSpec<
                 }
 
                 workspace.scopeManager.push('paragraph:main', paragraphDiv);
-                workspace.scopeManager.push('verses:init', workspace.document.createElement('div'));
             } else if (sequenceType === 'introduction') {
                 const introductionDiv = workspace.document.createElement('div');
                 introductionDiv.classList.add(paraClass);
@@ -157,12 +156,6 @@ export const text = new FeatureSpec<
                 );
                 addToScratchPad(workspace.scratch, 'paragraph', { deferredEls: [] });
 
-                const initDiv = workspace.scopeManager.remove('verses:init')?.root;
-                if (initDiv) {
-                    for (const child of initDiv.children) {
-                        workspace.scopeManager.appendContent(child);
-                    }
-                }
                 const depth = workspace.scopeManager.depth('paragraph:main');
                 switch (depth) {
                     // continuation of preexisting verse...
@@ -188,9 +181,7 @@ export const text = new FeatureSpec<
                     case 1:
                         {
                             const verseDiv = workspace.scopeManager.pop('verses').root;
-                            for (const child of verseDiv.children) {
-                                workspace.scopeManager.appendContent(child);
-                            }
+                            workspace.scopeManager.appendChildrenFromContainer(verseDiv);
                             const paragraphDiv = workspace.scopeManager.pop('paragraph:main').root;
                             verseDiv.replaceChildren(paragraphDiv);
                             workspace.scopeManager.appendContent(verseDiv);
