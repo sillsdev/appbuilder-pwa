@@ -39,7 +39,7 @@ export const chapterVerses = new FeatureSpec([
 
             const verseDiv = workspace.document.createElement('div');
             verseDiv.setAttribute('data-verse', element.atts['number']);
-            
+
             if (workspace.viewSettings.verseLayout === 'one-per-line') {
                 verseDiv.classList.add('verse-block');
             } else {
