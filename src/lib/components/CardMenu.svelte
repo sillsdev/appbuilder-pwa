@@ -4,7 +4,7 @@ A drop-down menu for use in ColorCard, HistoryCard, and IconCard.
 Dispatches a menuaction event when an option is selected from the menu.
 -->
 <script lang="ts">
-    import { monoIconColor } from '$lib/data/stores';
+    import { convertStyle, monoIconColor, s, themeColors } from '$lib/data/stores';
     import MoreVertIcon from '$lib/icons/MoreVertIcon.svelte';
 
     let { menuaction, actions = [''] } = $props();
@@ -26,7 +26,12 @@ Dispatches a menuaction event when an option is selected from the menu.
         <MoreVertIcon color={$monoIconColor} />
     </div>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-    <ul tabindex="0" class="dy-dropdown-content dy-menu shadow-sm bg-base-100 z-10">
+    <ul
+        tabindex="0"
+        class="dy-dropdown-content dy-menu shadow-sm z-10"
+        style={convertStyle($s?.['ui.background'])}
+        style:--color-base-content={$themeColors['TextColor']}
+    >
         {#each actions as a}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_missing_attribute -->
