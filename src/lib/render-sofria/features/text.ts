@@ -39,6 +39,7 @@ export const text = new FeatureSpec<
                 }
 
                 workspace.scopeManager.push('paragraph:main', paragraphDiv);
+                workspace.scopeManager.push('verses:init', workspace.document.createElement('div'));
             } else if (sequenceType === 'introduction') {
                 const introductionDiv = workspace.document.createElement('div');
                 introductionDiv.classList.add(paraClass);
@@ -155,8 +156,60 @@ export const text = new FeatureSpec<
                     workspace.scopeManager.appendContent(el, 'paragraph:main')
                 );
                 addToScratchPad(workspace.scratch, 'paragraph', { deferredEls: [] });
-                workspace.scopeManager.promoteContent('paragraph:main');
-                // TODO: verseDiv?
+
+                const initDiv = workspace.scopeManager.remove('verses:init')?.root;
+                if (initDiv) {
+                    for (const child of initDiv.children) {
+                        workspace.scopeManager.appendContent(child);
+                    }
+                }
+                const depth = workspace.scopeManager.depth('paragraph:main');
+                switch (depth) {
+                    // continuation of preexisting verse...
+                    case 0:
+                        {
+                            const el = workspace.scopeManager
+                                .at(0)
+                                .root.querySelector('[data-verse]');
+                            const verse = el?.getAttribute('data-verse');
+                            const verseDiv = workspace.scopeManager
+                                .at(1)
+                                .root.querySelector(`[data-verse="${verse}"]`);
+                            if (verseDiv) {
+                                const paragraphDiv =
+                                    workspace.scopeManager.pop('paragraph:main').root;
+                                verseDiv.appendChild(paragraphDiv);
+                            } else {
+                                workspace.scopeManager.promoteContent('paragraph:main');
+                            }
+                        }
+                        break;
+                    // wrap paragraph with only one verse in a verse div
+                    case 1:
+                        {
+                            const verseDiv = workspace.scopeManager.pop('verses').root;
+                            for (const child of verseDiv.children) {
+                                workspace.scopeManager.appendContent(child);
+                            }
+                            const paragraphDiv = workspace.scopeManager.pop('paragraph:main').root;
+                            verseDiv.replaceChildren(paragraphDiv);
+                            workspace.scopeManager.appendContent(verseDiv);
+                        }
+                        break;
+                    // multiple verses in one paragraph
+                    default:
+                        {
+                            const divs: HTMLElement[] = [];
+                            for (let i = 0; i < depth; i++) {
+                                divs.push(workspace.scopeManager.pop('verses').root);
+                            }
+                            for (let i = 0; i < depth; i++) {
+                                workspace.scopeManager.appendContent(divs.pop()!);
+                            }
+                            workspace.scopeManager.promoteContent('paragraph:main');
+                        }
+                        break;
+                }
             } else if (sequenceType === 'introduction') {
                 workspace.scopeManager.promoteContent('paragraph:introduction');
             } else if (sequenceType === 'title') {
