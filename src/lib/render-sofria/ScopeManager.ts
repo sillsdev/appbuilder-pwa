@@ -1,16 +1,13 @@
 import { RenderScope, type RenderScopeWithSubType } from './common';
 
 class ScopeManager {
-    constructor(document: Document, stack: RenderScope[]) {
-        this.document = document;
-        this.stack = stack;
+    constructor(stack?: RenderScope[]) {
+        this.stack = stack ?? [];
     }
-
-    document: Document;
-    stack: Array<RenderScope>;
+    private stack: Array<RenderScope>;
 
     push(level: RenderScopeWithSubType, root: HTMLElement) {
-        this.stack.push(new RenderScope(this.document, level, root));
+        this.stack.push(new RenderScope(level, root));
     }
 
     /**
@@ -80,7 +77,7 @@ class ScopeManager {
         const topScope = this.stack.at(-1)!;
 
         if (!topScope.match(assertScopeType)) {
-            console.log([...this.stack]);
+            this.debug();
             throw new Error(
                 `Tried to promote scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
             );
@@ -103,6 +100,10 @@ class ScopeManager {
         } else if (layers === 1) {
             return innerRoot;
         }
+    }
+
+    debug() {
+        console.log([...this.stack]);
     }
 }
 
