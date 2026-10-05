@@ -56,12 +56,32 @@ class ScopeManager {
         return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
     }
 
+    depth(level?: RenderScopeWithSubType) {
+        if (level) {
+            const idx = this.stack.findLastIndex((s) => s.match(level));
+            return idx > -1 ? this.stack.length - (idx + 1) : idx;
+        } else {
+            return this.stack.length;
+        }
+    }
+
+    at(depth: number) {
+        if (depth >= 0 && depth < this.stack.length) {
+            return this.stack[this.stack.length - depth - 1];
+        } else {
+            this.debug();
+            throw new Error(
+                `Tried to get scope at invalid depth ${depth} on stack with ${this.stack.length} element(s).`
+            );
+        }
+    }
+
     appendContent(content: Element | Text, level?: RenderScopeWithSubType) {
         const root = this.find(level)?.root;
         if (root) {
             root.append(content);
         } else {
-            console.log([...this.stack]);
+            this.debug();
             throw new Error(
                 `Tried to append ${content} to undefined content root at level ${level ?? 'top'}`
             );
