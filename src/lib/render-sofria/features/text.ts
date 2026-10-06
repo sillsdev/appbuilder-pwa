@@ -8,6 +8,7 @@ import {
 } from '../common';
 import { createLetterIndex, phraseTerminated, subdividePhrases } from '../util';
 import { createIllustrationCaptionBlock } from './wrappers/figures';
+import { terminatePhrase } from './common/text';
 
 export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
 type TextScratch = { text?: { introductionIndex?: number; footnoteCallerIndex?: number } };
@@ -255,13 +256,6 @@ function getPhraseDiv(workspace: RenderWorkspace) {
             (workspace.currentTextPosition.phraseIndex ?? 0) + 1;
     }
     return phraseDiv;
-}
-
-export function terminatePhrase(workspace: RenderWorkspace) {
-    const previousPhrase = workspace.scopeManager.remove('phrase')?.root;
-    if (previousPhrase?.innerHTML) {
-        workspace.scopeManager.appendContent(previousPhrase);
-    }
 }
 
 function addPhrases(workspace: RenderWorkspace, text: string) {
