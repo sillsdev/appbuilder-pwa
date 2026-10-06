@@ -3,7 +3,6 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderEnvironment
 } from '$lib/render-sofria/common';
-import { figures } from './figures';
 import { getElementUSFMType, matchUSFMElement } from '../common';
 import { terminatePhrase } from '../common/text';
 import { glossary } from './glossary';
@@ -44,4 +43,4 @@ export const usfmWrappers = new FeatureSpec([
     }
 ]);
 
-export { figures, glossary, jmplinks };
+export { glossary, jmplinks };
