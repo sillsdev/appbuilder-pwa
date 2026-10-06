@@ -170,7 +170,7 @@ export const text = new FeatureSpec<
                  *
                  * If there are more than one verses in the scope (depth > 1), then we just want to append all of them to the current paragraph.
                  *
-                 * This may run into issues if there is a paragraph with only one verse, but that verse is continued in a following paragraph.
+                 * This may run into issues if there is a paragraph with only one verse, but that verse is continued in a following paragraph, with more than one verse.
                  * Under the current code, if this scenario is encountered, there shouldn't be any errors, but the resulting div structure may be undesirable.
                  */
                 const depth = workspace.scopeManager.depth('paragraph:main');
