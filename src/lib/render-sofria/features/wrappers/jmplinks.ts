@@ -11,9 +11,6 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
         guard: ({ context }) => isJmplinkWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
-            if (workspace.logSettings.wrapper) {
-                console.log('Start Wrapper %o', element);
-            }
 
             let jmpLink: HTMLElement;
 
@@ -71,9 +68,6 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
         event: 'endWrapper',
         guard: ({ context }) => isJmplinkWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.wrapper) {
-                console.log('End Wrapper %o', context.sequences[0].element);
-            }
             workspace.scopeManager.promoteContent('wrapper:jmp');
         }
     }

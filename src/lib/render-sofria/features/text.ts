@@ -24,9 +24,6 @@ export const text = new FeatureSpec<
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
-            if (workspace.logSettings.paragraph) {
-                console.log('Start Paragraph %o %o', sequenceType, context.sequences[0].block);
-            }
             const paraClass =
                 context.sequences[0].block.subType?.split(':')[1] ||
                 context.sequences[0].block.subType ||
@@ -64,27 +61,25 @@ export const text = new FeatureSpec<
     },
     {
         event: 'text',
-        section: 'fallback',
-        guard: ({ workspace, context }) =>
-            renderIfRegularOrIfHackedIntro(workspace) &&
-            context.sequences[0].element.text.trim().length > 0,
-        action({ context, workspace }) {
-            let text: string = context.sequences[0].element.text;
+        section: 'init',
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ context }) {
+            let text: string = context.sequences[0].element.text.trim();
 
             // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
             // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-            text = text === '|default=""' ? '| ' : text;
+            text = text.replaceAll('|default=""', '| ');
+        }
+    },
+    {
+        event: 'text',
+        section: 'fallback',
+        guard: ({ workspace, context }) =>
+            renderIfRegularOrIfHackedIntro(workspace) && !!context.sequences[0].element.text,
+        action({ context, workspace }) {
+            const text: string = context.sequences[0].element.text;
 
             const subType = context.sequences[0].block.subType;
-
-            if (workspace.logSettings.text) {
-                console.log(
-                    'Text element: %o %o %o',
-                    context.sequences[0].element.type,
-                    context.sequences[0].element.text,
-                    context.sequences[0].block
-                );
-            }
 
             if (workspace.scopeManager.find('paragraph:heading') && subType === 'usfm:r') {
                 // This is for usfm:r like you will find in CUK Headers
@@ -146,9 +141,6 @@ export const text = new FeatureSpec<
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
-            if (workspace.logSettings.paragraph) {
-                console.log('End Paragraph %o %o', sequenceType, context.sequences[0].block);
-            }
             terminatePhrase(workspace);
             if (sequenceType === 'main' && !workspace.hackRenderIntro) {
                 workspace.scratch.paragraph?.deferredEls?.forEach((el) =>

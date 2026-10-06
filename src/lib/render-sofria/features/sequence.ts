@@ -6,9 +6,6 @@ export const sequences = new FeatureSpec([
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
-            if (workspace.logSettings.sequence) {
-                console.log('Start sequence |%o|', sequenceType);
-            }
             if (sequenceType === 'title') {
                 const div = document.createElement('div');
                 div.setAttribute('data-verse', 'title');
@@ -23,17 +20,10 @@ export const sequences = new FeatureSpec([
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const sequenceType = context.sequences[0].type;
-            if (workspace.logSettings.sequence) {
-                console.log('End sequence |%o|', sequenceType);
-            }
-
             if (sequenceType === 'title') {
                 const div = workspace.scopeManager.find('sequence:title')?.root;
                 if (div) {
                     div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                    if (workspace.logSettings.sequence) {
-                        console.log('TITLE DIV %o', div);
-                    }
                 }
                 workspace.scopeManager.promoteContent('sequence:title');
             }

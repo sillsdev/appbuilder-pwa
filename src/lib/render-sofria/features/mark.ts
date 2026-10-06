@@ -1,8 +1,6 @@
-import { scriptureConfig } from '$assets/config';
 import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
 import { getFeatureValueString } from '$lib/scripts/configUtils';
 import * as numerals from '$lib/scripts/numeralSystem';
-import type { RenderElement } from 'proskomma-json-tools';
 import {
     addToScratchPad,
     FeatureSpec,
@@ -25,9 +23,6 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                 context.sequences[0].element.subType === 'chapter_label',
             action({ context, workspace }) {
                 const element = context.sequences[0].element;
-                if (workspace.logSettings.mark) {
-                    console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
-                }
                 const chapterNumText = numerals.formatNumber(
                     workspace.textConfig.numeralSystem,
                     element.atts['number']
@@ -35,7 +30,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
 
                 const deferChapterNum =
                     getFeatureValueString(
-                        scriptureConfig,
+                        workspace.config,
                         'chapter-number-format',
                         workspace.stores.references.collection,
                         workspace.stores.references.book
@@ -54,17 +49,13 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
         {
             // handle deferred drop-cap chapter marker
             event: 'mark',
+            name: 'Deferred Chapter Number [drop-cap]',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 context.sequences[0].element.subType === 'verses_label' &&
                 workspace.scratch.mark?.deferChapterNum &&
                 !!workspace.scratch.mark?.chapterNumText,
-            action({ context, workspace }) {
-                const element = context.sequences[0].element;
-                if (workspace.logSettings.mark) {
-                    console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
-                }
-
+            action({ workspace }) {
                 const currentParagraph = workspace.scopeManager.find('paragraph')?.root;
                 if (currentParagraph) {
                     const chapterNumDiv = workspace.document.createElement('div');
@@ -72,7 +63,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
 
                     chapterNumDiv.classList.add('c-drop');
 
-                    const direction = scriptureConfig.bookCollections?.find(
+                    const direction = workspace.config.bookCollections?.find(
                         (x) => x.id === workspace.stores.references.collection
                     )?.style?.textDirection;
                     chapterNumDiv.style.float =
@@ -86,10 +77,11 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
             }
         }
     ],
+    'Chapter Numbers',
     { tag: 'show-chapter-numbers', enabledValue: 'true' }
 );
 
-export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>(
+export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
     [
         {
             event: 'mark',
@@ -97,39 +89,37 @@ export const verseNumbers = new FeatureSpec<{ mark: MarkScratch }>(
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 context.sequences[0].element.subType === 'verses_label',
             action({ context, workspace }) {
-                const element = context.sequences[0].element;
-                if (workspace.logSettings.mark) {
-                    console.log('Mark: SubType %o, Atts: %o', element.subType, element.atts);
-                }
-                if (!workspace.scratch.mark.handledFirstVerse) {
-                    if (workspace.scratch.mark.deferChapterNum) {
-                        if (!scriptureConfig.mainFeatures['hide-verse-number-1']) {
-                            addVerseNumber(workspace, element);
+                const verse = context.sequences[0].element.atts['number'];
+                if (!workspace.scratch.mark?.handledFirstVerse) {
+                    if (workspace.scratch.mark?.deferChapterNum) {
+                        if (!workspace.config.mainFeatures['hide-verse-number-1']) {
+                            addVerseNumber(workspace, verse);
                         }
                     } else {
-                        addVerseNumber(workspace, element);
+                        addVerseNumber(workspace, verse);
                     }
                     addToScratchPad(workspace.scratch, 'mark', { handledFirstVerse: true });
                 } else {
-                    addVerseNumber(workspace, element);
+                    addVerseNumber(workspace, verse);
                 }
             }
         }
     ],
+    'Verse Numbers',
     { tag: 'show-verse-numbers', enabledValue: 'true' }
 );
 
-function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
+function addVerseNumber(workspace: RenderWorkspace, verse: string) {
     const spanV = workspace.document.createElement('span');
     spanV.classList.add('v');
     const direction =
-        scriptureConfig.bookCollections?.find(
+        workspace.config.bookCollections?.find(
             (x) => x.id === workspace.stores.references.collection
         )?.style?.textDirection ?? 'ltr';
-    // 'number' can be a range of verse numbers
+    // 'verse' can be a range of verse numbers
     spanV.textContent = numerals.formatNumberRange(
         workspace.textConfig.numeralSystem,
-        element.atts['number'],
+        verse,
         direction
     );
 
@@ -137,7 +127,7 @@ function addVerseNumber(workspace: RenderWorkspace, element: RenderElement) {
         if (!hasAudioPlayed()) {
             return;
         }
-        const verseSelection = document.querySelector('[data-verse="' + spanV.textContent + '"]');
+        const verseSelection = document.querySelector(`[data-verse="${spanV.textContent}"]`);
         const verseId = verseSelection?.getAttribute('id');
         if (verseId) {
             seekToVerse(verseId);

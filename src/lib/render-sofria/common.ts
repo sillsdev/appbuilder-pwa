@@ -34,7 +34,7 @@ const boundedScopes = [
 type StartScope = `start${(typeof boundedScopes)[number]}`;
 type EndScope = `end${(typeof boundedScopes)[number]}`;
 const independentScopes = ['text', 'metaContent', 'mark', 'blockGraft', 'inlineGraft'] as const;
-const additionalScopes = ['unsupported', 'phrase'] as const;
+const additionalScopes = ['phrase'] as const;
 
 export type RenderScopeLevel =
     | Lowercase<(typeof boundedScopes)[number]>
@@ -42,34 +42,34 @@ export type RenderScopeLevel =
 
 export type RenderScopeWithSubType = RenderScopeLevel | `${RenderScopeLevel}:${string}`;
 
-export enum RenderEventPosition {
-    scopeStart,
-    scopeEnd,
-    standalone
-}
-
 export const renderEvents = [
     ...boundedScopes.flatMap((s) => [`start${s}`, `end${s}`]),
     ...independentScopes
 ] as const as RenderEvent[];
 export type RenderEvent = StartScope | EndScope | (typeof independentScopes)[number];
 
-export class RenderEventDescriptor {
-    constructor(eventName: RenderEvent) {
-        if (eventName.startsWith('start')) {
-            this.position = RenderEventPosition.scopeStart;
-            this.level = eventName.replace('start', '').toLowerCase() as RenderScopeLevel;
-        } else if (eventName.startsWith('end')) {
-            this.position = RenderEventPosition.scopeEnd;
-            this.level = eventName.replace('end', '').toLowerCase() as RenderScopeLevel;
-        } else {
-            this.position = RenderEventPosition.standalone;
-            this.level = eventName as RenderScopeLevel;
-        }
+export function RenderEvent2Scope(event: RenderEvent) {
+    if (event.startsWith('start')) {
+        return event.replace('start', '').toLowerCase() as RenderScopeLevel;
+    } else if (event.startsWith('end')) {
+        return event.replace('end', '').toLowerCase() as RenderScopeLevel;
+    } else {
+        return event as RenderScopeLevel;
     }
+}
 
-    level: RenderScopeLevel;
-    position: RenderEventPosition;
+export function prettyRenderEvent(event: RenderEvent) {
+    const caps = event.replaceAll(/[a-z]/g, '');
+    return event
+        .split(/[A-Z]/)
+        .map((p, i) => {
+            if (i === 0) {
+                return p.replace(/^([a-z])/, (match) => match.toUpperCase());
+            } else {
+                return caps[i - 1] + p;
+            }
+        })
+        .join(' ');
 }
 
 export class RenderScope {
@@ -146,13 +146,13 @@ export type ActionDictionary = Partial<{ [key in RenderEvent]: Array<RenderActio
 export type FeatureFlag = { tag: string; enabledValue: string };
 
 export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> {
-    constructor(actions: Array<RenderAction<Scratch>>, flag?: FeatureFlag) {
+    constructor(actions: Array<RenderAction<Scratch>>, name?: string, flag?: FeatureFlag) {
         this.flag = flag;
-        this.actions = actions;
+        this.actions = actions.map((a) => ({ ...a, name: a.name || name }));
     }
 
     flag?: FeatureFlag;
-    actions: Readonly<Array<RenderAction<Scratch>>>;
+    actions: Array<RenderAction<Scratch>>;
 }
 
 type DefaultScratchpad = Partial<Record<RenderScopeLevel, any>>;

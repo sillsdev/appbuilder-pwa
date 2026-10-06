@@ -68,6 +68,8 @@ LOGGING:
     import { renderFeatures } from '$lib/render-sofria';
     import {
         compileActionDictionary,
+        prettyRenderEvent,
+        RenderEvent2Scope,
         renderEvents,
         type ActionDictionary,
         type RenderEnvironment,
@@ -408,20 +410,29 @@ LOGGING:
         let execFallback = true;
 
         for (const a of actionsDict[eventName] ?? []) {
-            if (
-                (a.section !== 'fallback' && a.guard?.(environment)) ||
-                (a.section === 'fallback' && execFallback && (!a.guard || a.guard(environment)))
-            ) {
-                /* console.log(
-                    'Processing action for event %s\naction: %o\nenv: %o',
-                    eventName,
-                    a,
-                    environment
-                ); */
+            if ((a.section !== 'fallback' || execFallback) && (!a.guard || a.guard(environment))) {
+                if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
+                    console.log(
+                        '%s%s%s\n  sequence: %o\n  element: %o\n  block: %o',
+                        prettyRenderEvent(eventName),
+                        a.name ? ` - ${a.name}` : '',
+                        ` (${a.section ?? 'standard'})`,
+                        environment.context.sequences[0].type,
+                        { ...environment.context.sequences[0].element },
+                        { ...environment.context.sequences[0].block }
+                    );
+                }
                 a.action(environment);
-                execFallback = false;
+                execFallback &&= !!a.section && a.section !== 'standard';
             } else {
-                //console.log('Skipped action for event %s', eventName);
+                if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
+                    /* console.log(
+                        'Skipped: %s%s%s',
+                        prettyRenderEvent(eventName),
+                        a.name ? ` - ${a.name}` : '',
+                        ` (${a.section ?? 'standard'})`
+                    ); */
+                }
             }
         }
     }

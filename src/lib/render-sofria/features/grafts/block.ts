@@ -1,5 +1,5 @@
 import type { Block } from 'proskomma-json-tools';
-import { addToScratchPad, FeatureSpec, type RenderEnvironment } from '../../common';
+import { FeatureSpec } from '../../common';
 import { renderGraftedSequence, type BlockGraftScratch } from './common';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
@@ -13,9 +13,6 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
         section: 'fallback',
         action: (environment) => {
             const { context, workspace } = environment;
-            if (workspace.logSettings.blockGraft) {
-                console.log('Block Graft %o', context.sequences[0].block);
-            }
             const currentBlock = context.sequences[0].block;
             const graftRecord: Block = {
                 type: currentBlock.type,
@@ -39,10 +36,6 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
                         console.log('Skipping block %o', scope);
                     }
                 }
-            }
-
-            if (workspace.logSettings.blockGraft) {
-                console.log('Block Graft End %o %o', graftRecord, currentBlock);
             }
         }
     }
