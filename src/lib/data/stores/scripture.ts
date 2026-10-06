@@ -389,7 +389,7 @@ export type ScriptureLogConfig = {
     blockGraft: number;
     inlineGraft: number;
     mark: number;
-    meta: number;
+    metaContent: number;
     row: number;
     table: number;
     placement: number;
@@ -413,7 +413,7 @@ export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $log
                   blockGraft: 1,
                   inlineGraft: 1,
                   mark: 1,
-                  meta: 1,
+                  metaContent: 1,
                   row: 1,
                   placement: 1
               }

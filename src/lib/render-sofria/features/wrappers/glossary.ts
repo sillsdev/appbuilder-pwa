@@ -14,9 +14,6 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
             isGlossaryWrapper(usfmType(context)) && workspace.viewSettings.glossaryWords,
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
-            if (workspace.logSettings.wrapper) {
-                console.log('Start Wrapper %o', element);
-            }
 
             // Glossary - Check for lemma
             addToScratchPad(workspace.scratch, 'wrapper', {
@@ -33,10 +30,6 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
         guard: ({ context, workspace }) =>
             isGlossaryWrapper(usfmType(context)) && workspace.viewSettings.glossaryWords,
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.wrapper) {
-                console.log('End Wrapper %o', context.sequences[0].element);
-            }
-
             const wrapper = workspace.scopeManager.pop('wrapper:glossary').root;
 
             const a = workspace.document.createElement('a');

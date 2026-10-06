@@ -6,7 +6,7 @@ import {
 import { terminatePhrase } from '../text';
 import { usfmType } from './common';
 import { figures } from './figures';
-import { glossary, isGlossaryWrapper } from './glossary';
+import { glossary } from './glossary';
 import { jmplinks } from './jmplinks';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
@@ -31,11 +31,6 @@ export const usfmWrappers = new FeatureSpec([
         section: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
-            const element = context.sequences[0].element;
-            if (workspace.logSettings.wrapper) {
-                console.log('Start Wrapper %o', element);
-            }
-
             const usfmWrapperType = usfmType(context);
 
             const spanElement = workspace.document.createElement('span');
@@ -48,9 +43,6 @@ export const usfmWrappers = new FeatureSpec([
         section: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.wrapper) {
-                console.log('End Wrapper %o', context.sequences[0].element);
-            }
             terminatePhrase(workspace);
 
             workspace.scopeManager.promoteContent(`wrapper:${usfmType(context)}`);

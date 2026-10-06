@@ -17,15 +17,6 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
         action: (environment) => {
             const { context, workspace } = environment;
             const element = context.sequences[0].element;
-            if (workspace.logSettings.inlineGraft) {
-                console.log(
-                    'Inline Graft Type: %o, Subtype: %o, id: %o %o',
-                    element.type,
-                    element.subType,
-                    element.sequence.id,
-                    context.sequences[0].element
-                );
-            }
             const graftRecord: RenderElement = {
                 type: element.type,
                 subType: element.subType,
@@ -55,9 +46,6 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
                     );
                 }
             }
-            if (workspace.logSettings.inlineGraft) {
-                console.log('Inline Graft End');
-            }
         }
     }
 ]);
@@ -80,8 +68,5 @@ function createFootnoteDiv(workspace: RenderWorkspace<InlineGraftScratch>, eleme
     a.classList.add('cursor-pointer');
     callerRoot.appendChild(a);
     callerRoot.addEventListener('click', (e) => workspace.events.openFootnoote(e, footnoteId));
-    if (workspace.logSettings.inlineGraft) {
-        console.log('Create Footnote %o %o', callerRoot, contentRoot);
-    }
     return [callerRoot, contentRoot];
 }
