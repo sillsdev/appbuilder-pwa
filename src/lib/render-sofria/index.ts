@@ -11,10 +11,6 @@ import { tables } from './features/table';
 import { text } from './features/text';
 import { figures, glossary, jmplinks, usfmWrappers } from './features/wrappers';
 
-/**
- * Note: feature order matters. Subsequently listed features can depend
- * on the results of prior ones, but not vice versa
- */
 export const renderFeatures: Array<FeatureSpec<any>> = [
     blockGrafts,
     inlineGrafts,

@@ -12,7 +12,7 @@ type InlineGraftScratch = { inlineGraft?: { footnoteIdIndex?: number } };
 export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScratch>([
     {
         event: 'inlineGraft',
-        default: true,
+        section: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: (environment) => {
             const { context, workspace } = environment;

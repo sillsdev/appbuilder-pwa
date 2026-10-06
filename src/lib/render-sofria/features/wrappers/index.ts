@@ -28,7 +28,7 @@ function isWordsOfJesusWrapper(usfmType: string) {
 export const usfmWrappers = new FeatureSpec([
     {
         event: 'startWrapper',
-        default: true,
+        section: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
@@ -45,7 +45,7 @@ export const usfmWrappers = new FeatureSpec([
     },
     {
         event: 'endWrapper',
-        default: true,
+        section: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             if (workspace.logSettings.wrapper) {

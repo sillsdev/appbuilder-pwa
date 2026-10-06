@@ -11,6 +11,7 @@ import type {
     ScriptureLogConfig
 } from '$lib/data/stores';
 import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
+import { checkFeatureValueIs } from '$lib/scripts/configUtils';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
 import type {
     RenderWorkspace as PKRenderWorkspace,
@@ -103,6 +104,21 @@ export type RenderEnvironment<Scratch extends DefaultScratchpad = DefaultScratch
     output: any;
 };
 
+const sectionOrder = {
+    init: 0,
+    standard: 1,
+    fallback: 2,
+    cleanup: 3
+} as const;
+
+/**
+ * - `standard`: nothing special happens here
+ * - `fallback`: intended to be run after all standard actions but before cleanup. functions like the `default` clause of a `switch-case`
+ * - `init`: run before all other actions
+ * - `cleanup`: run after all other actions
+ */
+type RenderSection = keyof typeof sectionOrder;
+
 /**
  * pass `default: true` if this is meant to be a fallback after other actions have been filtered out. required if no guard is specified
  */
@@ -111,7 +127,10 @@ export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> 
         event: RenderEvent;
         name?: string;
         action(environment: RenderEnvironment<Scratch>): void;
-    } & ({ guard: Guard<Scratch>; default?: boolean } | { default: true; guard?: Guard<Scratch> })
+    } & (
+        | { guard: Guard<Scratch>; section?: RenderSection }
+        | { section: RenderSection; guard?: Guard<Scratch> }
+    )
 >;
 
 type Guard<Scratch extends DefaultScratchpad> = (
@@ -146,8 +165,6 @@ export function addToScratchPad<
 >(pad: RenderScratchpad<T>, scope: S, values: T[S]) {
     pad[scope] = { ...pad[scope], ...values };
 }
-
-export type SequenceType = 'main' | 'title' | 'introduction';
 
 export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpad> =
     PKRenderWorkspace & {
@@ -224,4 +241,78 @@ export function renderIfRegularOrIfHackedIntro(workspace: RenderWorkspace) {
         hasIntroductionGraft === workspace.hackRenderIntro ||
         (hasTitleGraft && workspace.hackRenderIntro)
     );
+}
+
+function errorOnDuplicateSection(section: RenderSection | undefined) {
+    return section === 'fallback';
+}
+function warnOnDuplicateSection(section: RenderSection | undefined) {
+    return section === 'init' || section === 'cleanup';
+}
+
+export function compileActionDictionary(
+    features: FeatureSpec<any>[],
+    config: Readonly<ScriptureConfig>,
+    references: ReferenceStore
+) {
+    const result: ActionDictionary = {};
+    for (const f of features) {
+        const enabled =
+            !f.flag ||
+            checkFeatureValueIs(
+                config,
+                f.flag.tag,
+                f.flag.enabledValue,
+                references.collection,
+                references.book
+            );
+
+        if (f.flag) {
+            console.warn(
+                `feature with ${f.flag.tag} === ${f.flag.enabledValue} is ${enabled ? 'enabled' : 'disabled'}`
+            );
+        }
+        if (enabled) {
+            for (const a of f.actions) {
+                if (result[a.event]) {
+                    result[a.event]!.push(a);
+                } else {
+                    result[a.event] = [a];
+                }
+            }
+        }
+    }
+    let errorCount = 0;
+    for (const e in result) {
+        const sections = {} as Record<RenderSection, string>;
+        result[e as RenderEvent]?.forEach((a) => {
+            if (errorOnDuplicateSection(a.section)) {
+                if (sections[a.section]) {
+                    console.error(
+                        `Action handler ${e} has more than one handler in ${a.section}. Encountered: ${a.name}, Existing: ${sections[a.section]}`
+                    );
+                    errorCount++;
+                } else {
+                    sections[a.section] = `${a.name}`;
+                }
+            } else if (warnOnDuplicateSection(a.section)) {
+                if (sections[a.section]) {
+                    console.warn(
+                        `Action handler ${e} has more than one handler in ${a.section}. Encountered: ${a.name}, Existing: ${sections[a.section]}`
+                    );
+                } else {
+                    sections[a.section] = `${a.name}`;
+                }
+            }
+        });
+        // sort default handlers to end
+        result[e as RenderEvent]?.sort(
+            (a, b) => sectionOrder[a.section ?? 'standard'] - sectionOrder[b.section ?? 'standard']
+        );
+    }
+    console.warn('Compiled actions dictionary: %o', result);
+    if (errorCount) {
+        throw new Error(`Action compilation failed with ${errorCount} error(s).`);
+    }
+    return result;
 }
