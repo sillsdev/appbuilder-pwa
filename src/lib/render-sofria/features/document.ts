@@ -203,7 +203,7 @@ function addIllustrations(workspace: RenderWorkspace) {
                 const verse = illustration.placement.ref.split(/[:.]/).at(-1);
                 if (verse) {
                     const { imageBlockDiv: illustrationBlockDiv } = createIllustrationBlock(
-                        { document },
+                        workspace,
                         illustration.filename,
                         illustration.placement.caption
                     );

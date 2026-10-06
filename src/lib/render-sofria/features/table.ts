@@ -10,9 +10,6 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'startTable',
         section: 'fallback',
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.table) {
-                console.log('Start Table %o', context.sequences[0].element);
-            }
             const table = workspace.document.createElement('table');
             table.setAttribute('cellpadding', '5');
             workspace.scopeManager.push('table', table);
@@ -22,9 +19,6 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'endTable',
         section: 'fallback',
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.table) {
-                console.log('End Table %o', context.sequences[0].element);
-            }
             workspace.scopeManager.promoteContent('table');
         }
     },
@@ -32,9 +26,6 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'startRow',
         section: 'fallback',
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.row) {
-                console.log('Start Row %o', context.sequences[0].element);
-            }
             workspace.scopeManager.push('row', workspace.document.createElement('tr'));
             addToScratchPad(workspace.scratch, 'table', { colIndex: 0 });
         }
@@ -43,9 +34,6 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'endRow',
         section: 'fallback',
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.row) {
-                console.log('End Row %o', context.sequences[0].element);
-            }
             workspace.scopeManager.promoteContent('row');
         }
     },
@@ -53,12 +41,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'startWrapper',
         guard: ({ context }) => isCellWrapper(context),
         action: ({ context, workspace }) => {
-            const element = context.sequences[0].element;
-            if (workspace.logSettings.wrapper) {
-                console.log('Start Cell %o', element);
-            }
-
-            const nCols = Number(element.atts['nCols']);
+            const nCols = Number(context.sequences[0].element.atts['nCols']);
 
             const colIndex = (workspace.scratch.table?.colIndex ?? 0) + nCols;
             addToScratchPad(workspace.scratch, 'table', { colIndex });
@@ -73,9 +56,6 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
         event: 'endWrapper',
         guard: ({ context }) => isCellWrapper(context),
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.wrapper) {
-                console.log('End Cell %o', context.sequences[0].element);
-            }
             workspace.scopeManager.promoteContent('wrapper:cell');
         }
     }
