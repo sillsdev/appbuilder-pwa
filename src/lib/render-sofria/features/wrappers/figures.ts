@@ -5,8 +5,8 @@ import {
 } from '$lib/render-sofria/common';
 import { isBibleBook } from '$lib/scripts/scripture-reference-utils';
 import type { RenderElement } from 'proskomma-json-tools';
-import { terminatePhrase } from '../text';
-import { usfmType } from './common';
+import { matchUSFMElement } from './common';
+import { terminatePhrase } from './common/text';
 
 const illustrations = import.meta.glob('./*', {
     import: 'default',
@@ -15,15 +15,11 @@ const illustrations = import.meta.glob('./*', {
     base: '/src/gen-assets/illustrations'
 }) as Record<string, string>;
 
-export function isFigureWrapper(usfmType: string) {
-    return usfmType === 'fig';
-}
-
 export const figures = new FeatureSpec([
     {
         event: 'startWrapper',
         guard: ({ context, workspace }) =>
-            renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
+            renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
         action: ({ context, workspace }) => {
             const srcFromAtts = extractFigureSource(context.sequences[0].element);
             if (srcFromAtts && shouldShowImage(workspace)) {
@@ -41,7 +37,7 @@ export const figures = new FeatureSpec([
     {
         event: 'endWrapper',
         guard: ({ context, workspace }) =>
-            renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
+            renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
         action: ({ context, workspace }) => {
             if (shouldShowImage(workspace)) {
                 workspace.scopeManager.promoteContent('wrapper:figure');

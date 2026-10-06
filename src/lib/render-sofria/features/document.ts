@@ -3,8 +3,8 @@ import { deselectAllElements } from '$lib/scripts/verseSelectUtil';
 import { addVideoLinks, createVideoBlock } from '$lib/video';
 import { get } from 'svelte/store';
 import { FeatureSpec, type RenderWorkspace } from '../common';
-import { addPlanDiv } from './plans';
 import { createIllustrationBlock } from './wrappers/figures';
+import { addPlanDiv } from './common/plans';
 
 export const documentFeature = new FeatureSpec([
     {

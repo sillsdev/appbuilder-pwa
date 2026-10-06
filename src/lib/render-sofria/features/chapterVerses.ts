@@ -1,6 +1,6 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderWorkspace } from '../common';
-import { addPlanDiv } from './plans';
-import { terminatePhrase } from './text';
+import { addPlanDiv } from './common/plans';
+import { terminatePhrase } from './common/text';
 
 export const chapterVerses = new FeatureSpec([
     {
