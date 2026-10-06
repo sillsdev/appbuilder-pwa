@@ -9,7 +9,7 @@ import { createIllustrationBlock } from './wrappers/figures';
 export const documentFeature = new FeatureSpec([
     {
         event: 'startDocument',
-        default: true,
+        section: 'fallback',
         action({ workspace }) {
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
@@ -21,7 +21,7 @@ export const documentFeature = new FeatureSpec([
     },
     {
         event: 'endDocument',
-        default: true,
+        section: 'fallback',
         action({ workspace, output }) {
             if (!workspace.hackRenderIntro) {
                 addNotedVerses(workspace);
