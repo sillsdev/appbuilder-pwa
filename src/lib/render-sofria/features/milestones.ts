@@ -26,7 +26,7 @@ export const milestones = new FeatureSpec<
 >([
     {
         event: 'startMilestone',
-        default: true,
+        section: 'fallback',
         action: ({ context, workspace }) => {
             if (workspace.logSettings.milestone) {
                 console.log('Start Milestone %o', context.sequences[0].element);
@@ -139,7 +139,7 @@ export const milestones = new FeatureSpec<
     },
     {
         event: 'endMilestone',
-        default: true,
+        section: 'fallback',
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
             if (workspace.logSettings.milestone) {

@@ -20,7 +20,7 @@ export const text = new FeatureSpec<
 >([
     {
         event: 'startParagraph',
-        default: true,
+        section: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
@@ -64,7 +64,7 @@ export const text = new FeatureSpec<
     },
     {
         event: 'text',
-        default: true,
+        section: 'fallback',
         guard: ({ workspace, context }) =>
             renderIfRegularOrIfHackedIntro(workspace) &&
             context.sequences[0].element.text.trim().length > 0,
@@ -142,7 +142,7 @@ export const text = new FeatureSpec<
     },
     {
         event: 'endParagraph',
-        default: true,
+        section: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
