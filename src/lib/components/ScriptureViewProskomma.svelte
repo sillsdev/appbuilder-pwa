@@ -67,13 +67,14 @@ LOGGING:
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
     import {
+        compileActionDictionary,
         renderEvents,
         type ActionDictionary,
         type RenderEnvironment,
         type RenderEvent,
         type RenderWorkspace
     } from '$lib/render-sofria/common';
-    import { planDivInChapter } from '$lib/render-sofria/features/plans';
+    import { planDivInChapter } from '$lib/render-sofria/features/common/plans';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
@@ -117,60 +118,9 @@ LOGGING:
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
 
-    const actionsDict: ActionDictionary = $derived.by(() => {
-        const result: ActionDictionary = {};
-        // TODO: ensure iteration is sequential across the list
-        // to perform actions for each feature in order specified in render-sofria/common.ts
-        for (const f of renderFeatures) {
-            const enabled =
-                !f.flag ||
-                checkFeatureValueIs(
-                    scriptureConfig,
-                    f.flag.tag,
-                    f.flag.enabledValue,
-                    references.collection,
-                    references.book
-                );
-
-            if (f.flag) {
-                console.warn(
-                    `feature with ${f.flag.tag} === ${f.flag.enabledValue} is ${enabled ? 'enabled' : 'disabled'}`
-                );
-            }
-            if (enabled) {
-                for (const a of f.actions) {
-                    if (result[a.event]) {
-                        result[a.event]!.push(a);
-                    } else {
-                        result[a.event] = [a];
-                    }
-                }
-            }
-        }
-        let errorCount = 0;
-        for (const e in result) {
-            let hasDefault = '';
-            result[e as RenderEvent]?.forEach((a) => {
-                if (a.default) {
-                    if (hasDefault) {
-                        console.error(
-                            `Action handler ${e} has more than one default handler. Encountered: ${a.name}, Existing: ${hasDefault}`
-                        );
-                        errorCount++;
-                    } else {
-                        hasDefault = `${a.name}`;
-                    }
-                }
-            });
-            // sort default handlers to end
-            result[e as RenderEvent]?.sort((a, b) => (a.default ? 1 : b.default ? -1 : 0));
-        }
-        console.warn('Compiled actions dictionary: %o', result);
-        if (errorCount) {
-            throw new Error(`Action compilation failed with ${errorCount} error(s).`);
-        }
-        return result;
-    });
+    const actionsDict: ActionDictionary = $derived(
+        compileActionDictionary(renderFeatures, scriptureConfig, references)
+    );
 
     const fontSize = $derived(bodyFontSize + 'px');
     const lineHeight = $derived(bodyLineHeight + '%');
@@ -455,12 +405,12 @@ LOGGING:
             renderWorkspaceInitialized = true;
         }
 
-        let useDefault = true;
+        let execFallback = true;
 
         for (const a of actionsDict[eventName] ?? []) {
             if (
-                (!a.default && a.guard?.(environment)) ||
-                (a.default && useDefault && (!a.guard || a.guard(environment)))
+                (a.section !== 'fallback' && a.guard?.(environment)) ||
+                (a.section === 'fallback' && execFallback && (!a.guard || a.guard(environment)))
             ) {
                 /* console.log(
                     'Processing action for event %s\naction: %o\nenv: %o',
@@ -469,7 +419,7 @@ LOGGING:
                     environment
                 ); */
                 a.action(environment);
-                useDefault = false;
+                execFallback = false;
             } else {
                 //console.log('Skipped action for event %s', eventName);
             }
