@@ -182,9 +182,12 @@ export const text = new FeatureSpec<
                                 .at(0)
                                 .root.querySelector('[data-verse]');
                             const verse = el?.getAttribute('data-verse');
-                            const verseDiv = workspace.scopeManager
-                                .at(1)
-                                .root.querySelector(`[data-verse="${verse}"]`);
+                            const verseDiv =
+                                verse && verse !== 'none'
+                                    ? workspace.scopeManager
+                                          .at(1)
+                                          .root.querySelector(`[data-verse="${verse}"]`)
+                                    : null;
                             if (verseDiv) {
                                 const paragraphDiv =
                                     workspace.scopeManager.pop('paragraph:main').root;
