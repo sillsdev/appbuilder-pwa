@@ -6,7 +6,8 @@ import {
     splitString
 } from '$lib/scripts/stringUtils';
 import { createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
-import { terminatePhrase, type SharedParaScratch } from './text';
+import { terminatePhrase } from './common/text';
+import { type SharedParaScratch } from './text';
 
 const clips = import.meta.glob('./*', {
     import: 'default',
