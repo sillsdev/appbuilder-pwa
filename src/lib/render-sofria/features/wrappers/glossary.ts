@@ -1,17 +1,13 @@
 import { addToScratchPad, FeatureSpec } from '$lib/render-sofria/common';
 import { ciEquals } from '$lib/scripts/stringUtils';
-import { usfmType } from './common';
-
-export function isGlossaryWrapper(usfmType: string) {
-    return usfmType === 'w';
-}
+import { matchUSFMElement } from '../common';
 
 // if glossary words are disabled, glossary wrappers will be handled in usfmWrappers in ../index.ts
 export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     {
         event: 'startWrapper',
         guard: ({ context, workspace }) =>
-            isGlossaryWrapper(usfmType(context)) && workspace.viewSettings.glossaryWords,
+            matchUSFMElement(context, 'w') && workspace.viewSettings.glossaryWords,
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
 
@@ -28,8 +24,8 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     {
         event: 'endWrapper',
         guard: ({ context, workspace }) =>
-            isGlossaryWrapper(usfmType(context)) && workspace.viewSettings.glossaryWords,
-        action: ({ context, workspace }) => {
+            matchUSFMElement(context, 'w') && workspace.viewSettings.glossaryWords,
+        action: ({ workspace }) => {
             const wrapper = workspace.scopeManager.pop('wrapper:glossary').root;
 
             const a = workspace.document.createElement('a');

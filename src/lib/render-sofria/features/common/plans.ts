@@ -5,7 +5,7 @@ import type { ReferenceStore } from '$lib/data/stores/reference';
 import { getDisplayString } from '$lib/scripts/scripture-reference-utils';
 import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-common';
 import { resolve } from '$lib/utils/paths';
-import type { RenderWorkspace } from '../common';
+import type { RenderWorkspace } from '../../common';
 
 export function planDivInChapter(plan: PlanStore, references: ReferenceStore) {
     let planEntryInChapter = false;
