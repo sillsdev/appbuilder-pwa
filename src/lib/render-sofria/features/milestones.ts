@@ -28,9 +28,6 @@ export const milestones = new FeatureSpec<
         event: 'startMilestone',
         section: 'fallback',
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.milestone) {
-                console.log('Start Milestone %o', context.sequences[0].element);
-            }
             const element = context.sequences[0].element;
             let match;
             if ((match = element.subType.match(/^usfm:zon(\d+)$/))) {
@@ -142,9 +139,6 @@ export const milestones = new FeatureSpec<
         section: 'fallback',
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
-            if (workspace.logSettings.milestone) {
-                console.log('End Milestone %o', element);
-            }
             if (element.subType === 'usfm:zcstyle') {
                 workspace.scopeManager.promoteContent('milestone:zcstyle');
             } else if (element.subType === 'usfm:zaudioc') {

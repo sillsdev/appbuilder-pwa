@@ -1,6 +1,4 @@
-import { scriptureConfig } from '$assets/config';
 import {
-    addToScratchPad,
     FeatureSpec,
     renderIfRegularOrIfHackedIntro,
     type RenderWorkspace
@@ -27,9 +25,6 @@ export const figures = new FeatureSpec([
         guard: ({ context, workspace }) =>
             renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.wrapper) {
-                console.log('Start Wrapper %o', context.sequences[0].element);
-            }
             const srcFromAtts = extractFigureSource(context.sequences[0].element);
             if (srcFromAtts && shouldShowImage(workspace)) {
                 terminatePhrase(workspace);
@@ -48,9 +43,6 @@ export const figures = new FeatureSpec([
         guard: ({ context, workspace }) =>
             renderIfRegularOrIfHackedIntro(workspace) && isFigureWrapper(usfmType(context)),
         action: ({ context, workspace }) => {
-            if (workspace.logSettings.wrapper) {
-                console.log('End Wrapper %o', context.sequences[0].element);
-            }
             if (shouldShowImage(workspace)) {
                 workspace.scopeManager.promoteContent('wrapper:figure');
             }
@@ -59,7 +51,7 @@ export const figures = new FeatureSpec([
 ]);
 
 export function createIllustrationBlock(
-    workspace: Pick<RenderWorkspace, 'document'>,
+    workspace: Pick<RenderWorkspace, 'document' | 'config'>,
     source: string,
     caption: string | null
 ) {
@@ -74,7 +66,7 @@ export function createIllustrationBlock(
     const img = document.createElement('img');
     img.setAttribute('src', mappedSource);
     img.style.display = 'inline-block';
-    if (scriptureConfig.mainFeatures['zoom-illustrations']) {
+    if (workspace.config.mainFeatures['zoom-illustrations']) {
         img.addEventListener('click', () => showFullscreenPopup(mappedSource));
     }
 
