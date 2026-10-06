@@ -40,11 +40,9 @@ type Options = {
 };
 
 function parseArgs(argv: string[]): Options {
-    if (existsSync('.env')) {
-        process.loadEnvFile('.env');
-    }
     const options: Options = {
-        indexUrl: process.env['BLOOM_TEST_INDEX_URL'] || DEFAULT_INDEX_URL,
+        indexUrl:
+            'https://sil-app-builders-pwa-test-files.s3.us-east-1.amazonaws.com/sab/bloom_tests/index.json',
         list: false,
         runAll: false
     };
@@ -68,7 +66,7 @@ function parseArgs(argv: string[]): Options {
         }
     }
     if (!options.indexUrl) {
-        throw new Error('No index URL. Set BLOOM_TEST_INDEX_URL in .env or pass --index <url>');
+        throw new Error('No index URL. Pass --index <url>');
     }
     return options;
 }

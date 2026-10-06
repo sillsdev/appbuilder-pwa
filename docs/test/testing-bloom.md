@@ -5,8 +5,7 @@ and downloaded on demand. Bloom tests are not run by `npm run test` and currentl
 
 # Setup
 
-Copy `.env.example` to `.env` and set `BLOOM_TEST_INDEX_URL` to the URL of the bucket's
-`index.json`. Scripture App Builder must be installed, the same as for `npm run extract:example`.
+Scripture App Builder must be installed, the same as for `npm run extract:example`.
 
 # Running
 
@@ -36,7 +35,7 @@ Options:
 | `--project "<name>"` | Use the named project instead of asking     |
 | `--run-all`        | Run all projects instead of asking          |
 | `--list`           | List the available projects and exit        |
-| `--index <url>`    | Use this `index.json` URL instead of `.env` |
+| `--index <url>`    | Use this `index.json` URL instead of the included URL|
 
 Options are passed after `--`, for example
 `npm run test:bloom -- --project "my_project"`.
