@@ -1,0 +1,257 @@
+import {
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro,
+    type RenderWorkspace
+} from '$lib/render-sofria/common';
+import { isBibleBook } from '$lib/scripts/scripture-reference-utils';
+import type { RenderElement } from 'proskomma-json-tools';
+import { matchUSFMElement } from './common';
+import { placeElement } from './common/media';
+import { terminatePhrase } from './common/text';
+import { renderGraftedSequence } from './grafts/common';
+
+const illustrationFiles = import.meta.glob('./*', {
+    import: 'default',
+    eager: true,
+    query: '?url',
+    base: '/src/gen-assets/illustrations'
+}) as Record<string, string>;
+
+export const illustrations = new FeatureSpec(
+    [
+        {
+            event: 'startSequence',
+            guard: ({ workspace, context }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && context.sequences[0].type === 'fig',
+            action() {
+                // noop
+            }
+        },
+        {
+            event: 'endSequence',
+            guard: ({ workspace, context }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && context.sequences[0].type === 'fig',
+            action: () => {
+                // noop
+            }
+        },
+        {
+            event: 'inlineGraft',
+            guard: ({ workspace, context }) =>
+                renderIfRegularOrIfHackedIntro(workspace) &&
+                context.sequences[0].element.subType === 'fig',
+            action: (environment) => {
+                const { context } = environment;
+                const element = context.sequences[0].element;
+                const graftRecord: RenderElement = {
+                    type: element.type,
+                    subType: element.subType,
+                    sequence: {},
+                    atts: {},
+                    text: ''
+                };
+
+                renderGraftedSequence(environment, graftRecord.sequence);
+            }
+        },
+        {
+            event: 'startWrapper',
+            guard: ({ context, workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
+            action: ({ context, workspace }) => {
+                const srcFromAtts = extractFigureSource(context.sequences[0].element);
+                if (srcFromAtts && shouldShowImage(workspace)) {
+                    terminatePhrase(workspace);
+                    const { imageBlockDiv, mappedSource } = createIllustrationBlock(
+                        workspace,
+                        srcFromAtts,
+                        null
+                    );
+                    workspace.scopeManager.push('wrapper:figure', imageBlockDiv);
+                    checkImageExists(mappedSource, imageBlockDiv);
+                }
+            }
+        },
+        {
+            event: 'endWrapper',
+            guard: ({ context, workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
+            action: ({ workspace }) => {
+                if (shouldShowImage(workspace)) {
+                    workspace.scopeManager.promoteContent('wrapper:figure');
+                }
+            }
+        },
+        {
+            event: 'text',
+            guard: ({ workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) &&
+                !!workspace.scopeManager.find('wrapper:figure'),
+            action({ context, workspace }) {
+                const text: string = context.sequences[0].element.text;
+                // This is a HACK!
+                // see https://github.com/Proskomma/proskomma-json-tools/issues/63
+                if (text !== 'NO_CAPTION') {
+                    const divFigureText = createIllustrationCaptionBlock(text);
+                    workspace.scopeManager.appendContent(divFigureText, 'wrapper:figure');
+                }
+            }
+        },
+        {
+            event: 'endDocument',
+            section: 'standard',
+            action({ workspace }) {
+                if (!workspace.hackRenderIntro) {
+                    if (showImage(workspace)) {
+                        addIllustrations(workspace);
+                    }
+                }
+            }
+        }
+    ],
+    'Illustrations'
+);
+
+export function createIllustrationBlock(
+    workspace: Pick<RenderWorkspace, 'document' | 'config'>,
+    source: string,
+    caption: string | null
+) {
+    const mappedSource = illustrationFiles['./' + source] ?? '';
+
+    const imageBlockDiv = workspace.document.createElement('div');
+    imageBlockDiv.classList.add('image-block');
+
+    const imageSpan = workspace.document.createElement('span');
+    imageSpan.classList.add('image');
+
+    const img = document.createElement('img');
+    img.setAttribute('src', mappedSource);
+    img.style.display = 'inline-block';
+    if (workspace.config.mainFeatures['zoom-illustrations']) {
+        img.addEventListener('click', () => showFullscreenPopup(mappedSource));
+    }
+
+    imageSpan.appendChild(img);
+    imageBlockDiv.appendChild(imageSpan);
+    if (caption) {
+        const divFigureText = createIllustrationCaptionBlock(caption);
+        imageBlockDiv.appendChild(divFigureText);
+    }
+    return { imageBlockDiv, mappedSource };
+}
+
+function createIllustrationCaptionBlock(caption: string) {
+    const captionDiv = document.createElement('div');
+    captionDiv.classList.add('caption');
+
+    const captionSpan = document.createElement('span');
+    captionSpan.classList.add('caption');
+    captionSpan.innerText = caption;
+
+    captionDiv.append(captionSpan);
+    return captionDiv;
+}
+
+function extractFigureSource(element: RenderElement) {
+    let source = '';
+    if ('src' in element.atts) {
+        source = element.atts['src'][0];
+    } else if ('unknownDefault_fig' in element.atts) {
+        source = element.atts['unknownDefault_fig'][0];
+    }
+    return source;
+}
+
+function shouldShowImage(workspace: RenderWorkspace) {
+    return (
+        workspace.viewSettings.illustrations &&
+        (!isBibleBook(workspace.stores.references) ||
+            workspace.viewSettings.bibleImages === 'normal')
+    );
+}
+
+async function checkImageExists(src: string, div: HTMLElement) {
+    try {
+        const response = await fetch(src, { method: 'HEAD' });
+
+        if (!response.ok) {
+            // The file does not exist
+            div.style.display = 'none';
+        }
+    } catch (error) {
+        // An error occurred (e.g., network error)
+        console.error('Error checking image existence:', error);
+    }
+}
+
+function showFullscreenPopup(imageSource: string) {
+    // Create the fullscreen popup div
+    const fullscreenDiv = document.createElement('div');
+    fullscreenDiv.classList.add('fullscreen-popup');
+
+    const fullscreenImg = document.createElement('img');
+    fullscreenImg.setAttribute('src', imageSource);
+
+    const closeButton = document.createElement('button');
+    closeButton.classList.add('close-btn');
+    closeButton.addEventListener('click', () => {
+        document.body.removeChild(fullscreenDiv);
+    });
+
+    fullscreenDiv.appendChild(fullscreenImg);
+    fullscreenDiv.appendChild(closeButton);
+
+    document.body.appendChild(fullscreenDiv);
+}
+
+function showImage(workspace: RenderWorkspace) {
+    return workspace.viewSettings.illustrations && showImageInBook(workspace);
+}
+function showImageInBook(workspace: RenderWorkspace) {
+    const showBibleImage = workspace.viewSettings.bibleImages === 'normal';
+    const showImages = !workspace.viewSettings.isBibleBook || showBibleImage;
+    return showImages;
+}
+
+function illustrationsForChapter(workspace: RenderWorkspace) {
+    const collection = workspace.stores.references.docSet.split('_')[1];
+    return workspace.config.illustrations?.filter(
+        (x) =>
+            x.placement &&
+            x.placement.collection === collection &&
+            (x.placement.ref.startsWith(
+                workspace.stores.references.book + ' ' + workspace.stores.references.chapter + ':'
+            ) ||
+                x.placement.ref.startsWith(
+                    workspace.stores.references.book +
+                        '.' +
+                        workspace.stores.references.chapter +
+                        '.'
+                ))
+    );
+}
+
+function addIllustrations(workspace: RenderWorkspace) {
+    const illustrations = illustrationsForChapter(workspace);
+    if (illustrations && workspace.root) {
+        illustrations.forEach((illustration, index) => {
+            if (illustration.placement) {
+                const verse = illustration.placement.ref.split(/[:.]/).at(-1);
+                if (verse) {
+                    const { imageBlockDiv: illustrationBlockDiv } = createIllustrationBlock(
+                        workspace,
+                        illustration.filename,
+                        illustration.placement.caption
+                    );
+                    placeElement(
+                        workspace,
+                        illustrationBlockDiv,
+                        illustration.placement.pos,
+                        verse
+                    );
+                }
+            }
+        });
+    }
+}

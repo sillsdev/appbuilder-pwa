@@ -7,7 +7,6 @@ import {
     type RenderWorkspace
 } from '../common';
 import { createLetterIndex, phraseTerminated, subdividePhrases } from '../util';
-import { createIllustrationCaptionBlock } from './wrappers/figures';
 import { terminatePhrase } from './common/text';
 
 export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
@@ -87,13 +86,6 @@ export const text = new FeatureSpec<
                 // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
                 headerDiv.innerHTML += generateHTML(text, 'header-ref');
-            } else if (workspace.scopeManager.find('wrapper:figure')) {
-                // This is a HACK!
-                // see https://github.com/Proskomma/proskomma-json-tools/issues/63
-                if (text !== 'NO_CAPTION') {
-                    const divFigureText = createIllustrationCaptionBlock(text);
-                    workspace.scopeManager.appendContent(divFigureText, 'wrapper:figure');
-                }
             } else if (subType === 'usfm:x') {
                 addGraftText(workspace, text, 'crossref');
             } else if (subType === 'usfm:f') {
