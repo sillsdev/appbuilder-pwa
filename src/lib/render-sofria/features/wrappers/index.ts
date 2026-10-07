@@ -21,7 +21,7 @@ function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
 export const usfmWrappers = new FeatureSpec([
     {
         event: 'startWrapper',
-        section: 'fallback',
+        stage: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             const usfmWrapperType = getElementUSFMType(context);
@@ -33,7 +33,7 @@ export const usfmWrappers = new FeatureSpec([
     },
     {
         event: 'endWrapper',
-        section: 'fallback',
+        stage: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             terminatePhrase(workspace);

@@ -10,7 +10,7 @@ import { renderGraftedSequence, type BlockGraftScratch } from './common';
 export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
     {
         event: 'blockGraft',
-        section: 'fallback',
+        stage: 'fallback',
         action: (environment) => {
             const { context, workspace } = environment;
             const currentBlock = context.sequences[0].block;
