@@ -91,9 +91,8 @@ class ScopeManager {
     appendChildrenFromContainer(container: Element, level?: RenderScopeWithSubType) {
         const root = this.find(level)?.root;
         if (root) {
-            for (const child of container.children) {
-                root.append(child);
-            }
+            // copying the array is necessary to prevent some very wierd errors I ran into. (see WEB MAT.2.6)
+            Array.from(container.children).forEach((child) => root.append(child));
         } else {
             this.debug();
             throw new Error(
