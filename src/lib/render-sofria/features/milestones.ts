@@ -6,6 +6,7 @@ import {
     splitString
 } from '$lib/scripts/stringUtils';
 import { createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
+import { getElement } from './common';
 import { terminatePhrase } from './common/text';
 import { type SharedParaScratch } from './text';
 
@@ -29,7 +30,7 @@ export const milestones = new FeatureSpec<
         event: 'startMilestone',
         stage: 'fallback',
         action: ({ context, workspace }) => {
-            const element = context.sequences[0].element;
+            const element = getElement(context);
             let match;
             if ((match = element.subType.match(/^usfm:zon(\d+)$/))) {
                 const listNums = workspace.scratch.milestone?.listNums ?? {};
@@ -139,7 +140,7 @@ export const milestones = new FeatureSpec<
         event: 'endMilestone',
         stage: 'fallback',
         action: ({ context, workspace }) => {
-            const element = context.sequences[0].element;
+            const element = getElement(context);
             if (element.subType === 'usfm:zcstyle') {
                 workspace.scopeManager.promoteContent('milestone:zcstyle');
             } else if (element.subType === 'usfm:zaudioc') {

@@ -5,6 +5,7 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderWorkspace
 } from '../../common';
+import { getElement } from '../common';
 import { renderGraftedSequence, type BlockGraftScratch } from './common';
 
 type InlineGraftScratch = { inlineGraft?: { footnoteIdIndex?: number } };
@@ -16,7 +17,7 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: (environment) => {
             const { context, workspace } = environment;
-            const element = context.sequences[0].element;
+            const element = getElement(context);
             const graftRecord: RenderElement = {
                 type: element.type,
                 subType: element.subType,

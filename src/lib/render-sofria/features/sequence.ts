@@ -1,4 +1,5 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } from '../common';
+import { matchSequence } from './common';
 
 export const sequences = new FeatureSpec([
     {
@@ -6,8 +7,7 @@ export const sequences = new FeatureSpec([
         stage: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            const sequenceType = context.sequences[0].type;
-            if (sequenceType === 'title') {
+            if (matchSequence(context, 'title')) {
                 const div = document.createElement('div');
                 div.setAttribute('data-verse', 'title');
                 div.setAttribute('data-phrase', 'none');
@@ -21,8 +21,7 @@ export const sequences = new FeatureSpec([
         stage: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
-            const sequenceType = context.sequences[0].type;
-            if (sequenceType === 'title') {
+            if (matchSequence(context, 'title')) {
                 const div = workspace.scopeManager.find('sequence:title')?.root;
                 if (div) {
                     div.innerHTML += `<div class="b"></div><div class="b"></div>`;
