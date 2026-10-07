@@ -40,11 +40,6 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
                     workspace.scopeManager.pop('inlineGraft:note_caller');
                     callerRoot.appendChild(contentRoot);
                     workspace.scopeManager.appendContent(callerRoot);
-                    // Add space after footnote if there are multiple footnotes.
-                    // TODO: How do we tell there are multiple???
-                    workspace.scopeManager.appendContent(
-                        workspace.document.createTextNode('\u00A0')
-                    );
                 }
             }
         }

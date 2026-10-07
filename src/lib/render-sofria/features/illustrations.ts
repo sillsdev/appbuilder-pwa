@@ -88,7 +88,7 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
             event: 'text',
             stage: 'standard',
             guard: ({ workspace }) =>
-                !!workspace.scratch.text?.cleanedText &&
+                !workspace.scratch.text?.empty &&
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 !!workspace.scopeManager.find('wrapper:figure'),
             action({ workspace }) {

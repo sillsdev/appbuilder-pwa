@@ -12,13 +12,17 @@ import { terminatePhrase } from './common/text';
 
 export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
 export type SharedTextScratch = {
-    text?: { introductionIndex?: number; footnoteCallerIndex?: number; cleanedText?: string };
+    text?: { cleanedText?: string; empty?: boolean };
 };
+
+type TextScratch = {
+    text?: { introductionIndex?: number; footnoteCallerIndex?: number };
+} & SharedTextScratch;
 
 export const text = new FeatureSpec<
     {
         paragraph?: { subheadingPrefixes?: string[] };
-    } & SharedTextScratch &
+    } & TextScratch &
         SharedParaScratch
 >([
     {
@@ -66,13 +70,16 @@ export const text = new FeatureSpec<
         details: ({ context }) => ({ length: getElement(context).text.trim().length }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            let cleanedText: string = getElement(context).text.trim();
+            let cleanedText = getElement(context).text;
 
             // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
             // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
             cleanedText = cleanedText.replaceAll('|default=""', '| ');
 
-            addToScratchPad(workspace.scratch, 'text', { cleanedText });
+            addToScratchPad(workspace.scratch, 'text', {
+                cleanedText,
+                empty: !cleanedText.trim().length
+            });
         }
     },
     {
@@ -81,7 +88,10 @@ export const text = new FeatureSpec<
         details: () => undefined,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
-            addToScratchPad(workspace.scratch, 'text', { cleanedText: undefined });
+            addToScratchPad(workspace.scratch, 'text', {
+                cleanedText: undefined,
+                empty: undefined
+            });
         }
     },
     {
@@ -89,7 +99,7 @@ export const text = new FeatureSpec<
         stage: 'fallback',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !!workspace.scratch.text?.cleanedText && renderIfRegularOrIfHackedIntro(workspace),
+            !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const text: string = workspace.scratch.text!.cleanedText!;
             if (workspace.scopeManager.find('paragraph:heading') && matchBlock(context, 'usfm:r')) {
@@ -289,7 +299,9 @@ function addGraftText(workspace: RenderWorkspace, text: string, textType: 'cross
                 workspace.scopeManager.remove('inlineGraft:note_caller');
             } else {
                 // Assign the caller to the footnote sup
-                sup.innerHTML = caller;
+                // Add space after footnote if there are multiple footnotes.
+                // TODO: How do we tell there are multiple???
+                sup.innerHTML = caller + '\u00A0';
             }
         } else {
             workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
@@ -298,7 +310,7 @@ function addGraftText(workspace: RenderWorkspace, text: string, textType: 'cross
 }
 
 function getFootnoteCallerCharacter(
-    workspace: RenderWorkspace<SharedTextScratch>,
+    workspace: RenderWorkspace<TextScratch>,
     initialCallerSymbol: string,
     footnoteType: 'crossref' | 'footnote'
 ) {
