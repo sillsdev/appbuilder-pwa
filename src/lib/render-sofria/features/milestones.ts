@@ -27,7 +27,7 @@ export const milestones = new FeatureSpec<
 >([
     {
         event: 'startMilestone',
-        section: 'fallback',
+        stage: 'fallback',
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
             let match;
@@ -137,7 +137,7 @@ export const milestones = new FeatureSpec<
     },
     {
         event: 'endMilestone',
-        section: 'fallback',
+        stage: 'fallback',
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
             if (element.subType === 'usfm:zcstyle') {

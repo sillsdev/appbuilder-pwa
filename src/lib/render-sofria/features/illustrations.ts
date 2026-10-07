@@ -1,5 +1,6 @@
 import {
     FeatureSpec,
+    noaction,
     renderIfRegularOrIfHackedIntro,
     type RenderWorkspace
 } from '$lib/render-sofria/common';
@@ -8,7 +9,8 @@ import type { RenderElement } from 'proskomma-json-tools';
 import { matchUSFMElement } from './common';
 import { placeElement } from './common/media';
 import { terminatePhrase } from './common/text';
-import { renderGraftedSequence } from './grafts/common';
+import { renderGraftedSequence, type BlockGraftScratch } from './grafts/common';
+import type { SharedTextScratch } from './text';
 
 const illustrationFiles = import.meta.glob('./*', {
     import: 'default',
@@ -17,26 +19,25 @@ const illustrationFiles = import.meta.glob('./*', {
     base: '/src/gen-assets/illustrations'
 }) as Record<string, string>;
 
-export const illustrations = new FeatureSpec(
+export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScratch>(
     [
         {
             event: 'startSequence',
+            stage: 'standard',
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && context.sequences[0].type === 'fig',
-            action() {
-                // noop
-            }
+            action: noaction
         },
         {
             event: 'endSequence',
+            stage: 'standard',
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && context.sequences[0].type === 'fig',
-            action: () => {
-                // noop
-            }
+            action: noaction
         },
         {
             event: 'inlineGraft',
+            stage: 'standard',
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 context.sequences[0].element.subType === 'fig',
@@ -56,6 +57,7 @@ export const illustrations = new FeatureSpec(
         },
         {
             event: 'startWrapper',
+            stage: 'standard',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
             action: ({ context, workspace }) => {
@@ -74,6 +76,7 @@ export const illustrations = new FeatureSpec(
         },
         {
             event: 'endWrapper',
+            stage: 'standard',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
             action: ({ workspace }) => {
@@ -84,11 +87,13 @@ export const illustrations = new FeatureSpec(
         },
         {
             event: 'text',
+            stage: 'standard',
             guard: ({ workspace }) =>
+                !!workspace.scratch.text?.cleanedText &&
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 !!workspace.scopeManager.find('wrapper:figure'),
-            action({ context, workspace }) {
-                const text: string = context.sequences[0].element.text;
+            action({ workspace }) {
+                const text: string = workspace.scratch.text!.cleanedText!;
                 // This is a HACK!
                 // see https://github.com/Proskomma/proskomma-json-tools/issues/63
                 if (text !== 'NO_CAPTION') {
@@ -99,7 +104,7 @@ export const illustrations = new FeatureSpec(
         },
         {
             event: 'endDocument',
-            section: 'standard',
+            stage: 'standard',
             action({ workspace }) {
                 if (!workspace.hackRenderIntro) {
                     if (showImage(workspace)) {

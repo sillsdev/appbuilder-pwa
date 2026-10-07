@@ -4,6 +4,7 @@ import { matchUSFMElement } from '../common';
 export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
     {
         event: 'startWrapper',
+        stage: 'standard',
         guard: ({ context }) => matchUSFMElement(context, 'jmp'),
         action: ({ context, workspace }) => {
             const element = context.sequences[0].element;
@@ -62,6 +63,7 @@ export const jmplinks = new FeatureSpec<{ wrapper?: { jmpTitle?: string } }>([
     },
     {
         event: 'endWrapper',
+        stage: 'standard',
         guard: ({ context }) => matchUSFMElement(context, 'jmp'),
         action: ({ workspace }) => {
             workspace.scopeManager.promoteContent('wrapper:jmp');

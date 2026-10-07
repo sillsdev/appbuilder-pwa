@@ -410,20 +410,22 @@ LOGGING:
         let execFallback = true;
 
         for (const a of actionsDict[eventName] ?? []) {
-            if ((a.section !== 'fallback' || execFallback) && (!a.guard || a.guard(environment))) {
+            if ((a.stage !== 'fallback' || execFallback) && (!a.guard || a.guard(environment))) {
                 if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
                     console.log(
-                        '%s%s%s\n  sequence: %o\n  element: %o\n  block: %o',
+                        '%s%s [%o]\n%o',
                         prettyRenderEvent(eventName),
                         a.name ? ` - ${a.name}` : '',
-                        ` (${a.section ?? 'standard'})`,
-                        environment.context.sequences[0].type,
-                        { ...environment.context.sequences[0].element },
-                        { ...environment.context.sequences[0].block }
+                        a.stage,
+                        a.details?.(environment) ?? {
+                            sequence: environment.context.sequences[0].type,
+                            element: { ...environment.context.sequences[0].element },
+                            block: { ...environment.context.sequences[0].block }
+                        }
                     );
                 }
                 a.action(environment);
-                execFallback &&= !!a.section && a.section !== 'standard';
+                execFallback &&= !!a.stage && a.stage !== 'standard';
             } else {
                 if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
                     /* console.log(

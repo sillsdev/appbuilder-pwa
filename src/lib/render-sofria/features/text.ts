@@ -10,17 +10,19 @@ import { createLetterIndex, phraseTerminated, subdividePhrases } from '../util';
 import { terminatePhrase } from './common/text';
 
 export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
-type TextScratch = { text?: { introductionIndex?: number; footnoteCallerIndex?: number } };
+export type SharedTextScratch = {
+    text?: { introductionIndex?: number; footnoteCallerIndex?: number; cleanedText?: string };
+};
 
 export const text = new FeatureSpec<
     {
         paragraph?: { subheadingPrefixes?: string[] };
-    } & TextScratch &
+    } & SharedTextScratch &
         SharedParaScratch
 >([
     {
         event: 'startParagraph',
-        section: 'fallback',
+        stage: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
@@ -61,23 +63,35 @@ export const text = new FeatureSpec<
     },
     {
         event: 'text',
-        section: 'init',
+        stage: 'init',
+        details: ({ context }) => ({ length: context.sequences[0].element.text.trim().length }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ context }) {
-            let text: string = context.sequences[0].element.text.trim();
+        action({ context, workspace }) {
+            let cleanedText: string = context.sequences[0].element.text.trim();
 
             // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
             // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-            text = text.replaceAll('|default=""', '| ');
+            cleanedText = cleanedText.replaceAll('|default=""', '| ');
+
+            addToScratchPad(workspace.scratch, 'text', { cleanedText });
         }
     },
     {
         event: 'text',
-        section: 'fallback',
-        guard: ({ workspace, context }) =>
-            renderIfRegularOrIfHackedIntro(workspace) && !!context.sequences[0].element.text,
+        stage: 'cleanup',
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
+            addToScratchPad(workspace.scratch, 'text', { cleanedText: undefined });
+        }
+    },
+    {
+        event: 'text',
+        stage: 'fallback',
+        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+        guard: ({ workspace }) =>
+            !!workspace.scratch.text?.cleanedText && renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            const text: string = context.sequences[0].element.text;
+            const text: string = workspace.scratch.text!.cleanedText!;
 
             const subType = context.sequences[0].block.subType;
 
@@ -130,7 +144,7 @@ export const text = new FeatureSpec<
     },
     {
         event: 'endParagraph',
-        section: 'fallback',
+        stage: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const sequenceType = context.sequences[0].type;
@@ -285,7 +299,7 @@ function addGraftText(workspace: RenderWorkspace, text: string, textType: 'cross
 }
 
 function getFootnoteCallerCharacter(
-    workspace: RenderWorkspace<TextScratch>,
+    workspace: RenderWorkspace<SharedTextScratch>,
     initialCallerSymbol: string,
     footnoteType: 'crossref' | 'footnote'
 ) {

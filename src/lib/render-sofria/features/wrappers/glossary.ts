@@ -6,6 +6,7 @@ import { matchUSFMElement } from '../common';
 export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     {
         event: 'startWrapper',
+        stage: 'standard',
         guard: ({ context, workspace }) =>
             matchUSFMElement(context, 'w') && workspace.viewSettings.glossaryWords,
         action: ({ context, workspace }) => {
@@ -23,6 +24,7 @@ export const glossary = new FeatureSpec<{ wrapper: { lemma?: string } }>([
     },
     {
         event: 'endWrapper',
+        stage: 'standard',
         guard: ({ context, workspace }) =>
             matchUSFMElement(context, 'w') && workspace.viewSettings.glossaryWords,
         action: ({ workspace }) => {

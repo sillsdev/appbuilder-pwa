@@ -18,6 +18,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
     [
         {
             event: 'mark',
+            stage: 'standard',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 context.sequences[0].element.subType === 'chapter_label',
@@ -49,6 +50,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
         {
             // handle deferred drop-cap chapter marker
             event: 'mark',
+            stage: 'standard',
             name: 'Deferred Chapter Number [drop-cap]',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) &&
@@ -85,6 +87,7 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
     [
         {
             event: 'mark',
+            stage: 'standard',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) &&
                 context.sequences[0].element.subType === 'verses_label',
