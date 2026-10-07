@@ -20,13 +20,15 @@ type Options = {
     project?: string;
     list: boolean;
     runAll: boolean;
+    downloadOnly: boolean;
 };
 
 function parseArgs(argv: string[]): Options {
     const options: Options = {
         indexUrl: DEFAULT_INDEX_URL,
         list: false,
-        runAll: false
+        runAll: false,
+        downloadOnly: false
     };
     for (let i = 0; i < argv.length; i++) {
         const arg = argv[i];
@@ -42,6 +44,9 @@ function parseArgs(argv: string[]): Options {
                 break;
             case '--run-all':
                 options.runAll = true;
+                break;
+            case '--download-only':
+                options.downloadOnly = true;
                 break;
             default:
                 throw new Error(`Unknown argument "${arg}"`);
@@ -143,6 +148,14 @@ async function testProject(project: TestProject, indexUrl: string): Promise<numb
 
         if (options.list) {
             projects.forEach((p, i) => console.log(describeProject(p, i + 1)));
+            return;
+        }
+
+        if (options.downloadOnly) {
+            const selected = await chooseProjects(projects, options.project, !options.project);
+            for (const project of selected) {
+                await downloadProject(project, options.indexUrl, CACHE_DIR);
+            }
             return;
         }
 

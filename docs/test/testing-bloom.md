@@ -35,6 +35,7 @@ Options:
 | `--project "<name>"` | Use the named project instead of asking     |
 | `--run-all`        | Run all projects instead of asking          |
 | `--list`           | List the available projects and exit        |
+| `--download-only`  | Download and verify projects without building or testing. Downloads all projects unless `--project` is given |
 | `--index <url>`    | Use this `index.json` URL instead of the included URL|
 
 Options are passed after `--`, for example
