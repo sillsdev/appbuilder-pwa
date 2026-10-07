@@ -24,9 +24,11 @@ export const text = new FeatureSpec<
     {
         event: 'startParagraph',
         stage: 'fallback',
+        details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const paraClass = extractClassName(getBlock(context));
+            terminatePhrase(workspace);
             if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
                 const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass);
@@ -76,6 +78,7 @@ export const text = new FeatureSpec<
     {
         event: 'text',
         stage: 'cleanup',
+        details: () => undefined,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             addToScratchPad(workspace.scratch, 'text', { cleanedText: undefined });
@@ -133,16 +136,19 @@ export const text = new FeatureSpec<
             // title, heading without cross-ref, jmp, audioc, reflink, intro paras, and everything else
             else {
                 addPhrases(workspace, text);
+                workspace.scopeManager.debug();
             }
         }
     },
     {
         event: 'endParagraph',
         stage: 'fallback',
+        details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             terminatePhrase(workspace);
             if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
+                workspace.scopeManager.debug();
                 workspace.scratch.paragraph?.deferredEls?.forEach((el) =>
                     workspace.scopeManager.appendContent(el, 'paragraph:main')
                 );

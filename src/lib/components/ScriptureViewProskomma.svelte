@@ -76,6 +76,7 @@ LOGGING:
         type RenderEvent,
         type RenderWorkspace
     } from '$lib/render-sofria/common';
+    import { getBlock, getElement, getSequence } from '$lib/render-sofria/features/common';
     import { planDivInChapter } from '$lib/render-sofria/features/common/plans';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
@@ -417,11 +418,13 @@ LOGGING:
                         prettyRenderEvent(eventName),
                         a.name ? ` - ${a.name}` : '',
                         a.stage,
-                        a.details?.(environment) ?? {
-                            sequence: getSequence(environment.context).type,
-                            element: { ...getElement(environment.context) },
-                            block: { ...getBlock(environment.context) }
-                        }
+                        a.details
+                            ? a.details(environment)
+                            : {
+                                  sequence: getSequence(environment.context).type,
+                                  element: { ...getElement(environment.context) },
+                                  block: { ...getBlock(environment.context) }
+                              }
                     );
                 }
                 a.action(environment);
