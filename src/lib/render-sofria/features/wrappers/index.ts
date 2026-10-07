@@ -3,18 +3,17 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderEnvironment
 } from '$lib/render-sofria/common';
-import { getElementUSFMType, matchUSFMElement } from '../common';
+import { extractUSFMClassName, matchElement } from '../common';
 import { terminatePhrase } from '../common/text';
 import { glossary } from './glossary';
 import { jmplinks } from './jmplinks';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
-    const type = getElementUSFMType(context);
     return (
         renderIfRegularOrIfHackedIntro(workspace) &&
-        !!type &&
+        !!extractUSFMClassName(context) &&
         // don't bother adding a wrapper if it's words of Jesus and red-letters are disabled
-        (!matchUSFMElement(context, 'wj') || workspace.viewSettings.redLetters)
+        (!matchElement(context, 'usfm:wj') || workspace.viewSettings.redLetters)
     );
 }
 
@@ -24,7 +23,7 @@ export const usfmWrappers = new FeatureSpec([
         stage: 'fallback',
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
-            const usfmWrapperType = getElementUSFMType(context);
+            const usfmWrapperType = extractUSFMClassName(context);
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
@@ -38,7 +37,7 @@ export const usfmWrappers = new FeatureSpec([
         action: ({ context, workspace }) => {
             terminatePhrase(workspace);
 
-            workspace.scopeManager.promoteContent(`wrapper:${getElementUSFMType(context)}`);
+            workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
         }
     }
 ]);

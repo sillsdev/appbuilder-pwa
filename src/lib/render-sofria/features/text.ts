@@ -7,6 +7,7 @@ import {
     type RenderWorkspace
 } from '../common';
 import { createLetterIndex, phraseTerminated, subdividePhrases } from '../util';
+import { extractClassName, getBlock, getElement, matchBlock, matchSequence } from './common';
 import { terminatePhrase } from './common/text';
 
 export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
@@ -25,12 +26,8 @@ export const text = new FeatureSpec<
         stage: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            const sequenceType = context.sequences[0].type;
-            const paraClass =
-                context.sequences[0].block.subType?.split(':')[1] ||
-                context.sequences[0].block.subType ||
-                '';
-            if (sequenceType === 'main' && !workspace.hackRenderIntro) {
+            const paraClass = extractClassName(getBlock(context));
+            if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
                 const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass);
                 if (paraClass === 'b') {
@@ -38,15 +35,15 @@ export const text = new FeatureSpec<
                 }
 
                 workspace.scopeManager.push('paragraph:main', paragraphDiv);
-            } else if (sequenceType === 'introduction') {
+            } else if (matchSequence(context, 'introduction')) {
                 const introductionDiv = workspace.document.createElement('div');
                 introductionDiv.classList.add(paraClass);
                 workspace.scopeManager.push('paragraph:introduction', introductionDiv);
-            } else if (sequenceType === 'title') {
+            } else if (matchSequence(context, 'title')) {
                 const titleDiv = workspace.document.createElement('div');
                 titleDiv.classList.add(paraClass);
                 workspace.scopeManager.push('paragraph:title', titleDiv);
-            } else if (sequenceType === 'heading') {
+            } else if (matchSequence(context, 'heading')) {
                 const headerDiv = document.createElement('div');
                 headerDiv.classList.add(paraClass);
 
@@ -64,10 +61,10 @@ export const text = new FeatureSpec<
     {
         event: 'text',
         stage: 'init',
-        details: ({ context }) => ({ length: context.sequences[0].element.text.trim().length }),
+        details: ({ context }) => ({ length: getElement(context).text.trim().length }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            let cleanedText: string = context.sequences[0].element.text.trim();
+            let cleanedText: string = getElement(context).text.trim();
 
             // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
             // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
@@ -92,19 +89,16 @@ export const text = new FeatureSpec<
             !!workspace.scratch.text?.cleanedText && renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const text: string = workspace.scratch.text!.cleanedText!;
-
-            const subType = context.sequences[0].block.subType;
-
-            if (workspace.scopeManager.find('paragraph:heading') && subType === 'usfm:r') {
+            if (workspace.scopeManager.find('paragraph:heading') && matchBlock(context, 'usfm:r')) {
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
                 headerDiv.innerHTML += generateHTML(text, 'header-ref');
-            } else if (subType === 'usfm:x') {
+            } else if (matchBlock(context, 'usfm:x')) {
                 addGraftText(workspace, text, 'crossref');
-            } else if (subType === 'usfm:f') {
+            } else if (matchBlock(context, 'usfm:f')) {
                 addGraftText(workspace, text, 'footnote');
-            } else if (subType === 'usfm:tr') {
+            } else if (matchBlock(context, 'usfm:tr')) {
                 if (workspace.scopeManager.find('wrapper:cell')) {
                     if (workspace.scopeManager.find('wrapper:xt')) {
                         const references = text.split('; ');
@@ -147,9 +141,8 @@ export const text = new FeatureSpec<
         stage: 'fallback',
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            const sequenceType = context.sequences[0].type;
             terminatePhrase(workspace);
-            if (sequenceType === 'main' && !workspace.hackRenderIntro) {
+            if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
                 workspace.scratch.paragraph?.deferredEls?.forEach((el) =>
                     workspace.scopeManager.appendContent(el, 'paragraph:main')
                 );
@@ -220,11 +213,11 @@ export const text = new FeatureSpec<
                         }
                         break;
                 }
-            } else if (sequenceType === 'introduction') {
+            } else if (matchSequence(context, 'introduction')) {
                 workspace.scopeManager.promoteContent('paragraph:introduction');
-            } else if (sequenceType === 'title') {
+            } else if (matchSequence(context, 'title')) {
                 workspace.scopeManager.promoteContent('paragraph:title');
-            } else if (sequenceType === 'heading') {
+            } else if (matchSequence(context, 'heading')) {
                 workspace.scopeManager.promoteContent('paragraph:heading');
             }
         }
