@@ -7,6 +7,7 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderWorkspace
 } from '../common';
+import { getElement, matchElement } from './common';
 
 type MarkScratch = {
     chapterNumText?: string;
@@ -20,10 +21,9 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
             event: 'mark',
             stage: 'standard',
             guard: ({ context, workspace }) =>
-                renderIfRegularOrIfHackedIntro(workspace) &&
-                context.sequences[0].element.subType === 'chapter_label',
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'chapter_label'),
             action({ context, workspace }) {
-                const element = context.sequences[0].element;
+                const element = getElement(context);
                 const chapterNumText = numerals.formatNumber(
                     workspace.textConfig.numeralSystem,
                     element.atts['number']
@@ -54,7 +54,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
             name: 'Deferred Chapter Number [drop-cap]',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) &&
-                context.sequences[0].element.subType === 'verses_label' &&
+                matchElement(context, 'verses_label') &&
                 workspace.scratch.mark?.deferChapterNum &&
                 !!workspace.scratch.mark?.chapterNumText,
             action({ workspace }) {
@@ -89,10 +89,9 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
             event: 'mark',
             stage: 'standard',
             guard: ({ context, workspace }) =>
-                renderIfRegularOrIfHackedIntro(workspace) &&
-                context.sequences[0].element.subType === 'verses_label',
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'verses_label'),
             action({ context, workspace }) {
-                const verse = context.sequences[0].element.atts['number'];
+                const verse = getElement(context).atts['number'];
                 if (!workspace.scratch.mark?.handledFirstVerse) {
                     if (workspace.scratch.mark?.deferChapterNum) {
                         if (!workspace.config.mainFeatures['hide-verse-number-1']) {

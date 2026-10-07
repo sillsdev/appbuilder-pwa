@@ -1,5 +1,6 @@
 import type { Block } from 'proskomma-json-tools';
 import { FeatureSpec } from '../../common';
+import { getBlock } from '../common';
 import { renderGraftedSequence, type BlockGraftScratch } from './common';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
@@ -13,7 +14,7 @@ export const blockGrafts = new FeatureSpec<BlockGraftScratch>([
         stage: 'fallback',
         action: (environment) => {
             const { context, workspace } = environment;
-            const currentBlock = context.sequences[0].block;
+            const currentBlock = getBlock(context);
             const graftRecord: Block = {
                 type: currentBlock.type,
                 sequence: {}

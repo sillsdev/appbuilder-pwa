@@ -6,7 +6,7 @@ import {
 } from '$lib/render-sofria/common';
 import { isBibleBook } from '$lib/scripts/scripture-reference-utils';
 import type { RenderElement } from 'proskomma-json-tools';
-import { matchUSFMElement } from './common';
+import { getElement, matchElement, matchSequence } from './common';
 import { placeElement } from './common/media';
 import { terminatePhrase } from './common/text';
 import { renderGraftedSequence, type BlockGraftScratch } from './grafts/common';
@@ -25,25 +25,24 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
             event: 'startSequence',
             stage: 'standard',
             guard: ({ workspace, context }) =>
-                renderIfRegularOrIfHackedIntro(workspace) && context.sequences[0].type === 'fig',
+                renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
         },
         {
             event: 'endSequence',
             stage: 'standard',
             guard: ({ workspace, context }) =>
-                renderIfRegularOrIfHackedIntro(workspace) && context.sequences[0].type === 'fig',
+                renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
         },
         {
             event: 'inlineGraft',
             stage: 'standard',
             guard: ({ workspace, context }) =>
-                renderIfRegularOrIfHackedIntro(workspace) &&
-                context.sequences[0].element.subType === 'fig',
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'fig'),
             action: (environment) => {
                 const { context } = environment;
-                const element = context.sequences[0].element;
+                const element = getElement(context);
                 const graftRecord: RenderElement = {
                     type: element.type,
                     subType: element.subType,
@@ -59,9 +58,9 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
             event: 'startWrapper',
             stage: 'standard',
             guard: ({ context, workspace }) =>
-                renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ context, workspace }) => {
-                const srcFromAtts = extractFigureSource(context.sequences[0].element);
+                const srcFromAtts = extractFigureSource(getElement(context));
                 if (srcFromAtts && shouldShowImage(workspace)) {
                     terminatePhrase(workspace);
                     const { imageBlockDiv, mappedSource } = createIllustrationBlock(
@@ -78,7 +77,7 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
             event: 'endWrapper',
             stage: 'standard',
             guard: ({ context, workspace }) =>
-                renderIfRegularOrIfHackedIntro(workspace) && matchUSFMElement(context, 'fig'),
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ workspace }) => {
                 if (shouldShowImage(workspace)) {
                     workspace.scopeManager.promoteContent('wrapper:figure');
