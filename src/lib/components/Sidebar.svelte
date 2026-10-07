@@ -6,6 +6,7 @@ The sidebar/drawer.
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import contents from '$assets/contents';
+    import { firebaseConfig } from '$assets/firebase-config';
     import nav_drawer_image from '$assets/images/nav_drawer.png';
     import nav_drawer_2x from '$assets/images/nav_drawer@2x.png';
     import type { MenuItemConfig } from '$config';
@@ -87,7 +88,9 @@ The sidebar/drawer.
         config.mainFeatures['share-apple-app-link']
     );
     const showAccount = !!(
-        config.firebase?.features['firebase-database'] && config.mainFeatures['user-accounts']
+        firebaseConfig &&
+        config.firebase?.features['firebase-database'] &&
+        config.mainFeatures['user-accounts']
     );
     const fontRelativeSize = $derived(
         config.interfaceLanguages?.writingSystems[$language]?.fontRelativeSize
