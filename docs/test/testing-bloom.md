@@ -5,7 +5,7 @@ and downloaded on demand. Bloom tests are not run by `npm run test` and currentl
 
 # Setup
 
-Scripture App Builder must be installed, the same as for `npm run extract:example`.
+Scripture App Builder must be installed, the same as for `npm run extract:example` (see [Example Projects](example-projects.md)).
 
 # Running
 
@@ -15,7 +15,7 @@ npm run test:bloom
 
 This will:
 
-1. Download `index.json` and list the available projects
+1. Download `index.json` and list the projects in its `bloom` lists
 2. Ask which project to use, or whether to run all projects one after the other
 3. Download the project zip into `test_data/bloom/` and verify its size and SHA-1 hash. A
    valid zip that was downloaded before is reused. A zip that fails verification is deleted.
@@ -40,29 +40,15 @@ Options:
 Options are passed after `--`, for example
 `npm run test:bloom -- --project "my_project"`.
 
-Once a bloom project has been converted into `data/`, the bloom tests can be rerun directly with
-`npx vitest --project bloom`.
+Only the test folders in the project's `tests` field are run. Once a bloom project has been
+converted into `data/`, the bloom tests can be rerun directly with `npx vitest --project bloom`.
 
 # index.json format
 
-`index.json` is an array of projects:
-
-```json
-[
-    {
-        "name": "my_project",
-        "description": "Short description shown in the list",
-        "file": "my_project.zip",
-        "size": "1.2 GB",
-        "size_bytes": 1288490188,
-        "sha1": "3f94dabaa10cbe7e3e3d3835683d09ffaf646052"
-    }
-]
-```
-
-`file` must be a plain zip file name stored next to `index.json` in the bucket. An optional
-`program` field (default `sab`) selects the App Builder used to build the project. Only `sab` is
-currently supported.
+Bloom projects are listed in the same `index.json` as the example projects, in a `bloom` list
+under their program. See [Example Projects](example-projects.md#indexjson-format) for the format.
+Bloom zips are stored in the bucket under `sab/bloom_tests/`, so their `file` is
+`sab/bloom_tests/<zip name>`. Only `sab` bloom projects are currently supported.
 
 # Writing bloom tests
 
@@ -73,12 +59,17 @@ of failing when `data/` does not contain a bloom project.
 
 # Upload new test Bloom Books
 
-Name each project with Bloom Project Name. This is convention allows the following script to quickly zip up the SAB projects with Bloom Book(s) and create the index.json file. Then upload them to the proper AWS bucket for downloading and testing when running `npm run test:bloom`.
+Name each project with Bloom Project Name. This is convention allows the following script to quickly zip up the SAB projects with Bloom Book(s) and write their `index.json` entries to `bloom.json`. Upload the zips to `sab/bloom_tests/` in the AWS bucket, replace the `sab.bloom` list in `test_data/projects/index.json` with the entries, and upload `index.json` to the root of the bucket:
+
+```bash
+jq --slurpfile bloom bloom_zips/bloom.json '.sab.bloom = $bloom[0]' test_data/projects/index.json > index.json.tmp
+mv index.json.tmp test_data/projects/index.json
+```
 
 ```bash
 #!/bin/bash
 # Zips every project folder starting with "Bloom" (any capitalization), computes
-# a SHA-1 hash of each zip, and writes an index.json manifest used to verify downloads.
+# a SHA-1 hash of each zip, and writes the index.json entries used to verify downloads.
 #
 # A project is only re-zipped when the contents of its files change. Each project's
 # content fingerprint (a hash of every file path and file contents) is kept in
@@ -93,7 +84,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 OUT_DIR="${1:-$SCRIPT_DIR/bloom_zips}"
-MANIFEST="$OUT_DIR/index.json"
+MANIFEST="$OUT_DIR/bloom.json"
 FP_DIR="$OUT_DIR/.fingerprints"
 
 mkdir -p "$OUT_DIR" "$FP_DIR"
@@ -190,8 +181,8 @@ for dir in Bloom*/; do
     size="$(human_size "$size_bytes")"
 
     entries+=("$(jq -n --arg name "$name" --arg description "$description" \
-        --arg file "$zipname" --arg size "$size" --argjson size_bytes "$size_bytes" --arg sha1 "$sha1" \
-        '{name: $name, description: $description, file: $file, size: $size, size_bytes: $size_bytes, sha1: $sha1}')")
+        --arg file "sab/bloom_tests/$zipname" --arg size "$size" --argjson size_bytes "$size_bytes" --arg sha1 "$sha1" \
+        '{name: $name, description: $description, file: $file, size: $size, size_bytes: $size_bytes, sha1: $sha1, tests: ["convert/tests/bloom/"]}')")
 done
 
 # Remove zips and fingerprints for projects that were deleted or renamed

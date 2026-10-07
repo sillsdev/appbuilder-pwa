@@ -1,36 +1,19 @@
 import { spawn } from 'child_process';
-import { createHash } from 'crypto';
-import { createReadStream, createWriteStream, existsSync } from 'fs';
-import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { stdin as input, stdout as output } from 'process';
 import { createInterface } from 'readline';
-import { Readable, Transform } from 'stream';
-import { pipeline } from 'stream/promises';
-import type { ReadableStream as WebReadableStream } from 'stream/web';
+import { prepareAndBuild } from '../example/index';
 import {
-    ensureTempDir,
-    extractZip,
-    findAppDefFile,
-    getExecutionCommand,
-    runCommand
-} from '../example/index';
+    DEFAULT_INDEX_URL,
+    downloadProject,
+    fetchIndex,
+    type TestProject
+} from '../example/remote-test-files';
 
-const DEFAULT_INDEX_URL = '';
 const CACHE_DIR = path.resolve('test_data/bloom');
 const BLOOM_PROGRAMS = ['sab', 'rab'];
 const BUILDABLE_PROGRAMS = ['sab'];
-
-type BloomProject = {
-    name: string;
-    description: string;
-    file: string;
-    size: string;
-    size_bytes: number;
-    sha1: string;
-    program: string;
-};
 
 type Options = {
     indexUrl: string;
@@ -41,8 +24,7 @@ type Options = {
 
 function parseArgs(argv: string[]): Options {
     const options: Options = {
-        indexUrl:
-            'https://sil-app-builders-pwa-test-files.s3.us-east-1.amazonaws.com/sab/bloom_tests/index.json',
+        indexUrl: DEFAULT_INDEX_URL,
         list: false,
         runAll: false
     };
@@ -71,64 +53,16 @@ function parseArgs(argv: string[]): Options {
     return options;
 }
 
-function validateEntry(entry: any, index: number): BloomProject {
-    const fail = (reason: string) => {
-        throw new Error(`Invalid index.json entry ${index}: ${reason}`);
-    };
-    if (typeof entry !== 'object' || entry === null) {
-        fail('not an object');
-    }
-    for (const key of ['name', 'description', 'file', 'size', 'sha1']) {
-        if (typeof entry[key] !== 'string' || !entry[key]) {
-            fail(`missing "${key}"`);
-        }
-    }
-    if (!Number.isInteger(entry.size_bytes) || entry.size_bytes <= 0) {
-        fail('"size_bytes" must be a positive integer');
-    }
-    if (/[\\/]/.test(entry.file) || entry.file.includes('..') || !entry.file.endsWith('.zip')) {
-        fail(`"file" must be a plain .zip file name, got "${entry.file}"`);
-    }
-    if (!/^[0-9a-f]{40}$/i.test(entry.sha1.trim())) {
-        fail('"sha1" is not a SHA-1 hex digest');
-    }
-    if (entry.program !== undefined && typeof entry.program !== 'string') {
-        fail('"program" must be a string');
-    }
-    return {
-        name: entry.name,
-        description: entry.description,
-        file: entry.file,
-        size: entry.size,
-        size_bytes: entry.size_bytes,
-        sha1: entry.sha1.trim().toLowerCase(),
-        program: (entry.program ?? 'sab').toLowerCase()
-    };
-}
-
-async function fetchIndex(indexUrl: string): Promise<BloomProject[]> {
-    console.log(`Fetching ${indexUrl}...`);
-    const response = await fetch(indexUrl);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch index: ${response.status} ${response.statusText}`);
-    }
-    const data = await response.json();
-    if (!Array.isArray(data) || data.length === 0) {
-        throw new Error('index.json must be a non-empty array');
-    }
-    return data.map(validateEntry);
-}
-
-function describeProject(project: BloomProject, n: number): string {
+function describeProject(project: TestProject, n: number): string {
     const program = project.program === 'sab' ? '' : ` [${project.program}]`;
     return `${n}) ${project.name}${program} — ${project.description} (${project.size})`;
 }
 
 async function chooseProjects(
-    projects: BloomProject[],
+    projects: TestProject[],
     name?: string,
     runAll = false
-): Promise<BloomProject[]> {
+): Promise<TestProject[]> {
     if (runAll) {
         return projects;
     }
@@ -164,119 +98,12 @@ async function chooseProjects(
     }
 }
 
-async function hashFile(filePath: string): Promise<string> {
-    const hash = createHash('sha1');
-    await pipeline(createReadStream(filePath), hash);
-    return hash.digest('hex');
-}
-
-function formatMB(bytes: number): string {
-    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
-async function downloadProject(project: BloomProject, indexUrl: string): Promise<string> {
-    await fs.mkdir(CACHE_DIR, { recursive: true });
-    const zipPath = path.join(CACHE_DIR, project.file);
-
-    if (existsSync(zipPath)) {
-        console.log(`Verifying cached ${project.file}...`);
-        if ((await hashFile(zipPath)) === project.sha1) {
-            console.log('Cached file is valid, skipping download.');
-            return zipPath;
-        }
-        console.log('Cached file does not match sha1, downloading again.');
-        await fs.rm(zipPath, { force: true });
-    }
-
-    const url = new URL(project.file, indexUrl);
-    console.log(`Downloading ${url} (${project.size})...`);
-    const response = await fetch(url);
-    if (!response.ok || !response.body) {
-        throw new Error(
-            `Failed to download ${project.file}: ${response.status} ${response.statusText}`
-        );
-    }
-
-    const partPath = `${zipPath}.part`;
-    const hash = createHash('sha1');
-    let received = 0;
-    let lastPercent = -1;
-    const progress = new Transform({
-        transform(chunk: Buffer, _encoding, callback) {
-            hash.update(chunk);
-            received += chunk.length;
-            const percent = Math.floor((received / project.size_bytes) * 100);
-            if (percent !== lastPercent && output.isTTY) {
-                lastPercent = percent;
-                output.write(
-                    `\r  ${percent}% (${formatMB(received)} / ${formatMB(project.size_bytes)})`
-                );
-            }
-            callback(null, chunk);
-        }
-    });
-
-    try {
-        await pipeline(
-            Readable.fromWeb(response.body as WebReadableStream),
-            progress,
-            createWriteStream(partPath)
-        );
-        if (output.isTTY) {
-            output.write('\n');
-        }
-
-        if (received !== project.size_bytes) {
-            throw new Error(
-                `Incomplete download for ${project.file}: expected ${project.size_bytes} bytes, got ${received}`
-            );
-        }
-        const actual = hash.digest('hex');
-        if (actual !== project.sha1) {
-            throw new Error(
-                `SHA-1 mismatch for ${project.file}: expected ${project.sha1}, got ${actual}`
-            );
-        }
-        await fs.rename(partPath, zipPath);
-    } catch (error) {
-        await fs.rm(partPath, { force: true });
-        throw error;
-    }
-
-    console.log('Download verified.');
-    return zipPath;
-}
-
 function runNpmScript(args: string[]): Promise<number> {
     return new Promise((resolve, reject) => {
         const child = spawn('npm', args, { stdio: 'inherit', shell: os.platform() === 'win32' });
         child.on('error', reject);
         child.on('close', (code) => resolve(code ?? 1));
     });
-}
-
-async function prepareProject(zipFilePath: string): Promise<string> {
-    console.log('Ensuring temp directory...');
-    await ensureTempDir();
-
-    console.log('Extracting ZIP file...');
-    await extractZip(zipFilePath);
-
-    console.log('Finding .appDef file...');
-    const appDefFile = await findAppDefFile();
-    console.log(`Found: ${appDefFile}`);
-    return appDefFile;
-}
-
-async function buildProject(program: string, appDefFile: string): Promise<void> {
-    console.log('Determining execution command...');
-    const executionCommand = getExecutionCommand(program);
-    console.log(`Using command: ${executionCommand}`);
-
-    console.log('Running command...');
-    if (!(await runCommand(executionCommand, appDefFile))) {
-        throw new Error('App Builder build failed');
-    }
 }
 
 async function run(command: string[], label: string): Promise<void> {
@@ -286,7 +113,7 @@ async function run(command: string[], label: string): Promise<void> {
     }
 }
 
-function checkProgram(project: BloomProject): void {
+function checkProgram(project: TestProject): void {
     if (!BLOOM_PROGRAMS.includes(project.program)) {
         throw new Error(
             `Program "${project.program}" does not use bloom books. Bloom projects must be one of: ${BLOOM_PROGRAMS.join(', ')}`
@@ -297,23 +124,22 @@ function checkProgram(project: BloomProject): void {
     }
 }
 
-async function testProject(project: BloomProject, indexUrl: string): Promise<number> {
+async function testProject(project: TestProject, indexUrl: string): Promise<number> {
     checkProgram(project);
 
-    const zipPath = await downloadProject(project, indexUrl);
+    const zipPath = await downloadProject(project, indexUrl, CACHE_DIR);
 
-    const appDefFile = await prepareProject(zipPath);
     await run(['run', 'clean:all'], 'Clean');
-    await buildProject(project.program, appDefFile);
+    await prepareAndBuild(zipPath, project.program);
     await run(['run', 'convert'], 'Convert');
 
-    return runNpmScript(['exec', '--', 'vitest', 'run', '--project', 'bloom']);
+    return runNpmScript(['exec', '--', 'vitest', 'run', '--project', 'bloom', ...project.tests]);
 }
 
 (async function main(): Promise<void> {
     try {
         const options = parseArgs(process.argv.slice(2));
-        const projects = await fetchIndex(options.indexUrl);
+        const projects = await fetchIndex(options.indexUrl, 'bloom');
 
         if (options.list) {
             projects.forEach((p, i) => console.log(describeProject(p, i + 1)));
