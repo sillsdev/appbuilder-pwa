@@ -4,6 +4,7 @@
 import * as fs from 'fs';
 import path, { basename, extname, join } from 'path';
 import type {
+    BookCollectionConfig,
     BookConfig,
     BookTabConfig,
     Quiz,
@@ -87,7 +88,7 @@ function transformZonTags(usfm: string): string {
     return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
-function loadGlossary(collection: any, dataDir: string): string[] {
+function loadGlossary(collection: BookCollectionConfig, dataDir: string): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
         if (book.type && book.type === 'glossary') {
@@ -95,7 +96,7 @@ function loadGlossary(collection: any, dataDir: string): string[] {
             if (!fs.existsSync(glossaryBook)) {
                 const extension = extname(book.file);
                 const filename = basename(book.file, extension);
-                glossaryBook = path.join(dataDir, 'books', collection.id, filename + '-000.sfm');
+                glossaryBook = path.join(dataDir, 'books', collection.id, filename + '-001.sfm');
                 //process.stdout.write('Replacing filename: ' + glossaryBook);
             }
             const glossaryContent = fs.readFileSync(glossaryBook, 'utf8');
