@@ -418,9 +418,9 @@ LOGGING:
                         a.name ? ` - ${a.name}` : '',
                         a.stage,
                         a.details?.(environment) ?? {
-                            sequence: environment.context.sequences[0].type,
-                            element: { ...environment.context.sequences[0].element },
-                            block: { ...environment.context.sequences[0].block }
+                            sequence: getSequence(environment.context).type,
+                            element: { ...getElement(environment.context) },
+                            block: { ...getBlock(environment.context) }
                         }
                     );
                 }

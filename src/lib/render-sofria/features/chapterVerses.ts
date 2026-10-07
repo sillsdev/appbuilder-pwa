@@ -1,4 +1,5 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderWorkspace } from '../common';
+import { getElement } from './common';
 import { addPlanDiv } from './common/plans';
 import { terminatePhrase } from './common/text';
 
@@ -6,16 +7,16 @@ export const chapterVerses = new FeatureSpec([
     {
         event: 'startChapter',
         stage: 'fallback',
-        details: ({ context }) => ({ c: context.sequences[0].element.atts['number']}),
+        details: ({ context }) => ({ c: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            workspace.currentTextPosition.chapter = context.sequences[0].element.atts['number'];
+            workspace.currentTextPosition.chapter = getElement(context).atts['number'];
         }
     },
     {
         event: 'endChapter',
         stage: 'fallback',
-        details: ({ context }) => ({ c: context.sequences[0].element.atts['number']}),
+        details: ({ context }) => ({ c: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             workspace.currentTextPosition.chapter = 'none';
@@ -24,10 +25,10 @@ export const chapterVerses = new FeatureSpec([
     {
         event: 'startVerses',
         stage: 'fallback',
-        details: ({ context }) => ({ v: context.sequences[0].element.atts['number']}),
+        details: ({ context }) => ({ v: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            const verse = context.sequences[0].element.atts['number'];
+            const verse = getElement(context).atts['number'];
             workspace.currentTextPosition.verse = verse;
             workspace.currentTextPosition.phraseIndex = 0;
 
@@ -46,7 +47,7 @@ export const chapterVerses = new FeatureSpec([
     {
         event: 'endVerses',
         stage: 'fallback',
-        details: ({ context }) => ({ v: context.sequences[0].element.atts['number']}),
+        details: ({ context }) => ({ v: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             workspace.currentTextPosition.verse = 'none';
@@ -55,7 +56,7 @@ export const chapterVerses = new FeatureSpec([
 
             addSpanAfterVerse(workspace, 'bookmarks');
             addSpanAfterVerse(workspace, 'notes');
-            addPlanDiv(workspace, context.sequences[0].element.atts['number']);
+            addPlanDiv(workspace, getElement(context).atts['number']);
         }
     }
 ]);

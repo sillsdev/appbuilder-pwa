@@ -1,9 +1,5 @@
-import type { RenderContext } from 'proskomma-json-tools';
 import { addToScratchPad, FeatureSpec } from '../common';
-
-export function isCellWrapper(context: RenderContext) {
-    return context.sequences[0].element.subType === 'cell';
-}
+import { getElement, matchElement } from './common';
 
 export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
     {
@@ -40,9 +36,9 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
     {
         event: 'startWrapper',
         stage: 'standard',
-        guard: ({ context }) => isCellWrapper(context),
+        guard: ({ context }) => matchElement(context, 'cell'),
         action: ({ context, workspace }) => {
-            const nCols = Number(context.sequences[0].element.atts['nCols']);
+            const nCols = Number(getElement(context).atts['nCols']);
 
             const colIndex = (workspace.scratch.table?.colIndex ?? 0) + nCols;
             addToScratchPad(workspace.scratch, 'table', { colIndex });
@@ -56,7 +52,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
     {
         event: 'endWrapper',
         stage: 'standard',
-        guard: ({ context }) => isCellWrapper(context),
+        guard: ({ context }) => matchElement(context, 'cell'),
         action: ({ workspace }) => {
             workspace.scopeManager.promoteContent('wrapper:cell');
         }
