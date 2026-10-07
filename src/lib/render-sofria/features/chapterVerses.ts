@@ -5,6 +5,8 @@ import { terminatePhrase } from './common/text';
 export const chapterVerses = new FeatureSpec([
     {
         event: 'startChapter',
+        stage: 'fallback',
+        details: ({ context }) => ({ c: context.sequences[0].element.atts['number']}),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             workspace.currentTextPosition.chapter = context.sequences[0].element.atts['number'];
@@ -12,6 +14,8 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         event: 'endChapter',
+        stage: 'fallback',
+        details: ({ context }) => ({ c: context.sequences[0].element.atts['number']}),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             workspace.currentTextPosition.chapter = 'none';
@@ -19,6 +23,8 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         event: 'startVerses',
+        stage: 'fallback',
+        details: ({ context }) => ({ v: context.sequences[0].element.atts['number']}),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const verse = context.sequences[0].element.atts['number'];
@@ -39,6 +45,8 @@ export const chapterVerses = new FeatureSpec([
     },
     {
         event: 'endVerses',
+        stage: 'fallback',
+        details: ({ context }) => ({ v: context.sequences[0].element.atts['number']}),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             workspace.currentTextPosition.verse = 'none';

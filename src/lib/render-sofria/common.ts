@@ -14,9 +14,9 @@ import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
 import { checkFeatureValueIs } from '$lib/scripts/configUtils';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
 import type {
+    RenderContext as PKRenderContext,
     RenderWorkspace as PKRenderWorkspace,
-    RenderConfig,
-    RenderContext
+    RenderConfig
 } from 'proskomma-json-tools';
 import type ScopeManager from './ScopeManager';
 
@@ -99,12 +99,12 @@ export class RenderScope {
  */
 export type RenderEnvironment<Scratch extends DefaultScratchpad = DefaultScratchpad> = {
     config: RenderConfig;
-    context: RenderContext;
+    context: PKRenderContext;
     workspace: RenderWorkspace<Scratch>;
     output: any;
 };
 
-const sectionOrder = {
+const stages = {
     init: 0,
     standard: 1,
     fallback: 2,
@@ -117,25 +117,18 @@ const sectionOrder = {
  * - `init`: run before all other actions
  * - `cleanup`: run after all other actions
  */
-type RenderSection = keyof typeof sectionOrder;
+type RenderStage = keyof typeof stages;
 
-/**
- * pass `default: true` if this is meant to be a fallback after other actions have been filtered out. required if no guard is specified
- */
-export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> = Readonly<
-    {
-        event: RenderEvent;
-        name?: string;
-        action(environment: RenderEnvironment<Scratch>): void;
-    } & (
-        | { guard: Guard<Scratch>; section?: RenderSection }
-        | { section: RenderSection; guard?: Guard<Scratch> }
-    )
->;
+export type RenderAction<Scratch extends DefaultScratchpad = DefaultScratchpad> = Readonly<{
+    event: RenderEvent;
+    name?: string;
+    details?: (environment: RenderEnvironment<Scratch>) => unknown;
+    stage: RenderStage;
+    guard?: (environment: RenderEnvironment<Scratch>) => boolean | undefined;
+    action: (environment: RenderEnvironment<Scratch>) => void;
+}>;
 
-type Guard<Scratch extends DefaultScratchpad> = (
-    environment: RenderEnvironment<Scratch>
-) => boolean | undefined;
+export function noaction() {}
 
 /**
  * Methodology from
@@ -243,10 +236,10 @@ export function renderIfRegularOrIfHackedIntro(workspace: RenderWorkspace) {
     );
 }
 
-function errorOnDuplicateSection(section: RenderSection | undefined) {
+function errorOnDuplicateSection(section: RenderStage | undefined) {
     return section === 'fallback';
 }
-function warnOnDuplicateSection(section: RenderSection | undefined) {
+function warnOnDuplicateSection(section: RenderStage | undefined) {
     return section === 'init' || section === 'cleanup';
 }
 
@@ -284,30 +277,30 @@ export function compileActionDictionary(
     }
     let errorCount = 0;
     for (const e in result) {
-        const sections = {} as Record<RenderSection, string>;
+        const sections = {} as Record<RenderStage, string>;
         result[e as RenderEvent]?.forEach((a) => {
-            if (errorOnDuplicateSection(a.section)) {
-                if (sections[a.section]) {
+            if (errorOnDuplicateSection(a.stage)) {
+                if (sections[a.stage]) {
                     console.error(
-                        `Action handler ${e} has more than one handler in ${a.section}. Encountered: ${a.name}, Existing: ${sections[a.section]}`
+                        `Action handler ${e} has more than one handler in ${a.stage}. Encountered: ${a.name}, Existing: ${sections[a.stage]}`
                     );
                     errorCount++;
                 } else {
-                    sections[a.section] = `${a.name}`;
+                    sections[a.stage] = `${a.name}`;
                 }
-            } else if (warnOnDuplicateSection(a.section)) {
-                if (sections[a.section]) {
+            } else if (warnOnDuplicateSection(a.stage)) {
+                if (sections[a.stage]) {
                     console.warn(
-                        `Action handler ${e} has more than one handler in ${a.section}. Encountered: ${a.name}, Existing: ${sections[a.section]}`
+                        `Action handler ${e} has more than one handler in ${a.stage}. Encountered: ${a.name}, Existing: ${sections[a.stage]}`
                     );
                 } else {
-                    sections[a.section] = `${a.name}`;
+                    sections[a.stage] = `${a.name}`;
                 }
             }
         });
         // sort default handlers to end
         result[e as RenderEvent]?.sort(
-            (a, b) => sectionOrder[a.section ?? 'standard'] - sectionOrder[b.section ?? 'standard']
+            (a, b) => stages[a.stage ?? 'standard'] - stages[b.stage ?? 'standard']
         );
     }
     console.warn('Compiled actions dictionary: %o', result);
