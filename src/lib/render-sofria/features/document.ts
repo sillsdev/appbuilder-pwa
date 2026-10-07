@@ -10,7 +10,7 @@ import { createIllustrationBlock } from './illustrations';
 export const documentFeature = new FeatureSpec([
     {
         event: 'startDocument',
-        section: 'fallback',
+        stage: 'fallback',
         action({ workspace }) {
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
@@ -22,7 +22,7 @@ export const documentFeature = new FeatureSpec([
     },
     {
         event: 'endDocument',
-        section: 'standard',
+        stage: 'standard',
         action({ workspace }) {
             if (!workspace.hackRenderIntro) {
                 addNotedVerses(workspace);
@@ -53,7 +53,7 @@ export const documentFeature = new FeatureSpec([
     },
     {
         event: 'endDocument',
-        section: 'cleanup',
+        stage: 'cleanup',
         action({ workspace, output }) {
             workspace.scopeManager.pop('document');
             output.root = workspace.root;
