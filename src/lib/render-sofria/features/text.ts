@@ -6,17 +6,14 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderWorkspace
 } from '../common';
-import { createLetterIndex, phraseTerminated, subdividePhrases } from '../util';
+import { createLetterIndex } from '../util';
 import { extractClassName, getBlock, getElement, matchBlock, matchSequence } from './common';
-import { terminatePhrase } from './common/text';
+import { addPhrases, getPhraseDiv, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
-export type SharedTextScratch = {
-    text?: { cleanedText?: string; empty?: boolean };
-};
 
 type TextScratch = {
-    text?: { introductionIndex?: number; footnoteCallerIndex?: number };
+    text?: { footnoteCallerIndex?: number };
 } & SharedTextScratch;
 
 export const text = new FeatureSpec<
@@ -146,7 +143,6 @@ export const text = new FeatureSpec<
             // title, heading without cross-ref, jmp, audioc, reflink, intro paras, and everything else
             else {
                 addPhrases(workspace, text);
-                workspace.scopeManager.debug();
             }
         }
     },
@@ -158,7 +154,6 @@ export const text = new FeatureSpec<
         action({ context, workspace }) {
             terminatePhrase(workspace);
             if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
-                workspace.scopeManager.debug();
                 workspace.scratch.paragraph?.deferredEls?.forEach((el) =>
                     workspace.scopeManager.appendContent(el, 'paragraph:main')
                 );
@@ -245,46 +240,6 @@ function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
         (count, subHeading) => (subHeading === labelPrefix ? count + 1 : count),
         0
     );
-}
-
-function getPhraseDiv(workspace: RenderWorkspace) {
-    const previousPhrase = workspace.scopeManager.remove('phrase')?.root;
-    const phraseDiv = previousPhrase ?? workspace.document.createElement('div');
-    if (!previousPhrase) {
-        const phraseIndex = createLetterIndex(workspace.currentTextPosition.phraseIndex ?? 0);
-
-        if (workspace.hackRenderIntro) {
-            const introductionIndex = workspace.scratch.text?.introductionIndex ?? 0;
-            phraseDiv.id = '+' + introductionIndex;
-            phraseDiv.classList.add('txs');
-            addToScratchPad(workspace.scratch, 'text', {
-                introductionIndex: introductionIndex + 1
-            });
-        } else {
-            phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
-            phraseDiv.setAttribute('data-verse', workspace.currentTextPosition.verse);
-            phraseDiv.setAttribute('data-phrase', phraseIndex);
-            phraseDiv.classList.add('txs', 'seltxt', 'scroll-item');
-        }
-
-        workspace.currentTextPosition.phraseIndex =
-            (workspace.currentTextPosition.phraseIndex ?? 0) + 1;
-    }
-    return phraseDiv;
-}
-
-function addPhrases(workspace: RenderWorkspace, text: string) {
-    const phrases = subdividePhrases(workspace, text);
-    for (const phrase of phrases) {
-        const phraseDiv = getPhraseDiv(workspace);
-        phraseDiv.innerHTML += phrase;
-
-        if (phrases.length <= 1 || phraseTerminated(workspace, phrases[phrases.length - 1])) {
-            workspace.scopeManager.appendContent(phraseDiv);
-        } else {
-            workspace.scopeManager.push('phrase', phraseDiv);
-        }
-    }
 }
 
 function addGraftText(workspace: RenderWorkspace, text: string, textType: 'crossref' | 'footnote') {
