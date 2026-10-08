@@ -6,11 +6,10 @@ import {
     type RenderWorkspace
 } from '../../common';
 import { getElement } from '../common';
-import { renderGraftedSequence, type BlockGraftScratch } from './common';
 
 type InlineGraftScratch = { inlineGraft?: { footnoteIdIndex?: number } };
 
-export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScratch>([
+export const inlineGrafts = new FeatureSpec<InlineGraftScratch>([
     {
         event: 'inlineGraft',
         stage: 'fallback',
@@ -31,7 +30,7 @@ export const inlineGrafts = new FeatureSpec<BlockGraftScratch & InlineGraftScrat
                 workspace.scopeManager.push('inlineGraft:footnote', contentRoot);
             }
 
-            renderGraftedSequence(environment, graftRecord.sequence);
+            environment.context.renderer.renderSequence(environment);
 
             if (element.subType === 'xref' || element.subType === 'footnote') {
                 const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
