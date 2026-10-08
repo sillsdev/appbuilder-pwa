@@ -46,10 +46,6 @@ export const text = new FeatureSpec<
                 }
 
                 workspace.scopeManager.push('paragraph:main', paragraphDiv);
-            } else if (matchSequence(context, 'title')) {
-                const titleDiv = workspace.document.createElement('div');
-                titleDiv.classList.add(paraClass);
-                workspace.scopeManager.push('paragraph:title', titleDiv);
             } else if (matchSequence(context, 'heading')) {
                 const headerDiv = document.createElement('div');
                 headerDiv.classList.add(paraClass);
@@ -144,7 +140,7 @@ export const text = new FeatureSpec<
                 phraseDiv.appendChild(spanV);
                 workspace.scopeManager.push('phrase', phraseDiv);
             }
-            // title, heading without cross-ref, jmp, audioc, reflink, and everything else
+            // heading without cross-ref, jmp, audioc, reflink, and everything else
             else {
                 addPhrases(workspace, text);
             }
@@ -236,8 +232,6 @@ export const text = new FeatureSpec<
                         }
                         break;
                 }
-            } else if (matchSequence(context, 'title')) {
-                workspace.scopeManager.promoteContent('paragraph:title');
             } else if (matchSequence(context, 'heading')) {
                 workspace.scopeManager.promoteContent('paragraph:heading');
             }
