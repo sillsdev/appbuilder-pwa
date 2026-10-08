@@ -9,7 +9,6 @@ import type { RenderElement } from 'proskomma-json-tools';
 import { getElement, matchElement, matchSequence } from './common';
 import { placeElement } from './common/media';
 import { terminatePhrase, type SharedTextScratch } from './common/text';
-import { renderGraftedSequence, type BlockGraftScratch } from './grafts/common';
 
 const illustrationFiles = import.meta.glob('./*', {
     import: 'default',
@@ -18,8 +17,17 @@ const illustrationFiles = import.meta.glob('./*', {
     base: '/src/gen-assets/illustrations'
 }) as Record<string, string>;
 
-export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScratch>(
+export const illustrations = new FeatureSpec<SharedTextScratch>(
     [
+        {
+            event: 'inlineGraft',
+            stage: 'standard',
+            guard: ({ workspace, context }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'fig'),
+            action: (environment) => {
+                environment.context.renderer.renderSequence(environment);
+            }
+        },
         {
             event: 'startSequence',
             stage: 'standard',
@@ -33,25 +41,6 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
-        },
-        {
-            event: 'inlineGraft',
-            stage: 'standard',
-            guard: ({ workspace, context }) =>
-                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'fig'),
-            action: (environment) => {
-                const { context } = environment;
-                const element = getElement(context);
-                const graftRecord: RenderElement = {
-                    type: element.type,
-                    subType: element.subType,
-                    sequence: {},
-                    atts: {},
-                    text: ''
-                };
-
-                renderGraftedSequence(environment, graftRecord.sequence);
-            }
         },
         {
             event: 'startWrapper',
