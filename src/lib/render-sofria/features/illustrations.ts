@@ -7,7 +7,7 @@ import {
 } from '$lib/render-sofria/common';
 import type { RenderElement } from 'proskomma-json-tools';
 import { getElement, matchElement, matchSequence } from './common';
-import { placeElement } from './common/media';
+import { mediaForChapter, placeElement } from './common/media';
 import { terminatePhrase, type SharedTextScratch } from './common/text';
 
 const illustrationFiles = import.meta.glob('./*', {
@@ -102,7 +102,24 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             guard: ({ workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && showImages(workspace),
             action({ workspace }) {
-                addIllustrations(workspace);
+                mediaForChapter(workspace, 'illustrations').forEach((illustration) => {
+                    if (illustration.placement) {
+                        const verse = illustration.placement.ref.split(/[:.]/).at(-1);
+                        if (verse) {
+                            const { imageBlockDiv: illustrationBlockDiv } = createIllustrationBlock(
+                                workspace,
+                                illustration.filename,
+                                illustration.placement.caption
+                            );
+                            placeElement(
+                                workspace,
+                                illustrationBlockDiv,
+                                illustration.placement.pos,
+                                verse
+                            );
+                        }
+                    }
+                });
             }
         }
     ],
@@ -215,45 +232,4 @@ function showFullscreenPopup(imageSource: string) {
     fullscreenDiv.appendChild(closeButton);
 
     document.body.appendChild(fullscreenDiv);
-}
-function illustrationsForChapter(workspace: RenderWorkspace) {
-    const collection = workspace.stores.references.docSet.split('_')[1];
-    return workspace.config.illustrations?.filter(
-        (x) =>
-            x.placement &&
-            x.placement.collection === collection &&
-            (x.placement.ref.startsWith(
-                workspace.stores.references.book + ' ' + workspace.stores.references.chapter + ':'
-            ) ||
-                x.placement.ref.startsWith(
-                    workspace.stores.references.book +
-                        '.' +
-                        workspace.stores.references.chapter +
-                        '.'
-                ))
-    );
-}
-
-function addIllustrations(workspace: RenderWorkspace) {
-    const illustrations = illustrationsForChapter(workspace);
-    if (illustrations && workspace.root) {
-        illustrations.forEach((illustration, index) => {
-            if (illustration.placement) {
-                const verse = illustration.placement.ref.split(/[:.]/).at(-1);
-                if (verse) {
-                    const { imageBlockDiv: illustrationBlockDiv } = createIllustrationBlock(
-                        workspace,
-                        illustration.filename,
-                        illustration.placement.caption
-                    );
-                    placeElement(
-                        workspace,
-                        illustrationBlockDiv,
-                        illustration.placement.pos,
-                        verse
-                    );
-                }
-            }
-        });
-    }
 }

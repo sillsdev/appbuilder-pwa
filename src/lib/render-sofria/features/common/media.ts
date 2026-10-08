@@ -1,3 +1,4 @@
+import type { ScriptureConfig } from '$config';
 import type { RenderWorkspace } from '$lib/render-sofria/common';
 
 export function placeElement(
@@ -85,4 +86,25 @@ function findDataElementForVerse(workspace: RenderWorkspace, verse: number) {
     }
 
     return null; // No matching element found
+}
+
+export function mediaForChapter<M extends 'illustrations' | 'videos'>(
+    workspace: RenderWorkspace,
+    mediaType: M
+) {
+    const collection = workspace.stores.references.docSet.split('_')[1];
+    return (workspace.config[mediaType]?.filter(
+        (x) =>
+            x.placement &&
+            x.placement.collection === collection &&
+            (x.placement.ref.startsWith(
+                workspace.stores.references.book + ' ' + workspace.stores.references.chapter + ':'
+            ) ||
+                x.placement.ref.startsWith(
+                    workspace.stores.references.book +
+                        '.' +
+                        workspace.stores.references.chapter +
+                        '.'
+                ))
+    ) ?? []) as NonNullable<ScriptureConfig[M]>;
 }
