@@ -10,6 +10,7 @@ export const documentFeature = new FeatureSpec([
     {
         event: 'startDocument',
         stage: 'fallback',
+        details: ({ workspace }) => workspace.stores.references,
         action({ workspace }) {
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
@@ -53,6 +54,7 @@ export const documentFeature = new FeatureSpec([
     {
         event: 'endDocument',
         stage: 'cleanup',
+        details: ({ workspace }) => workspace.stores.references,
         action({ workspace, output }) {
             workspace.scopeManager.pop('document');
             output.root = workspace.root;
