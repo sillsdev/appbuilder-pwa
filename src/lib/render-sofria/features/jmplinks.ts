@@ -1,5 +1,6 @@
 import { FeatureSpec } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
+import { addPhrases } from './common/text';
 
 export const jmplinks = new FeatureSpec(
     [
@@ -68,6 +69,19 @@ export const jmplinks = new FeatureSpec(
             guard: ({ context }) => matchElement(context, 'usfm:jmp'),
             action: ({ workspace }) => {
                 workspace.scopeManager.promoteContent('wrapper:jmp');
+            }
+        },
+        {
+            event: 'text',
+            stage: 'standard',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+            guard: ({ workspace }) =>
+                !workspace.scratch.text?.empty && !!workspace.scopeManager.find('wrapper:jmp'),
+            action({ workspace }) {
+                addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
+                    requireTop: true,
+                    newPhrase: false
+                });
             }
         }
     ],

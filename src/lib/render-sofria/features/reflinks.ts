@@ -1,7 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { splitString } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { type SharedTextScratch } from './common/text';
+import { addPhrases, type SharedTextScratch } from './common/text';
 
 export const reflinks = new FeatureSpec<SharedTextScratch>(
     [
@@ -40,6 +40,20 @@ export const reflinks = new FeatureSpec<SharedTextScratch>(
                 matchElement(context, 'usfm:zreflink') && renderIfRegularOrIfHackedIntro(workspace),
             action: ({ workspace }) => {
                 workspace.scopeManager.promoteContent('milestone:zreflink');
+            }
+        },
+        {
+            event: 'text',
+            stage: 'standard',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+            guard: ({ workspace }) =>
+                !workspace.scratch.text?.empty &&
+                !!workspace.scopeManager.find('milestone:zreflink'),
+            action({ workspace }) {
+                addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
+                    requireTop: true,
+                    newPhrase: false
+                });
             }
         },
         {
