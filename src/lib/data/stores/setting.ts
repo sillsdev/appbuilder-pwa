@@ -420,3 +420,32 @@ export const userSettings = persistedLocal('userSettings', {
 export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {
     return { ...defaultSettings, ...$userSettings };
 });
+
+export function checkSettingIs(settings: FeatureConfig, feature: string, expectedValue: string) {
+    if (['true', 'false'].includes(expectedValue)) {
+        return getSettingBoolean(settings, feature).toString() === expectedValue;
+    } else {
+        return getSettingString(settings, feature) === expectedValue;
+    }
+}
+
+export function getSettingBoolean(settings: FeatureConfig, feature: string): boolean {
+    let returnValue = false;
+    let value: any = '';
+    if (settings[feature] != null) {
+        value = settings[feature];
+    }
+
+    if (value === true || value === 'yes') {
+        returnValue = true;
+    }
+
+    return returnValue;
+}
+export function getSettingString(settings: FeatureConfig, feature: string): string {
+    let value = '';
+    if (settings[feature] != null) {
+        value = settings[feature] as string;
+    }
+    return value;
+}
