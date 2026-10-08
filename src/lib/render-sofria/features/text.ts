@@ -24,12 +24,20 @@ export const text = new FeatureSpec<
 >([
     {
         event: 'startParagraph',
+        stage: 'init',
+        details: ({ workspace }) => ({ phrase: workspace.scopeManager.find('phrase') }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
+            terminatePhrase(workspace);
+        }
+    },
+    {
+        event: 'startParagraph',
         stage: 'fallback',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const paraClass = extractClassName(getBlock(context));
-            terminatePhrase(workspace);
             if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
                 const paragraphDiv = workspace.document.createElement('div');
                 paragraphDiv.classList.add(paraClass);
@@ -144,11 +152,19 @@ export const text = new FeatureSpec<
     },
     {
         event: 'endParagraph',
+        stage: 'init',
+        details: ({ workspace }) => ({ phrase: workspace.scopeManager.find('phrase') }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
+            terminatePhrase(workspace);
+        }
+    },
+    {
+        event: 'endParagraph',
         stage: 'fallback',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            terminatePhrase(workspace);
             if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
                 workspace.scratch.paragraph?.deferredEls?.forEach((el) =>
                     workspace.scopeManager.appendContent(el, 'paragraph:main')
