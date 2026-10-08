@@ -8,9 +8,8 @@ import { isBibleBook } from '$lib/scripts/scripture-reference-utils';
 import type { RenderElement } from 'proskomma-json-tools';
 import { getElement, matchElement, matchSequence } from './common';
 import { placeElement } from './common/media';
-import { terminatePhrase } from './common/text';
+import { terminatePhrase, type SharedTextScratch } from './common/text';
 import { renderGraftedSequence, type BlockGraftScratch } from './grafts/common';
-import type { SharedTextScratch } from './text';
 
 const illustrationFiles = import.meta.glob('./*', {
     import: 'default',

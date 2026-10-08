@@ -5,7 +5,6 @@ import {
 } from '$lib/render-sofria/common';
 import { extractUSFMClassName, matchElement } from '../common';
 import { terminatePhrase } from '../common/text';
-import { glossary } from './glossary';
 import { jmplinks } from './jmplinks';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
@@ -42,4 +41,4 @@ export const usfmWrappers = new FeatureSpec([
     }
 ]);
 
-export { glossary, jmplinks };
+export { jmplinks };

@@ -22,6 +22,7 @@ class ScopeManager {
                         this.stack.at(i),
                         this.stack.length - i
                     );
+                    this.debug();
                 }
                 return this.stack.splice(i, 1)[0];
             }
@@ -136,7 +137,7 @@ class ScopeManager {
     }
 
     debug() {
-        console.log([...this.stack]);
+        console.warn([...this.stack]);
     }
 }
 
