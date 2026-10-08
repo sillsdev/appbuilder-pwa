@@ -11,6 +11,7 @@ import { introductions } from './features/introductions';
 import { jmplinks } from './features/jmplinks';
 import { metaContent } from './features/metaContent';
 import { milestones } from './features/milestones';
+import { reflinks } from './features/reflinks';
 import { sequences } from './features/sequence';
 import { tables } from './features/table';
 import { text } from './features/text';
@@ -36,5 +37,6 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     jmplinks,
     usfmWrappers,
     metaContent,
-    milestones
+    milestones,
+    reflinks
 ];

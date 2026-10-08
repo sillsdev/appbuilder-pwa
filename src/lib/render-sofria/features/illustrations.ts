@@ -108,7 +108,9 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'endDocument',
             stage: 'standard',
-            details: () => undefined,
+            details: ({ workspace }) => ({
+                count: mediaForChapter(workspace, 'illustrations').length
+            }),
             guard: ({ workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && showImages(workspace),
             action({ workspace }) {
