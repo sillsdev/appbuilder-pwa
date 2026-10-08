@@ -22,10 +22,33 @@
         .deferredInstallPrompt;
     let deferredPrompt: BeforeInstallPromptEvent | null = $state(earlyPrompt ?? null);
     let installing = $state(false);
-    let status = $state('');
+    let status: 'installing' | 'installed' | null = $state(null);
     const showIosSteps = isIOS();
     // iOS ignores manifest icons and uses the apple-touch-icon for the home screen
     const iconUrl = $derived(showIosSteps ? appleIconHref : data.iconUrl);
+
+    // Translation strings with fallback (actual string keys will be added to 14.7)
+    const instructionText = $derived(
+        $t['Install_Instruction'] || 'Install this dictionary on your device to use it offline.'
+    );
+    const alreadyInstalledText = $derived(
+        $t['Install_Already_Installed'] ||
+            'Already installed? Look for this icon on your home screen or in your list of apps.'
+    );
+    const installButtonText = $derived($t['Install_Button'] || 'Install');
+    const installingText = $derived(
+        $t['Install_Installing'] || 'Installing… you can close this tab.'
+    );
+    const installedText = $derived(
+        $t['Install_Installed'] ||
+            '✓ Installed! Open the app from your home screen or your list of apps.'
+    );
+    const iosStepsText = $derived(
+        $t['Install_iOS_Steps'] || 'Tap the Share button in Safari, then choose Add to Home Screen.'
+    );
+    const statusText = $derived(
+        status === 'installing' ? installingText : status === 'installed' ? installedText : ''
+    );
 
     const standaloneQuery =
         '(display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen)';
@@ -48,7 +71,7 @@
 
     function onAppInstalled() {
         deferredPrompt = null;
-        status = $t['Install_Installed'] || '✓ Installed! Open the app from your home screen.';
+        status = 'installed';
     }
 
     async function install() {
@@ -63,7 +86,7 @@
         delete (window as Window & { deferredInstallPrompt?: unknown }).deferredInstallPrompt;
         if (outcome === 'accepted') {
             deferredPrompt = null;
-            status = $t['Install_Installing'] || 'Installing… you can close this tab.';
+            status = 'installing';
         }
     }
 
@@ -109,13 +132,12 @@
     {/if}
     <h1 class="text-[26px] font-bold mb-2.5">{data.name}</h1>
     <p class="text-[15px] leading-[1.7] mb-2 max-w-[340px] opacity-80">
-        {$t['Install_Instruction'] || 'Install this dictionary on your device to use it offline.'}
+        {instructionText}
     </p>
     <!-- The browser only offers to install when the app isn't installed yet -->
     {#if !deferredPrompt && !status}
         <p class="text-[13px] mb-7 max-w-[300px] opacity-60">
-            {$t['Install_Already_Installed'] ||
-                'Already installed? Look for this icon on your home screen or in your list of apps.'}
+            {alreadyInstalledText}
         </p>
     {/if}
     {#if deferredPrompt}
@@ -125,14 +147,13 @@
             disabled={installing}
             onclick={install}
         >
-            {$t['Install_Button'] || 'Install'}
+            {installButtonText}
         </button>
     {/if}
-    <p class="text-[15px] font-medium min-h-[22px]" style:color="#276749">{status}</p>
+    <p class="text-[15px] font-medium min-h-[22px]" style:color="#276749">{statusText}</p>
     {#if showIosSteps}
         <p class="text-[15px] leading-[1.9] max-w-[300px]">
-            {$t['Install_iOS_Steps'] ||
-                'Tap the Share button in Safari, then choose Add to Home Screen.'}
+            {iosStepsText}
         </p>
     {/if}
 </div>
