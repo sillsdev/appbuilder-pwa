@@ -1,9 +1,7 @@
 import { ModalType, monoIconColor } from '$lib/data/stores';
 import { deselectAllElements } from '$lib/scripts/verseSelectUtil';
-import { addVideoLinks, createVideoBlock } from '$lib/video';
 import { get } from 'svelte/store';
 import { FeatureSpec, type RenderWorkspace } from '../common';
-import { mediaForChapter, placeElement } from './common/media';
 import { addPlanDiv } from './common/plans';
 
 export const documentFeature = new FeatureSpec([
@@ -28,9 +26,6 @@ export const documentFeature = new FeatureSpec([
                 addNotedVerses(workspace);
                 addBookmarkedVerses(workspace);
                 addHighlightedVerses(workspace);
-                if (showVideo(workspace)) {
-                    addVideos(workspace);
-                }
                 addPlanDiv(workspace, '-1');
             }
 
@@ -130,29 +125,6 @@ function addHighlightedVerses(workspace: RenderWorkspace) {
             }
         }
     });
-}
-
-function showVideo(workspace: RenderWorkspace) {
-    const showBibleVideo = workspace.viewSettings.bibleVideos === 'normal';
-    const showVideos = !workspace.viewSettings.isBibleBook || showBibleVideo;
-    return showVideos;
-}
-
-function addVideos(workspace: RenderWorkspace) {
-    const videos = mediaForChapter(workspace, 'videos');
-    if (videos && workspace.root) {
-        videos.forEach((video, index) => {
-            if (video.placement) {
-                // ref can be MAT 1:1 or MAT.1.1
-                const verse = video.placement.ref.split(/[:.]/).at(-1);
-                if (verse) {
-                    const videoBlockDiv = createVideoBlock(document, video, index);
-                    placeElement(workspace, videoBlockDiv, video.placement.pos, verse);
-                }
-            }
-        });
-        addVideoLinks(workspace.document, videos);
-    }
 }
 
 function addFooter(workspace: RenderWorkspace) {
