@@ -47,7 +47,10 @@ export const chapterVerses = new FeatureSpec([
     {
         event: 'endVerses',
         stage: 'fallback',
-        details: ({ context }) => ({ v: getElement(context).atts['number'] }),
+        details: ({ context, workspace }) => ({
+            v: getElement(context).atts['number'],
+            phrase: workspace.scopeManager.find('phrase')
+        }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             workspace.currentTextPosition.verse = 'none';
