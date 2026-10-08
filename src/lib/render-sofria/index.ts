@@ -13,11 +13,13 @@ import { milestones } from './features/milestones';
 import { sequences } from './features/sequence';
 import { tables } from './features/table';
 import { text } from './features/text';
+import { titles } from './features/titles';
 import { usfmWrappers } from './features/wrappers';
 
 export const renderFeatures: Array<FeatureSpec<any>> = [
     blockGrafts,
     introductions,
+    titles,
     inlineGrafts,
     sequences,
     documentFeature,
