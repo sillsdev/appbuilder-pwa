@@ -6,7 +6,7 @@ import {
     type RenderWorkspace
 } from '$lib/render-sofria/common';
 import type { RenderElement } from 'proskomma-json-tools';
-import { getElement, matchElement, matchSequence } from './common';
+import { getElement, getSequence, matchElement, matchSequence } from './common';
 import { mediaForChapter, placeElement } from './common/media';
 import { terminatePhrase, type SharedTextScratch } from './common/text';
 
@@ -22,6 +22,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'inlineGraft',
             stage: 'standard',
+            details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'fig'),
             action: (environment) => {
@@ -31,6 +32,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'startSequence',
             stage: 'standard',
+            details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
@@ -38,6 +40,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'endSequence',
             stage: 'standard',
+            details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
@@ -45,6 +48,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'startWrapper',
             stage: 'standard',
+            details: ({ context }) => ({ src: extractFigureSource(getElement(context)) }),
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ context, workspace }) => {
@@ -69,6 +73,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'endWrapper',
             stage: 'standard',
+            details: ({ context }) => ({ src: extractFigureSource(getElement(context)) }),
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ workspace }) => {
@@ -82,6 +87,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'text',
             stage: 'standard',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
             guard: ({ workspace }) =>
                 !workspace.scratch.text?.empty &&
                 renderIfRegularOrIfHackedIntro(workspace) &&
@@ -99,6 +105,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
         {
             event: 'endDocument',
             stage: 'standard',
+            details: () => undefined,
             guard: ({ workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && showImages(workspace),
             action({ workspace }) {
