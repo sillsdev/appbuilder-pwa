@@ -1,10 +1,10 @@
+import { checkSettingIs } from '$lib/data/stores';
 import {
     FeatureSpec,
     noaction,
     renderIfRegularOrIfHackedIntro,
     type RenderWorkspace
 } from '$lib/render-sofria/common';
-import { isBibleBook } from '$lib/scripts/scripture-reference-utils';
 import type { RenderElement } from 'proskomma-json-tools';
 import { getElement, matchElement, matchSequence } from './common';
 import { placeElement } from './common/media';
@@ -60,7 +60,7 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ context, workspace }) => {
                 const srcFromAtts = extractFigureSource(getElement(context));
-                if (srcFromAtts && shouldShowImage(workspace)) {
+                if (srcFromAtts && showImages(workspace)) {
                     terminatePhrase(workspace);
                     const { imageBlockDiv, mappedSource } = createIllustrationBlock(
                         workspace,
@@ -69,6 +69,11 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
                     );
                     workspace.scopeManager.push('wrapper:figure', imageBlockDiv);
                     checkImageExists(mappedSource, imageBlockDiv);
+                } else {
+                    workspace.scopeManager.push(
+                        'wrapper:figure',
+                        workspace.document.createElement('div')
+                    );
                 }
             }
         },
@@ -78,8 +83,10 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ workspace }) => {
-                if (shouldShowImage(workspace)) {
+                if (showImages(workspace)) {
                     workspace.scopeManager.promoteContent('wrapper:figure');
+                } else {
+                    workspace.scopeManager.pop('wrapper:figure');
                 }
             }
         },
@@ -103,19 +110,40 @@ export const illustrations = new FeatureSpec<BlockGraftScratch & SharedTextScrat
         {
             event: 'endDocument',
             stage: 'standard',
+            guard: ({ workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && showImages(workspace),
             action({ workspace }) {
-                if (!workspace.hackRenderIntro) {
-                    if (showImage(workspace)) {
-                        addIllustrations(workspace);
-                    }
-                }
+                addIllustrations(workspace);
             }
         }
     ],
-    'Illustrations'
+    'Illustrations',
+    { tag: 'show-illustrations', enabledValue: 'true' }
 );
 
-export function createIllustrationBlock(
+export const illustrationsFallback = new FeatureSpec(
+    [
+        {
+            event: 'inlineGraft',
+            stage: 'standard',
+            details: ({ context }) => ({ type: getSequence(context).type }),
+            guard: ({ workspace, context }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'fig'),
+            action: noaction
+        }
+    ],
+    'Ignore Illustrations',
+    { tag: 'show-illustrations', enabledValue: 'false' }
+);
+
+function showImages(workspace: RenderWorkspace) {
+    return (
+        !workspace.viewSettings.isBibleBook ||
+        checkSettingIs(workspace.stores.settings, 'display-images-in-bible-text', 'normal')
+    );
+}
+
+function createIllustrationBlock(
     workspace: Pick<RenderWorkspace, 'document' | 'config'>,
     source: string,
     caption: string | null
@@ -166,14 +194,6 @@ function extractFigureSource(element: RenderElement) {
     return source;
 }
 
-function shouldShowImage(workspace: RenderWorkspace) {
-    return (
-        workspace.viewSettings.illustrations &&
-        (!isBibleBook(workspace.stores.references) ||
-            workspace.viewSettings.bibleImages === 'normal')
-    );
-}
-
 async function checkImageExists(src: string, div: HTMLElement) {
     try {
         const response = await fetch(src, { method: 'HEAD' });
@@ -207,16 +227,6 @@ function showFullscreenPopup(imageSource: string) {
 
     document.body.appendChild(fullscreenDiv);
 }
-
-function showImage(workspace: RenderWorkspace) {
-    return workspace.viewSettings.illustrations && showImageInBook(workspace);
-}
-function showImageInBook(workspace: RenderWorkspace) {
-    const showBibleImage = workspace.viewSettings.bibleImages === 'normal';
-    const showImages = !workspace.viewSettings.isBibleBook || showBibleImage;
-    return showImages;
-}
-
 function illustrationsForChapter(workspace: RenderWorkspace) {
     const collection = workspace.stores.references.docSet.split('_')[1];
     return workspace.config.illustrations?.filter(

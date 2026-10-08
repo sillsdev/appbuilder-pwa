@@ -11,9 +11,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             stage: 'standard',
             details: ({ context }) => ({ lemma: getElement(context).atts['lemma'] }),
             guard: ({ context, workspace }) =>
-                matchElement(context, 'usfm:w') &&
-                workspace.viewSettings.glossaryWords &&
-                renderIfRegularOrIfHackedIntro(workspace),
+                matchElement(context, 'usfm:w') && renderIfRegularOrIfHackedIntro(workspace),
             action: ({ context, workspace }) => {
                 const a = workspace.document.createElement('a');
                 a.setAttribute('data-match', getElement(context).atts['lemma']?.[0] ?? '');
@@ -39,9 +37,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             stage: 'standard',
             details: ({ context }) => ({ lemma: getElement(context).atts['lemma'] }),
             guard: ({ context, workspace }) =>
-                matchElement(context, 'usfm:w') &&
-                workspace.viewSettings.glossaryWords &&
-                renderIfRegularOrIfHackedIntro(workspace),
+                matchElement(context, 'usfm:w') && renderIfRegularOrIfHackedIntro(workspace),
             action: ({ workspace }) => {
                 const a = workspace.scopeManager.pop('wrapper:glossary').root;
 
@@ -82,5 +78,6 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             }
         }
     ],
-    'Glossary'
+    'Glossary',
+    { tag: 'glossary-words', enabledValue: 'true' }
 );

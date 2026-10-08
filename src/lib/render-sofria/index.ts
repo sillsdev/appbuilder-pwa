@@ -5,7 +5,7 @@ import { documentFeature } from './features/document';
 import { glossary } from './features/glossary';
 import { blockGrafts } from './features/grafts';
 import { inlineGrafts } from './features/grafts/inline';
-import { illustrations } from './features/illustrations';
+import { illustrations, illustrationsFallback } from './features/illustrations';
 import { metaContent } from './features/metaContent';
 import { milestones } from './features/milestones';
 import { sequences } from './features/sequence';
@@ -24,6 +24,7 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     chapterNumber,
     tables,
     illustrations,
+    illustrationsFallback,
     glossary,
     jmplinks,
     usfmWrappers,
