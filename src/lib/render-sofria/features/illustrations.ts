@@ -50,7 +50,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             stage: 'standard',
             details: ({ context, workspace }) => ({
                 src: extractFigureSource(getElement(context)),
-                phrase: workspace.scopeManager.find('phrase')
+                phrase: workspace.scopeManager.find('phrase')?.root.innerText
             }),
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),

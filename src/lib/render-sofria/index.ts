@@ -5,6 +5,7 @@ import { documentFeature } from './features/document';
 import { glossary } from './features/glossary';
 import { blockGrafts } from './features/grafts';
 import { inlineGrafts } from './features/grafts/inline';
+import { headings } from './features/headings';
 import { illustrations, illustrationsFallback } from './features/illustrations';
 import { introductions } from './features/introductions';
 import { jmplinks } from './features/jmplinks';
@@ -20,6 +21,7 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     blockGrafts,
     introductions,
     titles,
+    headings,
     inlineGrafts,
     sequences,
     documentFeature,

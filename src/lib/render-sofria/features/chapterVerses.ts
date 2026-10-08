@@ -49,7 +49,7 @@ export const chapterVerses = new FeatureSpec([
         stage: 'fallback',
         details: ({ context, workspace }) => ({
             v: getElement(context).atts['number'],
-            phrase: workspace.scopeManager.find('phrase')
+            phrase: workspace.scopeManager.find('phrase')?.root.innerText
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {

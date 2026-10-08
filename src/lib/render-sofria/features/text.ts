@@ -16,16 +16,13 @@ type TextScratch = {
     text?: { footnoteCallerIndex?: number };
 } & SharedTextScratch;
 
-export const text = new FeatureSpec<
-    {
-        paragraph?: { subheadingPrefixes?: string[] };
-    } & TextScratch &
-        SharedParaScratch
->([
+export const text = new FeatureSpec<TextScratch & SharedParaScratch>([
     {
         event: 'startParagraph',
         stage: 'init',
-        details: ({ workspace }) => ({ phrase: workspace.scopeManager.find('phrase') }),
+        details: ({ workspace }) => ({
+            phrase: workspace.scopeManager.find('phrase')?.root.innerText
+        }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             terminatePhrase(workspace);
@@ -46,18 +43,6 @@ export const text = new FeatureSpec<
                 }
 
                 workspace.scopeManager.push('paragraph:main', paragraphDiv);
-            } else if (matchSequence(context, 'heading')) {
-                const headerDiv = document.createElement('div');
-                headerDiv.classList.add(paraClass);
-
-                const prefix = paraClass.replaceAll(/[0-9]/g, '');
-                const subheaders = workspace.scratch.paragraph?.subheadingPrefixes ?? [];
-                subheaders.push(prefix);
-                addToScratchPad(workspace.scratch, 'paragraph', { subheadingPrefixes: subheaders });
-                const count = countSubheadingPrefixes(subheaders, prefix);
-
-                headerDiv.id = prefix + count;
-                workspace.scopeManager.push('paragraph:heading', headerDiv);
             }
         }
     },
@@ -99,12 +84,7 @@ export const text = new FeatureSpec<
             !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
             const text: string = workspace.scratch.text!.cleanedText!;
-            if (workspace.scopeManager.find('paragraph:heading') && matchBlock(context, 'usfm:r')) {
-                // This is for usfm:r like you will find in CUK Headers
-                // which contain references inline
-                const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
-                headerDiv.innerHTML += generateHTML(text, 'header-ref');
-            } else if (matchBlock(context, 'usfm:x')) {
+            if (matchBlock(context, 'usfm:x')) {
                 addGraftText(workspace, text, 'crossref');
             } else if (matchBlock(context, 'usfm:f')) {
                 addGraftText(workspace, text, 'footnote');
@@ -140,7 +120,7 @@ export const text = new FeatureSpec<
                 phraseDiv.appendChild(spanV);
                 workspace.scopeManager.push('phrase', phraseDiv);
             }
-            // heading without cross-ref, jmp, audioc, reflink, and everything else
+            // jmp, audioc, reflink, and everything else
             else {
                 addPhrases(workspace, text);
             }
@@ -149,7 +129,9 @@ export const text = new FeatureSpec<
     {
         event: 'endParagraph',
         stage: 'init',
-        details: ({ workspace }) => ({ phrase: workspace.scopeManager.find('phrase') }),
+        details: ({ workspace }) => ({
+            phrase: workspace.scopeManager.find('phrase')?.root.innerText
+        }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             terminatePhrase(workspace);
@@ -232,19 +214,10 @@ export const text = new FeatureSpec<
                         }
                         break;
                 }
-            } else if (matchSequence(context, 'heading')) {
-                workspace.scopeManager.promoteContent('paragraph:heading');
             }
         }
     }
 ]);
-
-function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
-    return subHeadings.reduce(
-        (count, subHeading) => (subHeading === labelPrefix ? count + 1 : count),
-        0
-    );
-}
 
 function addGraftText(workspace: RenderWorkspace, text: string, textType: 'crossref' | 'footnote') {
     const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
