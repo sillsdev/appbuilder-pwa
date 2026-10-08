@@ -17,13 +17,6 @@ export const inlineGrafts = new FeatureSpec<InlineGraftScratch>([
         action: (environment) => {
             const { context, workspace } = environment;
             const element = getElement(context);
-            const graftRecord: RenderElement = {
-                type: element.type,
-                subType: element.subType,
-                sequence: {},
-                atts: {},
-                text: ''
-            };
             if (element.subType === 'xref' || element.subType === 'footnote') {
                 const [callerRoot, contentRoot] = createFootnoteDiv(workspace, element);
                 workspace.scopeManager.push('inlineGraft:note_caller', callerRoot);

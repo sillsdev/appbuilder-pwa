@@ -1,37 +1,15 @@
 import { FeatureSpec } from '../../common';
-import { getBlock } from '../common';
+import { getBlock, matchBlock } from '../common';
+import { renderBlock } from '../common/grafts';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
-
-// HACK: for proskomma, introduction will only be given as a graft on chapter 1, so we need to pass chapter 1 into proskomma
-// open an issue?
 
 export const blockGrafts = new FeatureSpec([
     {
         event: 'blockGraft',
         stage: 'fallback',
-        action: (environment) => {
-            const { context, workspace } = environment;
-            const currentBlock = getBlock(context);
-
-            const subType = currentBlock.subType;
-
-            if (currentBlock.sequence) {
-                const div = workspace.document.createElement('div');
-                workspace.scopeManager.push(`blockGraft:${subType}`, div);
-
-                environment.context.renderer.renderSequence(environment);
-
-                const scope = workspace.scopeManager.pop(`blockGraft:${subType}`);
-
-                if (subType !== 'introduction' || workspace.hackRenderIntro) {
-                    workspace.scopeManager.appendChildrenFromContainer(scope.root);
-                } else {
-                    if (workspace.logSettings.blockGraft) {
-                        console.log('Skipping block %o', scope);
-                    }
-                }
-            }
-        }
+        details: ({ context }) => ({ type: getBlock(context).subType }),
+        guard: ({ context }) => !matchBlock(context, 'introduction'),
+        action: (environment) => renderBlock(environment, getBlock(environment.context).subType)
     }
 ]);
