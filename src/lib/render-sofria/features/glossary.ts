@@ -54,6 +54,9 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
         {
             event: 'endDocument',
             stage: 'standard',
+            details: ({ workspace }) => ({
+                count: workspace.root.querySelectorAll('span.glossary').length
+            }),
             action({ workspace }) {
                 workspace.root.querySelectorAll('span.glossary').forEach((el) => {
                     el.addEventListener('click', (e) => {
