@@ -1,4 +1,4 @@
-import { FeatureSpec } from '../../common';
+import { FeatureSpec, noaction } from '../../common';
 import { getBlock, matchBlock } from '../common';
 import { renderBlock } from '../common/grafts';
 
@@ -11,5 +11,11 @@ export const blockGrafts = new FeatureSpec([
         details: ({ context }) => ({ type: getBlock(context).subType }),
         guard: ({ context }) => !matchBlock(context, 'introduction'),
         action: (environment) => renderBlock(environment, getBlock(environment.context).subType)
+    },
+    {
+        event: 'blockGraft',
+        stage: 'cleanup',
+        details: ({ context }) => ({ type: getBlock(context).subType }),
+        action: noaction
     }
 ]);
