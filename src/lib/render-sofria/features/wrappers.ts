@@ -3,9 +3,8 @@ import {
     renderIfRegularOrIfHackedIntro,
     type RenderEnvironment
 } from '$lib/render-sofria/common';
-import { extractUSFMClassName, matchElement } from '../common';
-import { terminatePhrase } from '../common/text';
-import { jmplinks } from './jmplinks';
+import { extractUSFMClassName, matchElement } from './common';
+import { terminatePhrase } from './common/text';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     return (
@@ -40,5 +39,3 @@ export const usfmWrappers = new FeatureSpec([
         }
     }
 ]);
-
-export { jmplinks };
