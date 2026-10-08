@@ -1,23 +1,9 @@
 import { addToScratchPad, FeatureSpec } from '$lib/render-sofria/common';
-import {
-    ensureTrailingSlash,
-    filenameWithoutPath,
-    padWithInitialZeros
-} from '$lib/scripts/stringUtils';
 import { getElement } from './common';
-import { terminatePhrase } from './common/text';
-
-const clips = import.meta.glob('./*', {
-    import: 'default',
-    eager: true,
-    query: '?url',
-    base: '/src/gen-assets/clips'
-}) as Record<string, string>;
 
 export const milestones = new FeatureSpec<{
     milestone?: {
         listNums?: Record<number, number>;
-        audioClipCount?: number;
     };
 }>([
     {
@@ -76,10 +62,6 @@ export const milestones = new FeatureSpec<{
                 const span = workspace.document.createElement('span');
                 span.classList.add(...styles);
                 workspace.scopeManager.push('milestone:zcstyle', span);
-            } else if (element.subType === 'usfm:zaudioc') {
-                const a = workspace.document.createElement('a');
-                a.href = decodeURIComponent(element.atts['link'][0]);
-                workspace.scopeManager.push('milestone:zaudioc', a);
             }
         }
     },
@@ -90,64 +72,6 @@ export const milestones = new FeatureSpec<{
             const element = getElement(context);
             if (element.subType === 'usfm:zcstyle') {
                 workspace.scopeManager.promoteContent('milestone:zcstyle');
-            } else if (element.subType === 'usfm:zaudioc') {
-                terminatePhrase(workspace);
-                const a = workspace.scopeManager.pop('milestone:zaudioc').root as HTMLAnchorElement;
-                const filename = filenameWithoutPath(a.href);
-                let src = '';
-
-                const audioConfig = workspace.config.audio;
-
-                if (audioConfig?.files && audioConfig?.sources) {
-                    const audioFile = audioConfig.files.find((x) => x.name === filename);
-                    if (audioFile) {
-                        const audioSource = audioConfig.sources[audioFile.src];
-                        if (audioSource) {
-                            if (audioSource.type === 'assets') {
-                                src = clips[`./${filename}`] ?? 'clips/' + filename;
-                            } else if (audioSource.type === 'download') {
-                                const address = audioSource.address;
-                                src = ensureTrailingSlash(address) + filename;
-                            }
-                        }
-                    }
-                } else {
-                    console.warn('Audio configuration is not properly initialized.');
-                }
-                if (src) {
-                    const audioClipCount = (workspace.scratch.milestone?.audioClipCount ?? 0) + 1;
-                    const audio = document.createElement('audio');
-                    const audioId = 'audio' + padWithInitialZeros(audioClipCount.toString(), 3);
-
-                    audio.id = audioId;
-                    audio.src = src;
-                    audio.setAttribute('preload', 'auto');
-
-                    a.href = 'javascript:void(0)';
-                    a.classList.add('audioclip');
-                    a.addEventListener(
-                        'click',
-                        function remoteAudioClipHandler(event: MouseEvent) {
-                            event.stopPropagation();
-                            const el: HTMLAudioElement | null = workspace.root.querySelector(
-                                `audio[id="${audioId}"]`
-                            );
-                            el?.play();
-                        },
-                        false
-                    );
-
-                    workspace.scopeManager.appendContent(audio);
-                    workspace.scopeManager.appendContent(a);
-                    addToScratchPad(workspace.scratch, 'milestone', {
-                        audioClipCount
-                    });
-                } else {
-                    console.warn(`Could not resolve audio clip: ${filename}`);
-                    const span = workspace.document.createElement('span');
-                    span.innerHTML = a.innerHTML;
-                    workspace.scopeManager.appendContent(span);
-                }
             }
         }
     }
