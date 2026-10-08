@@ -38,6 +38,7 @@
             'Already installed? Look for this icon on your home screen or in your list of apps.'
     );
     const installButtonText = $derived($t['Install_Button'] || 'Install');
+    const useOnlineText = $derived($t['Install_Use_Online'] || 'Use online');
     const installingText = $derived(
         $t['Install_Installing'] || 'Installing… you can close this tab.'
     );
@@ -164,4 +165,7 @@
             {iosStepsText}
         </p>
     {/if}
+    <a href={resolve('/')} class="text-sm underline py-2 px-4 mt-4">
+        {useOnlineText}
+    </a>
 </div>
