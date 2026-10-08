@@ -53,13 +53,13 @@ export const chapterVerses = new FeatureSpec([
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            workspace.currentTextPosition.verse = 'none';
-
             terminatePhrase(workspace);
 
             addSpanAfterVerse(workspace, 'bookmarks');
             addSpanAfterVerse(workspace, 'notes');
             addPlanDiv(workspace, getElement(context).atts['number']);
+
+            workspace.currentTextPosition.verse = 'none';
         }
     }
 ]);
@@ -67,9 +67,17 @@ export const chapterVerses = new FeatureSpec([
 function addSpanAfterVerse(workspace: RenderWorkspace, idPrefix: string) {
     const span = workspace.document.createElement('span');
     span.id = idPrefix + workspace.currentTextPosition.verse;
-    const queryString = `div[data-verse="${workspace.currentTextPosition.verse}"][data-phrase="${workspace.currentTextPosition.phraseIndex}"]`;
-    const el =
-        workspace.scopeManager.find('paragraph')?.root.querySelector(queryString) ??
-        workspace.root.querySelector(queryString);
-    el?.parentNode?.insertBefore(span, el.nextSibling);
+    const verseDiv = workspace.scopeManager.find(
+        `verses:${workspace.currentTextPosition.verse}`
+    )?.root;
+    if (verseDiv) {
+        verseDiv.append(span);
+    } else {
+        const queryString = `div[data-verse="${workspace.currentTextPosition.verse}"]:not([data-phrase])`;
+        const el = (workspace.scopeManager.find('paragraph') ?? workspace)?.root.querySelector(
+            queryString
+        );
+        console.log(el);
+        el?.parentNode?.append(span);
+    }
 }
