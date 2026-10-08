@@ -65,7 +65,7 @@ function findBookmarkElementForVerse(workspace: RenderWorkspace, verse: number) 
     return null; // No matching element found
 }
 function findDataElementForVerse(workspace: RenderWorkspace, verse: number) {
-    const elements = workspace.root.querySelectorAll('[data-verse][data-phrase="a"]');
+    const elements = workspace.root.querySelectorAll('[data-verse]:not([data-phrase])');
 
     for (const element of elements) {
         const verseData = element.getAttribute('data-verse');
