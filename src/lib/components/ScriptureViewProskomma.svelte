@@ -23,7 +23,6 @@ LOGGING:
         glossary: Promise<GlossaryQueryResult>;
         themeColors: Record<string, string>;
         verseLayout: string;
-        viewShowBibleVideos: string;
         userSettings: FeatureConfig;
         font: string;
         proskomma: SABProskomma;
@@ -104,7 +103,6 @@ LOGGING:
         glossary,
         themeColors,
         verseLayout,
-        viewShowBibleVideos,
         userSettings,
         font,
         proskomma,
@@ -296,7 +294,6 @@ LOGGING:
         workspace.config = scriptureConfig;
         workspace.viewSettings = {
             isBibleBook: isBibleBook(references, workspace.config),
-            bibleVideos: viewShowBibleVideos,
             redLetters,
             verseLayout
         };

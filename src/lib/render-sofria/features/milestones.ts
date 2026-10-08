@@ -4,10 +4,8 @@ import {
     filenameWithoutPath,
     padWithInitialZeros
 } from '$lib/scripts/stringUtils';
-import { createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
 import { getElement } from './common';
 import { terminatePhrase } from './common/text';
-import { type SharedParaScratch } from './text';
 
 const clips = import.meta.glob('./*', {
     import: 'default',
@@ -16,15 +14,12 @@ const clips = import.meta.glob('./*', {
     base: '/src/gen-assets/clips'
 }) as Record<string, string>;
 
-export const milestones = new FeatureSpec<
-    {
-        milestone?: {
-            listNums?: Record<number, number>;
-            currentVideoIndex?: number;
-            audioClipCount?: number;
-        };
-    } & SharedParaScratch
->([
+export const milestones = new FeatureSpec<{
+    milestone?: {
+        listNums?: Record<number, number>;
+        audioClipCount?: number;
+    };
+}>([
     {
         event: 'startMilestone',
         stage: 'fallback',
@@ -81,28 +76,6 @@ export const milestones = new FeatureSpec<
                 const span = workspace.document.createElement('span');
                 span.classList.add(...styles);
                 workspace.scopeManager.push('milestone:zcstyle', span);
-            } else if (element.subType === 'usfm:zvideo') {
-                const id = element.atts['id'][0];
-                const video = workspace.config.videos?.find((x) => x.id === id);
-                let div: HTMLElement | null = null;
-                if (video) {
-                    const idx = workspace.scratch.milestone?.currentVideoIndex ?? 0;
-                    div = createVideoBlock(document, video, idx);
-                    addToScratchPad(workspace.scratch, 'milestone', { currentVideoIndex: idx + 1 });
-                } else {
-                    // Proskomma did replacement of slashes in id
-                    const videoUrl = id.replace(/÷/g, '/');
-                    div = createVideoBlockFromUrl(
-                        document,
-                        videoUrl,
-                        workspace.config.mainFeatures
-                    );
-                }
-                if (div) {
-                    const deferredEls = workspace.scratch.paragraph?.deferredEls ?? [];
-                    deferredEls.push(div);
-                    addToScratchPad(workspace.scratch, 'paragraph', { deferredEls });
-                }
             } else if (element.subType === 'usfm:zaudioc') {
                 const a = workspace.document.createElement('a');
                 a.href = decodeURIComponent(element.atts['link'][0]);

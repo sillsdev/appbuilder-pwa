@@ -16,6 +16,7 @@ import { sequences } from './features/sequence';
 import { tables } from './features/table';
 import { text } from './features/text';
 import { titles } from './features/titles';
+import { videos } from './features/videos';
 import { usfmWrappers } from './features/wrappers';
 
 export const renderFeatures: Array<FeatureSpec<any>> = [
@@ -33,6 +34,7 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     tables,
     illustrations,
     illustrationsFallback,
+    videos,
     glossary,
     jmplinks,
     usfmWrappers,

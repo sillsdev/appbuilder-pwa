@@ -179,7 +179,6 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         };
         viewSettings: {
             isBibleBook: boolean;
-            bibleVideos: string;
             redLetters: boolean;
             verseLayout: string;
             verseRangeNumber?: string;

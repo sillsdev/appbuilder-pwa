@@ -10,13 +10,11 @@ import { createLetterIndex } from '../util';
 import { extractClassName, getBlock, getElement, matchBlock, matchSequence } from './common';
 import { addPhrases, getPhraseDiv, terminatePhrase, type SharedTextScratch } from './common/text';
 
-export type SharedParaScratch = { paragraph?: { deferredEls?: HTMLElement[] } };
-
 type TextScratch = {
     text?: { footnoteCallerIndex?: number };
 } & SharedTextScratch;
 
-export const text = new FeatureSpec<TextScratch & SharedParaScratch>([
+export const text = new FeatureSpec<TextScratch>([
     {
         event: 'startParagraph',
         stage: 'init',
@@ -143,10 +141,7 @@ export const text = new FeatureSpec<TextScratch & SharedParaScratch>([
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ context, workspace }) {
-            if (matchSequence(context, 'main') && !workspace.hackRenderIntro) {
-                workspace.scratch.paragraph?.deferredEls?.forEach((el) =>
-                    workspace.scopeManager.appendContent(el, 'paragraph:main')
-                );
+            if (matchSequence(context, 'main')) {
                 addToScratchPad(workspace.scratch, 'paragraph', { deferredEls: [] });
 
                 /**
