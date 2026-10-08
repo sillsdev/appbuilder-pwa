@@ -12,12 +12,12 @@ export const direction = derived([refs, userSettings], ([$refs, $userSettings]) 
     if (direction === 'interface-language') {
         const code = $userSettings['interface-language'] as string;
         if (code) {
-            direction = config.interfaceLanguages?.writingSystems[code].textDirection ?? direction;
+            direction = config.interfaceLanguages?.writingSystems[code]?.textDirection ?? direction;
         }
     } else if (direction === 'text') {
         direction =
             scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.style
                 ?.textDirection ?? direction;
     }
-    return direction.toLowerCase() as 'ltr' | 'rtl';
+    return (direction ?? 'ltr').toLowerCase() as 'ltr' | 'rtl';
 });

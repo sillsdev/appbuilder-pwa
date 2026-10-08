@@ -1,6 +1,10 @@
 import { browser } from '$app/environment';
 import { readable, writable } from 'svelte/store';
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * A Svelte store that persists its value in localStorage.
  *
@@ -18,7 +22,14 @@ export function persistedLocal<
             const stored = localStorage.getItem(key);
             if (stored !== null) {
                 try {
-                    set(JSON.parse(stored));
+                    const parsed = JSON.parse(stored);
+                    // Layer stored values over the initial object so keys added
+                    // since the value was saved still get their defaults
+                    set(
+                        isPlainObject(initial) && isPlainObject(parsed)
+                            ? ({ ...initial, ...parsed } as T)
+                            : parsed
+                    );
                 } catch {
                     // if parsing fails, fall back to initial
                     set(initial);
