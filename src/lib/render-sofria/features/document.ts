@@ -3,9 +3,8 @@ import { deselectAllElements } from '$lib/scripts/verseSelectUtil';
 import { addVideoLinks, createVideoBlock } from '$lib/video';
 import { get } from 'svelte/store';
 import { FeatureSpec, type RenderWorkspace } from '../common';
-import { placeElement } from './common/media';
+import { mediaForChapter, placeElement } from './common/media';
 import { addPlanDiv } from './common/plans';
-import { createIllustrationBlock } from './illustrations';
 
 export const documentFeature = new FeatureSpec([
     {
@@ -137,26 +136,8 @@ function showVideo(workspace: RenderWorkspace) {
     return showVideos;
 }
 
-function videosForChapter(workspace: RenderWorkspace) {
-    const collection = workspace.stores.references.docSet.split('_')[1];
-    return workspace.config.videos?.filter(
-        (x) =>
-            x.placement &&
-            x.placement.collection === collection &&
-            (x.placement.ref.startsWith(
-                workspace.stores.references.book + ' ' + workspace.stores.references.chapter + ':'
-            ) ||
-                x.placement.ref.startsWith(
-                    workspace.stores.references.book +
-                        '.' +
-                        workspace.stores.references.chapter +
-                        '.'
-                ))
-    );
-}
-
 function addVideos(workspace: RenderWorkspace) {
-    const videos = videosForChapter(workspace);
+    const videos = mediaForChapter(workspace, 'videos');
     if (videos && workspace.root) {
         videos.forEach((video, index) => {
             if (video.placement) {
