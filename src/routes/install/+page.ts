@@ -25,11 +25,13 @@ export const load: PageLoad = async ({ fetch }) => {
     // The manifest and icon names are hashed at build time, so read the icon from the manifest
     const manifestUrl = new URL(manifestHref.url, document.baseURI);
     let name = config.name;
+    let shortName = '';
     let iconUrl = '';
     try {
         const response = await fetch(manifestUrl);
         const manifest = await response.json();
         name = manifest.name || name;
+        shortName = manifest.short_name || '';
         const icon = pickIcon(manifest.icons ?? []);
         if (icon) {
             // Icon paths are relative to the manifest
@@ -39,5 +41,6 @@ export const load: PageLoad = async ({ fetch }) => {
         console.error('Unable to read manifest for install page', e);
     }
 
-    return { name, iconUrl };
+    // Mobile home screens label the icon with short_name, falling back to name
+    return { name, shortName: shortName || name, iconUrl };
 };

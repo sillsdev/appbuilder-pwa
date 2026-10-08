@@ -26,6 +26,8 @@
     const showIosSteps = isIOS();
     // iOS ignores manifest icons and uses the apple-touch-icon for the home screen
     const iconUrl = $derived(showIosSteps ? appleIconHref : data.iconUrl);
+    // Android and iOS label the home screen icon with short_name; desktop uses name
+    const isMobile = showIosSteps || /Android/i.test(navigator.userAgent);
 
     // Translation strings with fallback (actual string keys will be added to 14.7)
     const instructionText = $derived(
@@ -122,21 +124,26 @@
     style:background-color={$backgroundColor}
     style:color={$themeColors['TextColor']}
 >
+    <h1 class="text-3xl font-bold mb-6">{data.name}</h1>
     {#if iconUrl}
+        <!-- Shown like the home screen: icon with its label underneath -->
         <img
             src={iconUrl}
-            alt={data.name}
-            class="w-24 h-24 mb-5"
+            alt=""
+            class="w-24 h-24"
+            class:mb-5={!isMobile}
             style="border-radius:20%;box-shadow:0 4px 16px rgba(0,0,0,0.15);"
         />
+        {#if isMobile}
+            <p class="text-xl mt-2 mb-5 max-w-[120px] truncate">{data.shortName}</p>
+        {/if}
     {/if}
-    <h1 class="text-[26px] font-bold mb-2.5">{data.name}</h1>
-    <p class="text-[15px] leading-[1.7] mb-2 max-w-[340px] opacity-80">
+    <p class="text-base mb-4 max-w-[250px] opacity-80">
         {instructionText}
     </p>
     <!-- The browser only offers to install when the app isn't installed yet -->
     {#if !deferredPrompt && !status}
-        <p class="text-[13px] mb-7 max-w-[300px] opacity-60">
+        <p class="text-sm mb-7 max-w-[300px] opacity-60">
             {alreadyInstalledText}
         </p>
     {/if}
@@ -150,9 +157,10 @@
             {installButtonText}
         </button>
     {/if}
-    <p class="text-[15px] font-medium min-h-[22px]" style:color="#276749">{statusText}</p>
+
+    <p class="text-base font-medium min-h-[22px]" style:color="#276749">{statusText}</p>
     {#if showIosSteps}
-        <p class="text-[15px] leading-[1.9] max-w-[300px]">
+        <p class="text-base leading-[1.9] max-w-[300px]">
             {iosStepsText}
         </p>
     {/if}
