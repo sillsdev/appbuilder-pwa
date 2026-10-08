@@ -237,10 +237,6 @@
                     glossary: $glossary,
                     themeColors: $themeColors,
                     verseLayout: getSettingString($userSettingsOrDefault, 'verse-layout'),
-                    viewShowBibleVideos: getSettingString(
-                        $userSettingsOrDefault,
-                        'display-videos-in-bible-text'
-                    ),
                     userSettings: $userSettingsOrDefault,
                     font: $currentFont!,
                     proskomma: data?.proskomma,
