@@ -1,33 +1,24 @@
-import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderEnvironment } from '../common';
-import { matchSequence } from './common';
+import {
+    FeatureSpec,
+    noaction,
+    renderIfRegularOrIfHackedIntro,
+    type RenderEnvironment
+} from '../common';
+import { getSequence, matchSequence } from './common';
 
 export const sequences = new FeatureSpec([
     {
         event: 'startSequence',
         stage: 'fallback',
+        details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ context, workspace }) {
-            if (matchSequence(context, 'title')) {
-                const div = document.createElement('div');
-                div.setAttribute('data-verse', 'title');
-                div.setAttribute('data-phrase', 'none');
-                div.classList.add('scroll-item');
-                workspace.scopeManager.push('sequence:title', div);
-            }
-        }
+        action: noaction
     },
     {
         event: 'endSequence',
         stage: 'fallback',
+        details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action: ({ context, workspace }) => {
-            if (matchSequence(context, 'title')) {
-                const div = workspace.scopeManager.find('sequence:title')?.root;
-                if (div) {
-                    div.innerHTML += `<div class="b"></div><div class="b"></div>`;
-                }
-                workspace.scopeManager.promoteContent('sequence:title');
-            }
-        }
+        action: noaction
     }
 ]);
