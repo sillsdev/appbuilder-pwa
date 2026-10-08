@@ -38,6 +38,8 @@
         currentFont,
         direction,
         fontChoices,
+        getSettingBoolean,
+        getSettingString,
         glossary,
         highlights,
         isFirstLaunch,
@@ -200,19 +202,16 @@
                     notes: $notes,
                     highlights: $highlights,
                     maxSelections: config.mainFeatures['annotation-max-select'] as number,
-                    redLetters: $userSettingsOrDefault['red-letters'] as boolean,
+                    redLetters: getSettingBoolean($userSettingsOrDefault, 'red-letters'),
                     references: $refs,
                     glossary: $glossary,
                     themeColors: $themeColors,
-                    verseLayout: $userSettingsOrDefault['verse-layout'] as string,
-                    viewShowBibleImages: $userSettingsOrDefault[
-                        'display-images-in-bible-text'
-                    ] as string,
-                    viewShowBibleVideos: $userSettingsOrDefault[
+                    verseLayout: getSettingString($userSettingsOrDefault, 'verse-layout'),
+                    viewShowBibleVideos: getSettingString(
+                        $userSettingsOrDefault,
                         'display-videos-in-bible-text'
-                    ] as string,
-                    viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                    viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
+                    ),
+                    userSettings: $userSettingsOrDefault,
                     font: $currentFont!,
                     proskomma: data?.proskomma,
                     setReference: refs.set,

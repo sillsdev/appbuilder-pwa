@@ -1,14 +1,15 @@
-import type { ScriptureConfig } from '$config';
+import type { FeatureConfig, ScriptureConfig } from '$config';
 import type { BookmarkItem } from '$lib/data/bookmarks';
 import type { HighlightItem } from '$lib/data/highlights';
 import type { NoteItem } from '$lib/data/notes';
 import type { PlansData } from '$lib/data/plansData';
-import type {
-    GlossaryBlock,
-    GlossaryQueryResult,
-    Modal,
-    PlanStore,
-    ScriptureLogConfig
+import {
+    checkSettingIs,
+    type GlossaryBlock,
+    type GlossaryQueryResult,
+    type Modal,
+    type PlanStore,
+    type ScriptureLogConfig
 } from '$lib/data/stores';
 import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
 import { checkFeatureValueIs } from '$lib/scripts/configUtils';
@@ -178,10 +179,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         };
         viewSettings: {
             isBibleBook: boolean;
-            bibleImages: string;
             bibleVideos: string;
-            illustrations: boolean;
-            glossaryWords: boolean;
             redLetters: boolean;
             verseLayout: string;
             verseRangeNumber?: string;
@@ -210,6 +208,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             lastPlanReference: boolean;
             themeColors: Record<string, string>;
             modal: Modal;
+            settings: FeatureConfig;
         };
         queries: {
             notes: Promise<NoteItem[]>;
@@ -246,7 +245,8 @@ function warnOnDuplicateSection(section: RenderStage | undefined) {
 export function compileActionDictionary(
     features: FeatureSpec<any>[],
     config: Readonly<ScriptureConfig>,
-    references: ReferenceStore
+    references: ReferenceStore,
+    settings: FeatureConfig
 ) {
     const result: ActionDictionary = {};
     for (const f of features) {
@@ -258,7 +258,8 @@ export function compileActionDictionary(
                 f.flag.enabledValue,
                 references.collection,
                 references.book
-            );
+            ) ||
+            checkSettingIs(settings, f.flag.tag, f.flag.enabledValue);
 
         if (f.flag) {
             console.warn(

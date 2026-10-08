@@ -23,10 +23,8 @@ LOGGING:
         glossary: Promise<GlossaryQueryResult>;
         themeColors: Record<string, string>;
         verseLayout: string;
-        viewShowBibleImages: string;
         viewShowBibleVideos: string;
-        viewShowIllustrations: boolean;
-        viewShowGlossaryWords: boolean;
+        userSettings: FeatureConfig;
         font: string;
         proskomma: SABProskomma;
         setReference: (value: Reference) => void;
@@ -39,6 +37,7 @@ LOGGING:
     /* eslint-disable svelte/no-dom-manipulating */
 
     import { scriptureConfig } from '$assets/config';
+    import type { FeatureConfig } from '$config';
     import type { BookmarkItem } from '$lib/data/bookmarks';
     import type { HighlightItem } from '$lib/data/highlights';
     import type { NoteItem } from '$lib/data/notes';
@@ -81,7 +80,6 @@ LOGGING:
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
-    import { checkFeatureValueIs } from '$lib/scripts/configUtils';
     import * as numerals from '$lib/scripts/numeralSystem';
     import {
         generateHTML,
@@ -106,10 +104,8 @@ LOGGING:
         glossary,
         themeColors,
         verseLayout,
-        viewShowBibleImages,
         viewShowBibleVideos,
-        viewShowIllustrations,
-        viewShowGlossaryWords,
+        userSettings,
         font,
         proskomma,
         setReference,
@@ -122,7 +118,7 @@ LOGGING:
     const currentDocset = $derived(references.docSet);
 
     const actionsDict: ActionDictionary = $derived(
-        compileActionDictionary(renderFeatures, scriptureConfig, references)
+        compileActionDictionary(renderFeatures, scriptureConfig, references, userSettings)
     );
 
     const fontSize = $derived(bodyFontSize + 'px');
@@ -297,16 +293,13 @@ LOGGING:
                 (x) => x.id === references.collection
             )?.features['ref-verse-range-separator'] as string
         };
+        workspace.config = scriptureConfig;
         workspace.viewSettings = {
-            isBibleBook: isBibleBook(references),
-            bibleImages: viewShowBibleImages,
+            isBibleBook: isBibleBook(references, workspace.config),
             bibleVideos: viewShowBibleVideos,
-            illustrations: viewShowIllustrations,
-            glossaryWords: viewShowGlossaryWords,
             redLetters,
             verseLayout
         };
-        workspace.config = scriptureConfig;
         workspace.events = {
             navigate(ref: Reference) {
                 setReference(ref);
@@ -374,7 +367,8 @@ LOGGING:
             language: $language,
             lastPlanReference,
             themeColors,
-            modal
+            modal,
+            settings: userSettings
         };
         workspace.queries = {
             notes,
