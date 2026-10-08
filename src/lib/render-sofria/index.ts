@@ -6,6 +6,7 @@ import { glossary } from './features/glossary';
 import { blockGrafts } from './features/grafts';
 import { inlineGrafts } from './features/grafts/inline';
 import { illustrations, illustrationsFallback } from './features/illustrations';
+import { introductions } from './features/introductions';
 import { jmplinks } from './features/jmplinks';
 import { metaContent } from './features/metaContent';
 import { milestones } from './features/milestones';
@@ -16,6 +17,7 @@ import { usfmWrappers } from './features/wrappers';
 
 export const renderFeatures: Array<FeatureSpec<any>> = [
     blockGrafts,
+    introductions,
     inlineGrafts,
     sequences,
     documentFeature,
