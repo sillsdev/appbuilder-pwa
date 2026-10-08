@@ -1,10 +1,11 @@
 import {
+    addToScratchPad,
     FeatureSpec,
     renderIfRegularOrIfHackedIntro,
     type RenderEnvironment
 } from '$lib/render-sofria/common';
 import { extractUSFMClassName, matchElement } from './common';
-import { terminatePhrase } from './common/text';
+import { addPhrases, terminatePhrase, type SharedTextScratch } from './common/text';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     return (
@@ -15,7 +16,9 @@ function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     );
 }
 
-export const usfmWrappers = new FeatureSpec([
+export const usfmWrappers = new FeatureSpec<
+    { wrapper?: { typeStack?: string[] } } & SharedTextScratch
+>([
     {
         event: 'startWrapper',
         stage: 'fallback',
@@ -26,6 +29,10 @@ export const usfmWrappers = new FeatureSpec([
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
+
+            const typeStack = workspace.scratch.wrapper?.typeStack ?? [];
+            typeStack.push(usfmWrapperType);
+            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
     {
@@ -36,6 +43,26 @@ export const usfmWrappers = new FeatureSpec([
             terminatePhrase(workspace);
 
             workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
+
+            const typeStack = workspace.scratch.wrapper?.typeStack ?? [];
+            typeStack.pop();
+            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
+        }
+    },
+    {
+        event: 'text',
+        stage: 'standard',
+        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty &&
+            !!workspace.scopeManager.find(
+                `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`
+            ),
+        action({ workspace }) {
+            addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
+                requireTop: true,
+                newPhrase: false
+            });
         }
     }
 ]);
