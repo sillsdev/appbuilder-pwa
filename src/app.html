@@ -7,11 +7,11 @@
         <script>
             // Capture the install prompt early; it can fire before the /install route mounts
             window.addEventListener('beforeinstallprompt', function (e) {
-                // Only suppress the browser's install UI on the install page (hash routing)
+                // Only take over the browser's install UI on the install page (hash routing)
                 if (/^#\/install(?:[/?]|$)/.test(window.location.hash)) {
                     e.preventDefault();
+                    window.deferredInstallPrompt = e;
                 }
-                window.deferredInstallPrompt = e;
             });
         </script>
         %sveltekit.head%
