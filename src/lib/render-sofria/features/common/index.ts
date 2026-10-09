@@ -4,24 +4,24 @@ export function getSequence(context: RenderContext) {
     return context.sequences[0];
 }
 
-export function matchSequence(context: RenderContext, type: string) {
-    return getSequence(context).type === type;
+export function matchSequence(context: RenderContext, type: string | RegExp) {
+    return !!getSequence(context).type.match(type);
 }
 
 export function getBlock(context: RenderContext) {
     return getSequence(context).block;
 }
 
-export function matchBlock(context: RenderContext, subType: string) {
-    return getBlock(context).subType === subType;
+export function matchBlock(context: RenderContext, subType: string | RegExp) {
+    return !!getBlock(context).subType?.match(subType);
 }
 
 export function getElement(context: RenderContext) {
     return getSequence(context).element;
 }
 
-export function matchElement(context: RenderContext, subType: string) {
-    return getElement(context).subType === subType;
+export function matchElement(context: RenderContext, subType: string | RegExp) {
+    return !!getElement(context).subType.match(subType);
 }
 
 export function extractClassName(el: { subType?: string }) {
