@@ -1,12 +1,7 @@
-import {
-    FeatureSpec,
-    noaction,
-    renderIfRegularOrIfHackedIntro,
-    type RenderEnvironment
-} from '../common';
-import { getSequence, matchSequence } from './common';
+import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
+import { getSequence } from './common';
 
-export const sequences = new FeatureSpec([
+export const sequences = new FeatureSpec('Default', [
     {
         event: 'startSequence',
         stage: 'fallback',
