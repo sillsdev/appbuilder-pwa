@@ -22,7 +22,7 @@
         .deferredInstallPrompt;
     let deferredPrompt: BeforeInstallPromptEvent | null = $state(earlyPrompt ?? null);
     let installing = $state(false);
-    let status: 'installing' | 'installed' | null = $state(null);
+    let status: 'installing' | 'installed' | 'dismissed' | null = $state(null);
     const showIosSteps = isIOS();
     // iOS ignores manifest icons and uses the apple-touch-icon for the home screen
     const iconUrl = $derived(showIosSteps ? appleIconHref : data.iconUrl);
@@ -82,14 +82,15 @@
             return;
         }
         installing = true;
-        await deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        installing = false;
-        // A prompt can only be shown once
-        delete (window as Window & { deferredInstallPrompt?: unknown }).deferredInstallPrompt;
-        if (outcome === 'accepted') {
+        try {
+            await deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            status = outcome === 'accepted' ? 'installing' : 'dismissed';
+        } finally {
+            installing = false;
+            // A prompt can only be shown once, whatever the outcome
             deferredPrompt = null;
-            status = 'installing';
+            delete (window as Window & { deferredInstallPrompt?: unknown }).deferredInstallPrompt;
         }
     }
 
