@@ -60,8 +60,7 @@ export const usfmWrappers = new FeatureSpec<
             ),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
-                requireTop: true,
-                newPhrase: false
+                requireTop: true
             });
         }
     }
