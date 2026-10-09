@@ -1,6 +1,7 @@
 import type { FeatureSpec } from './common';
 import { audioclips } from './features/audio-clips';
 import { chapterVerses } from './features/chapterVerses';
+import { characterStyles, paragraphStyles } from './features/custom-styles';
 import { chapterNumber, verseNumbers } from './features/cv-numbers';
 import { documentFeature } from './features/document';
 import { glossary } from './features/glossary';
@@ -42,5 +43,7 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     metaContent,
     milestones,
     reflinks,
-    audioclips
+    audioclips,
+    paragraphStyles,
+    characterStyles
 ];
