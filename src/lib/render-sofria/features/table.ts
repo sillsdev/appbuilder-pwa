@@ -1,7 +1,7 @@
 import { addToScratchPad, FeatureSpec } from '../common';
 import { getElement, matchElement } from './common';
 
-export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>([
+export const tables = new FeatureSpec<{ table?: { colIndex?: number } }>('Tables', [
     {
         event: 'startTable',
         stage: 'fallback',

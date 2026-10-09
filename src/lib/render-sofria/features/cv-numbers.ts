@@ -16,6 +16,7 @@ type MarkScratch = {
 };
 
 export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
+    'Chapter Numbers',
     [
         {
             event: 'mark',
@@ -79,11 +80,11 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
             }
         }
     ],
-    'Chapter Numbers',
     { tag: 'show-chapter-numbers', enabledValue: 'true' }
 );
 
 export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
+    'Verse Numbers',
     [
         {
             event: 'mark',
@@ -107,7 +108,6 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
             }
         }
     ],
-    'Verse Numbers',
     { tag: 'show-verse-numbers', enabledValue: 'true' }
 );
 

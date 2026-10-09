@@ -4,7 +4,7 @@ import { renderBlock } from '../common/grafts';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
 
-export const blockGrafts = new FeatureSpec([
+export const blockGrafts = new FeatureSpec('Default', [
     {
         event: 'blockGraft',
         stage: 'fallback',

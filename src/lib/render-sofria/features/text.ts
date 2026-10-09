@@ -14,7 +14,7 @@ type TextScratch = {
     text?: { footnoteCallerIndex?: number };
 } & SharedTextScratch;
 
-export const text = new FeatureSpec<TextScratch>([
+export const text = new FeatureSpec<TextScratch>('Default', [
     {
         event: 'startParagraph',
         stage: 'init',

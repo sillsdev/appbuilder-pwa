@@ -24,7 +24,7 @@ export const audioclips = new FeatureSpec<
             audioClipCount?: number;
         };
     } & SharedTextScratch
->([
+>('Audio Clips', [
     {
         event: 'startMilestone',
         stage: 'standard',

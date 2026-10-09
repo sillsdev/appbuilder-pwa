@@ -4,7 +4,7 @@ import { get } from 'svelte/store';
 import { FeatureSpec, type RenderWorkspace } from '../common';
 import { addPlanDiv } from './common/plans';
 
-export const documentFeature = new FeatureSpec([
+export const documentFeature = new FeatureSpec('Default', [
     {
         event: 'startDocument',
         stage: 'fallback',

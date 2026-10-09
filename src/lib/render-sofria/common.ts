@@ -140,7 +140,7 @@ export type ActionDictionary = Partial<{ [key in RenderEvent]: Array<RenderActio
 export type FeatureFlag = { tag: string; enabledValue: string };
 
 export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> {
-    constructor(actions: Array<RenderAction<Scratch>>, name?: string, flag?: FeatureFlag) {
+    constructor(name: string, actions: Array<RenderAction<Scratch>>, flag?: FeatureFlag) {
         this.flag = flag;
         this.actions = actions.map((a) => ({ ...a, name: a.name || name }));
     }

@@ -3,7 +3,7 @@ import { getElement } from './common';
 import { addPlanDiv } from './common/plans';
 import { terminatePhrase } from './common/text';
 
-export const chapterVerses = new FeatureSpec([
+export const chapterVerses = new FeatureSpec('Default', [
     {
         event: 'startChapter',
         stage: 'fallback',

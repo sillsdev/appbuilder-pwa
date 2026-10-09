@@ -5,6 +5,7 @@ import { addPhrases, type SharedTextScratch } from './common/text';
 
 // if glossary words are disabled, glossary wrappers will be handled in usfmWrappers in ../index.ts
 export const glossary = new FeatureSpec<SharedTextScratch>(
+    'Glossary',
     [
         {
             event: 'startWrapper',
@@ -81,6 +82,5 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             }
         }
     ],
-    'Glossary',
     { tag: 'glossary-words', enabledValue: 'true' }
 );
