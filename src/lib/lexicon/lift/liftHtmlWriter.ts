@@ -635,8 +635,12 @@ class LiftHtmlWriter {
             previousField?.kind === 'relation' &&
             previousField.type === relation.type &&
             !!this.options.resolveRelation(previousField.ref);
+        // Unlike native, also require the next relation to resolve. Otherwise it writes nothing
+        // and this relation's line and block are never closed.
         const isSameRelationAsNext =
-            nextField?.kind === 'relation' && nextField.type === relation.type;
+            nextField?.kind === 'relation' &&
+            nextField.type === relation.type &&
+            !!this.options.resolveRelation(nextField.ref);
 
         if (!isSameRelationAsPrevious) {
             this.html += this.startPara('relation-block');
