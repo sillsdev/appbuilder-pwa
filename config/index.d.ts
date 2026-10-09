@@ -145,6 +145,26 @@ export type DictionaryWritingSystemConfig = WritingSystemConfig & {
     features?: {
         [name: string]: boolean;
     };
+    enabled: boolean;
+};
+
+/**
+ * Display configuration for a LIFT field (from <fields> in appdef.xml).
+ * See FieldConfig.java in app-lib-dictionary.
+ */
+export type DictionaryFieldConfig = {
+    // complex, field, note, pronunciation, relation, variant
+    type: string;
+    name: string;
+    show: boolean;
+    labelShown: boolean;
+    // lang -> label text, in document order (first is the fallback)
+    labels: {
+        [lang: string]: string;
+    };
+    labelPosition: 'above' | 'beside';
+    beforeItem: string;
+    afterItem: string;
 };
 export type MenuItemConfig = {
     type: string;
@@ -332,9 +352,14 @@ export type PlanItem = {
 
 export type DictionaryConfig = AppConfig & {
     programType: 'DAB';
+    // Format of the xml column in data.sqlite
+    lexiconType: 'lift' | 'flex-xhtml';
     writingSystems: {
         [key: string]: DictionaryWritingSystemConfig;
     };
+    // Writing system codes in lexicon order. The l="n" attribute in LIFT entries indexes into this.
+    writingSystemOrder: string[];
+    fields?: DictionaryFieldConfig[];
     indexes: {
         [key: string]: {
             displayed: boolean;
