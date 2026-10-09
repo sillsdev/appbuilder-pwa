@@ -147,6 +147,16 @@ describe('liftEntriesToHtml', () => {
         expect(div.querySelector('div.relation-block')).toBeNull();
     });
 
+    test('closes a relation block when the next relation cannot be resolved', () => {
+        const xml = `<e id="5"><l><f l="0"><t>x</t></f></l><s id="5"><g l="1"><t>g</t></g><r type="cross ref" ref="S2"/><r type="cross ref" ref="S999"/><n type="reference"><f l="1"><t>Ref</t></f></n></s></e>`;
+        const div = render(liftEntriesToHtml([parse(xml)], options()));
+
+        expect(div.querySelectorAll('div.relation-line')).toHaveLength(1);
+        expect(div.querySelector('div.relation-line')?.textContent).toBe('Cross ref: A');
+        expect(div.querySelector('div.relation-block div.note-block')).toBeNull();
+        expect(div.querySelector('div.note-block')).not.toBeNull();
+    });
+
     test('writes sense numbers, homonym index and sub-entries', () => {
         const beena = parse(ENTRY_BEENA);
         const div = render(
