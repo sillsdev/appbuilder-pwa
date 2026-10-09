@@ -1,4 +1,4 @@
-import { addToScratchPad, FeatureSpec } from '$lib/render-sofria/common';
+import { addToScratchPad, FeatureSpec, noaction } from '$lib/render-sofria/common';
 import { getElement } from './common';
 
 export const milestones = new FeatureSpec<{
@@ -51,28 +51,13 @@ export const milestones = new FeatureSpec<{
                         para.classList.add('list-[square]');
                     }
                 }
-            } else if (element.subType === 'usfm:zstyle') {
-                const styles = element.atts['id'] as unknown as string[];
-                const para = workspace.scopeManager.find('paragraph')?.root;
-                if (para) {
-                    para.classList.add(...styles);
-                }
-            } else if (element.subType === 'usfm:zcstyle') {
-                const styles = element.atts['id'] as unknown as string[];
-                const span = workspace.document.createElement('span');
-                span.classList.add(...styles);
-                workspace.scopeManager.push('milestone:zcstyle', span);
             }
         }
     },
     {
         event: 'endMilestone',
         stage: 'fallback',
-        action: ({ context, workspace }) => {
-            const element = getElement(context);
-            if (element.subType === 'usfm:zcstyle') {
-                workspace.scopeManager.promoteContent('milestone:zcstyle');
-            }
-        }
+        details: ({ context }) => ({ type: getElement(context).subType }),
+        action: noaction
     }
 ]);
