@@ -95,7 +95,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             guard: ({ workspace }) =>
                 !workspace.scratch.text?.empty &&
                 renderIfRegularOrIfHackedIntro(workspace) &&
-                !!workspace.scopeManager.find('wrapper:figure'),
+                workspace.scopeManager.has('wrapper:figure'),
             action({ workspace }) {
                 const text: string = workspace.scratch.text!.cleanedText!;
                 // This is a HACK!

@@ -226,11 +226,9 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
  * 3. Proskomma has encountered a title block graft and we are rendering the introduction instead of chapter 1.
  */
 export function renderIfRegularOrIfHackedIntro(workspace: RenderWorkspace) {
-    const hasIntroductionGraft = !!workspace.scopeManager.find('blockGraft:introduction');
-    const hasTitleGraft = !!workspace.scopeManager.find('blockGraft:title');
     return (
-        hasIntroductionGraft === workspace.hackRenderIntro ||
-        (hasTitleGraft && workspace.hackRenderIntro)
+        workspace.scopeManager.has('blockGraft:introduction') === workspace.hackRenderIntro ||
+        (workspace.scopeManager.has('blockGraft:title') && workspace.hackRenderIntro)
     );
 }
 
