@@ -3,11 +3,22 @@ import { RenderScope, type RenderScopeWithSubType } from './common';
 class ScopeManager {
     constructor(stack?: RenderScope[]) {
         this.stack = stack ?? [];
+        this.map = new Map();
     }
     private stack: Array<RenderScope>;
+    private map: Map<RenderScopeWithSubType, number>;
+
+    private updateMap(level: RenderScopeWithSubType, type: 'add' | 'remove') {
+        const scope = level.split(':')[0] as RenderScopeWithSubType;
+        this.map.set(scope, (this.map.get(scope) ?? 0) + type === 'add' ? 1 : -1);
+        if (scope !== level) {
+            this.map.set(level, (this.map.get(level) ?? 0) + type === 'add' ? 1 : -1);
+        }
+    }
 
     push(level: RenderScopeWithSubType, root: HTMLElement) {
         this.stack.push(new RenderScope(level, root));
+        this.updateMap(level, 'add');
     }
 
     /**
@@ -24,6 +35,7 @@ class ScopeManager {
                     );
                     this.debug();
                 }
+                this.updateMap(level, 'remove');
                 return this.stack.splice(i, 1)[0];
             }
         }
@@ -46,11 +58,13 @@ class ScopeManager {
             );
         }
 
+        this.updateMap(assertScopeType, 'remove');
         return this.stack.pop()!;
     }
 
     reset() {
         this.stack = [];
+        this.map.clear();
     }
 
     find(level?: RenderScopeWithSubType) {
@@ -64,6 +78,10 @@ class ScopeManager {
         } else {
             return this.stack.length;
         }
+    }
+
+    has(level: RenderScopeWithSubType) {
+        return !!this.map.get(level);
     }
 
     at(depth: number) {
@@ -116,6 +134,8 @@ class ScopeManager {
                 `Tried to promote scope ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
             );
         }
+
+        this.updateMap(assertScopeType, 'remove');
 
         const innerRoot = this.stack.pop()?.root;
         if (layers > 1) {

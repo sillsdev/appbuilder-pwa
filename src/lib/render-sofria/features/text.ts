@@ -87,8 +87,8 @@ export const text = new FeatureSpec<TextScratch>('Default', [
             } else if (matchBlock(context, 'usfm:f')) {
                 addGraftText(workspace, text, 'footnote');
             } else if (matchBlock(context, 'usfm:tr')) {
-                if (workspace.scopeManager.find('wrapper:cell')) {
-                    if (workspace.scopeManager.find('wrapper:xt')) {
+                if (workspace.scopeManager.has('wrapper:cell')) {
+                    if (workspace.scopeManager.has('wrapper:xt')) {
                         const references = text.split('; ');
                         for (let i = 0; i < references.length; i++) {
                             const spanV = document.createElement('span');
@@ -109,7 +109,7 @@ export const text = new FeatureSpec<TextScratch>('Default', [
                         );
                     }
                 }
-            } else if (workspace.scopeManager.find('wrapper:xt')) {
+            } else if (workspace.scopeManager.has('wrapper:xt')) {
                 const spanV = document.createElement('span');
                 spanV.classList.add('reflink');
                 const refText = generateHTML(text, 'header-ref');

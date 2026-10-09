@@ -108,7 +108,7 @@ export const audioclips = new FeatureSpec<
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && !!workspace.scopeManager.find('milestone:zaudioc'),
+            !workspace.scratch.text?.empty && workspace.scopeManager.has('milestone:zaudioc'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true,

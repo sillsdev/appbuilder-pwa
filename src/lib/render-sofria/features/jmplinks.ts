@@ -75,7 +75,7 @@ export const jmplinks = new FeatureSpec('JMP Links', [
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && !!workspace.scopeManager.find('wrapper:jmp'),
+            !workspace.scratch.text?.empty && workspace.scopeManager.has('wrapper:jmp'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true,

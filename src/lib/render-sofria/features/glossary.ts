@@ -25,7 +25,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             stage: 'standard',
             details: ({ workspace }) => workspace.scratch.text?.cleanedText,
             guard: ({ workspace }) =>
-                !workspace.scratch.text?.empty && !!workspace.scopeManager.find('wrapper:glossary'),
+                !workspace.scratch.text?.empty && workspace.scopeManager.has('wrapper:glossary'),
             action({ workspace }) {
                 addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                     requireTop: true,

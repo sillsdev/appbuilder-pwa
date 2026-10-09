@@ -46,7 +46,7 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', [
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && !!workspace.scopeManager.find('milestone:zreflink'),
+            !workspace.scratch.text?.empty && workspace.scopeManager.has('milestone:zreflink'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true,

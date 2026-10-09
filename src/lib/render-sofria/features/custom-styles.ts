@@ -56,7 +56,7 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && !!workspace.scopeManager.find(`milestone:zcstyle`),
+            !workspace.scratch.text?.empty && workspace.scopeManager.has(`milestone:zcstyle`),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true
