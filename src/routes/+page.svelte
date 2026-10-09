@@ -15,9 +15,11 @@
 
     let { data }: Props = $props();
 
+    // The start page only redirects, so replace its history entry; otherwise Back
+    // lands here and is immediately redirected forward again
     onMount(async () => {
         if (isDAB(config)) {
-            await goto(resolve(`/lexicon`));
+            await goto(resolve(`/lexicon`), { replaceState: true });
             return;
         }
 
@@ -26,11 +28,11 @@
             $audioActive = data.audio === '1';
         }
         if (data?.ref) {
-            await navigateToTextReference(data.ref);
+            await navigateToTextReference(data.ref, { replaceState: true });
         } else if (launchAction === 'contents' || ($isFirstLaunch && launchAction)) {
-            goto(resolve(`/contents/1`));
+            goto(resolve(`/contents/1`), { replaceState: true });
         } else {
-            goto(resolve(`/text`));
+            goto(resolve(`/text`), { replaceState: true });
         }
     });
 </script>
