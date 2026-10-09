@@ -18,7 +18,7 @@ function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
 
 export const usfmWrappers = new FeatureSpec<
     { wrapper?: { typeStack?: string[] } } & SharedTextScratch
->([
+>('Default', [
     {
         event: 'startWrapper',
         stage: 'fallback',

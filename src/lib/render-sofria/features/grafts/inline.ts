@@ -9,7 +9,7 @@ import { getElement } from '../common';
 
 type InlineGraftScratch = { inlineGraft?: { footnoteIdIndex?: number } };
 
-export const inlineGrafts = new FeatureSpec<InlineGraftScratch>([
+export const inlineGrafts = new FeatureSpec<InlineGraftScratch>('Default', [
     {
         event: 'inlineGraft',
         stage: 'fallback',
