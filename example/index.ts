@@ -3,17 +3,23 @@ import { createReadStream, existsSync, readdirSync } from 'fs';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import unzipper from 'unzipper';
-import type IndexData from '../test_data/projects/index.json';
+import {
+    DEFAULT_INDEX_URL,
+    downloadProject,
+    fetchIndex,
+    type TestProject
+} from './remote-test-files';
 
 // Constants
-const INDEX_FILE = path.resolve('test_data/projects/index.json');
+const PROJECTS_DIR = path.resolve('test_data/projects');
 // Flatpak doesn't have access to system tmp, so use home instead
 const TEMP_DIR = path.join(os.platform() === 'linux' ? os.homedir() : os.tmpdir(), 'pwa_temp');
 const APP_DEF_EXT = '.appDef';
 
 // Determine the appropriate execution command for `scripture-app-builder`
-const getExecutionCommand = (program: string): string => {
+export const getExecutionCommand = (program: string): string => {
     const appName = program === 'sab' ? 'Scripture App Builder' : 'Dictionary App Builder';
     const jarName = program === 'sab' ? 'scripture-app-builder.jar' : 'dictionary-app-builder.jar';
     const exeName = program === 'sab' ? 'scripture-app-builder' : 'dictionary-app-builder';
@@ -69,7 +75,7 @@ function checkCommandExists(command: string, argument: string): boolean {
 }
 
 // Ensure the temp directory exists
-async function ensureTempDir(): Promise<void> {
+export async function ensureTempDir(): Promise<void> {
     try {
         // if temp dir already exists, delete and recreate
         if (existsSync(TEMP_DIR)) {
@@ -81,24 +87,60 @@ async function ensureTempDir(): Promise<void> {
     }
 }
 
-// Load `index.json` and find the project ZIP file
-async function getProjectProps(projectName: string): Promise<[string, string]> {
-    try {
-        const data = await fs.readFile(INDEX_FILE, 'utf8');
-        const indexData: typeof IndexData = JSON.parse(data);
-        for (const [key, value] of Object.entries(indexData)) {
-            if (value.projects.map((p) => p.path).includes(`${projectName}.zip`)) {
-                return [key, path.resolve(`test_data/projects/${key}/${projectName}.zip`)];
-            }
+type Options = {
+    indexUrl: string;
+    projectName?: string;
+    downloadAll: boolean;
+};
+
+function parseArgs(argv: string[]): Options {
+    const options: Options = { indexUrl: DEFAULT_INDEX_URL, downloadAll: false };
+    for (let i = 0; i < argv.length; i++) {
+        const arg = argv[i];
+        switch (arg) {
+            case '--index':
+                options.indexUrl = argv[++i];
+                break;
+            case '--download-all':
+                options.downloadAll = true;
+                break;
+            default:
+                if (arg.startsWith('--') || options.projectName) {
+                    throw new Error(`Unknown argument "${arg}"`);
+                }
+                options.projectName = arg;
         }
+    }
+    if (!options.indexUrl) {
+        throw new Error('No index URL. Pass --index <url>');
+    }
+    return options;
+}
+
+function downloadExample(project: TestProject, indexUrl: string): Promise<string> {
+    return downloadProject(project, indexUrl, path.join(PROJECTS_DIR, project.program));
+}
+
+async function getProjectProps(
+    projects: TestProject[],
+    projectName: string,
+    indexUrl: string
+): Promise<[string, string]> {
+    const project = projects.find((p) => path.basename(p.file) === `${projectName}.zip`);
+    if (!project) {
         throw new Error(`Project "${projectName}" not found in index.json`);
-    } catch (error) {
-        throw new Error(`Error reading index.json: ${error.message}`);
+    }
+    return [project.program, await downloadExample(project, indexUrl)];
+}
+
+async function downloadAll(projects: TestProject[], indexUrl: string): Promise<void> {
+    for (const project of projects) {
+        await downloadExample(project, indexUrl);
     }
 }
 
 // Extract the ZIP file
-async function extractZip(zipFilePath: string): Promise<void> {
+export async function extractZip(zipFilePath: string): Promise<void> {
     return new Promise((resolve, reject) => {
         createReadStream(zipFilePath)
             .pipe(unzipper.Extract({ path: TEMP_DIR }))
@@ -108,66 +150,104 @@ async function extractZip(zipFilePath: string): Promise<void> {
 }
 
 // Find the `.appDef` file
-async function findAppDefFile(): Promise<string> {
+export async function findAppDefFile(): Promise<string> {
     try {
-        const files = readdirSync(TEMP_DIR);
-        const appDefFile = files.find((file) => file.endsWith(APP_DEF_EXT));
-        if (!appDefFile) {
-            throw new Error('No .appDef file found in the extracted directory');
+        const entries = readdirSync(TEMP_DIR, { withFileTypes: true });
+        const appDefFile = entries.find((entry) => entry.name.endsWith(APP_DEF_EXT));
+        if (appDefFile) {
+            return path.join(TEMP_DIR, appDefFile.name);
         }
-        return path.join(TEMP_DIR, appDefFile);
+        for (const dir of entries.filter((entry) => entry.isDirectory())) {
+            const nested = readdirSync(path.join(TEMP_DIR, dir.name)).find((file) =>
+                file.endsWith(APP_DEF_EXT)
+            );
+            if (nested) {
+                return path.join(TEMP_DIR, dir.name, nested);
+            }
+        }
+        throw new Error('No .appDef file found in the extracted directory');
     } catch (error) {
         throw new Error(`Error finding .appDef file: ${error.message}`);
     }
 }
 
 // Run the application
-function runCommand(executionCommand: string, appDefFile: string): void {
+export function runCommand(executionCommand: string, appDefFile: string): Promise<boolean> {
     const command = `${executionCommand} -load "${appDefFile}" -build-modern-pwa-data-files -no-save -fp pwa-repo="${process.cwd()}"`;
     console.log(`Running: ${command}`);
 
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-        }
-        console.log(`stdout: ${stdout}`);
+    return new Promise((resolve) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error: ${error.message}`);
+                resolve(false);
+                return;
+            }
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+            }
+            console.log(`stdout: ${stdout}`);
+            resolve(true);
+        });
     });
 }
 
-// Main function
-(async function main(): Promise<void> {
-    const projectName = process.argv[2];
-    if (!projectName) {
-        console.error('Error: Please provide a project name (e.g., web_gospels)');
-        process.exit(1);
-    }
+export async function prepareAndBuild(zipFilePath: string, program: string): Promise<void> {
+    console.log('Ensuring temp directory...');
+    await ensureTempDir();
 
+    console.log('Extracting ZIP file...');
+    await extractZip(zipFilePath);
+
+    console.log('Finding .appDef file...');
+    const appDefFile = await findAppDefFile();
+    console.log(`Found: ${appDefFile}`);
+
+    console.log('Determining execution command...');
+    const executionCommand = getExecutionCommand(program);
+    console.log(`Using command: ${executionCommand}`);
+
+    console.log('Running command...');
+    if (!(await runCommand(executionCommand, appDefFile))) {
+        throw new Error('App Builder build failed');
+    }
+}
+
+// Main function
+async function main(): Promise<void> {
     try {
-        console.log(`Finding project "${projectName}" in index.json...`);
-        const [commandName, zipFilePath] = await getProjectProps(projectName);
+        const options = parseArgs(process.argv.slice(2));
+        if (!options.projectName && !options.downloadAll) {
+            console.error(
+                'Error: Please provide a project name (e.g., web_gospels) or --download-all'
+            );
+            process.exit(1);
+        }
+
+        const projects = await fetchIndex(options.indexUrl, 'projects');
+
+        if (options.downloadAll) {
+            await downloadAll(projects, options.indexUrl);
+            if (!options.projectName) {
+                return;
+            }
+        }
+
+        console.log(`Finding project "${options.projectName}" in index.json...`);
+        const [commandName, zipFilePath] = await getProjectProps(
+            projects,
+            options.projectName,
+            options.indexUrl
+        );
         console.log(`Found project at: ${zipFilePath}`);
 
-        console.log('Ensuring temp directory...');
-        await ensureTempDir();
-
-        console.log('Extracting ZIP file...');
-        await extractZip(zipFilePath);
-
-        console.log('Finding .appDef file...');
-        const appDefFile = await findAppDefFile();
-        console.log(`Found: ${appDefFile}`);
-
-        console.log('Determining execution command...');
-        const executionCommand = getExecutionCommand(commandName);
-        console.log(`Using command: ${executionCommand}`);
-
-        console.log('Running command...');
-        runCommand(executionCommand, appDefFile);
+        await prepareAndBuild(zipFilePath, commandName);
     } catch (error) {
         console.error(`Failed: ${error.message}`);
+        process.exitCode = 1;
     }
-})();
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    main();
+}

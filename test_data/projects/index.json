@@ -2,35 +2,112 @@
     "sab": {
         "projects": [
             {
+                "name": "WEB Gospels",
+                "description": "",
+                "file": "sab/web_gospels.zip",
+                "size": "9.87 MB",
+                "size_bytes": 9874965,
+                "sha1": "3f94dabaa10cbe7e3e3d3835683d09ffaf646052",
                 "tests": [
                     "src/",
                     "convert/tests/sab/"
-                ],
-                "path": "web_gospels.zip"
+                ]
             },
             {
+                "name": "SAB Test PWA",
+                "description": "Set of files for unit test",
+                "file": "sab/sab_test_pwa.zip",
+                "size": "68.28 MB",
+                "size_bytes": 68276576,
+                "sha1": "47cc6e9048713c8c2b1bae923a20c41bca8ee6b8",
                 "tests": [
                     "src/"
-                ],
-                "path": "sab_test_pwa.zip"
+                ]
             },
             {
+                "name": "WEB Gospels",
+                "description": "",
+                "file": "sab/web_gospels_nested.zip",
+                "size": "10.00 MB",
+                "size_bytes": 9998586,
+                "sha1": "625d46f3444a1f92f74214144da6cd7a6535f8fd",
                 "tests": [
                     "src/",
                     "convert/tests/sab/"
-                ],
-                "path": "web_gospels_nested.zip"
+                ]
+            }
+        ],
+        "bloom": [
+            {
+                "name": "Bloom Big Fish",
+                "description": "Talking book. English is the only one of three languages that has audio.",
+                "file": "sab/bloom_tests/bloom_big_fish.zip",
+                "size": "3.86 MB",
+                "size_bytes": 3863782,
+                "sha1": "c21cd9116298ec5387becc4ea8a6513e8279658d",
+                "tests": [
+                    "convert/tests/bloom/"
+                ]
+            },
+            {
+                "name": "Bloom Solomon",
+                "description": "Bloom book with inmotion over images using Ken Burns effects.",
+                "file": "sab/bloom_tests/bloom_solomon.zip",
+                "size": "17.53 MB",
+                "size_bytes": 17532447,
+                "sha1": "ab5be935e4f76068ec00083ec7268e6f7f545e16",
+                "tests": [
+                    "convert/tests/bloom/"
+                ]
+            },
+            {
+                "name": "Bloom Swahili Sign Language",
+                "description": "Video testing, quiz at the end. Ironically has sound for answers.",
+                "file": "sab/bloom_tests/bloom_swahili_sign_language.zip",
+                "size": "1.01 GB",
+                "size_bytes": 1010084637,
+                "sha1": "ab58a931a8eaa40c617189de26a9d1b7f6b666fa",
+                "tests": [
+                    "convert/tests/bloom/"
+                ]
+            },
+            {
+                "name": "Bloom Three Gardens",
+                "description": "Talking book (audio is low) multiple quiz types in one book.",
+                "file": "sab/bloom_tests/bloom_three_gardens.zip",
+                "size": "55.11 MB",
+                "size_bytes": 55113797,
+                "sha1": "20434e70733718f325cf7eef47503b706156fd5c",
+                "tests": [
+                    "convert/tests/bloom/"
+                ]
+            },
+            {
+                "name": "Bloom Tok Pisin Activity",
+                "description": "Note that the activity is in Adzera not Tok Pisin or English.",
+                "file": "sab/bloom_tests/bloom_tok_pisin_activity.zip",
+                "size": "20.81 MB",
+                "size_bytes": 20811985,
+                "sha1": "5949c896b90c6f58cac3e276e4286c20709a955a",
+                "tests": [
+                    "convert/tests/bloom/"
+                ]
             }
         ]
     },
     "dab": {
         "projects": [
             {
+                "name": "Hanga Dictionary",
+                "description": "",
+                "file": "dab/hanga.zip",
+                "size": "2.20 MB",
+                "size_bytes": 2195315,
+                "sha1": "bf11090c81ebd6138b4dc809025bc8db3c2501f9",
                 "tests": [
                     "src/",
                     "convert/tests/dab/"
-                ],
-                "path": "hanga.zip"
+                ]
             }
         ]
     }
