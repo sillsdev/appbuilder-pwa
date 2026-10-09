@@ -5,7 +5,7 @@ export const milestones = new FeatureSpec<{
     milestone?: {
         listNums?: Record<number, number>;
     };
-}>([
+}>('Default', [
     {
         event: 'startMilestone',
         stage: 'fallback',

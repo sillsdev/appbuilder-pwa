@@ -18,6 +18,7 @@ const illustrationFiles = import.meta.glob('./*', {
 }) as Record<string, string>;
 
 export const illustrations = new FeatureSpec<SharedTextScratch>(
+    'Illustrations',
     [
         {
             event: 'inlineGraft',
@@ -135,11 +136,11 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             }
         }
     ],
-    'Illustrations',
     { tag: 'show-illustrations', enabledValue: 'true' }
 );
 
 export const illustrationsFallback = new FeatureSpec(
+    'Ignore Illustrations',
     [
         {
             event: 'inlineGraft',
@@ -150,7 +151,6 @@ export const illustrationsFallback = new FeatureSpec(
             action: noaction
         }
     ],
-    'Ignore Illustrations',
     { tag: 'show-illustrations', enabledValue: 'false' }
 );
 
