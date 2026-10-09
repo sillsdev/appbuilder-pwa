@@ -55,9 +55,7 @@ export const usfmWrappers = new FeatureSpec<
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
             !workspace.scratch.text?.empty &&
-            !!workspace.scopeManager.find(
-                `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`
-            ),
+            workspace.scopeManager.has(`wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true
