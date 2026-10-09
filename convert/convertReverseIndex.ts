@@ -158,7 +158,15 @@ export class ConvertReverseIndex extends Task {
         for (const lang in configOutput.data.writingSystems) {
             const writingSystem = configOutput.data.writingSystems[lang];
 
-            if (writingSystem.reversalFilename && writingSystem.alphabet) {
+            // XHTML: writing system has a reversal filename
+            // LIFT: displayed index in <indexes> with a reversal/lexicon-<lang>.idx file
+            const hasReversal =
+                configOutput.data.lexiconType === 'lift'
+                    ? !!configOutput.data.indexes?.[lang]?.displayed &&
+                      existsSync(path.join(this.dataDir, 'reversal', `lexicon-${lang}.idx`))
+                    : !!writingSystem.reversalFilename;
+
+            if (hasReversal && writingSystem.alphabet) {
                 if (verbose) {
                     console.log(`Processing reversal index for language: ${lang}`);
                 }

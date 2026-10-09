@@ -3,7 +3,13 @@ import path from 'path';
 import type { DictionaryWritingSystemConfig } from '$config';
 import jsdom from 'jsdom';
 import { expect, test } from 'vitest';
-import { parseDictionaryWritingSystem, parseFeatures } from '../../convertConfig';
+import {
+    parseDictionaryFields,
+    parseDictionaryWritingSystem,
+    parseFeatures,
+    parseLexiconType,
+    parseWritingSystemOrder
+} from '../../convertConfig';
 
 const dataDir = './data/';
 const dom = new jsdom.JSDOM(readFileSync(path.join(dataDir, 'appdef.xml')).toString(), {
@@ -41,6 +47,34 @@ if (programType === 'SAB') {
             expect(result[lang].inputButtons!.length).toBeGreaterThan(0);
             expect(Object.keys(result[lang])).not.toHaveLength(0);
         }
+    });
+
+    test('convertConfig: parse lexicon type', () => {
+        expect(['lift', 'flex-xhtml']).toContain(parseLexiconType(document));
+    });
+
+    test('convertConfig: parse dictionary fields', () => {
+        const fields = parseDictionaryFields(document, 0);
+        for (const field of fields) {
+            expect(field.type).not.toEqual('');
+            expect(['above', 'beside']).toContain(field.labelPosition);
+        }
+    });
+
+    test('convertConfig: writing system order puts vernacular first', () => {
+        const xml = `<writing-systems>
+            <writing-system code="en" type="gloss"/>
+            <writing-system code="abc" type="main"/>
+            <writing-system code="fr" type="gloss"/>
+            <writing-system code="abc-Zxxx-x-audio" type="main"/>
+        </writing-systems>`;
+        const doc = new jsdom.JSDOM(xml, { contentType: 'text/xml' }).window.document;
+        expect(parseWritingSystemOrder(doc.getElementsByTagName('writing-system'))).toEqual([
+            'abc',
+            'abc-Zxxx-x-audio',
+            'en',
+            'fr'
+        ]);
     });
 
     test('convertConfig: parse features', () => {
