@@ -1,6 +1,7 @@
 import config, { dictionaryConfig } from '$assets/config';
 import {
     displayNames,
+    getEntryIdForSense,
     initializeDatabase,
     reversals,
     vernacularLanguageId,
@@ -42,8 +43,15 @@ export const load: LayoutLoad = async ({ fetch }) => {
 
     const vernacularAlphabet = vernacularWritingSystem.alphabet;
 
+    const isLift = dictionaryConfig.lexiconType === 'lift';
+
     for (const [code, ws] of writingSystems) {
-        if ('reversalFilename' in ws) {
+        // LIFT reversal indexes come from <indexes> in appdef.xml (see ConvertReverseIndex)
+        const hasReversal = isLift
+            ? !!dictionaryConfig.indexes?.[code]?.displayed &&
+              !!reversalURLs[`./${code}/index.json`]
+            : 'reversalFilename' in ws;
+        if (hasReversal) {
             reversals.set(
                 code,
                 ws.alphabet && new SvelteMap(ws.alphabet.map((letter) => [letter, undefined]))
@@ -129,6 +137,15 @@ async function loadReversal(job: string[]) {
     const response = await fetch(reversalFile);
     if (response.ok) {
         const data: Record<string, { index: number; name: string }[]> = await response.json();
+        if (dictionaryConfig.lexiconType === 'lift') {
+            // LIFT reversal indexes refer to senses. Show each entry once.
+            for (const [name, entries] of Object.entries(data)) {
+                const ids = entries
+                    .map((entry) => getEntryIdForSense(entry.index))
+                    .filter((id) => id !== undefined);
+                data[name] = [...new Set(ids)].map((index) => ({ index, name }));
+            }
+        }
         reversals
             .get(code)
             ?.get(letter)

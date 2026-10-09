@@ -8,6 +8,7 @@ import type {
     BookTabConfig,
     BookTabsConfig,
     DictionaryConfig,
+    DictionaryFieldConfig,
     DictionaryWritingSystemConfig,
     ScriptureConfig,
     StyleConfig,
@@ -314,6 +315,9 @@ async function convertConfig(dataDir: string, verbose: number) {
         }
 
         data.writingSystems = writingSystems;
+        data.writingSystemOrder = parseWritingSystemOrder(writingSystemTags);
+        data.lexiconType = parseLexiconType(document);
+        data.fields = parseDictionaryFields(document, verbose);
         // Parsing indexes
         const indexes: { [key: string]: { displayed: boolean } } = {};
         const indexesTag = document.getElementsByTagName('indexes')[0];
@@ -1094,14 +1098,154 @@ export function parseDictionaryWritingSystem(
         reversalFilename = reversalFilenameTag.textContent?.trim();
     }
 
+    const enabled = element.getAttribute('enabled') !== 'false';
+
     return {
         ...writingSystemConfig,
         sortMethod,
         alphabet,
         inputButtons,
         features,
-        reversalFilename
+        reversalFilename,
+        enabled
     };
+}
+
+/**
+ * Order writing systems the way Lexicon.addOrGetWritingSystem does in the native app:
+ * vernacular writing systems first, followed by the others in document order.
+ * LIFT entries in data.sqlite refer to writing systems by index into this list.
+ */
+export function parseWritingSystemOrder(writingSystemTags: HTMLCollectionOf<Element>): string[] {
+    const order: { code: string; vernacular: boolean }[] = [];
+    for (const tag of writingSystemTags) {
+        const code = tag.getAttribute('code');
+        if (!code || order.some((ws) => ws.code === code)) {
+            continue;
+        }
+        const vernacular = (tag.getAttribute('type') ?? '').includes('main');
+        const firstNonVernacular = order.findIndex((ws) => !ws.vernacular);
+        if (!vernacular) {
+            order.push({ code, vernacular });
+        } else if (!order.some((ws) => ws.vernacular)) {
+            order.unshift({ code, vernacular });
+        } else if (firstNonVernacular >= 0) {
+            order.splice(firstNonVernacular, 0, { code, vernacular });
+        } else {
+            order.push({ code, vernacular });
+        }
+    }
+    return order.map((ws) => ws.code);
+}
+
+export function parseLexiconType(document: Document): DictionaryConfig['lexiconType'] {
+    const type = document.getElementsByTagName('lexicon-db')[0]?.getAttribute('type');
+    // LIFT is the default source type in the native app
+    return type === 'flex-xhtml' ? 'flex-xhtml' : 'lift';
+}
+
+/**
+ * Default label for a field, from FieldConfig.initFieldConfig in the native app.
+ * Used when the appdef.xml does not provide label translations.
+ */
+function defaultFieldLabel(type: string, name: string) {
+    const simpleName = name.replace(/[_-]/g, '').toLowerCase();
+    const lowerName = name.toLowerCase();
+    let labels: Record<string, string> = {};
+    let labelShown = true;
+    let show = true;
+    if (lowerName === 'ref' || simpleName === 'minorentry') {
+        labels = { default: 'See also:', fr: 'Voir aussi :' };
+    } else if (simpleName === 'literalmeaning') {
+        labels = { default: 'Lit:' };
+    } else if (lowerName === 'main') {
+        labels = { default: 'See main entry:' };
+    } else if (lowerName === '_component-lexeme') {
+        labels = { default: 'See:', fr: 'Voir :' };
+    } else if (
+        lowerName === 'encyclopedic' ||
+        simpleName === 'scientificname' ||
+        simpleName === 'summarydefinition' ||
+        lowerName === 'no especificado'
+    ) {
+        labelShown = false;
+    } else if (simpleName === 'importresidue') {
+        show = false;
+        labelShown = false;
+    } else if (type === 'variant' && lowerName === '(default)') {
+        labels = { default: 'Variant:' };
+    } else if (name.length > 0) {
+        labels = { default: name.charAt(0).toUpperCase() + name.substring(1) + ':' };
+    }
+    return { labels, labelShown, show };
+}
+
+export function parseDictionaryFields(
+    document: Document,
+    verbose: number
+): DictionaryFieldConfig[] {
+    const fields: DictionaryFieldConfig[] = [];
+    const fieldsTag = document.getElementsByTagName('fields')[0];
+    if (!fieldsTag) {
+        return fields;
+    }
+
+    for (const tag of fieldsTag.getElementsByTagName('field')) {
+        const type = tag.getAttribute('type');
+        if (!type) {
+            continue;
+        }
+        const name = tag.getAttribute('name') ?? '';
+        const defaults = defaultFieldLabel(type, name);
+
+        const showAttr = tag.getAttribute('show');
+        const show = showAttr ? showAttr === 'true' : defaults.show;
+
+        let labelShown = defaults.labelShown;
+        let labels = defaults.labels;
+        const labelTag = tag.getElementsByTagName('label')[0];
+        if (labelTag) {
+            const labelShowAttr = labelTag.getAttribute('show');
+            if (labelShowAttr) {
+                labelShown = labelShowAttr === 'true';
+            }
+            const translations = labelTag.getElementsByTagName('translation');
+            if (translations.length > 0) {
+                labels = { ...labels };
+                for (const translation of translations) {
+                    const lang = translation.getAttribute('lang');
+                    if (lang) {
+                        labels[lang] = translation.textContent ?? '';
+                    }
+                }
+            }
+        }
+
+        const features: Record<string, string> = {};
+        for (const feature of tag.getElementsByTagName('field-feature')) {
+            const featureName = feature.getAttribute('name');
+            const value = feature.getAttribute('value');
+            if (featureName && value !== null) {
+                features[featureName] = value;
+            }
+        }
+
+        fields.push({
+            type,
+            name,
+            show,
+            labelShown,
+            labels,
+            labelPosition: features['label-position'] === 'above' ? 'above' : 'beside',
+            beforeItem: features['before-item'] ?? '',
+            afterItem: features['after-item'] ?? ''
+        });
+    }
+
+    if (verbose) {
+        console.log(`Converted ${fields.length} dictionary fields`);
+    }
+    return fields;
 }
 
 export function parseMenuLocalizations(document: Document, verbose: number) {
