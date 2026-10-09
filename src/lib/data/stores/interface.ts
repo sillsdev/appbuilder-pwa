@@ -19,5 +19,6 @@ export const direction = derived([refs, userSettings], ([$refs, $userSettings]) 
             scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.style
                 ?.textDirection ?? direction;
     }
-    return (direction ?? 'ltr').toLowerCase() as 'ltr' | 'rtl';
+    // A failed lookup leaves a sentinel ('interface-language' or 'text'), so default to ltr
+    return (direction?.toLowerCase() === 'rtl' ? 'rtl' : 'ltr') as 'ltr' | 'rtl';
 });

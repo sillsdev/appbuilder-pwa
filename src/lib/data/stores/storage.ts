@@ -24,12 +24,13 @@ export function persistedLocal<
                 try {
                     const parsed = JSON.parse(stored);
                     // Layer stored values over the initial object so keys added
-                    // since the value was saved still get their defaults
-                    set(
-                        isPlainObject(initial) && isPlainObject(parsed)
-                            ? ({ ...initial, ...parsed } as T)
-                            : parsed
-                    );
+                    // since the value was saved still get their defaults.
+                    // A stored value that isn't an object can't be merged, so use initial.
+                    if (isPlainObject(initial)) {
+                        set(isPlainObject(parsed) ? ({ ...initial, ...parsed } as T) : initial);
+                    } else {
+                        set(parsed);
+                    }
                 } catch {
                     // if parsing fails, fall back to initial
                     set(initial);
