@@ -347,7 +347,7 @@ class LiftHtmlWriter {
             let partOfSpeechText = '';
             if (mode === 'part-of-speech-per-sense-number' && isNotBlank(sense.partOfSpeech)) {
                 // sense numbers and parts of speech associated with each of them
-                let str = sense.partOfSpeech;
+                let str = escapeHtml(sense.partOfSpeech);
                 if (!str.endsWith('.')) {
                     str = str + '.';
                 }
@@ -435,7 +435,7 @@ class LiftHtmlWriter {
             }
 
             this.html += this.startPara(paraStyle);
-            let text = this.addInitialSpaceIfRequired(partOfSpeech);
+            let text = this.addInitialSpaceIfRequired(escapeHtml(partOfSpeech));
             text = this.addFinalPunctuationIfRequired(text, '.');
             this.html += this.span('part-of-speech', text);
             this.html += this.endPara();
@@ -579,7 +579,7 @@ class LiftHtmlWriter {
 
             let value = getByWritingSystem(text, wsIndex);
             value = this.addInitialSpaceIfRequired(value);
-            value = fc.beforeItem + value + fc.afterItem;
+            value = escapeHtml(fc.beforeItem) + value + escapeHtml(fc.afterItem);
             value = this.addFinalPunctuationIfRequired(value, '.');
             this.html += this.span(spanClass(ws), value);
             this.html += this.endPara();
@@ -666,7 +666,11 @@ class LiftHtmlWriter {
         }
 
         this.html += `<a href="E-${linkedEntry.id}">`;
-        this.html += this.spanWs('relation-text', this.mainWritingSystem ?? null, linkedEntry.name);
+        this.html += this.spanWs(
+            'relation-text',
+            this.mainWritingSystem ?? null,
+            escapeHtml(linkedEntry.name)
+        );
         if (linkedEntry.homonymIndex > 0) {
             this.html += this.homonymIndex(linkedEntry.homonymIndex);
         }
@@ -769,7 +773,7 @@ class LiftHtmlWriter {
 
         let dialects = variant.traits
             .filter((t) => ['dialect', 'dialects'].includes(t.name.toLowerCase()))
-            .map((t) => t.value)
+            .map((t) => escapeHtml(t.value))
             .join(', ');
 
         this.writingSystems.forEach((ws, wsIndex) => {
@@ -790,7 +794,7 @@ class LiftHtmlWriter {
 
             let text = getByWritingSystem(variant.text, wsIndex);
             text = this.addInitialSpaceIfRequired(text);
-            text = fc!.beforeItem + text + fc!.afterItem;
+            text = escapeHtml(fc!.beforeItem) + text + escapeHtml(fc!.afterItem);
             text = this.addFinalPunctuationIfRequired(text, '.');
             this.html += this.span(`variant-${ws.code}`, text);
 
@@ -827,7 +831,9 @@ class LiftHtmlWriter {
         }
         // Try label for interface language first, otherwise the first (default) label
         const label = fc.labels[this.options.language];
-        return isNotBlank(label ?? '') ? label : (Object.values(fc.labels).find(isNotBlank) ?? '');
+        return escapeHtml(
+            isNotBlank(label ?? '') ? label : (Object.values(fc.labels).find(isNotBlank) ?? '')
+        );
     }
 
     private span(className: string, text: string) {
@@ -916,12 +922,14 @@ function isNotBlank(text: string) {
     return text.trim() !== '';
 }
 
+// For plain text (attribute values, database columns, config) inserted as HTML.
+// Text from <t> elements is already escaped by parseLiftEntry, except for its <span> markup.
+function escapeHtml(text: string) {
+    return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+
 function escapeAttr(text: string) {
-    return text
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;');
+    return escapeHtml(text).replaceAll('"', '&quot;');
 }
 
 function format(input: string) {

@@ -190,4 +190,26 @@ describe('liftEntriesToHtml', () => {
         expect(div.querySelector('span.gloss-en')?.textContent).toBe('a');
         expect(html).toContain('<span class="gloss-en">.</span>');
     });
+
+    test('escapes plain text from attributes, the database and config', () => {
+        const xml = `<e id="5"><l><f l="0"><t>x</t></f></l><s id="5"><h value="n &lt;b&gt; &amp; adj"/><g l="1"><t>g</t></g><r type="cross ref" ref="S2"/><v><tr name="dialect" value="&lt;i&gt;North&lt;/i&gt;"/><f l="0"><t>y</t></f></v></s></e>`;
+        const div = render(
+            liftEntriesToHtml(
+                [parse(xml)],
+                options({
+                    fields: [
+                        ...fields.filter((f) => f.type !== 'relation'),
+                        field('relation', 'cross ref', 'See <also> & more:'),
+                        { ...field('variant', '(Default)', 'Variant:'), beforeItem: '<' }
+                    ],
+                    resolveRelation: () => ({ id: 2, name: 'A<b>', homonymIndex: 0 })
+                })
+            )
+        );
+
+        expect(div.querySelector('span.part-of-speech')?.textContent).toBe('n <b> & adj');
+        expect(div.querySelector('div.relation-line')?.textContent).toBe('See <also> & more: A<b>');
+        expect(div.querySelector('div.field-line')?.textContent).toBe('Variant: <y (<i>North</i>)');
+        expect(div.querySelector('b, i, also')).toBeNull();
+    });
 });
