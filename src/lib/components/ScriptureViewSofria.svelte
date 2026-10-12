@@ -279,6 +279,26 @@ LOGGING:
         }
     });
 
+    // Annotations are only read after query() awaits, so the render effect doesn't
+    // track them. Re-apply them to the rendered chapter whenever they change.
+    $effect(() => {
+        const annotations = Promise.all([highlights, bookmarks, notes]);
+        if (untrack(() => loading || displayingIntroduction)) {
+            return;
+        }
+        annotations.then(() => {
+            for (const span of container?.querySelectorAll('span[id^="bookmarks"]') ?? []) {
+                span.replaceChildren();
+            }
+            for (const div of container?.querySelectorAll('div[class*="hlp"]') ?? []) {
+                div.classList.remove(...[...div.classList].filter((c) => c.startsWith('hlp')));
+            }
+            addNotedVerses();
+            addBookmarkedVerses();
+            addHighlightedVerses();
+        });
+    });
+
     const countSubheadingPrefixes = (subHeadings: string[], labelPrefix: string) => {
         let result = 0;
         for (let i in subHeadings) {
