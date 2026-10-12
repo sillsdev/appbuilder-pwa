@@ -8,17 +8,24 @@ class ScopeManager {
     private stack: Array<RenderScope>;
     private map: Map<RenderScopeWithSubType, number>;
 
-    private updateMap(level: RenderScopeWithSubType, type: 'add' | 'remove') {
+    private updateMap(
+        level: RenderScopeWithSubType,
+        type: 'add' | 'remove',
+        subType: string | undefined
+    ) {
         const scope = level.split(':')[0] as RenderScopeWithSubType;
-        this.map.set(scope, (this.map.get(scope) ?? 0) + type === 'add' ? 1 : -1);
+        if (!level.includes(':') && subType) {
+            level += `:${subType}`;
+        }
+        this.map.set(scope, (this.map.get(scope) ?? 0) + (type === 'add' ? 1 : -1));
         if (scope !== level) {
-            this.map.set(level, (this.map.get(level) ?? 0) + type === 'add' ? 1 : -1);
+            this.map.set(level, (this.map.get(level) ?? 0) + (type === 'add' ? 1 : -1));
         }
     }
 
     push(level: RenderScopeWithSubType, root: HTMLElement) {
         this.stack.push(new RenderScope(level, root));
-        this.updateMap(level, 'add');
+        this.updateMap(level, 'add', this.stack.at(-1)?.subType);
     }
 
     /**
@@ -35,7 +42,7 @@ class ScopeManager {
                     );
                     this.debug();
                 }
-                this.updateMap(level, 'remove');
+                this.updateMap(level, 'remove', this.stack.at(i)?.subType);
                 return this.stack.splice(i, 1)[0];
             }
         }
@@ -58,7 +65,7 @@ class ScopeManager {
             );
         }
 
-        this.updateMap(assertScopeType, 'remove');
+        this.updateMap(assertScopeType, 'remove', this.stack.at(-1)?.subType);
         return this.stack.pop()!;
     }
 
@@ -135,7 +142,7 @@ class ScopeManager {
             );
         }
 
-        this.updateMap(assertScopeType, 'remove');
+        this.updateMap(assertScopeType, 'remove', this.stack.at(-1)?.subType);
 
         const innerRoot = this.stack.pop()?.root;
         if (layers > 1) {
@@ -157,7 +164,15 @@ class ScopeManager {
     }
 
     debug() {
-        console.warn([...this.stack]);
+        console.warn('%o', {
+            stack: [...this.stack],
+            lookup_table: Object.fromEntries(
+                this.map
+                    .entries()
+                    .toArray()
+                    .filter((e) => !!e[1])
+            )
+        });
     }
 }
 
