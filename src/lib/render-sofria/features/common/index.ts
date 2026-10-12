@@ -5,7 +5,8 @@ export function getSequence(context: RenderContext) {
 }
 
 export function matchSequence(context: RenderContext, type: string | RegExp) {
-    return !!getSequence(context).type.match(type);
+    const s = getSequence(context);
+    return typeof type === 'string' ? s.type === type : !!s.type.match(type);
 }
 
 export function getBlock(context: RenderContext) {
@@ -13,7 +14,8 @@ export function getBlock(context: RenderContext) {
 }
 
 export function matchBlock(context: RenderContext, subType: string | RegExp) {
-    return !!getBlock(context).subType?.match(subType);
+    const b = getBlock(context);
+    return typeof subType === 'string' ? b.subType === subType : !!b.subType?.match(subType);
 }
 
 export function getElement(context: RenderContext) {
@@ -21,7 +23,8 @@ export function getElement(context: RenderContext) {
 }
 
 export function matchElement(context: RenderContext, subType: string | RegExp) {
-    return !!getElement(context).subType.match(subType);
+    const e = getElement(context);
+    return typeof subType === 'string' ? e.subType === subType : !!e.subType.match(subType);
 }
 
 export function extractClassName(el: { subType?: string }) {
