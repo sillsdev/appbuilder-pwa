@@ -282,22 +282,32 @@ LOGGING:
     // Annotations are only read after query() awaits, so the render effect doesn't
     // track them. Re-apply them to the rendered chapter whenever they change.
     $effect(() => {
-        const annotations = Promise.all([highlights, bookmarks, notes]);
+        void [highlights, bookmarks, notes];
         if (untrack(() => loading || displayingIntroduction)) {
             return;
         }
-        annotations.then(() => {
+        applyAnnotations();
+    });
+
+    // Each call bumps the generation so a slower, older pass can't overwrite a newer one.
+    let annotationGeneration = 0;
+    function applyAnnotations() {
+        const generation = ++annotationGeneration;
+        Promise.all([highlights, bookmarks, notes]).then(([highlights, bookmarks, notes]) => {
+            if (generation !== annotationGeneration) {
+                return;
+            }
             for (const span of container?.querySelectorAll('span[id^="bookmarks"]') ?? []) {
                 span.replaceChildren();
             }
             for (const div of container?.querySelectorAll('div[class*="hlp"]') ?? []) {
                 div.classList.remove(...[...div.classList].filter((c) => c.startsWith('hlp')));
             }
-            addNotedVerses();
-            addBookmarkedVerses();
-            addHighlightedVerses();
+            addNotedVerses(notes);
+            addBookmarkedVerses(bookmarks);
+            addHighlightedVerses(highlights);
         });
-    });
+    }
 
     const countSubheadingPrefixes = (subHeadings: string[], labelPrefix: string) => {
         let result = 0;
@@ -801,26 +811,24 @@ LOGGING:
     function editNote(note: NoteItem) {
         modal.open(ModalType.Note, note);
     }
-    function addNotedVerses() {
-        notes.then((notes) => {
-            for (var k = 0; k < notes.length; k++) {
-                const note = notes[k];
-                const bookmarksSpan = container?.querySelector('#bookmarks' + note.verse);
-                if (!bookmarksSpan) {
-                    console.warn('No bookmarks span for verse %s', note.verse);
-                    continue;
-                }
-
-                const existingNoteSpan = container?.querySelector('#note' + k);
-                if (!existingNoteSpan) {
-                    let noteSpan = document.createElement('span');
-                    noteSpan.id = 'note' + k;
-                    noteSpan.innerHTML = noteSvg();
-                    noteSpan.onclick = (event) => editNote(note);
-                    bookmarksSpan.appendChild(noteSpan);
-                }
+    function addNotedVerses(notes: NoteItem[]) {
+        for (var k = 0; k < notes.length; k++) {
+            const note = notes[k];
+            const bookmarksSpan = container?.querySelector('#bookmarks' + note.verse);
+            if (!bookmarksSpan) {
+                console.warn('No bookmarks span for verse %s', note.verse);
+                continue;
             }
-        });
+
+            const existingNoteSpan = container?.querySelector('#note' + k);
+            if (!existingNoteSpan) {
+                let noteSpan = document.createElement('span');
+                noteSpan.id = 'note' + k;
+                noteSpan.innerHTML = noteSvg();
+                noteSpan.onclick = (event) => editNote(note);
+                bookmarksSpan.appendChild(noteSpan);
+            }
+        }
     }
     function addBookmarksDiv(workspace: Workspace) {
         const bookmarksSpan = document.createElement('span');
@@ -839,43 +847,37 @@ LOGGING:
     function bookmarkSvg() {
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     }
-    function addBookmarkedVerses() {
-        bookmarks.then((bookmarks) => {
-            for (var j = 0; j < bookmarks.length; j++) {
-                const bookmarksSpan = container?.querySelector(`#bookmarks${bookmarks[j].verse}`);
-                if (!bookmarksSpan) {
-                    console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
+    function addBookmarkedVerses(bookmarks: BookmarkItem[]) {
+        for (var j = 0; j < bookmarks.length; j++) {
+            const bookmarksSpan = container?.querySelector(`#bookmarks${bookmarks[j].verse}`);
+            if (!bookmarksSpan) {
+                console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
+                continue;
+            }
+
+            const existingBookmarkSpan = container?.querySelector(`#bookmark${j}`);
+            if (!existingBookmarkSpan) {
+                let bookmarkSpan = document.createElement('span');
+                bookmarkSpan.id = 'bookmark' + j;
+                bookmarkSpan.innerHTML = bookmarkSvg();
+                bookmarksSpan.appendChild(bookmarkSpan);
+            }
+        }
+    }
+    function addHighlightedVerses(highlights: HighlightItem[]) {
+        for (let i = 0; i < highlights.length; i++) {
+            //Skip this entry if the the next is a highlight for the same verse
+            if (i < highlights.length - 1) {
+                if (highlights[i].verse === highlights[i + 1].verse) {
                     continue;
                 }
-
-                const existingBookmarkSpan = container?.querySelector(`#bookmark${j}`);
-                if (!existingBookmarkSpan) {
-                    let bookmarkSpan = document.createElement('span');
-                    bookmarkSpan.id = 'bookmark' + j;
-                    bookmarkSpan.innerHTML = bookmarkSvg();
-                    bookmarksSpan.appendChild(bookmarkSpan);
-                }
             }
-        });
-    }
-    function addHighlightedVerses() {
-        highlights.then((highlights) => {
-            for (let i = 0; i < highlights.length; i++) {
-                //Skip this entry if the the next is a highlight for the same verse
-                if (i < highlights.length - 1) {
-                    if (highlights[i].verse === highlights[i + 1].verse) {
-                        continue;
-                    }
-                }
-                let elements = container?.querySelectorAll(
-                    `div[data-verse="${highlights[i].verse}"]`
-                );
-                for (const element of elements ?? []) {
-                    const penClass = 'hlp' + highlights[i].penColor;
-                    element.classList.add(penClass);
-                }
+            let elements = container?.querySelectorAll(`div[data-verse="${highlights[i].verse}"]`);
+            for (const element of elements ?? []) {
+                const penClass = 'hlp' + highlights[i].penColor;
+                element.classList.add(penClass);
             }
-        });
+        }
     }
     function createFootnoteDiv(workspace: Workspace, element: Element) {
         let footnoteSpan = null;
@@ -1703,9 +1705,7 @@ LOGGING:
                             preprocessAction('endDocument', workspace);
                             addOnClickDivs();
                             if (!displayingIntroduction) {
-                                addNotedVerses();
-                                addBookmarkedVerses();
-                                addHighlightedVerses();
+                                applyAnnotations();
                                 if (showVideo()) {
                                     addVideos(videos);
                                 }
