@@ -22,6 +22,7 @@ export const usfmWrappers = new FeatureSpec<
     {
         event: 'startWrapper',
         stage: 'fallback',
+        details: ({ context }) => ({ class: extractUSFMClassName(context) }),
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             const usfmWrapperType = extractUSFMClassName(context);
@@ -38,6 +39,7 @@ export const usfmWrappers = new FeatureSpec<
     {
         event: 'endWrapper',
         stage: 'fallback',
+        details: ({ context }) => ({ class: extractUSFMClassName(context) }),
         guard: shouldAddWrapper,
         action: ({ context, workspace }) => {
             terminatePhrase(workspace);
@@ -52,10 +54,19 @@ export const usfmWrappers = new FeatureSpec<
     {
         event: 'text',
         stage: 'standard',
+        name: 'Default Wrapper',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
-        guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty &&
-            workspace.scopeManager.has(`wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`),
+        guard: ({ workspace }) => {
+            if (!workspace.scratch.text?.empty) {
+                const found = workspace.scopeManager.depth(
+                `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`
+            );
+                if (found >= 0) {
+                    return found === workspace.scopeManager.depth('wrapper');
+                }
+            }
+            return false;
+        },
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true
