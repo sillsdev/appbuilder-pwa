@@ -14,7 +14,7 @@ import { orderedLists, unorderedLists } from './features/lists';
 import { LOGS } from './features/logging';
 import { reflinks } from './features/reflinks';
 import { sequences } from './features/sequence';
-import { tables } from './features/table';
+import { tables } from './features/tables';
 import { text } from './features/text';
 import { titles } from './features/titles';
 import { WARN_UNSUPPORTED_FEATURES } from './features/unsupported';

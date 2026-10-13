@@ -415,6 +415,7 @@ export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $log
                   mark: 1,
                   metaContent: 1,
                   row: 1,
+                  table: 1,
                   placement: 1
               }
             : ($logs['scripture'] ?? {})
