@@ -3,9 +3,8 @@ import { getElement, matchElement } from './common';
 
 export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: number } }>(
     'Tables',
-    [
-        {
-            event: 'startTable',
+    {
+        startTable: {
             stage: 'fallback',
             details: () => undefined,
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -17,8 +16,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                 addToScratchPad(workspace.scratch, 'table', { rowIndex: 0 });
             }
         },
-        {
-            event: 'endTable',
+        endTable: {
             stage: 'fallback',
             details: () => undefined,
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -26,8 +24,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                 workspace.scopeManager.promoteContent('table');
             }
         },
-        {
-            event: 'startRow',
+        startRow: {
             stage: 'fallback',
             details: ({ context }) => ({ row: getElement(context).atts['number'] }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -37,8 +34,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                 addToScratchPad(workspace.scratch, 'table', { colIndex: 0, rowIndex });
             }
         },
-        {
-            event: 'endRow',
+        endRow: {
             stage: 'fallback',
             details: ({ workspace }) => ({ row: workspace.scratch.table?.rowIndex }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -51,8 +47,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                 workspace.scopeManager.promoteContent('row');
             }
         },
-        {
-            event: 'startWrapper',
+        startWrapper: {
             stage: 'standard',
             details: ({ context, workspace }) => ({
                 cell: workspace.scratch.table?.colIndex ?? 0,
@@ -81,8 +76,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                 workspace.scopeManager.push('wrapper:cell', td);
             }
         },
-        {
-            event: 'endWrapper',
+        endWrapper: {
             stage: 'standard',
             details: ({ context, workspace }) => ({
                 cell: workspace.scratch.table?.colIndex ?? 0,
@@ -104,5 +98,5 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                     .forEach((c) => workspace.scopeManager.appendContent(c));
             }
         }
-    ]
+    }
 );

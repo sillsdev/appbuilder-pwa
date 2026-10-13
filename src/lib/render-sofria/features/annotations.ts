@@ -3,9 +3,8 @@ import { get } from 'svelte/store';
 import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderWorkspace } from '../common';
 import { getElement } from './common';
 
-export const annotations = new FeatureSpec('Annotations', [
-    {
-        event: 'endDocument',
+export const annotations = new FeatureSpec('Annotations', {
+    endDocument: {
         stage: 'standard',
         details: () => undefined,
         guard: ({ workspace }) => !workspace.hackRenderIntro,
@@ -15,8 +14,7 @@ export const annotations = new FeatureSpec('Annotations', [
             addHighlightedVerses(workspace);
         }
     },
-    {
-        event: 'endVerses',
+    endVerses: {
         stage: 'standard',
         details: ({ context }) => ({
             v: getElement(context).atts['number']
@@ -27,7 +25,7 @@ export const annotations = new FeatureSpec('Annotations', [
             addSpanAfterVerse(workspace, 'notes');
         }
     }
-]);
+});
 
 function addSpanAfterVerse(workspace: RenderWorkspace, idPrefix: string) {
     const span = workspace.document.createElement('span');

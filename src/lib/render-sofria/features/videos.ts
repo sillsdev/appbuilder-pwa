@@ -16,9 +16,8 @@ export const videos = new FeatureSpec<{
         currentVideoIndex?: number;
         videos?: HTMLElement[];
     };
-}>('Videos', [
-    {
-        event: 'startMilestone',
+}>('Videos', {
+    startMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ video: getElement(context).atts['id']?.[0] }),
         guard: ({ context, workspace }) =>
@@ -46,16 +45,14 @@ export const videos = new FeatureSpec<{
             }
         }
     },
-    {
-        event: 'endMilestone',
+    endMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ video: getElement(context).atts['id']?.[0] }),
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:zvideo') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'init',
         details: ({ workspace }) => ({
             phrase: workspace.scopeManager.find('phrase')?.root.innerText,
@@ -71,8 +68,7 @@ export const videos = new FeatureSpec<{
             addToScratchPad(workspace.scratch, 'milestone', { videos: [] });
         }
     },
-    {
-        event: 'endDocument',
+    endDocument: {
         stage: 'standard',
         details: ({ workspace }) => ({
             count: mediaForChapter(workspace, 'videos').length
@@ -94,7 +90,7 @@ export const videos = new FeatureSpec<{
             addVideoLinks(workspace.document, videos);
         }
     }
-]);
+});
 
 function showVideos(workspace: RenderWorkspace) {
     return (

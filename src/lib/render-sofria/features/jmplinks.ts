@@ -2,9 +2,8 @@ import { FeatureSpec } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', [
-    {
-        event: 'startWrapper',
+export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
+    startWrapper: {
         stage: 'standard',
         guard: ({ context }) => matchElement(context, 'usfm:jmp'),
         action: ({ context, workspace }) => {
@@ -62,16 +61,14 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', [
             workspace.scopeManager.push('wrapper:jmp', jmpLink);
         }
     },
-    {
-        event: 'endWrapper',
+    endWrapper: {
         stage: 'standard',
         guard: ({ context }) => matchElement(context, 'usfm:jmp'),
         action: ({ workspace }) => {
             workspace.scopeManager.promoteContent('wrapper:jmp');
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
@@ -83,4 +80,4 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', [
             });
         }
     }
-]);
+});

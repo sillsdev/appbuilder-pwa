@@ -23,9 +23,8 @@ import { getPhraseDiv, terminatePhrase, type SharedTextScratch } from './common/
 
 type FootnoteScratch = { inlineGraft?: { footnoteIdIndex?: number } };
 
-export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('Footnotes', [
-    {
-        event: 'inlineGraft',
+export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('Footnotes', {
+    inlineGraft: {
         stage: 'standard',
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ context, workspace }) =>
@@ -39,24 +38,21 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             popFootnoteScopes(workspace, 'footnote');
         }
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'footnote') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'footnote') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -65,8 +61,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -75,8 +70,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startWrapper',
+    startWrapper: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
@@ -89,8 +83,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
         }
     },
-    {
-        event: 'endWrapper',
+    endWrapper: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
@@ -99,8 +92,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ context, workspace }) =>
@@ -113,11 +105,10 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
         }
     }
-]);
+});
 
-export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('Cross-References', [
-    {
-        event: 'inlineGraft',
+export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('Cross-References', {
+    inlineGraft: {
         stage: 'standard',
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ context, workspace }) =>
@@ -131,24 +122,21 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             popFootnoteScopes(workspace, 'crossref');
         }
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'xref') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'xref') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -157,8 +145,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -167,8 +154,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startWrapper',
+    startWrapper: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
@@ -181,8 +167,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
         }
     },
-    {
-        event: 'endWrapper',
+    endWrapper: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
@@ -193,51 +178,50 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
         }
     },
-    {
-        event: 'text',
-        stage: 'standard',
-        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
-        guard: ({ context, workspace }) =>
-            !workspace.scratch.text?.empty &&
-            !matchSequence(context, 'note_caller') &&
-            matchSequence(context, 'xref') &&
-            !workspace.scopeManager.has('wrapper:xt') &&
-            renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            const text: string = workspace.scratch.text!.cleanedText!;
-            workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
-        }
-    },
-    {
-        event: 'text',
-        stage: 'standard',
-        name: 'Cross-References - XT Wrapper',
-        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
-        guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty &&
-            workspace.scopeManager.has('wrapper:xt') &&
-            renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            const references = workspace.scratch.text!.cleanedText!.split('; ');
-            const container = workspace.scopeManager.has('wrapper:cell')
-                ? workspace.scopeManager.at(0).root
-                : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
-            for (let i = 0; i < references.length; i++) {
-                const spanV = document.createElement('span');
-                spanV.classList.add('reflink');
-                spanV.innerHTML = generateHTML(references[i], 'header-ref');
-                container.appendChild(spanV);
-                if (i < references.length - 1) {
-                    container.innerHTML += '; ';
+    text: [
+        {
+            stage: 'standard',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+            guard: ({ context, workspace }) =>
+                !workspace.scratch.text?.empty &&
+                !matchSequence(context, 'note_caller') &&
+                matchSequence(context, 'xref') &&
+                !workspace.scopeManager.has('wrapper:xt') &&
+                renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                const text: string = workspace.scratch.text!.cleanedText!;
+                workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
+            }
+        },
+        {
+            stage: 'standard',
+            name: 'Cross-References - XT Wrapper',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+            guard: ({ workspace }) =>
+                !workspace.scratch.text?.empty &&
+                workspace.scopeManager.has('wrapper:xt') &&
+                renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                const references = workspace.scratch.text!.cleanedText!.split('; ');
+                const container = workspace.scopeManager.has('wrapper:cell')
+                    ? workspace.scopeManager.at(0).root
+                    : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
+                for (let i = 0; i < references.length; i++) {
+                    const spanV = document.createElement('span');
+                    spanV.classList.add('reflink');
+                    spanV.innerHTML = generateHTML(references[i], 'header-ref');
+                    container.appendChild(spanV);
+                    if (i < references.length - 1) {
+                        container.innerHTML += '; ';
+                    }
+                }
+                if (!workspace.scopeManager.has('wrapper:cell')) {
+                    workspace.scopeManager.push('phrase', container);
                 }
             }
-            if (!workspace.scopeManager.has('wrapper:cell')) {
-                workspace.scopeManager.push('phrase', container);
-            }
         }
-    },
-    {
-        event: 'endDocument',
+    ],
+    endDocument: {
         stage: 'standard',
         action({ workspace }) {
             workspace.root.querySelectorAll('a.header-ref').forEach((el) => {
@@ -251,15 +235,14 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             });
         }
     }
-]);
+});
 
 type CallerScratch = {
     text?: { footnoteCallerIndex?: number };
 };
 
-export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('Note Callers', [
-    {
-        event: 'inlineGraft',
+export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('Note Callers', {
+    inlineGraft: {
         stage: 'standard',
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ context, workspace }) =>
@@ -268,24 +251,21 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
             environment.context.renderer.renderSequence(environment);
         }
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'note_caller') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'note_caller') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -294,8 +274,7 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
             renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -304,8 +283,7 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
             renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ context, workspace }) =>
@@ -334,8 +312,7 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
             }
         }
     },
-    {
-        event: 'endDocument',
+    endDocument: {
         stage: 'standard',
         action({ workspace }) {
             workspace.root.querySelectorAll('span[data-graft]').forEach((el) => {
@@ -345,7 +322,7 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
             });
         }
     }
-]);
+});
 
 type FootnoteType = 'crossref' | 'footnote';
 

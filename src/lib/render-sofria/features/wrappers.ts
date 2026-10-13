@@ -18,9 +18,8 @@ function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
 
 export const usfmWrappers = new FeatureSpec<
     { wrapper?: { typeStack?: string[] } } & SharedTextScratch
->('Default', [
-    {
-        event: 'startWrapper',
+>('Default', {
+    startWrapper: {
         stage: 'fallback',
         details: ({ context }) => ({ class: extractUSFMClassName(context) }),
         guard: shouldAddWrapper,
@@ -36,8 +35,7 @@ export const usfmWrappers = new FeatureSpec<
             addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
-    {
-        event: 'endWrapper',
+    endWrapper: {
         stage: 'fallback',
         details: ({ context }) => ({ class: extractUSFMClassName(context) }),
         guard: shouldAddWrapper,
@@ -51,8 +49,7 @@ export const usfmWrappers = new FeatureSpec<
             addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         name: 'Default Wrapper',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
@@ -73,4 +70,4 @@ export const usfmWrappers = new FeatureSpec<
             });
         }
     }
-]);
+});

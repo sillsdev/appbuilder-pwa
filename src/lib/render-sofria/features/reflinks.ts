@@ -3,9 +3,8 @@ import { splitString } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', [
-    {
-        event: 'startMilestone',
+export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
+    startMilestone: {
         stage: 'standard',
         details: ({ context }) => ({
             link: getElement(context).atts['link']?.[0],
@@ -28,8 +27,7 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', [
             workspace.scopeManager.push('milestone:zreflink', a);
         }
     },
-    {
-        event: 'endMilestone',
+    endMilestone: {
         stage: 'standard',
         details: ({ context }) => ({
             link: getElement(context).atts['link']?.[0],
@@ -41,8 +39,7 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', [
             workspace.scopeManager.promoteContent('milestone:zreflink');
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
@@ -54,8 +51,7 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', [
             });
         }
     },
-    {
-        event: 'endDocument',
+    endDocument: {
         stage: 'standard',
         details: ({ workspace }) => ({
             count: workspace.root.querySelectorAll('a.ref-link').length
@@ -82,4 +78,4 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', [
             });
         }
     }
-]);
+});

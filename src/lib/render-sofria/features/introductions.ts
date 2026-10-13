@@ -8,31 +8,27 @@ import { addPhrases, type SharedTextScratch } from './common/text';
 // HACK: for proskomma, introduction will only be given as a graft on chapter 1, so we need to pass chapter 1 into proskomma
 // open an issue?
 
-export const introductions = new FeatureSpec<SharedTextScratch>('Introductions', [
-    {
-        event: 'blockGraft',
+export const introductions = new FeatureSpec<SharedTextScratch>('Introductions', {
+    blockGraft: {
         stage: 'standard',
         details: ({ context }) => ({ type: getBlock(context).subType }),
         guard: ({ context, workspace }) =>
             workspace.hackRenderIntro && matchBlock(context, 'introduction'),
         action: (environment) => renderBlock(environment, 'introduction')
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context }) => matchSequence(context, 'introduction'),
         action: noaction
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context }) => matchSequence(context, 'introduction'),
         action: noaction
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context }) => matchSequence(context, 'introduction'),
@@ -42,8 +38,7 @@ export const introductions = new FeatureSpec<SharedTextScratch>('Introductions',
             workspace.scopeManager.push('paragraph:introduction', introductionDiv);
         }
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context }) => matchSequence(context, 'introduction'),
@@ -51,8 +46,7 @@ export const introductions = new FeatureSpec<SharedTextScratch>('Introductions',
             workspace.scopeManager.promoteContent('paragraph:introduction');
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace, context }) =>
@@ -61,4 +55,4 @@ export const introductions = new FeatureSpec<SharedTextScratch>('Introductions',
             addPhrases(workspace, workspace.scratch.text!.cleanedText!);
         }
     }
-]);
+});

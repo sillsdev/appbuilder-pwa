@@ -2,9 +2,8 @@ import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderWorkspace } fro
 import { getElement } from './common';
 import { addPlanDiv } from './common/plans';
 
-export const plans = new FeatureSpec('Plans', [
-    {
-        event: 'endDocument',
+export const plans = new FeatureSpec('Plans', {
+    endDocument: {
         stage: 'standard',
         details: () => undefined,
         guard: ({ workspace }) => !workspace.hackRenderIntro,
@@ -12,8 +11,7 @@ export const plans = new FeatureSpec('Plans', [
             addPlanDiv(workspace, '-1');
         }
     },
-    {
-        event: 'endVerses',
+    endVerses: {
         stage: 'standard',
         details: ({ context }) => ({
             v: getElement(context).atts['number']
@@ -23,4 +21,4 @@ export const plans = new FeatureSpec('Plans', [
             addPlanDiv(workspace, getElement(context).atts['number']);
         }
     }
-]);
+});
