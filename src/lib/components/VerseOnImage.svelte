@@ -1173,7 +1173,7 @@ The verse on image component.
         <!-- Font Color Pane -->
         <div class="dy-carousel-item editorPane" style="padding-top: 1rem;">
             <!-- Color Picker -->
-            <ColorPicker toRight={false} isInput={false} bind:hex={fontColor} />
+            <ColorPicker isDialog={false} bind:hex={fontColor} />
         </div>
 
         <!-- Word Editor Pane -->
@@ -1182,7 +1182,7 @@ The verse on image component.
                 {$t['Text_On_Image_Highlight_Words']}
             </div>
             <div class="flex flex-row flex-wrap flex-wrap-reverse gap-5">
-                <ColorPicker toRight={false} isInput={false} bind:hex={wordColor} />
+                <ColorPicker bind:hex={wordColor} isDialog={false} />
                 <div class="flex flex-row gap-2 justify-center grow">
                     <div class="flex items-center">
                         <button
