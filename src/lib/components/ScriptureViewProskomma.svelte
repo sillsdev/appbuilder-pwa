@@ -279,7 +279,6 @@ LOGGING:
         workspace.root = scriptureRoot;
         workspace.scopeManager = new ScopeManager();
         workspace.currentTextPosition = workspace.currentTextPosition ?? {
-            chapter: 'none',
             verse: 'none'
         };
         workspace.logSettings = $scriptureLogs;
