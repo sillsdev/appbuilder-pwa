@@ -1,20 +1,8 @@
-import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-import { generateHTML } from '$lib/scripts/scripture-reference-utils';
-import {
-    addToScratchPad,
-    FeatureSpec,
-    renderIfRegularOrIfHackedIntro,
-    type RenderWorkspace
-} from '../common';
-import { createLetterIndex } from '../util';
-import { extractClassName, getBlock, getElement, matchBlock, matchSequence } from './common';
-import { addPhrases, getPhraseDiv, terminatePhrase, type SharedTextScratch } from './common/text';
+import { addToScratchPad, FeatureSpec, renderIfRegularOrIfHackedIntro } from '../common';
+import { extractClassName, getBlock, getElement, matchSequence } from './common';
+import { addPhrases, terminatePhrase, type SharedTextScratch } from './common/text';
 
-type TextScratch = {
-    text?: { footnoteCallerIndex?: number };
-} & SharedTextScratch;
-
-export const text = new FeatureSpec<TextScratch>('Default', [
+export const text = new FeatureSpec<SharedTextScratch>('Default', [
     {
         event: 'startParagraph',
         stage: 'init',
@@ -80,48 +68,8 @@ export const text = new FeatureSpec<TextScratch>('Default', [
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
             !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
-        action({ context, workspace }) {
-            const text: string = workspace.scratch.text!.cleanedText!;
-            if (matchBlock(context, 'usfm:x')) {
-                addGraftText(workspace, text, 'crossref');
-            } else if (matchBlock(context, 'usfm:f')) {
-                addGraftText(workspace, text, 'footnote');
-            } else if (matchBlock(context, 'usfm:tr')) {
-                if (workspace.scopeManager.has('wrapper:cell')) {
-                    if (workspace.scopeManager.has('wrapper:xt')) {
-                        const references = text.split('; ');
-                        for (let i = 0; i < references.length; i++) {
-                            const spanV = document.createElement('span');
-                            spanV.classList.add('reflink');
-                            const refText = generateHTML(text, 'header-ref');
-                            spanV.innerHTML = refText;
-                            // TODO spanV.addEventListener('click', onClick, false);
-                            workspace.scopeManager.appendContent(spanV);
-                            if (i < references.length - 1) {
-                                workspace.scopeManager.appendContent(
-                                    workspace.document.createTextNode('; ')
-                                );
-                            }
-                        }
-                    } else {
-                        workspace.scopeManager.appendContent(
-                            workspace.document.createTextNode(text)
-                        );
-                    }
-                }
-            } else if (workspace.scopeManager.has('wrapper:xt')) {
-                const spanV = document.createElement('span');
-                spanV.classList.add('reflink');
-                const refText = generateHTML(text, 'header-ref');
-                spanV.innerHTML = refText;
-                const phraseDiv = getPhraseDiv(workspace);
-                phraseDiv.appendChild(spanV);
-                workspace.scopeManager.push('phrase', phraseDiv);
-            }
-            // jmp, audioc, reflink, and everything else
-            else {
-                addPhrases(workspace, text);
-            }
+        action({ workspace }) {
+            addPhrases(workspace, workspace.scratch.text!.cleanedText!);
         }
     },
     {
@@ -213,72 +161,3 @@ export const text = new FeatureSpec<TextScratch>('Default', [
         }
     }
 ]);
-
-function addGraftText(workspace: RenderWorkspace, text: string, textType: 'crossref' | 'footnote') {
-    const callerRoot = workspace.scopeManager.find('inlineGraft:note_caller')?.root;
-    const contentRoot = workspace.scopeManager.find('inlineGraft:footnote')?.root;
-    if (callerRoot && contentRoot && callerRoot.getAttribute('data-graft') === contentRoot.id) {
-        const sup = callerRoot.querySelector('sup.footnote');
-        if (sup && !sup.innerHTML) {
-            const caller = getFootnoteCallerCharacter(workspace, text, textType);
-            if (!caller) {
-                // Do not include the footnote
-                workspace.scopeManager.remove('inlineGraft:note_caller');
-            } else {
-                // Assign the caller to the footnote sup
-                // Add space after footnote if there are multiple footnotes.
-                // TODO: How do we tell there are multiple???
-                sup.innerHTML = caller + '\u00A0';
-            }
-        } else {
-            workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
-        }
-    }
-}
-
-function getFootnoteCallerCharacter(
-    workspace: RenderWorkspace<TextScratch>,
-    initialCallerSymbol: string,
-    footnoteType: 'crossref' | 'footnote'
-) {
-    const callerType =
-        getFeatureValueString(
-            workspace.config,
-            `${footnoteType}-caller-type`,
-            workspace.stores.references.collection,
-            workspace.stores.references.book
-        ) || 'default';
-    const callerNoCallerToAuto = getFeatureValueBoolean(
-        workspace.config,
-        `${footnoteType}-caller-no-caller-to-auto`,
-        workspace.stores.references.collection,
-        workspace.stores.references.book
-    );
-
-    let callerSymbol: string | null = initialCallerSymbol;
-
-    if (callerType === 'custom-symbol') {
-        // Use whatever is specified as the custom symbol, even '-' or '+'
-        // This matches native app. Sigh.
-        return getFeatureValueString(
-            workspace.config,
-            `${footnoteType}-caller-symbol`,
-            workspace.stores.references.collection,
-            workspace.stores.references.book
-        );
-    } else if (callerType === 'abc') {
-        callerSymbol = '+';
-    } else if (callerNoCallerToAuto && callerSymbol === '-') {
-        callerSymbol = '+';
-    }
-
-    if (callerSymbol === '-') {
-        return null;
-    } else if (callerSymbol === '+') {
-        const idx = workspace.scratch.text?.footnoteCallerIndex ?? 0;
-        addToScratchPad(workspace.scratch, 'text', { footnoteCallerIndex: idx + 1 });
-        return createLetterIndex(idx);
-    } else {
-        return callerSymbol;
-    }
-}
