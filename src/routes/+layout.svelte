@@ -207,6 +207,7 @@
             data-color-theme={$theme}
             style="height:100vh;height:100dvh;margin:0;"
             style:direction={$direction}
+            style:background-color="var(--BackgroundColor)"
         >
             <AnnotationHintToast />
             <div>
