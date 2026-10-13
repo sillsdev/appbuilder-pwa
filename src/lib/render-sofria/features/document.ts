@@ -31,16 +31,6 @@ export const documentFeature = new FeatureSpec('Default', [
 
             addFooter(workspace);
 
-            workspace.root.querySelectorAll('a.header-ref').forEach((el) => {
-                el.addEventListener('click', (e) =>
-                    workspace.events.clickHeaderRef(
-                        e as MouseEvent,
-                        el as HTMLAnchorElement,
-                        workspace
-                    )
-                );
-            });
-
             workspace.root.querySelectorAll('.seltxt').forEach((el) => {
                 el.addEventListener('click', (e) => workspace.events.clickText(e as MouseEvent));
             });
