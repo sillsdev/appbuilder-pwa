@@ -2,25 +2,22 @@ import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro 
 import { extractClassName, getBlock, getElement, getSequence, matchSequence } from './common';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
-    {
-        event: 'startSequence',
+export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startVerses',
+    startVerses: {
         stage: 'fallback',
         details: ({ context }) => ({ v: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -41,8 +38,7 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
             workspace.scopeManager.push(`verses:${verse}`, verseDiv);
         }
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -58,8 +54,7 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
             workspace.scopeManager.push('paragraph:main', paragraphDiv);
         }
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -129,8 +124,7 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
             }
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'fallback',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
@@ -139,8 +133,7 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
             addPhrases(workspace, workspace.scratch.text!.cleanedText!);
         }
     },
-    {
-        event: 'endDocument',
+    endDocument: {
         stage: 'standard',
         action({ workspace }) {
             workspace.root.querySelectorAll('.seltxt').forEach((el) => {
@@ -148,4 +141,4 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
             });
         }
     }
-]);
+});

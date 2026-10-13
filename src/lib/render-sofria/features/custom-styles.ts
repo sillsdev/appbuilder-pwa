@@ -2,9 +2,8 @@ import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '$lib/rend
 import { getElement, matchElement } from './common';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const paragraphStyles = new FeatureSpec('Paragraph Styles', [
-    {
-        event: 'startMilestone',
+export const paragraphStyles = new FeatureSpec('Paragraph Styles', {
+    startMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ styles: getElement(context).atts['id'] }),
         guard: ({ context, workspace }) =>
@@ -17,19 +16,17 @@ export const paragraphStyles = new FeatureSpec('Paragraph Styles', [
             }
         }
     },
-    {
-        event: 'endMilestone',
+    endMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ styles: getElement(context).atts['id'] }),
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:zstyle') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     }
-]);
+});
 
-export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Styles', [
-    {
-        event: 'startMilestone',
+export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Styles', {
+    startMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ styles: getElement(context).atts['id'] }),
         guard: ({ context, workspace }) =>
@@ -41,8 +38,7 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
             workspace.scopeManager.push('milestone:zcstyle', span);
         }
     },
-    {
-        event: 'endMilestone',
+    endMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ styles: getElement(context).atts['id'] }),
         guard: ({ context, workspace }) =>
@@ -51,8 +47,7 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
             workspace.scopeManager.promoteContent('milestone:zcstyle');
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
@@ -63,4 +58,4 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
             });
         }
     }
-]);
+});

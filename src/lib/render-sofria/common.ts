@@ -140,9 +140,22 @@ export type ActionDictionary = Partial<{ [key in RenderEvent]: Array<RenderActio
 export type FeatureFlag = { tag: string; enabledValue: string };
 
 export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> {
-    constructor(name: string, actions: Array<RenderAction<Scratch>>, flag?: FeatureFlag) {
+    constructor(
+        name: string,
+        actions: Partial<
+            Record<
+                RenderEvent,
+                Omit<RenderAction<Scratch>, 'event'> | Array<Omit<RenderAction<Scratch>, 'event'>>
+            >
+        >,
+        flag?: FeatureFlag
+    ) {
         this.flag = flag;
-        this.actions = actions.map((a) => ({ ...a, name: a.name || name }));
+        this.actions = Object.keys(actions).flatMap((key) => {
+            const e = key as RenderEvent;
+            const arr = Array.isArray(actions[e]) ? actions[e]! : [actions[e]!];
+            return arr.map((a) => ({ ...a, name: a.name || name, event: e }));
+        });
     }
 
     flag?: FeatureFlag;

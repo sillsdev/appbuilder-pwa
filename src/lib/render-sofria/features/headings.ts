@@ -1,15 +1,8 @@
 import { generateHTML } from '$lib/scripts/scripture-reference-utils';
 import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
-import {
-    extractClassName,
-    getBlock,
-    getElement,
-    getSequence,
-    matchBlock,
-    matchSequence
-} from './common';
+import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
 import { renderBlock } from './common/grafts';
-import { addPhrases, terminatePhrase, type SharedTextScratch } from './common/text';
+import { addPhrases, type SharedTextScratch } from './common/text';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
 
@@ -17,33 +10,29 @@ export const headings = new FeatureSpec<
     {
         paragraph?: { subheadingPrefixes?: string[] };
     } & SharedTextScratch
->('Headings', [
-    {
-        event: 'blockGraft',
+>('Headings', {
+    blockGraft: {
         stage: 'standard',
         details: ({ context }) => ({ type: getBlock(context).subType }),
         guard: ({ context, workspace }) =>
             matchBlock(context, 'heading') && renderIfRegularOrIfHackedIntro(workspace),
         action: (environment) => renderBlock(environment, getBlock(environment.context).subType)
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'heading') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'heading') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -63,8 +52,7 @@ export const headings = new FeatureSpec<
             workspace.scopeManager.push('paragraph:heading', headerDiv);
         }
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -73,8 +61,7 @@ export const headings = new FeatureSpec<
             workspace.scopeManager.promoteContent('paragraph:heading');
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ context, workspace }) =>
@@ -95,7 +82,7 @@ export const headings = new FeatureSpec<
             }
         }
     }
-]);
+});
 
 function countSubheadingPrefixes(subHeadings: string[], labelPrefix: string) {
     return subHeadings.reduce(

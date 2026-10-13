@@ -24,9 +24,8 @@ export const audioclips = new FeatureSpec<
             audioClipCount?: number;
         };
     } & SharedTextScratch
->('Audio Clips', [
-    {
-        event: 'startMilestone',
+>('Audio Clips', {
+    startMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ link: getElement(context).atts['link']?.[0] }),
         guard: ({ context, workspace }) =>
@@ -37,8 +36,7 @@ export const audioclips = new FeatureSpec<
             workspace.scopeManager.push('milestone:zaudioc', a);
         }
     },
-    {
-        event: 'endMilestone',
+    endMilestone: {
         stage: 'standard',
         details: ({ context }) => ({ link: getElement(context).atts['link']?.[0] }),
         guard: ({ context, workspace }) =>
@@ -103,8 +101,7 @@ export const audioclips = new FeatureSpec<
             }
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
@@ -116,4 +113,4 @@ export const audioclips = new FeatureSpec<
             });
         }
     }
-]);
+});

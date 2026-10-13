@@ -19,9 +19,8 @@ const illustrationFiles = import.meta.glob('./*', {
 
 export const illustrations = new FeatureSpec<SharedTextScratch>(
     'Illustrations',
-    [
-        {
-            event: 'inlineGraft',
+    {
+        inlineGraft: {
             stage: 'standard',
             details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
@@ -30,24 +29,21 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
                 environment.context.renderer.renderSequence(environment);
             }
         },
-        {
-            event: 'startSequence',
+        startSequence: {
             stage: 'standard',
             details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
         },
-        {
-            event: 'endSequence',
+        endSequence: {
             stage: 'standard',
             details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchSequence(context, 'fig'),
             action: noaction
         },
-        {
-            event: 'startWrapper',
+        startWrapper: {
             stage: 'standard',
             details: ({ context, workspace }) => ({
                 src: extractFigureSource(getElement(context)),
@@ -74,8 +70,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
                 }
             }
         },
-        {
-            event: 'endWrapper',
+        endWrapper: {
             stage: 'standard',
             details: ({ context }) => ({ src: extractFigureSource(getElement(context)) }),
             guard: ({ context, workspace }) =>
@@ -88,8 +83,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
                 }
             }
         },
-        {
-            event: 'text',
+        text: {
             stage: 'standard',
             details: ({ workspace }) => workspace.scratch.text?.cleanedText,
             guard: ({ workspace }) =>
@@ -106,8 +100,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
                 }
             }
         },
-        {
-            event: 'endDocument',
+        endDocument: {
             stage: 'standard',
             details: ({ workspace }) => ({
                 count: mediaForChapter(workspace, 'illustrations').length
@@ -135,22 +128,21 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
                 });
             }
         }
-    ],
+    },
     { tag: 'show-illustrations', enabledValue: 'true' }
 );
 
 export const illustrationsFallback = new FeatureSpec(
     'Ignore Illustrations',
-    [
-        {
-            event: 'inlineGraft',
+    {
+        inlineGraft: {
             stage: 'standard',
             details: ({ context }) => ({ type: getSequence(context).type }),
             guard: ({ workspace, context }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'fig'),
             action: noaction
         }
-    ],
+    },
     { tag: 'show-illustrations', enabledValue: 'false' }
 );
 
