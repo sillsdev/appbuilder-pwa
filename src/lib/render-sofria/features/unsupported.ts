@@ -1,5 +1,5 @@
 import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
-import { getBlock, getElement } from './common';
+import { getBlock, getElement, getSequence } from './common';
 
 export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
     {
@@ -44,5 +44,21 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
         action: ({ context }) => {
             console.warn(`Unsupported Element Type: ${getElement(context).subType}`);
         }
+    },
+    {
+        event: 'startSequence',
+        stage: 'fallback',
+        details: ({ context }) => ({ type: getSequence(context).type }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ context }) => {
+            console.warn(`Unsupported Sequence Type: ${getSequence(context).type}`);
+        }
+    },
+    {
+        event: 'endSequence',
+        stage: 'fallback',
+        details: ({ context }) => ({ type: getSequence(context).type }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action: noaction
     }
 ]);

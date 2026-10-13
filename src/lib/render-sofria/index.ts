@@ -3,7 +3,7 @@ import { annotations } from './features/annotations';
 import { audioclips } from './features/audio-clips';
 import { characterStyles, paragraphStyles } from './features/custom-styles';
 import { chapterNumber, verseNumbers } from './features/cv-numbers';
-import { documentFeature } from './features/document';
+import { defaults } from './features/defaults';
 import { crossrefs, footnotes, noteCallers } from './features/footnotes';
 import { glossary } from './features/glossary';
 import { headings } from './features/headings';
@@ -12,14 +12,12 @@ import { introductions } from './features/introductions';
 import { jmplinks } from './features/jmplinks';
 import { orderedLists, unorderedLists } from './features/lists';
 import { LOGS } from './features/logging';
+import { text } from './features/main-text';
 import { plans } from './features/plans';
 import { reflinks } from './features/reflinks';
-import { sequences } from './features/sequence';
 import { tables } from './features/tables';
-import { text } from './features/text';
 import { titles } from './features/titles';
 import { WARN_UNSUPPORTED_FEATURES } from './features/unsupported';
-import { verses } from './features/verses';
 import { videos } from './features/videos';
 import { usfmWrappers } from './features/wrappers';
 
@@ -27,13 +25,11 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     introductions,
     titles,
     headings,
-    sequences,
     annotations,
     plans,
-    documentFeature,
     verseNumbers,
-    verses,
     text,
+    defaults,
     chapterNumber,
     tables,
     illustrations,
