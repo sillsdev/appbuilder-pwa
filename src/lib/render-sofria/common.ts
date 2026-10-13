@@ -149,7 +149,7 @@ export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> 
     actions: Array<RenderAction<Scratch>>;
 }
 
-type DefaultScratchpad = Partial<Record<RenderScopeLevel, any>>;
+type DefaultScratchpad = Partial<Record<RenderScopeLevel, Record<string, unknown>>>;
 
 export type RenderScratchpad<Coerce extends DefaultScratchpad = DefaultScratchpad> = Coerce;
 

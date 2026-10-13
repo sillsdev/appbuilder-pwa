@@ -1,8 +1,8 @@
 import { FeatureSpec } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
-import { addPhrases } from './common/text';
+import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const jmplinks = new FeatureSpec('JMP Links', [
+export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', [
     {
         event: 'startWrapper',
         stage: 'standard',
