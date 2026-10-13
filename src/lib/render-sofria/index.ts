@@ -4,8 +4,8 @@ import { chapterVerses } from './features/chapterVerses';
 import { characterStyles, paragraphStyles } from './features/custom-styles';
 import { chapterNumber, verseNumbers } from './features/cv-numbers';
 import { documentFeature } from './features/document';
+import { crossrefs, footnotes, noteCallers } from './features/footnotes';
 import { glossary } from './features/glossary';
-import { inlineGrafts } from './features/grafts/inline';
 import { headings } from './features/headings';
 import { illustrations, illustrationsFallback } from './features/illustrations';
 import { introductions } from './features/introductions';
@@ -25,7 +25,6 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     introductions,
     titles,
     headings,
-    inlineGrafts,
     sequences,
     documentFeature,
     verseNumbers,
@@ -45,6 +44,9 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     characterStyles,
     orderedLists,
     unorderedLists,
+    footnotes,
+    crossrefs,
+    noteCallers,
     WARN_UNSUPPORTED_FEATURES,
     LOGS
 ];

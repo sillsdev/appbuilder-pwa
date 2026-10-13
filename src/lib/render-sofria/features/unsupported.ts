@@ -35,5 +35,14 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
         action: ({ context }) => {
             console.warn(`Unsupported Block Type: ${getBlock(context).subType}`);
         }
+    },
+    {
+        event: 'inlineGraft',
+        stage: 'fallback',
+        details: ({ context }) => ({ type: getElement(context).subType }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ context }) => {
+            console.warn(`Unsupported Element Type: ${getElement(context).subType}`);
+        }
     }
 ]);
