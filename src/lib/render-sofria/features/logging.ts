@@ -19,5 +19,19 @@ export const LOGS = new FeatureSpec('Logging', [
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
+    },
+    {
+        event: 'startChapter',
+        stage: 'fallback',
+        details: ({ context }) => ({ c: getElement(context).atts['number'] }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action: noaction
+    },
+    {
+        event: 'endChapter',
+        stage: 'fallback',
+        details: ({ context }) => ({ c: getElement(context).atts['number'] }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action: noaction
     }
 ]);

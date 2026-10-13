@@ -1,6 +1,5 @@
 import type { FeatureSpec } from './common';
 import { audioclips } from './features/audio-clips';
-import { chapterVerses } from './features/chapterVerses';
 import { characterStyles, paragraphStyles } from './features/custom-styles';
 import { chapterNumber, verseNumbers } from './features/cv-numbers';
 import { documentFeature } from './features/document';
@@ -18,6 +17,7 @@ import { tables } from './features/tables';
 import { text } from './features/text';
 import { titles } from './features/titles';
 import { WARN_UNSUPPORTED_FEATURES } from './features/unsupported';
+import { verses } from './features/verses';
 import { videos } from './features/videos';
 import { usfmWrappers } from './features/wrappers';
 
@@ -28,7 +28,7 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     sequences,
     documentFeature,
     verseNumbers,
-    chapterVerses,
+    verses,
     text,
     chapterNumber,
     tables,
