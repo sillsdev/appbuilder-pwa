@@ -17,77 +17,77 @@ type MarkScratch = {
 
 export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
     'Chapter Numbers',
-    [
-        {
-            event: 'mark',
-            stage: 'standard',
-            guard: ({ context, workspace }) =>
-                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'chapter_label'),
-            action({ context, workspace }) {
-                const element = getElement(context);
-                const chapterNumText = numerals.formatNumber(
-                    workspace.textConfig.numeralSystem,
-                    element.atts['number']
-                );
+    {
+        mark: [
+            {
+                stage: 'standard',
+                guard: ({ context, workspace }) =>
+                    renderIfRegularOrIfHackedIntro(workspace) &&
+                    matchElement(context, 'chapter_label'),
+                action({ context, workspace }) {
+                    const element = getElement(context);
+                    const chapterNumText = numerals.formatNumber(
+                        workspace.textConfig.numeralSystem,
+                        element.atts['number']
+                    );
 
-                const deferChapterNum =
-                    getFeatureValueString(
-                        workspace.config,
-                        'chapter-number-format',
-                        workspace.stores.references.collection,
-                        workspace.stores.references.book
-                    ) === 'drop-cap';
+                    const deferChapterNum =
+                        getFeatureValueString(
+                            workspace.config,
+                            'chapter-number-format',
+                            workspace.stores.references.collection,
+                            workspace.stores.references.book
+                        ) === 'drop-cap';
 
-                addToScratchPad(workspace.scratch, 'mark', { chapterNumText, deferChapterNum });
+                    addToScratchPad(workspace.scratch, 'mark', { chapterNumText, deferChapterNum });
 
-                if (!deferChapterNum) {
-                    const chapterNumDiv = workspace.document.createElement('div');
-                    chapterNumDiv.innerText = chapterNumText;
-                    chapterNumDiv.classList.add('c');
-                    workspace.scopeManager.appendContent(chapterNumDiv, 'document');
+                    if (!deferChapterNum) {
+                        const chapterNumDiv = workspace.document.createElement('div');
+                        chapterNumDiv.innerText = chapterNumText;
+                        chapterNumDiv.classList.add('c');
+                        workspace.scopeManager.appendContent(chapterNumDiv, 'document');
+                    }
+                }
+            },
+            {
+                // handle deferred drop-cap chapter marker
+                stage: 'standard',
+                name: 'Deferred Chapter Number [drop-cap]',
+                guard: ({ context, workspace }) =>
+                    renderIfRegularOrIfHackedIntro(workspace) &&
+                    matchElement(context, 'verses_label') &&
+                    workspace.scratch.mark?.deferChapterNum &&
+                    !!workspace.scratch.mark?.chapterNumText,
+                action({ workspace }) {
+                    const currentParagraph = workspace.scopeManager.find('paragraph')?.root;
+                    if (currentParagraph) {
+                        const chapterNumDiv = workspace.document.createElement('div');
+                        chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
+
+                        chapterNumDiv.classList.add('c-drop');
+
+                        const direction = workspace.config.bookCollections?.find(
+                            (x) => x.id === workspace.stores.references.collection
+                        )?.style?.textDirection;
+                        chapterNumDiv.style.float =
+                            direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
+
+                        currentParagraph.className = 'm';
+                        currentParagraph.appendChild(chapterNumDiv);
+
+                        addToScratchPad(workspace.scratch, 'mark', { chapterNumText: undefined });
+                    }
                 }
             }
-        },
-        {
-            // handle deferred drop-cap chapter marker
-            event: 'mark',
-            stage: 'standard',
-            name: 'Deferred Chapter Number [drop-cap]',
-            guard: ({ context, workspace }) =>
-                renderIfRegularOrIfHackedIntro(workspace) &&
-                matchElement(context, 'verses_label') &&
-                workspace.scratch.mark?.deferChapterNum &&
-                !!workspace.scratch.mark?.chapterNumText,
-            action({ workspace }) {
-                const currentParagraph = workspace.scopeManager.find('paragraph')?.root;
-                if (currentParagraph) {
-                    const chapterNumDiv = workspace.document.createElement('div');
-                    chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
-
-                    chapterNumDiv.classList.add('c-drop');
-
-                    const direction = workspace.config.bookCollections?.find(
-                        (x) => x.id === workspace.stores.references.collection
-                    )?.style?.textDirection;
-                    chapterNumDiv.style.float =
-                        direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
-
-                    currentParagraph.className = 'm';
-                    currentParagraph.appendChild(chapterNumDiv);
-
-                    addToScratchPad(workspace.scratch, 'mark', { chapterNumText: undefined });
-                }
-            }
-        }
-    ],
+        ]
+    },
     { tag: 'show-chapter-numbers', enabledValue: 'true' }
 );
 
 export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
     'Verse Numbers',
-    [
-        {
-            event: 'mark',
+    {
+        mark: {
             stage: 'standard',
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'verses_label'),
@@ -107,7 +107,7 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
                 }
             }
         }
-    ],
+    },
     { tag: 'show-verse-numbers', enabledValue: 'true' }
 );
 

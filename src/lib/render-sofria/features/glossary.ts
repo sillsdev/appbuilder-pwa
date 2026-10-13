@@ -6,9 +6,8 @@ import { addPhrases, type SharedTextScratch } from './common/text';
 // if glossary words are disabled, glossary wrappers will be handled in usfmWrappers in ../index.ts
 export const glossary = new FeatureSpec<SharedTextScratch>(
     'Glossary',
-    [
-        {
-            event: 'startWrapper',
+    {
+        startWrapper: {
             stage: 'standard',
             details: ({ context }) => ({ lemma: getElement(context).atts['lemma'] }),
             guard: ({ context, workspace }) =>
@@ -20,8 +19,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
                 workspace.scopeManager.push('wrapper:glossary', a);
             }
         },
-        {
-            event: 'text',
+        text: {
             stage: 'standard',
             details: ({ workspace }) => workspace.scratch.text?.cleanedText,
             guard: ({ workspace }) =>
@@ -33,8 +31,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
                 });
             }
         },
-        {
-            event: 'endWrapper',
+        endWrapper: {
             stage: 'standard',
             details: ({ context }) => ({ lemma: getElement(context).atts['lemma'] }),
             guard: ({ context, workspace }) =>
@@ -52,8 +49,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
                 workspace.scopeManager.appendContent(span);
             }
         },
-        {
-            event: 'endDocument',
+        endDocument: {
             stage: 'standard',
             details: ({ workspace }) => ({
                 count: workspace.root.querySelectorAll('span.glossary').length
@@ -81,6 +77,6 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
                 });
             }
         }
-    ],
+    },
     { tag: 'glossary-words', enabledValue: 'true' }
 );

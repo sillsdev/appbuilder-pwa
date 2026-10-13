@@ -3,16 +3,14 @@ import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } fr
 import { renderBlock } from './common/grafts';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const titles = new FeatureSpec<SharedTextScratch>('Titles', [
-    {
-        event: 'blockGraft',
+export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
+    blockGraft: {
         stage: 'standard',
         details: ({ context }) => ({ type: getBlock(context).subType }),
         guard: ({ context }) => matchBlock(context, 'title'),
         action: (environment) => renderBlock(environment, 'title')
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
@@ -25,8 +23,7 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', [
             workspace.scopeManager.push('sequence:title', div);
         }
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ context, workspace }) =>
@@ -42,8 +39,7 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', [
             workspace.scopeManager.promoteContent('sequence:title');
         }
     },
-    {
-        event: 'startParagraph',
+    startParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -54,8 +50,7 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', [
             workspace.scopeManager.push('paragraph:title', titleDiv);
         }
     },
-    {
-        event: 'endParagraph',
+    endParagraph: {
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context, workspace }) =>
@@ -64,8 +59,7 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', [
             workspace.scopeManager.promoteContent('paragraph:title');
         }
     },
-    {
-        event: 'text',
+    text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ context, workspace }) =>
@@ -76,4 +70,4 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', [
             addPhrases(workspace, workspace.scratch.text!.cleanedText!);
         }
     }
-]);
+});

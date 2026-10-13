@@ -1,9 +1,8 @@
 import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { getBlock, getElement, getSequence } from './common';
 
-export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
-    {
-        event: 'startMilestone',
+export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', {
+    startMilestone: {
         stage: 'fallback',
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -11,15 +10,13 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
             console.warn(`Unsupported Milestone Type: ${getElement(context).subType}`);
         }
     },
-    {
-        event: 'endMilestone',
+    endMilestone: {
         stage: 'fallback',
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    {
-        event: 'metaContent',
+    metaContent: {
         stage: 'fallback',
         details: () => undefined,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -27,8 +24,7 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
             console.warn(`Unsupported Meta Content: %o`, context);
         }
     },
-    {
-        event: 'blockGraft',
+    blockGraft: {
         stage: 'fallback',
         details: ({ context }) => ({ type: getBlock(context).subType }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -36,8 +32,7 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
             console.warn(`Unsupported Block Type: ${getBlock(context).subType}`);
         }
     },
-    {
-        event: 'inlineGraft',
+    inlineGraft: {
         stage: 'fallback',
         details: ({ context }) => ({ type: getElement(context).subType }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -45,8 +40,7 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
             console.warn(`Unsupported Element Type: ${getElement(context).subType}`);
         }
     },
-    {
-        event: 'startSequence',
+    startSequence: {
         stage: 'fallback',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
@@ -54,11 +48,10 @@ export const WARN_UNSUPPORTED_FEATURES = new FeatureSpec('Unsupported', [
             console.warn(`Unsupported Sequence Type: ${getSequence(context).type}`);
         }
     },
-    {
-        event: 'endSequence',
+    endSequence: {
         stage: 'fallback',
         details: ({ context }) => ({ type: getSequence(context).type }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     }
-]);
+});

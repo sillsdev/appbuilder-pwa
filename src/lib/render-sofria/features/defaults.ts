@@ -8,9 +8,8 @@ import {
 import { getElement } from './common';
 import { terminatePhrase, type SharedTextScratch } from './common/text';
 
-export const defaults = new FeatureSpec<SharedTextScratch>('Default', [
-    {
-        event: 'startDocument',
+export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
+    startDocument: {
         stage: 'fallback',
         details: ({ workspace }) => workspace.stores.references,
         action({ workspace }) {
@@ -22,8 +21,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', [
             workspace.scopeManager.push('document', workspace.root);
         }
     },
-    {
-        event: 'endDocument',
+    endDocument: {
         stage: 'cleanup',
         details: ({ workspace }) => workspace.stores.references,
         action({ workspace, output }) {
@@ -33,42 +31,30 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', [
             output.root = workspace.root;
         }
     },
-    {
-        event: 'endVerses',
-        stage: 'init',
-        details: ({ context, workspace }) => ({
-            v: getElement(context).atts['number'],
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText
-        }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            terminatePhrase(workspace);
+    endVerses: [
+        {
+            stage: 'init',
+            details: ({ context, workspace }) => ({
+                v: getElement(context).atts['number'],
+                phrase: workspace.scopeManager.find('phrase')?.root.innerText
+            }),
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                terminatePhrase(workspace);
+            }
+        },
+        {
+            stage: 'cleanup',
+            details: ({ context }) => ({
+                v: getElement(context).atts['number']
+            }),
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                workspace.currentTextPosition.verse = 'none';
+            }
         }
-    },
-    {
-        event: 'endVerses',
-        stage: 'cleanup',
-        details: ({ context }) => ({
-            v: getElement(context).atts['number']
-        }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            workspace.currentTextPosition.verse = 'none';
-        }
-    },
-    {
-        event: 'startParagraph',
-        stage: 'init',
-        details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText
-        }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            terminatePhrase(workspace);
-        }
-    },
-    {
-        event: 'endParagraph',
+    ],
+    startParagraph: {
         stage: 'init',
         details: ({ workspace }) => ({
             phrase: workspace.scopeManager.find('phrase')?.root.innerText
@@ -78,37 +64,47 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', [
             terminatePhrase(workspace);
         }
     },
-    {
-        event: 'text',
+    endParagraph: {
         stage: 'init',
-        details: ({ context }) => ({ length: getElement(context).text.trim().length }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ context, workspace }) {
-            let cleanedText = getElement(context).text;
-
-            // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
-            // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-            cleanedText = cleanedText.replaceAll('|default=""', '| ');
-
-            addToScratchPad(workspace.scratch, 'text', {
-                cleanedText,
-                empty: !cleanedText.trim().length
-            });
-        }
-    },
-    {
-        event: 'text',
-        stage: 'cleanup',
-        details: () => undefined,
+        details: ({ workspace }) => ({
+            phrase: workspace.scopeManager.find('phrase')?.root.innerText
+        }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
-            addToScratchPad(workspace.scratch, 'text', {
-                cleanedText: undefined,
-                empty: undefined
-            });
+            terminatePhrase(workspace);
         }
-    }
-]);
+    },
+    text: [
+        {
+            stage: 'init',
+            details: ({ context }) => ({ length: getElement(context).text.trim().length }),
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ context, workspace }) {
+                let cleanedText = getElement(context).text;
+
+                // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
+                // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
+                cleanedText = cleanedText.replaceAll('|default=""', '| ');
+
+                addToScratchPad(workspace.scratch, 'text', {
+                    cleanedText,
+                    empty: !cleanedText.trim().length
+                });
+            }
+        },
+        {
+            stage: 'cleanup',
+            details: () => undefined,
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                addToScratchPad(workspace.scratch, 'text', {
+                    cleanedText: undefined,
+                    empty: undefined
+                });
+            }
+        }
+    ]
+});
 
 function addFooter(workspace: RenderWorkspace) {
     const collection = workspace.stores.references.docSet.split('_')[1];
