@@ -1,4 +1,5 @@
 import type { FeatureSpec } from './common';
+import { annotations } from './features/annotations';
 import { audioclips } from './features/audio-clips';
 import { characterStyles, paragraphStyles } from './features/custom-styles';
 import { chapterNumber, verseNumbers } from './features/cv-numbers';
@@ -11,6 +12,7 @@ import { introductions } from './features/introductions';
 import { jmplinks } from './features/jmplinks';
 import { orderedLists, unorderedLists } from './features/lists';
 import { LOGS } from './features/logging';
+import { plans } from './features/plans';
 import { reflinks } from './features/reflinks';
 import { sequences } from './features/sequence';
 import { tables } from './features/tables';
@@ -26,6 +28,8 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     titles,
     headings,
     sequences,
+    annotations,
+    plans,
     documentFeature,
     verseNumbers,
     verses,
