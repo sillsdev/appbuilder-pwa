@@ -1,17 +1,44 @@
-import { addToScratchPad, FeatureSpec, renderIfRegularOrIfHackedIntro } from '../common';
-import { extractClassName, getBlock, getElement, matchSequence } from './common';
-import { addPhrases, terminatePhrase, type SharedTextScratch } from './common/text';
+import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
+import { extractClassName, getBlock, getElement, getSequence, matchSequence } from './common';
+import { addPhrases, type SharedTextScratch } from './common/text';
 
-export const text = new FeatureSpec<SharedTextScratch>('Default', [
+export const text = new FeatureSpec<SharedTextScratch>('Main Text', [
     {
-        event: 'startParagraph',
-        stage: 'init',
-        details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText
-        }),
+        event: 'startSequence',
+        stage: 'standard',
+        details: ({ context }) => ({ type: getSequence(context).type }),
+        guard: ({ context, workspace }) =>
+            matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
+        action: noaction
+    },
+    {
+        event: 'endSequence',
+        stage: 'standard',
+        details: ({ context }) => ({ type: getSequence(context).type }),
+        guard: ({ context, workspace }) =>
+            matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
+        action: noaction
+    },
+    {
+        event: 'startVerses',
+        stage: 'fallback',
+        details: ({ context }) => ({ v: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            terminatePhrase(workspace);
+        action({ context, workspace }) {
+            const verse = getElement(context).atts['number'];
+            workspace.currentTextPosition.verse = verse;
+            workspace.currentTextPosition.phraseIndex = 0;
+
+            const verseDiv = workspace.document.createElement('div');
+            verseDiv.setAttribute('data-verse', verse);
+
+            if (workspace.viewSettings.verseLayout === 'one-per-line') {
+                verseDiv.classList.add('verse-block');
+            } else {
+                verseDiv.classList.add('txs');
+            }
+
+            workspace.scopeManager.push(`verses:${verse}`, verseDiv);
         }
     },
     {
@@ -30,57 +57,6 @@ export const text = new FeatureSpec<SharedTextScratch>('Default', [
 
                 workspace.scopeManager.push('paragraph:main', paragraphDiv);
             }
-        }
-    },
-    {
-        event: 'text',
-        stage: 'init',
-        details: ({ context }) => ({ length: getElement(context).text.trim().length }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ context, workspace }) {
-            let cleanedText = getElement(context).text;
-
-            // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
-            // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-            cleanedText = cleanedText.replaceAll('|default=""', '| ');
-
-            addToScratchPad(workspace.scratch, 'text', {
-                cleanedText,
-                empty: !cleanedText.trim().length
-            });
-        }
-    },
-    {
-        event: 'text',
-        stage: 'cleanup',
-        details: () => undefined,
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            addToScratchPad(workspace.scratch, 'text', {
-                cleanedText: undefined,
-                empty: undefined
-            });
-        }
-    },
-    {
-        event: 'text',
-        stage: 'fallback',
-        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
-        guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            addPhrases(workspace, workspace.scratch.text!.cleanedText!);
-        }
-    },
-    {
-        event: 'endParagraph',
-        stage: 'init',
-        details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText
-        }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            terminatePhrase(workspace);
         }
     },
     {
@@ -158,6 +134,25 @@ export const text = new FeatureSpec<SharedTextScratch>('Default', [
                         break;
                 }
             }
+        }
+    },
+    {
+        event: 'text',
+        stage: 'fallback',
+        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
+            addPhrases(workspace, workspace.scratch.text!.cleanedText!);
+        }
+    },
+    {
+        event: 'endDocument',
+        stage: 'standard',
+        action({ workspace }) {
+            workspace.root.querySelectorAll('.seltxt').forEach((el) => {
+                el.addEventListener('click', (e) => workspace.events.clickText(e as MouseEvent));
+            });
         }
     }
 ]);
