@@ -59,8 +59,8 @@ export const usfmWrappers = new FeatureSpec<
         guard: ({ workspace }) => {
             if (!workspace.scratch.text?.empty) {
                 const found = workspace.scopeManager.depth(
-                `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`
-            );
+                    `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`
+                );
                 if (found >= 0) {
                     return found === workspace.scopeManager.depth('wrapper');
                 }
