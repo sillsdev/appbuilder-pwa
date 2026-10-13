@@ -3,25 +3,7 @@ import { getElement } from './common';
 import { addPlanDiv } from './common/plans';
 import { terminatePhrase } from './common/text';
 
-export const chapterVerses = new FeatureSpec('Default', [
-    {
-        event: 'startChapter',
-        stage: 'fallback',
-        details: ({ context }) => ({ c: getElement(context).atts['number'] }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ context, workspace }) {
-            workspace.currentTextPosition.chapter = getElement(context).atts['number'];
-        }
-    },
-    {
-        event: 'endChapter',
-        stage: 'fallback',
-        details: ({ context }) => ({ c: getElement(context).atts['number'] }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            workspace.currentTextPosition.chapter = 'none';
-        }
-    },
+export const verses = new FeatureSpec('Default', [
     {
         event: 'startVerses',
         stage: 'fallback',

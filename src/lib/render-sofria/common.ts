@@ -164,7 +164,6 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
     PKRenderWorkspace & {
         document: Document;
         currentTextPosition: {
-            chapter: string;
             verse: string;
             phraseIndex?: number;
         };
