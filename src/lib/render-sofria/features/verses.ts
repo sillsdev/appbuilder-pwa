@@ -1,6 +1,5 @@
-import { FeatureSpec, renderIfRegularOrIfHackedIntro, type RenderWorkspace } from '../common';
+import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '../common';
 import { getElement } from './common';
-import { addPlanDiv } from './common/plans';
 import { terminatePhrase } from './common/text';
 
 export const verses = new FeatureSpec('Default', [
@@ -28,38 +27,25 @@ export const verses = new FeatureSpec('Default', [
     },
     {
         event: 'endVerses',
-        stage: 'fallback',
+        stage: 'init',
         details: ({ context, workspace }) => ({
             v: getElement(context).atts['number'],
             phrase: workspace.scopeManager.find('phrase')?.root.innerText
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ context, workspace }) {
+        action({ workspace }) {
             terminatePhrase(workspace);
-
-            addSpanAfterVerse(workspace, 'bookmarks');
-            addSpanAfterVerse(workspace, 'notes');
-            addPlanDiv(workspace, getElement(context).atts['number']);
-
+        }
+    },
+    {
+        event: 'endVerses',
+        stage: 'cleanup',
+        details: ({ context }) => ({
+            v: getElement(context).atts['number']
+        }),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
             workspace.currentTextPosition.verse = 'none';
         }
     }
 ]);
-
-function addSpanAfterVerse(workspace: RenderWorkspace, idPrefix: string) {
-    const span = workspace.document.createElement('span');
-    span.id = idPrefix + workspace.currentTextPosition.verse;
-    const verseDiv = workspace.scopeManager.find(
-        `verses:${workspace.currentTextPosition.verse}`
-    )?.root;
-    if (verseDiv) {
-        verseDiv.append(span);
-    } else {
-        const queryString = `div[data-verse="${workspace.currentTextPosition.verse}"]:not([data-phrase])`;
-        const el = (workspace.scopeManager.find('paragraph') ?? workspace)?.root.querySelector(
-            queryString
-        );
-        console.log(el);
-        el?.parentNode?.append(span);
-    }
-}
