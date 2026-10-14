@@ -208,6 +208,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
                 workspace: RenderWorkspace
             ) => void;
             clickText: (event: MouseEvent) => void;
+            updateAnnotations: () => void;
         };
         stores: {
             references: ReferenceStore;
@@ -217,14 +218,9 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             t: Record<string, string>;
             language: string;
             lastPlanReference: boolean;
-            themeColors: Record<string, string>;
-            modal: Modal;
             settings: FeatureConfig;
         };
         queries: {
-            notes: Promise<NoteItem[]>;
-            bookmarks: Promise<BookmarkItem[]>;
-            highlights: Promise<HighlightItem[]>;
             glossary: Promise<GlossaryQueryResult>;
         };
     };
@@ -255,7 +251,8 @@ export function compileActionDictionary(
     features: FeatureSpec<any>[],
     config: Readonly<ScriptureConfig>,
     references: ReferenceStore,
-    settings: FeatureConfig
+    settings: FeatureConfig,
+    logSettings: ScriptureLogConfig
 ) {
     const result: ActionDictionary = {};
     for (const f of features) {
@@ -270,7 +267,7 @@ export function compileActionDictionary(
             ) ||
             checkSettingIs(settings, f.flag.tag, f.flag.enabledValue);
 
-        if (f.flag) {
+        if (f.flag && logSettings.actions) {
             console.warn(
                 `feature with ${f.flag.tag} === ${f.flag.enabledValue} is ${enabled ? 'enabled' : 'disabled'}`
             );
@@ -287,33 +284,41 @@ export function compileActionDictionary(
     }
     let errorCount = 0;
     for (const e in result) {
-        const sections = {} as Record<RenderStage, string>;
-        result[e as RenderEvent]?.forEach((a) => {
-            if (errorOnDuplicateSection(a.stage)) {
-                if (sections[a.stage]) {
-                    console.error(
-                        `Action handler ${e} has more than one handler in ${a.stage}. Encountered: ${a.name}, Existing: ${sections[a.stage]}`
-                    );
-                    errorCount++;
-                } else {
-                    sections[a.stage] = `${a.name}`;
+        const sections = result[e as RenderEvent]?.reduce(
+            (sections, a) => {
+                if (a.stage !== 'standard') {
+                    sections[a.stage].push(`${a.name}`);
                 }
-            } else if (warnOnDuplicateSection(a.stage)) {
-                if (sections[a.stage]) {
-                    console.warn(
-                        `Action handler ${e} has more than one handler in ${a.stage}. Encountered: ${a.name}, Existing: ${sections[a.stage]}`
+                return sections;
+            },
+            { init: [], fallback: [], cleanup: [] } as Record<
+                Exclude<RenderStage, 'standard'>,
+                string[]
+            >
+        );
+        Object.entries(sections ?? {}).forEach(([key, handlers]) => {
+            if (handlers.length > 1) {
+                const stage = key as RenderStage;
+                if (errorOnDuplicateSection(stage)) {
+                    errorCount += handlers.length - 1;
+                    console.error(
+                        `Action handler ${e} has ${handlers.length} handlers in ${stage}.\n%o`,
+                        [...handlers]
                     );
-                } else {
-                    sections[a.stage] = `${a.name}`;
+                } else if (warnOnDuplicateSection(stage) && logSettings.actions) {
+                    console.warn(
+                        `Action handler ${e} has ${handlers.length} handlers in ${stage}.\n%o`,
+                        [...handlers]
+                    );
                 }
             }
         });
         // sort default handlers to end
-        result[e as RenderEvent]?.sort(
-            (a, b) => stages[a.stage ?? 'standard'] - stages[b.stage ?? 'standard']
-        );
+        result[e as RenderEvent]?.sort((a, b) => stages[a.stage] - stages[b.stage]);
     }
-    console.warn('Compiled actions dictionary: %o', result);
+    if (logSettings.actions) {
+        console.warn('Compiled actions dictionary: %o', result);
+    }
     if (errorCount) {
         throw new Error(`Action compilation failed with ${errorCount} error(s).`);
     }
