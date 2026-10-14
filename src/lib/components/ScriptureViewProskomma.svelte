@@ -350,7 +350,7 @@ LOGGING:
             },
             clickText: (e) => {
                 if (!$audioPlayer.playing) {
-                    onClickText(e, maxSelections);
+                    onClickText(e, selectedVerses, maxSelections);
                 }
             }
         };

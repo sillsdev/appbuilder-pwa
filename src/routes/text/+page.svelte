@@ -520,8 +520,7 @@
                         <!-- <ScriptureViewSofria -->
                         <!-- {...settings as ScriptureViewSofriaProps} -->
                         <!-- /> -->
-                        <ScriptureViewProskomma
-                            {...settings as ScriptureViewProskommaProps} />
+                        <ScriptureViewProskomma {...settings as ScriptureViewProskommaProps} />
                     {/if}
                 {/snippet}
             </ScripturePager>
