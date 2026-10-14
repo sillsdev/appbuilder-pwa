@@ -2384,7 +2384,7 @@ LOGGING:
                                 environment.workspace.titleGraft = true;
                             }
                             if (currentBlock.sequence) {
-                                graftRecord.sequence = {};
+                                //graftRecord.sequence = {}; // I don't think this code actually does anything???
                                 const cachedSequencePointer = environment.workspace.currentSequence;
                                 environment.workspace.currentSequence = graftRecord.sequence;
                                 environment.context.renderer.renderSequence(environment);
