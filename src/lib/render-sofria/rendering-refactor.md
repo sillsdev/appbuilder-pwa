@@ -24,11 +24,11 @@
 ### Architecture
 - Each event dispatched by `renderDocument` will be processed by a single event handler (`handleSofriaRenderEvent`).
 - `handleSofriaRenderEvent` will (1) initialize the render `workspace` with component state and (2) call the appropriate custom action(s) for the respective event. These actions are defined and organized as follows:
-	- A "feature file" (`xxxFeature.ts`) in `src/lib/render-sofria` defines a coherent set of "*render* actions" that describe the functionality for (ideally) a single rendering operation. (It's hard to fully separate features due to dependencies between events.)
+	- A "feature file" (`xxx.ts`) in `src/lib/render-sofria/features` defines a coherent set of "*render* actions" that describe the functionality for (ideally) a single rendering operation. (It's hard to fully separate features due to dependencies between events.)
 	- Each feature file defines and exports an instance of `FeatureSpec` that contains a list of 'render actions', a list of render events to which each action should be applied, and a condition flag that determines whether the feature should be enabled for the current document. Render actions have access to the `workspace` and any other contextual data supplied by `SofriaRenderFromProskomma`.
 	- When a Scripture is loaded, a Svelte derived state variable is used to process the entire list of features into a dictionary mapping Proskomma event names to render actions for currently enabled features only.
 - To avoid complex state for dynamically nesting DOM elements while generating the text HTML, we introduce a `ScopeManager`. A single instance of this class is attached to the `workspace` and performs the following roles:
-	- Maintains a stack of active "scopes" within the current render tree. A "scope" corresponds to a logical unit within the document (aligned with the Proskomma event model), and optionally includes a HTML element which represents the (local) root node of this logical unit. A scope can either be a block containing several inner scopes or a standalone leaf node. Examples of possible "scopes" include `paragraph`, `sequence`, `text`, and `document`.
+	- Maintains a stack of active "scopes" within the current render tree. A "scope" corresponds to a logical unit within the document (aligned with the Proskomma event model), and includes a HTML element which represents the (local) root node of this logical unit. A scope can either be a block containing several inner scopes or a standalone leaf node. Examples of possible "scopes" include `paragraph`, `sequence`, `text`, and `document`.
 	- Accesses and modifies HTML scope root nodes at any level within the current scope stack.
 	- Provides convenient method wrappers for attaching arbitrary HTML content to scopes and "promoting" content from one scope into its parent scope.
 
@@ -43,3 +43,6 @@
 - Use `TextPositionFeature` to filter the document by a verse range selector specified in `ScriptureViewSofria`
 - Better organize exports among `index.ts`, `common.ts`, and `util.ts`
 - Test! (Ideally by diffing output HTML with previous version)
+
+## As of 10/14/2025
+- Finished?
