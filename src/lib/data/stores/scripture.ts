@@ -200,7 +200,7 @@ export const fontChoices = derived(refs, ($refs) => {
             : (colFonts?.length ?? 0) > 0
               ? colFonts
               : allFonts;
-    return currentFonts;
+    return currentFonts ?? [];
 });
 
 export type Selection = {
@@ -211,8 +211,6 @@ export type Selection = {
     reference: string;
     verse: string;
 };
-
-export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 
 function createSelectedVerses() {
     const external: Writable<Selection[]> = persistedLocal('selectedVerses', []);
