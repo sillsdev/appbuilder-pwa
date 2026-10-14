@@ -512,33 +512,43 @@ LOGGING:
         let execFallback = true;
 
         for (const a of actionsDict[eventName] ?? []) {
-            if ((a.stage !== 'fallback' || execFallback) && (!a.guard || a.guard(environment))) {
-                if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
-                    console.log(
-                        '%s%s [%o]\n%o',
-                        prettyRenderEvent(eventName),
-                        a.name ? ` - ${a.name}` : '',
-                        a.stage,
-                        a.details
-                            ? a.details(environment)
-                            : {
-                                  sequence: getSequence(environment.context).type,
-                                  element: { ...getElement(environment.context) },
-                                  block: { ...getBlock(environment.context) }
-                              }
-                    );
+            try {
+                if (
+                    (a.stage !== 'fallback' || execFallback) &&
+                    (!a.guard || a.guard(environment))
+                ) {
+                    if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
+                        console.log(
+                            '%s%s [%o]\n%o',
+                            prettyRenderEvent(eventName),
+                            a.name ? ` - ${a.name}` : '',
+                            a.stage,
+                            a.details
+                                ? a.details(environment)
+                                : {
+                                      sequence: getSequence(environment.context).type,
+                                      element: { ...getElement(environment.context) },
+                                      block: { ...getBlock(environment.context) }
+                                  }
+                        );
+                    }
+                    a.action(environment);
+                    execFallback &&= !!a.stage && a.stage !== 'standard';
+                } else {
+                    if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
+                        /* console.log(
+                            'Skipped: %s%s%s',
+                            prettyRenderEvent(eventName),
+                            a.name ? ` - ${a.name}` : '',
+                            ` (${a.section})`
+                        ); */
+                    }
                 }
-                a.action(environment);
-                execFallback &&= !!a.stage && a.stage !== 'standard';
-            } else {
-                if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
-                    /* console.log(
-                        'Skipped: %s%s%s',
-                        prettyRenderEvent(eventName),
-                        a.name ? ` - ${a.name}` : '',
-                        ` (${a.section ?? 'standard'})`
-                    ); */
-                }
+            } catch (e) {
+                console.log(`Error encountered while rendering:\n%o\n%o`, a, {
+                    ...environment
+                });
+                throw e;
             }
         }
     }
