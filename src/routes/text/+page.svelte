@@ -188,7 +188,8 @@
                     proskomma: data?.proskomma,
                     setReference: refs.set,
                     setBookTab: refs.setBookTab,
-                    selectedVerses
+                    selectedVerses,
+                    isActivePanel: false
                 } satisfies ScriptureViewProskommaProps)
               : {}
     );

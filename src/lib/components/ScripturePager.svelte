@@ -98,7 +98,8 @@ concern of the caller, not the pager).
 
     const settings1 = $derived({
         // Initial settings for center panel
-        ...viewSettings
+        ...viewSettings,
+        isActivePanel: true
     });
 
     const settings2 = $derived({
@@ -198,7 +199,8 @@ concern of the caller, not the pager).
                         ...viewSettings.references,
                         book: viewSettings.references!.prev.book,
                         chapter: viewSettings.references!.prev.chapter
-                    }
+                    },
+                    isActivePanel: false
                 };
             }
         } else if (direction === 1) {
@@ -214,7 +216,8 @@ concern of the caller, not the pager).
                         ...viewSettings.references,
                         book: viewSettings.references!.next.book,
                         chapter: viewSettings.references!.next.chapter
-                    }
+                    },
+                    isActivePanel: false
                 };
             }
         }
@@ -222,6 +225,7 @@ concern of the caller, not the pager).
         settingsCache[idx].highlights = viewSettings.highlights;
         settingsCache[idx].bookmarks = viewSettings.bookmarks;
         settingsCache[idx].notes = viewSettings.notes;
+        settingsCache[idx].isActivePanel = true;
     }
 
     $effect(() => {

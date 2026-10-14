@@ -29,6 +29,7 @@ LOGGING:
         setReference: (value: Reference) => void;
         setBookTab: (value: number) => void;
         selectedVerses: SelectedVersesStore;
+        isActivePanel: boolean;
     }
 </script>
 
@@ -54,6 +55,8 @@ LOGGING:
         footnotes,
         language,
         modal,
+        ModalType,
+        monoIconColor,
         plan,
         scriptureLogs,
         t,
@@ -88,7 +91,7 @@ LOGGING:
     import { onClickText, updateSelections } from '$lib/scripts/verseSelectUtil';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, untrack } from 'svelte';
 
     let {
         audioPhraseEndChars,
@@ -108,15 +111,28 @@ LOGGING:
         proskomma,
         setReference,
         setBookTab,
-        selectedVerses
+        selectedVerses,
+        isActivePanel
     }: Props = $props();
 
     const currentBook = $derived(references.book);
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
 
+    // HACK: The introduction is handled as a block graft on chapter 1, so we need to render chapter 1, but only the introduction
+    const hackRenderIntro = $derived(
+        currentChapter === 'i' &&
+            !!references.catalog.documents.find((x) => x.bookCode === currentBook)?.hasIntroduction
+    );
+
     const actionsDict: ActionDictionary = $derived(
-        compileActionDictionary(renderFeatures, scriptureConfig, references, userSettings)
+        compileActionDictionary(
+            renderFeatures,
+            scriptureConfig,
+            references,
+            userSettings,
+            $scriptureLogs
+        )
     );
 
     const fontSize = $derived(bodyFontSize + 'px');
@@ -233,10 +249,109 @@ LOGGING:
     }
 
     $effect(() => {
-        if (scriptureRoot && $selectedVerses) {
-            updateSelections(scriptureRoot, selectedVerses);
+        const c = untrack(() => scriptureRoot);
+        if (isActivePanel && c && $selectedVerses) {
+            updateSelections(c, selectedVerses);
         }
     });
+
+    // Annotations are only read after query() awaits, so the render effect doesn't
+    // track them. Re-apply them to the rendered chapter whenever they change.
+    $effect(() => {
+        void [highlights, bookmarks, notes];
+        if (untrack(() => loading || hackRenderIntro)) {
+            return;
+        }
+        applyAnnotations();
+    });
+
+    // Each call bumps the generation so a slower, older pass can't overwrite a newer one.
+    let annotationGeneration = 0;
+    function applyAnnotations() {
+        const generation = ++annotationGeneration;
+        Promise.all([highlights, bookmarks, notes]).then(([highlights, bookmarks, notes]) => {
+            if (generation !== annotationGeneration) {
+                return;
+            }
+            for (const span of scriptureRoot.querySelectorAll('span[id^="bookmarks"]') ?? []) {
+                span.replaceChildren();
+            }
+            for (const div of scriptureRoot.querySelectorAll('div[class*="hlp"]') ?? []) {
+                div.classList.remove(...[...div.classList].filter((c) => c.startsWith('hlp')));
+            }
+            addNotedVerses(notes);
+            addBookmarkedVerses(bookmarks);
+            addHighlightedVerses(highlights);
+        });
+    }
+
+    function addNotedVerses(notes: NoteItem[]) {
+        for (let k = 0; k < notes.length; k++) {
+            const note = notes[k];
+            const notesContainer = scriptureRoot.querySelector(`#notes${note.verse}`);
+            if (!notesContainer) {
+                console.warn('No notes span for verse %s', note.verse);
+                continue;
+            }
+
+            const existingNoteSpan = scriptureRoot.querySelector(`#note${k}`);
+            if (!existingNoteSpan) {
+                const noteSpan = document.createElement('span');
+                noteSpan.id = 'note' + k;
+                noteSpan.innerHTML = noteSvg();
+                noteSpan.onclick = (event) => editNote(note);
+                notesContainer.appendChild(noteSpan);
+            }
+        }
+    }
+
+    function noteSvg() {
+        const noteIconColor: string = themeColors?.TextColor || $monoIconColor;
+        return `<svg fill="${noteIconColor}" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 96 96"><path d="M 21.07 74.80 L 8.76 87.35 Q 8.00 88.12 8.00 87.03 Q 8.00 52.12 8.00 18.00 Q 8.00 7.73 18.00 7.80 Q 48.00 8.00 78.00 8.00 Q 88.27 8.00 88.18 18.00 Q 88.00 40.13 88.09 62.25 Q 88.13 72.31 78.00 72.22 C 72.03 72.17 25.23 70.89 23.56 72.37 Q 22.78 73.07 21.07 74.80 Z M 72.00 21.60 A 0.60 0.60 0.0 0 0 71.40 21.00 L 24.60 21.00 A 0.60 0.60 0.0 0 0 24.00 21.60 L 24.00 28.40 A 0.60 0.60 0.0 0 0 24.60 29.00 L 71.40 29.00 A 0.60 0.60 0.0 0 0 72.00 28.40 L 72.00 21.60 Z M 72.00 35.60 A 0.60 0.60 0.0 0 0 71.40 35.00 L 24.60 35.00 A 0.60 0.60 0.0 0 0 24.00 35.60 L 24.00 42.40 A 0.60 0.60 0.0 0 0 24.60 43.00 L 71.40 43.00 A 0.60 0.60 0.0 0 0 72.00 42.40 L 72.00 35.60 Z M 60.00 49.60 A 0.60 0.60 0.0 0 0 59.40 49.00 L 24.60 49.00 A 0.60 0.60 0.0 0 0 24.00 49.60 L 24.00 56.40 A 0.60 0.60 0.0 0 0 24.60 57.00 L 59.40 57.00 A 0.60 0.60 0.0 0 0 60.00 56.40 L 60.00 49.60 Z"</path></svg>`;
+    }
+
+    function editNote(note: NoteItem) {
+        modal.open(ModalType.Note, note);
+    }
+
+    function bookmarkSvg() {
+        return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
+    }
+    function addBookmarkedVerses(bookmarks: BookmarkItem[]) {
+        for (let j = 0; j < bookmarks.length; j++) {
+            const bookmarksSpan = scriptureRoot.querySelector(`#bookmarks${bookmarks[j].verse}`);
+            if (!bookmarksSpan) {
+                console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
+                continue;
+            }
+
+            const existingBookmarkSpan = scriptureRoot.querySelector(`#bookmark${j}`);
+            if (!existingBookmarkSpan) {
+                const bookmarkSpan = document.createElement('span');
+                bookmarkSpan.id = 'bookmark' + j;
+                bookmarkSpan.innerHTML = bookmarkSvg();
+                bookmarksSpan.appendChild(bookmarkSpan);
+            }
+        }
+    }
+
+    function addHighlightedVerses(highlights: HighlightItem[]) {
+        for (let i = 0; i < highlights.length; i++) {
+            //Skip this entry if the next is a highlight for the same verse
+            if (i < highlights.length - 1) {
+                if (highlights[i].verse === highlights[i + 1].verse) {
+                    continue;
+                }
+            }
+            const elements = scriptureRoot.querySelectorAll(
+                `div[data-verse="${highlights[i].verse}"]`
+            );
+            for (const element of elements ?? []) {
+                const penClass = 'hlp' + highlights[i].penColor;
+                element.classList.add(penClass);
+            }
+        }
+    }
 
     async function getCurrentDocumentID(docSet: string, bookCode: string) {
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
@@ -352,7 +467,8 @@ LOGGING:
                 if (!$audioPlayer.playing) {
                     onClickText(e, selectedVerses, maxSelections);
                 }
-            }
+            },
+            updateAnnotations: applyAnnotations
         };
         workspace.stores = {
             references,
@@ -362,14 +478,9 @@ LOGGING:
             t: $t,
             language: $language,
             lastPlanReference,
-            themeColors,
-            modal,
             settings: userSettings
         };
         workspace.queries = {
-            notes,
-            bookmarks,
-            highlights,
             glossary
         };
 
@@ -390,10 +501,10 @@ LOGGING:
         eventName: RenderEvent,
         workspaceOptions: Partial<RenderWorkspace> = {}
     ) {
-        //console.log('Handling function called for %s on %o', eventName, environment);
-
         if (!renderWorkspaceInitialized) {
-            console.log(environment);
+            if ($scriptureLogs.actions) {
+                console.log('Initializing renderer\n%o', { ...environment });
+            }
             initRenderWorkspace(environment, workspaceOptions);
             renderWorkspaceInitialized = true;
         }
@@ -433,12 +544,9 @@ LOGGING:
     }
 
     async function renderDocumentSofria(docSet: string, bookCode: string, chapter: string) {
+        console.warn(`Rendering Document ${docSet}.${bookCode}.${chapter}`);
         const actionObject: { [key in RenderEvent]?: ProskommaRenderAction[] } = {};
 
-        // HACK: The introduction is handled as a block graft on chapter 1, so we need to render chapter 1, but only the introduction
-        const hackRenderIntro =
-            chapter === 'i' &&
-            references.catalog.documents.find((x) => x.bookCode === bookCode)?.hasIntroduction;
         if (hackRenderIntro) {
             chapter = '1';
         }
@@ -455,8 +563,18 @@ LOGGING:
         }
 
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
+
+        performance.mark('pk-query-books-start');
         const docId = await getCurrentDocumentID(docSet, bookCode);
-        console.warn(`found docId ${docId}`);
+        performance.mark('pk-query-books-end');
+        performance.measure(
+            'pk-query-books-duration',
+            'pk-query-books-start',
+            'pk-query-books-end'
+        );
+        if ($scriptureLogs.docResult) {
+            console.warn(`found docId ${docId}`);
+        }
 
         renderWorkspaceInitialized = false;
 
@@ -465,11 +583,14 @@ LOGGING:
             actions: actionObject,
             debugLevel: 0
         });
+        performance.mark('cl-render-start');
         pkRenderer.renderDocument({
             docId,
             config: chapterCount(references.book) ? { chapters: [chapter] } : {},
             output
         });
+        performance.mark('cl-render-end');
+        performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
 
         if ($scriptureLogs.root) {
             console.warn('Final rendering output: %o', output.root);
@@ -482,6 +603,7 @@ LOGGING:
     }
 
     $effect(() => {
+        performance.mark('query-start');
         renderDocumentSofria(
             currentDocset,
             references.bookTab > 0
@@ -489,6 +611,8 @@ LOGGING:
                 : currentBook,
             currentChapter
         );
+        performance.mark('query-end');
+        performance.measure('query-duration', 'query-start', 'query-end');
     });
 </script>
 
