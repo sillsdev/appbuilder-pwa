@@ -202,8 +202,7 @@ concern of the caller, not the pager).
                         ...viewSettings.references,
                         book: viewSettings.references!.prev.book,
                         chapter: viewSettings.references!.prev.chapter
-                    },
-                    isActivePanel: false
+                    }
                 };
             }
         } else if (direction === 1) {
@@ -219,11 +218,15 @@ concern of the caller, not the pager).
                         ...viewSettings.references,
                         book: viewSettings.references!.next.book,
                         chapter: viewSettings.references!.next.chapter
-                    },
-                    isActivePanel: false
+                    }
                 };
             }
         }
+
+        settingsCache.forEach((p) => {
+            p.isActivePanel = false;
+        });
+
         idx = panels_X.indexOf(0);
         settingsCache[idx].highlights = viewSettings.highlights;
         settingsCache[idx].bookmarks = viewSettings.bookmarks;
