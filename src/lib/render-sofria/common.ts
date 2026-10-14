@@ -75,9 +75,9 @@ export function prettyRenderEvent(event: RenderEvent) {
 
 export class RenderScope {
     constructor(level: RenderScopeWithSubType, root: HTMLElement) {
-        const parts = level.split(':');
-        this.level = parts[0] as RenderScopeLevel;
-        this.subType = parts[1];
+        const [scope, ...rest] = level.split(':');
+        this.level = scope as RenderScopeLevel;
+        this.subType = rest.length ? rest.join(':') : undefined;
         this.root = root;
     }
 
@@ -86,10 +86,10 @@ export class RenderScope {
     root: HTMLElement;
 
     match(level: RenderScopeWithSubType) {
-        const parts = level.split(':');
-        let matches = this.level === parts[0];
-        if (parts[1]) {
-            matches &&= this.subType === parts[1];
+        const [scope, ...rest] = level.split(':');
+        let matches = this.level === scope;
+        if (rest.length) {
+            matches &&= this.subType === rest.join(':');
         }
         return matches;
     }

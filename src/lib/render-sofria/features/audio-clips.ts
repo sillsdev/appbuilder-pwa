@@ -56,9 +56,8 @@ export const audioclips = new FeatureSpec<
                     if (audioSource) {
                         if (audioSource.type === 'assets') {
                             src = clips[`./${filename}`] ?? 'clips/' + filename;
-                        } else if (audioSource.type === 'download') {
-                            const address = audioSource.address;
-                            src = ensureTrailingSlash(address) + filename;
+                        } else if (audioSource.type === 'download' && audioSource.address) {
+                            src = ensureTrailingSlash(audioSource.address) + filename;
                         }
                     }
                 }

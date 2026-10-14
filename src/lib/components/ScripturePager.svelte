@@ -153,12 +153,14 @@ concern of the caller, not the pager).
                 ...viewSettings.references,
                 book: hasPrev ? viewSettings.references!.prev.book : viewSettings.references!.book,
                 chapter: hasPrev ? viewSettings.references!.prev.chapter : '1'
-            }
+            },
+            isActivePanel: false
         };
 
         settingsCache[1] = {
             // Initial settings for center panel
-            ...viewSettings
+            ...viewSettings,
+            isActivePanel: true
         };
 
         settingsCache[2] = {
@@ -171,7 +173,8 @@ concern of the caller, not the pager).
                 ...viewSettings.references,
                 book: hasNext ? viewSettings.references!.next.book : viewSettings.references!.book,
                 chapter: hasNext ? viewSettings.references!.next.chapter : '1'
-            }
+            },
+            isActivePanel: false
         };
 
         if (Math.sign(panels_X[0]) > -1) {

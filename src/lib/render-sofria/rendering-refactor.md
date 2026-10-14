@@ -1,11 +1,11 @@
 # Sofria Rendering Refactor
 
-### Motivation
+## Motivation
 - ScriptureViewSofria is complex, unwieldy, and awkward to maintain. It also lacks the ability to limit displayed content to specific (verse) ranges of chapter text. It has inline definitions for each Proskomma event action (~1100 lines!), and many interdependencies between event actions on temporary workspace state variables.
 - Adding support for verse range limiting would allow SVS to be used to render rich text in footnotes.
 - Extracting render actions and utility functions to separate files could greatly ease future maintainance and new feature work.
 
-### Background
+## Background
 - `ScriptureViewSofria.svelte` is the Svelte component responsible for rendering the Scripture text. It uses `SofriaRenderFromProskomma` from `proskomma-json-tools` to render the currently loaded document.
 - The `renderDocument` function on `SofriaRenderFromProskomma` generates an event stream representing textual features and data. This event stream is processed by a set of 'action' objects which specify callbacks to be performed when each event is received.
 - Proskomma event 'actions' are exclusive by default. That is, they can be selectively enabled via an arrow function `test`, but only the first action for which `test` returns `true` will run for a given event.
@@ -13,15 +13,15 @@
 - `SofriaRenderFromProskomma` provides a `workspace` object which allows sharing arbitrary state between event actions. In the current configuration, this `workspace`object has over 40 top-level properties, many of which are dynamically set to `null` during the rendering process.
 - Event inter-dependencies and shared state mean that it is hard to fully partition, e.g., a basic text paragraph from several related features (verse numbers, etc.).
 
-### Goals
+## Goals
 - Implement verse range limiting
 - Allow multiple fine-grained actions per event type
 - Enable/disable actions based on current settings/properties
 - Partition actions into separate files
-- Make DOM heirarchy construction more intelligible and avoid use of nullable workspace state
+- Make DOM hierarchy construction more intelligible and avoid use of nullable workspace state
 
 (For testing purposes, the new Scripture view component is implemented as `ScriptureViewProskomma.svelte`.)
-### Architecture
+## Architecture
 - Each event dispatched by `renderDocument` will be processed by a single event handler (`handleSofriaRenderEvent`).
 - `handleSofriaRenderEvent` will (1) initialize the render `workspace` with component state and (2) call the appropriate custom action(s) for the respective event. These actions are defined and organized as follows:
 	- A "feature file" (`xxx.ts`) in `src/lib/render-sofria/features` defines a coherent set of "*render* actions" that describe the functionality for (ideally) a single rendering operation. (It's hard to fully separate features due to dependencies between events.)
@@ -44,5 +44,5 @@
 - Better organize exports among `index.ts`, `common.ts`, and `util.ts`
 - Test! (Ideally by diffing output HTML with previous version)
 
-## As of 10/14/2025
+## As of 10/14/2026
 - Finished?

@@ -5,6 +5,7 @@ import { addPhrases, type SharedTextScratch } from './common/text';
 export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
     startWrapper: {
         stage: 'standard',
+        details: ({ context }) => ({ href: getElement(context).atts['href']?.[0] }),
         guard: ({ context }) => matchElement(context, 'usfm:jmp'),
         action: ({ context, workspace }) => {
             const element = getElement(context);
@@ -36,12 +37,11 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
                           ? 'tel-link'
                           : 'web-link';
                     jmpLink.classList.add(className);
-                    jmpLink.setAttribute('href', hrefLower);
+                    jmpLink.setAttribute('href', href.trim());
                     if (className === 'web-link') {
                         jmpLink.setAttribute('target', '_blank');
                         jmpLink.setAttribute('rel', 'noopener noreferrer');
                     }
-                    jmpLink.addEventListener('click', (e) => e.stopPropagation());
                 }
             } else {
                 jmpLink = workspace.document.createElement('span');
@@ -63,6 +63,7 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
     },
     endWrapper: {
         stage: 'standard',
+        details: ({ context }) => ({ href: getElement(context).atts['href']?.[0] }),
         guard: ({ context }) => matchElement(context, 'usfm:jmp'),
         action: ({ workspace }) => {
             workspace.scopeManager.promoteContent('wrapper:jmp');
@@ -78,6 +79,22 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
                 requireTop: true,
                 newPhrase: false
             });
+        }
+    },
+    endDocument: {
+        stage: 'standard',
+        details: ({ workspace }) => ({
+            count: workspace.root.querySelectorAll(
+                '.email-link, .tel-link, .web-link:not(.ref-link)'
+            ).length
+        }),
+        guard: ({ context }) => matchElement(context, 'usfm:jmp'),
+        action: ({ workspace }) => {
+            workspace.root
+                .querySelectorAll('.email-link, .tel-link, .web-link:not(.ref-link)')
+                .forEach((el) => {
+                    el.addEventListener('click', (e) => e.stopPropagation());
+                });
         }
     }
 });
