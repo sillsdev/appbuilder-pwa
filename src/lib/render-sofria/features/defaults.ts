@@ -11,7 +11,7 @@ import { terminatePhrase, type SharedTextScratch } from './common/text';
 export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     startDocument: {
         stage: 'fallback',
-        details: ({ workspace }) => workspace.stores.references,
+        details: ({ workspace }) => ({ ...workspace.stores.references }),
         action({ workspace }) {
             const baseDiv = workspace.document.createElement('div');
             baseDiv.setAttribute('data-verse', 'start');
@@ -23,7 +23,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     },
     endDocument: {
         stage: 'cleanup',
-        details: ({ workspace }) => workspace.stores.references,
+        details: ({ workspace }) => ({ ...workspace.stores.references }),
         action({ workspace, output }) {
             addFooter(workspace);
 

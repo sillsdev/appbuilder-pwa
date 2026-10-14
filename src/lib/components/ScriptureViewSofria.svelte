@@ -280,10 +280,6 @@ LOGGING:
         if ($refs.chapter === references.chapter && c && $selectedVerses) {
             updateSelections(c, selectedVerses);
         }
-
-        if (container && $selectedVerses) {
-            updateSelections(container, selectedVerses);
-        }
     });
 
     // Annotations are only read after query() awaits, so the render effect doesn't

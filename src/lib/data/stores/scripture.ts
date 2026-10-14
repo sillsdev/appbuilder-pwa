@@ -1,5 +1,6 @@
 import { scriptureConfig } from '$assets/config';
 import { persistedLocal } from '$lib/data/stores/storage';
+import type { RenderScopeLevel } from '$lib/render-sofria/common';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
@@ -375,28 +376,14 @@ export const selectedVerses = createSelectedVerses();
 export type ScriptureLogConfig = {
     root: number;
     docResult: number;
-    document: number;
-    paragraph: number;
-    phrase: number;
-    chapter: number;
-    verses: number;
-    text: number;
-    sequence: number;
-    wrapper: number;
-    milestone: number;
-    blockGraft: number;
-    inlineGraft: number;
-    mark: number;
-    metaContent: number;
-    row: number;
-    table: number;
     placement: number;
-};
+    actions: number;
+} & Record<RenderScopeLevel, number>;
 
 export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $logs]) => {
     return (
         $userSettings['scripture-logs']
-            ? {
+            ? ({
                   root: 1,
                   docResult: 1,
                   document: 1,
@@ -414,8 +401,9 @@ export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $log
                   metaContent: 1,
                   row: 1,
                   table: 1,
-                  placement: 1
-              }
+                  placement: 1,
+                  actions: 1
+              } satisfies ScriptureLogConfig)
             : ($logs['scripture'] ?? {})
     ) as ScriptureLogConfig;
 });
