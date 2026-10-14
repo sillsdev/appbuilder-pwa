@@ -14,8 +14,18 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
             matchElement(context, 'usfm:zreflink') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const element = getElement(context);
-            const link = decodeURIComponent(element.atts['link'][0]);
-            const title = decodeURIComponent(element.atts['title']?.[0] ?? '');
+            let link = element.atts['link']?.[0] ?? '';
+            try {
+                link = decodeURIComponent(link);
+            } catch {
+                // empty
+            }
+            let title = element.atts['title']?.[0] ?? '';
+            try {
+                title = decodeURIComponent(title);
+            } catch {
+                // empty
+            }
 
             const a = workspace.document.createElement('a');
             a.classList.add('web-link', 'ref-link', 'dy-tooltip');

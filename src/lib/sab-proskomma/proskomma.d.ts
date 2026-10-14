@@ -28,6 +28,6 @@ declare module 'proskomma-core' {
     export type ProskommaRenderAction = {
         description: string;
         test: () => boolean;
-        action: ({}: any) => void;
+        action: (args: any) => void;
     };
 }
