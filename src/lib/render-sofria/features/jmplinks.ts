@@ -1,4 +1,4 @@
-import { FeatureSpec } from '$lib/render-sofria/common';
+import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
@@ -6,7 +6,8 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
     startWrapper: {
         stage: 'standard',
         details: ({ context }) => ({ href: getElement(context).atts['href']?.[0] }),
-        guard: ({ context }) => matchElement(context, 'usfm:jmp'),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:jmp') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const element = getElement(context);
 
@@ -64,7 +65,8 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
     endWrapper: {
         stage: 'standard',
         details: ({ context }) => ({ href: getElement(context).atts['href']?.[0] }),
-        guard: ({ context }) => matchElement(context, 'usfm:jmp'),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:jmp') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
             workspace.scopeManager.promoteContent('wrapper:jmp');
         }
@@ -73,7 +75,9 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && workspace.scopeManager.has('wrapper:jmp'),
+            !workspace.scratch.text?.empty &&
+            workspace.scopeManager.has('wrapper:jmp') &&
+            renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true,
@@ -88,7 +92,7 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
                 '.email-link, .tel-link, .web-link:not(.ref-link)'
             ).length
         }),
-        guard: ({ context }) => matchElement(context, 'usfm:jmp'),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
             workspace.root
                 .querySelectorAll('.email-link, .tel-link, .web-link:not(.ref-link)')
