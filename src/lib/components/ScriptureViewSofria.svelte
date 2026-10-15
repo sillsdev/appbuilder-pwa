@@ -709,7 +709,7 @@ LOGGING:
                 span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
             const parsed = workingSpan?.innerHTML;
-            footnotes.push(parsed);
+            footnotes.push({ type: 'plain', body: parsed });
         }
     }
     // handles clicks on in text markdown reference links
@@ -748,7 +748,7 @@ LOGGING:
             navigate(start);
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
-            footnotes.push(footnoteHTML);
+            footnotes.push({ type: 'plain', body: footnoteHTML });
         }
     }
     function glossaryClickHandler(event: MouseEvent, target: HTMLElement) {
@@ -770,7 +770,7 @@ LOGGING:
                             const blockText = block.text.slice(glossaryLink?.length);
                             appendTextToElement(glossaryDiv, blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push(glossaryHTML);
+                            footnotes.push({ type: 'plain', body: glossaryHTML });
                         }
                     }
                 });
