@@ -9,13 +9,26 @@ import { addPhrases, type SharedTextScratch } from './common/text';
 // open an issue?
 
 export const introductions = new FeatureSpec<SharedTextScratch>('Introductions', {
-    blockGraft: {
-        stage: 'standard',
-        details: ({ context }) => ({ type: getBlock(context).subType }),
-        guard: ({ context, workspace }) =>
-            workspace.hackRenderIntro && matchBlock(context, 'introduction'),
-        action: (environment) => renderBlock(environment, 'introduction')
-    },
+    blockGraft: [
+        {
+            stage: 'standard',
+            details: ({ context }) => ({ type: getBlock(context).subType }),
+            guard: ({ context, workspace }) =>
+                workspace.hackRenderIntro && matchBlock(context, 'introduction'),
+            action: (environment) => renderBlock(environment, 'introduction')
+        },
+        {
+            stage: 'standard',
+            details: ({ context }) => ({ type: getBlock(context).subType }),
+            guard: ({ context, workspace }) =>
+                !workspace.hackRenderIntro && matchBlock(context, 'introduction'),
+            action: ({ workspace }) => {
+                if (workspace.logSettings.blockGraft) {
+                    console.log('Skipping Introduction render');
+                }
+            }
+        }
+    ],
     startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
