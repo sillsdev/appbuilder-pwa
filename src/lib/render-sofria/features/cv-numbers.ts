@@ -106,6 +106,28 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
                     addVerseNumber(workspace, verse);
                 }
             }
+        },
+        endDocument: {
+            stage: 'standard',
+            details: ({ workspace }) => ({
+                count: workspace.root.querySelectorAll('span.v').length
+            }),
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                workspace.root.querySelectorAll('span.v').forEach((el) =>
+                    el.addEventListener('click', function audioClickHandler() {
+                        if (!hasAudioPlayed()) {
+                            return;
+                        }
+                        const verseSelection = workspace.root.querySelector(
+                            `[data-verse="${el.textContent}"]`
+                        );
+                        if (verseSelection) {
+                            seekToVerse(el.textContent);
+                        }
+                    })
+                );
+            }
         }
     },
     { tag: 'show-verse-numbers', enabledValue: 'true' }
@@ -124,17 +146,6 @@ function addVerseNumber(workspace: RenderWorkspace, verse: string) {
         verse,
         direction
     );
-
-    spanV.addEventListener('click', function audioClickHandler() {
-        if (!hasAudioPlayed()) {
-            return;
-        }
-        const verseSelection = document.querySelector(`[data-verse="${spanV.textContent}"]`);
-        const verseId = verseSelection?.getAttribute('id');
-        if (verseId) {
-            seekToVerse(verseId);
-        }
-    });
 
     const spanVsp = workspace.document.createElement('span');
     spanVsp.classList.add('vsp');
