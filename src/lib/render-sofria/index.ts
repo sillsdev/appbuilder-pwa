@@ -14,7 +14,7 @@ import { orderedLists, unorderedLists } from './features/lists';
 import { LOGS } from './features/logging';
 import { text } from './features/main-text';
 import { plans } from './features/plans';
-import { reflinks } from './features/reflinks';
+import { inlineReferences, reflinks } from './features/reflinks';
 import { tables } from './features/tables';
 import { titles } from './features/titles';
 import { WARN_UNSUPPORTED_FEATURES } from './features/unsupported';
@@ -39,6 +39,7 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     jmplinks,
     usfmWrappers,
     reflinks,
+    inlineReferences,
     audioclips,
     paragraphStyles,
     characterStyles,

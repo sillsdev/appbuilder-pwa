@@ -4,8 +4,6 @@ import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } fr
 import { renderBlock } from './common/grafts';
 import { addPhrases, type SharedTextScratch } from './common/text';
 
-// NOTE: Are there any other block grafts besides titles and introductions??
-
 export const headings = new FeatureSpec<
     {
         paragraph?: { subheadingPrefixes?: string[] };
@@ -74,10 +72,24 @@ export const headings = new FeatureSpec<
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
-                headerDiv.innerHTML += generateHTML(text, 'header-ref');
+                headerDiv.innerHTML += generateHTML(text, 'heading_ref-link');
             } else {
                 addPhrases(workspace, text, { requireTop: true, newPhrase: false });
             }
+        }
+    },
+    endDocument: {
+        stage: 'standard',
+        action({ workspace }) {
+            workspace.root.querySelectorAll('a.heading_ref-link').forEach((el) => {
+                el.addEventListener('click', (e) =>
+                    workspace.events.clickHeaderRef(
+                        e as MouseEvent,
+                        el as HTMLAnchorElement,
+                        workspace
+                    )
+                );
+            });
         }
     }
 });
