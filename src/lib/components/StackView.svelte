@@ -9,6 +9,7 @@
     import type { Reference } from '$lib/data/stores/reference';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
+    import ScriptureViewProskomma from './ScriptureViewProskomma.svelte';
 
     interface Props {
         bodyFontSize: number | string;
@@ -73,7 +74,7 @@
                 navigate(start);
             } else {
                 const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
-                footnotes.push(footnoteHTML);
+                footnotes.push({ type: 'plain', body: footnoteHTML });
             }
         } else if (target.classList.contains('ref-link')) {
             referenceLinkClickHandler(target);
@@ -87,7 +88,7 @@
         }
     }
 
-    function toggleListener(footnotes: string[]) {
+    function toggleListener(footnotes: unknown[]) {
         if (listening && footnotes.length === 0) {
             document.removeEventListener('click', clickOutside);
             listening = false;
@@ -129,8 +130,38 @@
                         style:font-size={fontSize}
                         style:line-height={lineHeight}
                     >
-                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        {@html item}
+                        {#if item.type === 'plain'}
+                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                            {@html item.body}
+                        {:else if item.type === 'rich'}
+                            <div class="flex flex-row justify-space-between">
+                                <div>
+                                    <span class="fr">
+                                        {item.start.phrase}
+                                    </span>
+                                    <span class="ft">
+                                        <ScriptureViewProskomma
+                                            {...item.props}
+                                            references={{
+                                                ...item.start,
+                                                collection: item.props.references.collection,
+                                                bookTab: 0,
+                                                hasAudio: undefined,
+                                                catalog: item.props.references.catalog
+                                            }}
+                                            maxSelections={0}
+                                        />
+                                    </span>
+                                </div>
+                                <div id="icon">
+                                    <!-- svelte-ignore a11y_consider_explicit_label -->
+                                    <button class="p-2" data-reference={JSON.stringify(item.start)}>
+                                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                                        {@html openInNewIcon()}
+                                    </button>
+                                </div>
+                            </div>
+                        {/if}
                     </div>
                 </div>
             {/each}
