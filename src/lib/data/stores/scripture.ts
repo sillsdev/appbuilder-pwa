@@ -373,12 +373,14 @@ export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 
 export const selectedVerses = createSelectedVerses();
 
-export type ScriptureLogConfig = {
-    root: number;
-    docResult: number;
-    placement: number;
-    actions: number;
-} & Record<RenderScopeLevel, number>;
+export type ScriptureLogConfig = Partial<
+    {
+        root: number;
+        docResult: number;
+        placement: number;
+        actions: number;
+    } & Record<RenderScopeLevel, number>
+>;
 
 export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $logs]) => {
     return (
