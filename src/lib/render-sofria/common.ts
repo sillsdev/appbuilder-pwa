@@ -211,7 +211,10 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             updateAnnotations: () => void;
         };
         stores: {
-            references: ReferenceStore;
+            references: Pick<
+                ReferenceStore,
+                'book' | 'chapter' | 'docSet' | 'catalog' | 'collection' | 'bookTab' | 'hasAudio'
+            >;
             plan: PlanStore;
             currentPlanState: string;
             currentPlanData: PlansData | null;
@@ -250,7 +253,7 @@ function warnOnDuplicateSection(section: RenderStage | undefined) {
 export function compileActionDictionary(
     features: FeatureSpec<any>[],
     config: Readonly<ScriptureConfig>,
-    references: ReferenceStore,
+    references: RenderWorkspace['stores']['references'],
     settings: FeatureConfig,
     logSettings: ScriptureLogConfig
 ) {
