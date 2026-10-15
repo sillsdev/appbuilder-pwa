@@ -208,7 +208,7 @@ function processScriptureRefLinks(
 ): string {
     const results: any[] = [];
     let prevBookId: string | null = bookId;
-    const referenceRegEx = new RegExp(pattern, 'g');
+    const referenceRegEx = new RegExp(pattern, 'gu');
     let referenceMatches: RegExpExecArray | null;
     const refResults: RegExpExecArray[] = [];
     const replacements: string[] = [];
