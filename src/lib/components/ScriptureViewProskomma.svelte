@@ -86,12 +86,16 @@ LOGGING:
     import {
         generateHTML,
         handleHeaderLinkPressed,
-        isBibleBook
+        isBibleBook,
+        type AnchorReference
     } from '$lib/scripts/scripture-reference-utils';
     import { onClickText, updateSelections } from '$lib/scripts/verseSelectUtil';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, untrack } from 'svelte';
+
+    // eslint-disable-next-line svelte/no-unused-props
+    let props: Props = $props();
 
     let {
         audioPhraseEndChars,
@@ -113,7 +117,7 @@ LOGGING:
         setBookTab,
         selectedVerses,
         isActivePanel
-    }: Props = $props();
+    } = $derived(props);
 
     const currentBook = $derived(references.book);
     const currentChapter = $derived(references.chapter);
@@ -430,7 +434,7 @@ LOGGING:
                         span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
                     });
                     const parsed = workingSpan?.innerHTML;
-                    footnotes.push(parsed);
+                    footnotes.push({ type: 'plain', body: parsed });
                 }
             },
             openGlossary(glossaryLink: string, block: GlossaryBlock) {
@@ -445,7 +449,7 @@ LOGGING:
                     const blockText = block.text.slice(glossaryLink?.length);
                     glossaryDiv.innerHTML += blockText;
                     const glossaryHTML = glossaryDiv.outerHTML;
-                    footnotes.push(glossaryHTML);
+                    footnotes.push({ type: 'plain', body: glossaryHTML });
                 }
             },
             setPlanStore(data: PlanStore) {
@@ -453,17 +457,20 @@ LOGGING:
             },
             clickHeaderRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
                 event.stopPropagation();
-                const start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
-                const end =
+                const start: AnchorReference = JSON.parse(
+                    target.getAttribute('data-start-ref') || '{}'
+                );
+                const end: AnchorReference | undefined =
                     target.getAttribute('data-end-ref') === 'undefined'
                         ? undefined
                         : JSON.parse(target.getAttribute('data-end-ref') || '{}');
                 if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
                     workspace.events.navigate(start);
                 } else {
-                    handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
-                        footnotes.push(footnoteHTML)
-                    );
+                    /* handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
+                        footnotes.push({ type: 'plain', body: footnoteHTML})
+                    ); */
+                    footnotes.push({ type: 'rich', start, end, props });
                 }
             },
             clickText: (e) => {
