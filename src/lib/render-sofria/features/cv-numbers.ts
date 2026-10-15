@@ -21,6 +21,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
         mark: [
             {
                 stage: 'standard',
+                details: ({ context }) => ({ mark: getElement(context).atts['number'] }),
                 guard: ({ context, workspace }) =>
                     renderIfRegularOrIfHackedIntro(workspace) &&
                     matchElement(context, 'chapter_label'),
@@ -53,6 +54,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                 // handle deferred drop-cap chapter marker
                 stage: 'standard',
                 name: 'Deferred Chapter Number [drop-cap]',
+                details: ({ workspace }) => ({ mark: workspace.scratch.mark?.chapterNumText }),
                 guard: ({ context, workspace }) =>
                     renderIfRegularOrIfHackedIntro(workspace) &&
                     matchElement(context, 'verses_label') &&
@@ -65,7 +67,8 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                         chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
 
                         chapterNumDiv.classList.add('c-drop');
-
+                        // SAB is statically generating div.c-drop: { float: left|right; } based on settings than can change
+                        // So override that style based on the current direction of the text
                         const direction = workspace.config.bookCollections?.find(
                             (x) => x.id === workspace.stores.references.collection
                         )?.style?.textDirection;
@@ -89,6 +92,7 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
     {
         mark: {
             stage: 'standard',
+            details: ({ context }) => ({ mark: getElement(context).atts['number'] }),
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'verses_label'),
             action({ context, workspace }) {
