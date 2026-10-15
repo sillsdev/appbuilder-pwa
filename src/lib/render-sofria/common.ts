@@ -257,7 +257,10 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             updateAnnotations: () => void;
         };
         stores: {
-            references: ReferenceStore;
+            references: Pick<
+                ReferenceStore,
+                'book' | 'chapter' | 'docSet' | 'catalog' | 'collection' | 'bookTab' | 'hasAudio'
+            >;
             plan: PlanStore;
             currentPlanState: string;
             currentPlanData: PlansData | null;

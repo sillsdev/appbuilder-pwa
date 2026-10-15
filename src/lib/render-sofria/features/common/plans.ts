@@ -7,7 +7,10 @@ import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-c
 import { resolve } from '$lib/utils/paths';
 import type { RenderWorkspace } from '../../common';
 
-export function planDivInChapter(plan: PlanStore, references: ReferenceStore) {
+export function planDivInChapter(
+    plan: PlanStore,
+    references: Pick<ReferenceStore, 'book' | 'chapter'>
+) {
     let planEntryInChapter = false;
     // If plan entry is -1, there is no active entry
     if (plan.planEntry !== -1) {
@@ -180,7 +183,7 @@ function appendPlanProgressTextDiv(
     progressDiv.append(textDiv);
 }
 
-function getPlanReferenceString(ref: string, references: ReferenceStore) {
+function getPlanReferenceString(ref: string, references: Pick<ReferenceStore, 'collection'>) {
     const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
     return getDisplayString(references.collection, book, toChapter, verseRanges);
 }

@@ -19,7 +19,7 @@ LOGGING:
         highlights: Promise<HighlightItem[]>;
         maxSelections: number;
         redLetters: boolean;
-        references: ReferenceStore;
+        references: RenderWorkspace['stores']['references'];
         glossary: Promise<GlossaryQueryResult>;
         themeColors: Record<string, string>;
         verseLayout: string;
