@@ -1043,8 +1043,11 @@ export function parseWritingSystem(element: Element, verbose: number): WritingSy
     const textDirection = parseTrait(element, 'text-direction');
     const displaynamesTag = element.getElementsByTagName('display-names')[0];
     const displayNames: Record<string, string> = {};
-    for (const form of displaynamesTag.getElementsByTagName('form')) {
-        displayNames[parseLangAttribute(form)] = form.innerHTML;
+    // custom languages don't have displaynames
+    if (displaynamesTag) {
+        for (const form of displaynamesTag.getElementsByTagName('form')) {
+            displayNames[parseLangAttribute(form)] = form.innerHTML;
+        }
     }
     const writingSystem: WritingSystemConfig = {
         type,
