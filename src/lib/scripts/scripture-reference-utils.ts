@@ -772,7 +772,7 @@ function parseVerseList(
     return replace;
 }
 
-type AnchorReference = {
+export type AnchorReference = {
     collection: string;
     phrase: string;
     docSet: string;
@@ -911,7 +911,7 @@ function addCharsToSet(nonWordChars: string, chars: Set<string>) {
 }
 export async function handleHeaderLinkPressed(
     start: AnchorReference,
-    end: AnchorReference,
+    end: AnchorReference | undefined,
     colors: Record<string, string>
 ): Promise<string> {
     console.log('HandleHeaderLinkPressed start: %o end: %o colors: %o', start, end, colors);
