@@ -158,7 +158,8 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
-            matchSequence(context, 'xref') && renderIfRegularOrIfHackedIntro(workspace),
+            (matchSequence(context, 'xref') || matchElement(context, 'usfm:xt')) &&
+            renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const usfmWrapperType = extractUSFMClassName(context);
 
@@ -171,7 +172,8 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
-            matchSequence(context, 'xref') && renderIfRegularOrIfHackedIntro(workspace),
+            (matchSequence(context, 'xref') || matchElement(context, 'usfm:xt')) &&
+            renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             terminatePhrase(workspace);
 
