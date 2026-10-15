@@ -226,19 +226,13 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                 isTopWrapper(workspace, 'wrapper:xt') &&
                 renderIfRegularOrIfHackedIntro(workspace),
             action({ workspace }) {
-                const references = workspace.scratch.text!.cleanedText!.split('; ');
                 const container = workspace.scopeManager.has('wrapper:cell')
                     ? workspace.scopeManager.at(0).root
                     : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
-                for (let i = 0; i < references.length; i++) {
-                    const spanV = document.createElement('span');
-                    spanV.classList.add('reflink');
-                    spanV.innerHTML = generateHTML(references[i], 'header-ref');
-                    container.appendChild(spanV);
-                    if (i < references.length - 1) {
-                        container.innerHTML += '; ';
-                    }
-                }
+                container.innerHTML += generateHTML(
+                    workspace.scratch.text!.cleanedText!,
+                    'crossref_ref-link'
+                );
                 if (!workspace.scopeManager.has('wrapper:cell')) {
                     workspace.scopeManager.push('phrase', container);
                 }
@@ -248,7 +242,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
     endDocument: {
         stage: 'standard',
         action({ workspace }) {
-            workspace.root.querySelectorAll('a.header-ref').forEach((el) => {
+            workspace.root.querySelectorAll('a.crossref_ref-link').forEach((el) => {
                 el.addEventListener('click', (e) =>
                     workspace.events.clickHeaderRef(
                         e as MouseEvent,
