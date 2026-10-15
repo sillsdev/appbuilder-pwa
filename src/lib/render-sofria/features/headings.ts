@@ -75,10 +75,8 @@ export const headings = new FeatureSpec<
                 // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
                 headerDiv.innerHTML += generateHTML(text, 'header-ref');
-            }
-            // heading without cross-ref, jmp, audioc, reflink, and everything else
-            else {
-                addPhrases(workspace, text);
+            } else {
+                addPhrases(workspace, text, { requireTop: true, newPhrase: false });
             }
         }
     }
