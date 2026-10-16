@@ -29,13 +29,15 @@ function createStack<T>() {
 }
 
 export const footnotes = createStack<
-    | { type: 'plain'; body: string }
-    | {
-          type: 'rich';
-          start: AnchorReference;
-          end?: AnchorReference;
-          props: ScriptureViewProskommaProps;
-      }
+    (
+        | { type: 'plain'; body: string }
+        | {
+              type: 'rich';
+              start: AnchorReference;
+              end?: AnchorReference;
+              props: ScriptureViewProskommaProps;
+          }
+    ) & { style: 'glossary' | 'footnote' | 'crossref' }
 >();
 
 /** current reference */

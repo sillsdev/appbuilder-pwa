@@ -5,7 +5,7 @@
 
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { footnotes, refs, themeColors } from '$lib/data/stores';
+    import { convertStyle, footnotes, refs, s, themeColors } from '$lib/data/stores';
     import type { Reference } from '$lib/data/stores/reference';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
@@ -74,7 +74,7 @@
                 navigate(start);
             } else {
                 const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
-                footnotes.push({ type: 'plain', body: footnoteHTML });
+                footnotes.push({ type: 'plain', body: footnoteHTML, style: 'crossref' });
             }
         } else if (target.classList.contains('ref-link')) {
             referenceLinkClickHandler(target);
@@ -129,6 +129,7 @@
                         style:font-family={font}
                         style:font-size={fontSize}
                         style:line-height={lineHeight}
+                        style={convertStyle($s?.[`body.${item.style}`])}
                     >
                         {#if item.type === 'plain'}
                             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -136,10 +137,10 @@
                         {:else if item.type === 'rich'}
                             <div class="flex flex-row justify-space-between">
                                 <div>
-                                    <span class="fr">
+                                    <span class="xo">
                                         {item.start.phrase}
                                     </span>
-                                    <span class="ft">
+                                    <span>
                                         <ScriptureViewProskomma
                                             {...item.props}
                                             references={{
