@@ -44,7 +44,8 @@ export const audioclips = new FeatureSpec<
         action: ({ workspace }) => {
             terminatePhrase(workspace);
             const a = workspace.scopeManager.pop('milestone:zaudioc').root as HTMLAnchorElement;
-            const filename = filenameWithoutPath(a.href);
+            // use getAttribute instead of property name to preserve encoding and path
+            const filename = filenameWithoutPath(a.getAttribute('href')!);
             let src = '';
 
             const audioConfig = workspace.config.audio;

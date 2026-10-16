@@ -78,5 +78,8 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             }
         }
     },
-    { tag: 'glossary-words', enabledValue: 'true' }
+    [
+        { feature: 'show-glossary-words', enabledValue: true },
+        { setting: 'glossary-words', enabledValue: true }
+    ]
 );
