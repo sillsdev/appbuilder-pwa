@@ -466,7 +466,7 @@ function getScriptureReferencePatternForBook(parseCvs: string, parseRov: string)
         '(?:' +
         optionalRtlMark +
         '(?:' +
-        rangeSepChars +
+        rangeSepChars.replaceAll('\\-', '-') +
         ')' +
         verseNumber +
         ')?';
