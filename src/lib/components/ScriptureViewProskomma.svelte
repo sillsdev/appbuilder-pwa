@@ -411,7 +411,7 @@ LOGGING:
                                 span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
                             });
                             const parsed = workingSpan?.innerHTML;
-                            footnotes.push({ type: 'plain', body: parsed });
+                            footnotes.push({ type: 'plain', body: parsed, style: 'footnote' });
                         }
                     },
                     openGlossary(glossaryLink: string, block: GlossaryBlock) {
@@ -426,7 +426,7 @@ LOGGING:
                             const blockText = block.text.slice(glossaryLink?.length);
                             glossaryDiv.innerHTML += blockText;
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push({ type: 'plain', body: glossaryHTML });
+                            footnotes.push({ type: 'plain', body: glossaryHTML, style: 'glossary' });
                         }
                     },
                     setPlanStore(data: PlanStore) {
@@ -451,7 +451,7 @@ LOGGING:
                             /* handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
                                 footnotes.push({ type: 'plain', body: footnoteHTML})
                             ); */
-                            footnotes.push({ type: 'rich', start, end, props });
+                            footnotes.push({ type: 'rich', start, end, props, style: 'crossref' });
                         }
                     },
                     clickText: (e) => {
