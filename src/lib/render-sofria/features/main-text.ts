@@ -1,6 +1,6 @@
 import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getElement, getSequence, matchSequence } from './common';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, parseVerseRange, type SharedTextScratch } from './common/text';
 
 export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
     startSequence: {
@@ -56,7 +56,10 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
     },
     endParagraph: {
         stage: 'standard',
-        details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
+        details: ({ context, workspace }) => ({
+            class: extractClassName(getBlock(context)),
+            render: workspace.currentTextPosition.render
+        }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
@@ -90,11 +93,15 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                                       .at(1)
                                       .root.querySelector(`[data-verse="${verse}"]`)
                                 : null;
-                        if (verseDiv) {
-                            const paragraphDiv = workspace.scopeManager.pop('paragraph:main').root;
-                            verseDiv.appendChild(paragraphDiv);
-                        } else {
-                            workspace.scopeManager.promoteContent('paragraph:main');
+                        const paragraphDiv = workspace.scopeManager.pop('paragraph:main').root;
+                        // render is set to true by verse right before start of verse range
+                        // endVerse event for this verse is not sent until after paragraph ends
+                        if (workspace.currentTextPosition.render) {
+                            if (verseDiv) {
+                                verseDiv.appendChild(paragraphDiv);
+                            } else {
+                                workspace.scopeManager.appendContent(paragraphDiv);
+                            }
                         }
                     }
                     break;
@@ -105,7 +112,11 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                         workspace.scopeManager.appendChildrenFromContainer(verseDiv);
                         const paragraphDiv = workspace.scopeManager.pop('paragraph:main').root;
                         verseDiv.replaceChildren(paragraphDiv);
-                        workspace.scopeManager.appendContent(verseDiv);
+                        // render is set to true by verse right before start of verse range
+                        // endVerse event for this verse is not sent until after paragraph ends
+                        if (workspace.currentTextPosition.render) {
+                            workspace.scopeManager.appendContent(verseDiv);
+                        }
                     }
                     break;
                 // multiple verses in one paragraph
@@ -113,12 +124,27 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                     {
                         const divs: HTMLElement[] = [];
                         for (let i = 0; i < depth; i++) {
-                            divs.push(workspace.scopeManager.pop('verses').root);
+                            const verseDiv = workspace.scopeManager.pop('verses').root;
+                            const verse = verseDiv.getAttribute('data-verse')!;
+                            const range = parseVerseRange(verse);
+                            // filter out verses not in range
+                            if (
+                                !workspace.viewSettings.verseRange ||
+                                range.start >= workspace.viewSettings.verseRange.start ||
+                                range.end >= workspace.viewSettings.verseRange.start
+                            ) {
+                                divs.push(verseDiv);
+                            }
                         }
-                        for (let i = 0; i < depth; i++) {
-                            workspace.scopeManager.appendContent(divs.pop()!);
+                        if (divs.length) {
+                            const count = divs.length;
+                            for (let i = 0; i < count; i++) {
+                                workspace.scopeManager.appendContent(divs.pop()!);
+                            }
+                            workspace.scopeManager.promoteContent('paragraph:main');
+                        } else {
+                            workspace.scopeManager.pop('paragraph:main');
                         }
-                        workspace.scopeManager.promoteContent('paragraph:main');
                     }
                     break;
             }

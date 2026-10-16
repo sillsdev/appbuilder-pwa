@@ -47,6 +47,7 @@ export type RenderOptions = {
     videos?: ScriptureConfig['videos'];
     /** `config.audio` (audio sources and files, used by audio clips) */
     audio?: ScriptureConfig['audio'];
+    verseRange?: { start: number; end?: number };
 };
 
 const DEFAULT_FEATURES = {
@@ -119,7 +120,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             document: document,
             root,
             scopeManager: new ScopeManager(),
-            currentTextPosition: { verse: 'none' },
+            currentTextPosition: { verse: 'none', render: !options.verseRange },
             logSettings: {} as RenderWorkspace['logSettings'],
             scratch: {},
             textConfig: {
@@ -131,7 +132,8 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             viewSettings: {
                 isBibleBook: options.bibleBook ?? true,
                 redLetters: options.redLetters ?? false,
-                verseLayout: options.verseLayout ?? 'paragraphs'
+                verseLayout: options.verseLayout ?? 'paragraphs',
+                verseRange: options.verseRange
             },
             hackRenderIntro: options.hackRenderIntro ?? false,
             events: {

@@ -110,3 +110,11 @@ export function unwrapWrapperWithPhraseDivs(wrapper: HTMLElement) {
 
     return container;
 }
+
+export function parseVerseRange(range: string) {
+    const parts = range.split('-');
+    return {
+        start: Number(parts[0]),
+        end: Number(parts[1] || parts[0])
+    };
+}

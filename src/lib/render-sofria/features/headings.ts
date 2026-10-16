@@ -56,13 +56,21 @@ export const headings = new FeatureSpec<
     },
     endParagraph: {
         stage: 'standard',
-        details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
+        details: ({ context, workspace }) => ({
+            class: extractClassName(getBlock(context)),
+            render: workspace.currentTextPosition.render
+        }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'heading') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             const wrapper = workspace.scopeManager.pop('wrapper:heading');
             workspace.scopeManager.appendChildrenFromContainer(wrapper.root, 'paragraph:heading');
-            workspace.scopeManager.promoteContent('paragraph:heading');
+            // only render heading if in target verse range
+            if (workspace.currentTextPosition.render) {
+                workspace.scopeManager.promoteContent('paragraph:heading');
+            } else {
+                workspace.scopeManager.pop('paragraph:heading');
+            }
         }
     },
     text: {

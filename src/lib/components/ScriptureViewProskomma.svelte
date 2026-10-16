@@ -30,6 +30,7 @@ LOGGING:
         setBookTab: (value: number) => void;
         selectedVerses: SelectedVersesStore;
         isActivePanel: boolean;
+        verseRange?: { start: number; end?: number };
     }
 </script>
 
@@ -108,7 +109,8 @@ LOGGING:
         setReference,
         setBookTab,
         selectedVerses,
-        isActivePanel
+        isActivePanel,
+        verseRange
     } = $derived(props);
 
     const currentBook = $derived(references.book);
@@ -377,7 +379,8 @@ LOGGING:
                 root: scriptureRoot,
                 scopeManager: new ScopeManager(),
                 currentTextPosition: {
-                    verse: 'none'
+                    verse: 'none',
+                    render: !verseRange
                 },
                 logSettings: $scriptureLogs,
                 scratch: {},
@@ -393,7 +396,8 @@ LOGGING:
                 viewSettings: {
                     isBibleBook: isBibleBook(references, scriptureConfig),
                     redLetters,
-                    verseLayout
+                    verseLayout,
+                    verseRange
                 },
                 events: {
                     navigate(ref: Reference) {
