@@ -1,5 +1,5 @@
 import config, { scriptureConfig } from '$assets/config';
-import type { FeatureConfig } from '$config';
+import type { FeatureConfig, FeatureValue } from '$config';
 import { isFileSystemAccessSupported } from '$lib/data/audioFileSystem';
 import { getDefaultLanguage } from '$lib/data/language';
 import { persistedLocal } from '$lib/data/stores/storage';
@@ -420,3 +420,37 @@ export const userSettings = persistedLocal('userSettings', {
 export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {
     return { ...defaultSettings, ...$userSettings };
 });
+
+export function checkSettingIs(
+    settings: FeatureConfig,
+    setting: string,
+    expectedValue: FeatureValue
+) {
+    expectedValue = expectedValue.toString();
+    if (['true', 'false'].includes(expectedValue)) {
+        return getSettingBoolean(settings, setting).toString() === expectedValue;
+    } else {
+        return getSettingString(settings, setting) === expectedValue;
+    }
+}
+
+export function getSettingBoolean(settings: FeatureConfig, feature: string): boolean {
+    let returnValue = false;
+    let value: any = '';
+    if (settings[feature] != null) {
+        value = settings[feature];
+    }
+
+    if (value === true || value === 'yes') {
+        returnValue = true;
+    }
+
+    return returnValue;
+}
+export function getSettingString(settings: FeatureConfig, feature: string): string {
+    let value = '';
+    if (settings[feature] != null) {
+        value = settings[feature] as string;
+    }
+    return value;
+}

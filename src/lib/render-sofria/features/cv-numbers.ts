@@ -1,0 +1,164 @@
+import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
+import { getFeatureValueString } from '$lib/scripts/configUtils';
+import * as numerals from '$lib/scripts/numeralSystem';
+import {
+    addToScratchPad,
+    FeatureSpec,
+    renderIfRegularOrIfHackedIntro,
+    type RenderWorkspace
+} from '../common';
+import { getElement, matchElement } from './common';
+
+type MarkScratch = {
+    chapterNumText?: string;
+    deferChapterNum?: boolean;
+    handledFirstVerse?: boolean;
+};
+
+export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
+    'Chapter Numbers',
+    {
+        mark: [
+            {
+                stage: 'standard',
+                details: ({ context }) => ({ mark: getElement(context).atts['number'] }),
+                guard: ({ context, workspace }) =>
+                    renderIfRegularOrIfHackedIntro(workspace) &&
+                    matchElement(context, 'chapter_label'),
+                action({ context, workspace }) {
+                    const element = getElement(context);
+                    const chapterNumText = numerals.formatNumber(
+                        workspace.textConfig.numeralSystem,
+                        element.atts['number']
+                    );
+
+                    const deferChapterNum =
+                        getFeatureValueString(
+                            workspace.config,
+                            'chapter-number-format',
+                            workspace.stores.references.collection,
+                            workspace.stores.references.book
+                        ) === 'drop-cap';
+
+                    addToScratchPad(workspace.scratch, 'mark', { chapterNumText, deferChapterNum });
+
+                    if (!deferChapterNum) {
+                        const chapterNumDiv = workspace.document.createElement('div');
+                        chapterNumDiv.innerText = chapterNumText;
+                        chapterNumDiv.classList.add('c');
+                        workspace.scopeManager.appendContent(chapterNumDiv, 'document');
+                    }
+                }
+            },
+            {
+                // handle deferred drop-cap chapter marker
+                stage: 'standard',
+                name: 'Deferred Chapter Number [drop-cap]',
+                details: ({ workspace }) => ({ mark: workspace.scratch.mark?.chapterNumText }),
+                guard: ({ context, workspace }) =>
+                    renderIfRegularOrIfHackedIntro(workspace) &&
+                    matchElement(context, 'verses_label') &&
+                    workspace.scratch.mark?.deferChapterNum &&
+                    !!workspace.scratch.mark?.chapterNumText,
+                action({ workspace }) {
+                    const currentParagraph = workspace.scopeManager.find('paragraph')?.root;
+                    if (currentParagraph) {
+                        const chapterNumDiv = workspace.document.createElement('div');
+                        chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
+
+                        chapterNumDiv.classList.add('c-drop');
+                        // SAB is statically generating div.c-drop: { float: left|right; } based on settings than can change
+                        // So override that style based on the current direction of the text
+                        const direction = workspace.config.bookCollections?.find(
+                            (x) => x.id === workspace.stores.references.collection
+                        )?.style?.textDirection;
+                        chapterNumDiv.style.float =
+                            direction?.toLowerCase() === 'ltr' ? 'left' : 'right';
+
+                        currentParagraph.className = 'm';
+                        currentParagraph.appendChild(chapterNumDiv);
+
+                        addToScratchPad(workspace.scratch, 'mark', { chapterNumText: undefined });
+                    }
+                }
+            }
+        ]
+    },
+    { feature: 'show-chapter-numbers', enabledValue: true }
+);
+
+export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
+    'Verse Numbers',
+    {
+        mark: {
+            stage: 'standard',
+            details: ({ context }) => ({ mark: getElement(context).atts['number'] }),
+            guard: ({ context, workspace }) =>
+                renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'verses_label'),
+            action({ context, workspace }) {
+                const verse = getElement(context).atts['number'];
+                if (!workspace.scratch.mark?.handledFirstVerse) {
+                    if (workspace.scratch.mark?.deferChapterNum) {
+                        if (!workspace.config.mainFeatures['hide-verse-number-1']) {
+                            addVerseNumber(workspace, verse);
+                        }
+                    } else {
+                        addVerseNumber(workspace, verse);
+                    }
+                    addToScratchPad(workspace.scratch, 'mark', { handledFirstVerse: true });
+                } else {
+                    addVerseNumber(workspace, verse);
+                }
+            }
+        },
+        endDocument: {
+            stage: 'standard',
+            details: ({ workspace }) => ({
+                count: workspace.root.querySelectorAll('span.v').length
+            }),
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                workspace.root.querySelectorAll('span.v').forEach((el) =>
+                    el.addEventListener('click', function audioClickHandler() {
+                        if (!hasAudioPlayed()) {
+                            return;
+                        }
+                        const verseSelection = workspace.root.querySelector(
+                            `[data-verse="${el.getAttribute('data-verse-num')}"]`
+                        );
+                        if (verseSelection) {
+                            seekToVerse(verseSelection.getAttribute('data-verse')!);
+                        }
+                    })
+                );
+            }
+        }
+    },
+    [
+        { feature: 'show-verse-numbers', enabledValue: true },
+        { setting: 'verse-numbers', enabledValue: true }
+    ]
+);
+
+function addVerseNumber(workspace: RenderWorkspace, verse: string) {
+    const spanV = workspace.document.createElement('span');
+    spanV.classList.add('v');
+    const direction =
+        workspace.config.bookCollections?.find(
+            (x) => x.id === workspace.stores.references.collection
+        )?.style?.textDirection ?? 'ltr';
+    // 'verse' can be a range of verse numbers
+    spanV.textContent = numerals.formatNumberRange(
+        workspace.textConfig.numeralSystem,
+        verse,
+        direction
+    );
+
+    spanV.setAttribute('data-verse-num', verse);
+
+    const spanVsp = workspace.document.createElement('span');
+    spanVsp.classList.add('vsp');
+    spanVsp.innerText = '\u00A0'; // &nbsp
+    workspace.scopeManager.appendContent(spanV);
+    workspace.scopeManager.appendContent(spanVsp);
+}

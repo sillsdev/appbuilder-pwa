@@ -1,10 +1,15 @@
 import { scriptureConfig } from '$assets/config';
+import type { Props as ScriptureViewProskommaProps } from '$lib/components/ScriptureViewProskomma.svelte';
 import { persistedLocal } from '$lib/data/stores/storage';
+import type { RenderScopeLevel } from '$lib/render-sofria/common';
+import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
+import { logs } from './log';
 import { pk } from './pk';
 import { referenceStore } from './reference';
+import { userSettings } from './setting';
 
 function createStack<T>() {
     const external = writable([] as T[]);
@@ -23,7 +28,17 @@ function createStack<T>() {
     };
 }
 
-export const footnotes = createStack<string>();
+export const footnotes = createStack<
+    (
+        | { type: 'plain'; body: string }
+        | {
+              type: 'rich';
+              start: AnchorReference;
+              end?: AnchorReference;
+              props: ScriptureViewProskommaProps;
+          }
+    ) & { style: 'glossary' | 'footnote' | 'crossref' }
+>();
 
 /** current reference */
 export const refs = referenceStore();
@@ -108,8 +123,10 @@ export async function getVerseText(item: Selection, item2?: Selection) {
 
 export const docSet = derived(refs, ($refs) => $refs.docSet);
 
-type Block = { key: string; text: string; tokens: { payload: string }[] };
-export type GlossaryQueryResult = { data: { docSets: { document?: { mainBlocks: Block[] } }[] } };
+export type GlossaryBlock = { key: string; text: string; tokens: { payload: string }[] };
+export type GlossaryQueryResult = {
+    data: { docSets: { document?: { mainBlocks: GlossaryBlock[] } }[] };
+};
 
 /*
  *  glossary is returning a Promise
@@ -140,7 +157,7 @@ export const glossary = derived(docSet, async ($docSet) => {
         '} ';
     const glossaryResults = proskomma.gqlQuerySync(glossaryQuery);
     if (isDefined(glossaryResults.data.docSets[0].document)) {
-        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: Block) => {
+        glossaryResults.data.docSets[0].document.mainBlocks.forEach((block: GlossaryBlock) => {
             let key = '';
             block.tokens.forEach((token) => {
                 key = key + token.payload;
@@ -196,7 +213,7 @@ export const fontChoices = derived(refs, ($refs) => {
             : (colFonts?.length ?? 0) > 0
               ? colFonts
               : allFonts;
-    return currentFonts;
+    return currentFonts ?? [];
 });
 
 export type Selection = {
@@ -367,3 +384,40 @@ function createSelectedVerses() {
 export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 
 export const selectedVerses = createSelectedVerses();
+
+export type ScriptureLogConfig = Partial<
+    {
+        root: number;
+        docResult: number;
+        placement: number;
+        actions: number;
+    } & Record<RenderScopeLevel, number>
+>;
+
+export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $logs]) => {
+    return (
+        $userSettings['scripture-logs']
+            ? ({
+                  root: 1,
+                  docResult: 1,
+                  document: 1,
+                  paragraph: 1,
+                  phrase: 1,
+                  chapter: 1,
+                  verses: 1,
+                  text: 1,
+                  sequence: 1,
+                  wrapper: 1,
+                  milestone: 1,
+                  blockGraft: 1,
+                  inlineGraft: 1,
+                  mark: 1,
+                  metaContent: 1,
+                  row: 1,
+                  table: 1,
+                  placement: 1,
+                  actions: 1
+              } satisfies ScriptureLogConfig)
+            : ($logs['scripture'] ?? {})
+    ) as ScriptureLogConfig;
+});

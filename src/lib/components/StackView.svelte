@@ -5,10 +5,11 @@
 
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { footnotes, refs, themeColors } from '$lib/data/stores';
+    import { convertStyle, footnotes, refs, s, themeColors } from '$lib/data/stores';
     import type { Reference } from '$lib/data/stores/reference';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
+    import ScriptureViewProskomma from './ScriptureViewProskomma.svelte';
 
     interface Props {
         bodyFontSize: number | string;
@@ -72,8 +73,8 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
-                footnotes.push(footnoteHTML);
+                const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
+                footnotes.push({ type: 'plain', body: footnoteHTML, style: 'crossref' });
             }
         } else if (target.classList.contains('ref-link')) {
             referenceLinkClickHandler(target);
@@ -87,7 +88,7 @@
         }
     }
 
-    function toggleListener(footnotes: string[]) {
+    function toggleListener(footnotes: unknown[]) {
         if (listening && footnotes.length === 0) {
             document.removeEventListener('click', clickOutside);
             listening = false;
@@ -128,9 +129,46 @@
                         style:font-family={font}
                         style:font-size={fontSize}
                         style:line-height={lineHeight}
+                        style={convertStyle($s?.[`body.${item.style}`])}
                     >
-                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        {@html item}
+                        {#if item.type === 'plain'}
+                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                            {@html item.body}
+                        {:else if item.type === 'rich'}
+                            <div class="flex flex-row justify-space-between">
+                                <div>
+                                    <span class="xo">
+                                        {item.start.phrase}
+                                    </span>
+                                    <span>
+                                        <ScriptureViewProskomma
+                                            {...item.props}
+                                            references={{
+                                                ...item.start,
+                                                collection: item.props.references.collection,
+                                                bookTab: 0,
+                                                hasAudio: undefined,
+                                                catalog: item.props.references.catalog
+                                            }}
+                                            verseRange={{
+                                                start: Number(item.start.verse),
+                                                end: item.end?.verse
+                                                    ? Number(item.end.verse)
+                                                    : undefined
+                                            }}
+                                            maxSelections={0}
+                                        />
+                                    </span>
+                                </div>
+                                <div id="icon">
+                                    <!-- svelte-ignore a11y_consider_explicit_label -->
+                                    <button class="p-2" data-reference={JSON.stringify(item.start)}>
+                                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                                        {@html openInNewIcon()}
+                                    </button>
+                                </div>
+                            </div>
+                        {/if}
                     </div>
                 </div>
             {/each}

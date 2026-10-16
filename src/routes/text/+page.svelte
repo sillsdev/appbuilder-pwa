@@ -12,9 +12,9 @@
     } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
     import ScripturePager from '$lib/components/ScripturePager.svelte';
-    import ScriptureViewSofria, {
-        type Props as ScriptureViewSofriaProps
-    } from '$lib/components/ScriptureViewSofria.svelte';
+    import ScriptureViewProskomma, {
+        type Props as ScriptureViewProskommaProps
+    } from '$lib/components/ScriptureViewProskomma.svelte';
     import StackView from '$lib/components/StackView.svelte';
     import { showTextAppearance } from '$lib/components/TextAppearanceSelector.svelte';
     import TextSelectionToolbar from '$lib/components/TextSelectionToolbar.svelte';
@@ -38,6 +38,8 @@
         currentFont,
         direction,
         fontChoices,
+        getSettingBoolean,
+        getSettingString,
         glossary,
         highlights,
         isFirstLaunch,
@@ -66,8 +68,7 @@
         TriangleRightIcon
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-    import { pathJoin } from '$lib/scripts/stringUtils';
+    import { getFeatureValueString } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
     import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
@@ -146,16 +147,6 @@
     const bottomNavBarEnabled = config?.bottomNavBarItems && config?.bottomNavBarItems.length > 0;
     const barType = 'book';
 
-    const viewShowVerses = $derived(
-        ($userSettings['verse-numbers'] as boolean) ??
-            getFeatureValueBoolean(
-                scriptureConfig,
-                'show-verse-numbers',
-                $refs.collection,
-                $refs.book
-            )
-    );
-
     const audioPhraseEndChars = $derived(
         getFeatureValueString(
             scriptureConfig,
@@ -167,8 +158,6 @@
 
     const showSearch = !!config.mainFeatures['search'];
     const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
-    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
-    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
     const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
@@ -189,32 +178,21 @@
                     notes: $notes,
                     highlights: $highlights,
                     maxSelections: config.mainFeatures['annotation-max-select'] as number,
-                    redLetters: $userSettingsOrDefault['red-letters'] as boolean,
+                    redLetters: getSettingBoolean($userSettingsOrDefault, 'red-letters'),
                     references: $refs,
                     glossary: $glossary,
                     themeColors: $themeColors,
-                    verseLayout: $userSettingsOrDefault['verse-layout'] as string,
-                    viewShowBibleImages: $userSettingsOrDefault[
-                        'display-images-in-bible-text'
-                    ] as string,
-                    viewShowBibleVideos: $userSettingsOrDefault[
-                        'display-videos-in-bible-text'
-                    ] as string,
-                    viewShowIllustrations: config.mainFeatures['show-illustrations'] as boolean,
-                    viewShowVerses,
-                    viewShowGlossaryWords: $userSettingsOrDefault['glossary-words'] as boolean,
+                    verseLayout: getSettingString($userSettingsOrDefault, 'verse-layout'),
+                    userSettings: $userSettingsOrDefault,
                     font: $currentFont!,
                     proskomma: data?.proskomma,
-                    selectedVersesStore: selectedVerses
-                } satisfies ScriptureViewSofriaProps)
+                    setReference: refs.set,
+                    setBookTab: refs.setBookTab,
+                    selectedVerses,
+                    isActivePanel: false
+                } satisfies ScriptureViewProskommaProps)
               : {}
     );
-
-    function getFormat(bcId: string, bookId: string) {
-        return scriptureConfig.bookCollections
-            ?.find((x) => x.id === bcId)
-            ?.books.find((x) => x.id === bookId)?.format;
-    }
 
     const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
@@ -280,7 +258,7 @@
                 const win = activePanel
                     ?.getElementsByClassName('container')[0]
                     ?.getBoundingClientRect();
-                if (scrollingDiv) {
+                if (scrollingDiv && win) {
                     const scrollTop = scrollingDiv.scrollTop;
                     const scrollHeight = scrollingDiv.clientHeight;
                     const isVisible =
@@ -334,8 +312,8 @@
         let container = activePanel?.getElementsByClassName('container')[0];
         // Remove highlighting for currently highlighted verses
         const elements = container?.getElementsByClassName('highlighting');
-        for (let i = 0; i < elements?.length; i++) {
-            const element = elements[i];
+        for (let i = 0; i < (elements?.length ?? 0); i++) {
+            const element = elements![i];
             const node = element.getAttributeNode('style');
             if (node) {
                 element.removeAttributeNode(node);
@@ -540,7 +518,10 @@
                     {#if book?.format === 'html'}
                         <HtmlBookView {...settings as HtmlBookViewProps} />
                     {:else if book?.testament !== 'quiz'}
-                        <ScriptureViewSofria {...settings as ScriptureViewSofriaProps} />
+                        <!-- <ScriptureViewSofria -->
+                        <!-- {...settings as ScriptureViewSofriaProps} -->
+                        <!-- /> -->
+                        <ScriptureViewProskomma {...settings as ScriptureViewProskommaProps} />
                     {/if}
                 {/snippet}
             </ScripturePager>

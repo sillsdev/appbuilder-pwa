@@ -30,7 +30,9 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
-        selectedVersesStore: SelectedVersesStore;
+        setReference: (value: Reference) => void;
+        setBookTab: (tab: number) => void;
+        selectedVerses: SelectedVersesStore;
     }
 </script>
 
@@ -63,7 +65,6 @@ LOGGING:
         ModalType,
         monoIconColor,
         plan,
-        // refs is only used for set
         refs,
         t,
         userSettings,
@@ -94,9 +95,9 @@ LOGGING:
     import {
         SofriaRenderFromProskomma,
         type Block,
-        type Context,
-        type Element,
-        type Sequence
+        type RenderElement as Element,
+        type RenderContext,
+        type RenderSequence as Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount, untrack } from 'svelte';
 
@@ -127,7 +128,9 @@ LOGGING:
         viewShowGlossaryWords,
         font,
         proskomma,
-        selectedVersesStore: selectedVerses
+        setReference,
+        setBookTab,
+        selectedVerses
     }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
@@ -706,7 +709,7 @@ LOGGING:
                 span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
             const parsed = workingSpan?.innerHTML;
-            footnotes.push(parsed);
+            footnotes.push({ type: 'plain', body: parsed, style: 'footnote' });
         }
     }
     // handles clicks on in text markdown reference links
@@ -726,7 +729,12 @@ LOGGING:
             // Invalid collection
             return;
         }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
+        setReference({
+            docSet: refDocSet,
+            book: refBook,
+            chapter: splitChapter,
+            verse: splitVerse
+        });
         return;
     }
     async function headerLinkClickReference(event: MouseEvent, target: HTMLElement) {
@@ -740,7 +748,7 @@ LOGGING:
             navigate(start);
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
-            footnotes.push(footnoteHTML);
+            footnotes.push({ type: 'plain', body: footnoteHTML, style: 'crossref' });
         }
     }
     function glossaryClickHandler(event: MouseEvent, target: HTMLElement) {
@@ -762,7 +770,11 @@ LOGGING:
                             const blockText = block.text.slice(glossaryLink?.length);
                             appendTextToElement(glossaryDiv, blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push(glossaryHTML);
+                            footnotes.push({
+                                type: 'plain',
+                                body: glossaryHTML,
+                                style: 'glossary'
+                            });
                         }
                     }
                 });
@@ -782,7 +794,7 @@ LOGGING:
         }
     }
     function navigate(reference: Reference) {
-        refs.set({
+        setReference({
             docSet: reference.docSet,
             book: reference.book,
             chapter: reference.chapter,
@@ -1070,7 +1082,7 @@ LOGGING:
                 planNextReferenceIndex: nextIndex,
                 completed: false
             };
-            refs.set({
+            setReference({
                 docSet: currentBookCollectionId,
                 book: book,
                 chapter: toChapter.toString(),
@@ -1609,7 +1621,7 @@ LOGGING:
         jmpText: string;
     } & Record<`level${number}ListNum`, number>;
 
-    type Action = { context: Context; workspace: Workspace };
+    type Action = { context: RenderContext; workspace: Workspace };
 
     const output = {};
     async function query(
@@ -1685,7 +1697,9 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements(selectedVerses);
+                            if (container) {
+                                deselectAllElements(container);
+                            }
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
@@ -2374,7 +2388,7 @@ LOGGING:
                                 environment.workspace.titleGraft = true;
                             }
                             if (currentBlock.sequence) {
-                                graftRecord.sequence = {};
+                                //graftRecord.sequence = {}; // I don't think this code actually does anything???
                                 const cachedSequencePointer = environment.workspace.currentSequence;
                                 environment.workspace.currentSequence = graftRecord.sequence;
                                 environment.context.renderer.renderSequence(environment);
@@ -2844,7 +2858,7 @@ LOGGING:
 
     $effect(() => {
         if (!bookTabSelected) {
-            refs.setBookTab(0);
+            setBookTab(0);
         }
     });
 
