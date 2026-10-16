@@ -84,7 +84,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
             }
         ]
     },
-    { tag: 'show-chapter-numbers', enabledValue: 'true' }
+    { feature: 'show-chapter-numbers', enabledValue: true }
 );
 
 export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
@@ -124,17 +124,20 @@ export const verseNumbers = new FeatureSpec<{ mark?: MarkScratch }>(
                             return;
                         }
                         const verseSelection = workspace.root.querySelector(
-                            `[data-verse="${el.textContent}"]`
+                            `[data-verse="${el.getAttribute('data-verse-num')}"]`
                         );
                         if (verseSelection) {
-                            seekToVerse(el.textContent);
+                            seekToVerse(verseSelection.getAttribute('data-verse')!);
                         }
                     })
                 );
             }
         }
     },
-    { tag: 'show-verse-numbers', enabledValue: 'true' }
+    [
+        { feature: 'show-verse-numbers', enabledValue: true },
+        { setting: 'verse-numbers', enabledValue: true }
+    ]
 );
 
 function addVerseNumber(workspace: RenderWorkspace, verse: string) {
@@ -150,6 +153,8 @@ function addVerseNumber(workspace: RenderWorkspace, verse: string) {
         verse,
         direction
     );
+
+    spanV.setAttribute('data-verse-num', verse);
 
     const spanVsp = workspace.document.createElement('span');
     spanVsp.classList.add('vsp');

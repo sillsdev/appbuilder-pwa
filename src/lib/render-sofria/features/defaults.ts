@@ -84,7 +84,10 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
 
                 // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
                 // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-                cleanedText = cleanedText.replaceAll('|default=""', '| ');
+                cleanedText = cleanedText.replaceAll(
+                    /(\|\s*)default="([^"]*)"/g,
+                    (_m, bar, quoted) => ` ${bar}${quoted}`
+                );
 
                 addToScratchPad(workspace.scratch, 'text', {
                     cleanedText,

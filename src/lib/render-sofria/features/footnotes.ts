@@ -74,7 +74,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
-            matchSequence(context, 'footnote') && renderIfRegularOrIfHackedIntro(workspace),
+            matchElement(context, /usfm:f/) && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const usfmWrapperType = extractUSFMClassName(context);
 
@@ -87,7 +87,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
-            matchSequence(context, 'footnote') && renderIfRegularOrIfHackedIntro(workspace),
+            matchElement(context, /usfm:f/) && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
         }
@@ -158,8 +158,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
-            (matchSequence(context, 'xref') || matchElement(context, 'usfm:xt')) &&
-            renderIfRegularOrIfHackedIntro(workspace),
+            matchElement(context, /usfm:x/) && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const usfmWrapperType = extractUSFMClassName(context);
 
@@ -172,8 +171,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         stage: 'standard',
         details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
         guard: ({ context, workspace }) =>
-            (matchSequence(context, 'xref') || matchElement(context, 'usfm:xt')) &&
-            renderIfRegularOrIfHackedIntro(workspace),
+            matchElement(context, /usfm:x/) && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             terminatePhrase(workspace);
 

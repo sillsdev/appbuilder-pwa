@@ -1,5 +1,5 @@
 import config, { scriptureConfig } from '$assets/config';
-import type { FeatureConfig } from '$config';
+import type { FeatureConfig, FeatureValue } from '$config';
 import { isFileSystemAccessSupported } from '$lib/data/audioFileSystem';
 import { getDefaultLanguage } from '$lib/data/language';
 import { persistedLocal } from '$lib/data/stores/storage';
@@ -421,11 +421,16 @@ export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {
     return { ...defaultSettings, ...$userSettings };
 });
 
-export function checkSettingIs(settings: FeatureConfig, feature: string, expectedValue: string) {
+export function checkSettingIs(
+    settings: FeatureConfig,
+    setting: string,
+    expectedValue: FeatureValue
+) {
+    expectedValue = expectedValue.toString();
     if (['true', 'false'].includes(expectedValue)) {
-        return getSettingBoolean(settings, feature).toString() === expectedValue;
+        return getSettingBoolean(settings, setting).toString() === expectedValue;
     } else {
-        return getSettingString(settings, feature) === expectedValue;
+        return getSettingString(settings, setting) === expectedValue;
     }
 }
 

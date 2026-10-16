@@ -166,12 +166,7 @@ class ScopeManager {
     debug() {
         console.warn('%o', {
             stack: [...this.stack],
-            lookup_table: Object.fromEntries(
-                this.map
-                    .entries()
-                    .toArray()
-                    .filter((e) => !!e[1])
-            )
+            lookup_table: Object.fromEntries(Array.from(this.map.entries()).filter((e) => !!e[1]))
         });
     }
 }

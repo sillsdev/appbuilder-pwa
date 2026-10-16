@@ -61,7 +61,7 @@ export function addPhrases(
         const phraseDiv = getPhraseDiv(workspace, options);
         phraseDiv.innerHTML += phrase;
 
-        if (phrases.length <= 1 || phraseTerminated(workspace, phrases[phrases.length - 1])) {
+        if (phrases.length <= 1 || phraseTerminated(workspace, phrase)) {
             workspace.scopeManager.appendContent(phraseDiv);
         } else {
             workspace.scopeManager.push('phrase', phraseDiv);
