@@ -52,11 +52,22 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
     },
     endParagraph: {
         stage: 'standard',
-        details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
+        details: ({ context, workspace }) => ({
+            class: extractClassName(getBlock(context)),
+            render: workspace.currentTextPosition.render || workspace.viewSettings.verseRange?.start
+        }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'title') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
-            workspace.scopeManager.promoteContent('paragraph:title');
+            // if rendering verse range, only render title if verse 1 is included
+            if (
+                workspace.currentTextPosition.render ||
+                workspace.viewSettings.verseRange?.start === 1
+            ) {
+                workspace.scopeManager.promoteContent('paragraph:title');
+            } else {
+                workspace.scopeManager.pop('paragraph:title');
+            }
         }
     },
     text: {

@@ -150,6 +150,12 @@
                                                 hasAudio: undefined,
                                                 catalog: item.props.references.catalog
                                             }}
+                                            verseRange={{
+                                                start: Number(item.start.verse),
+                                                end: item.end?.verse
+                                                    ? Number(item.end.verse)
+                                                    : undefined
+                                            }}
                                             maxSelections={0}
                                         />
                                     </span>
