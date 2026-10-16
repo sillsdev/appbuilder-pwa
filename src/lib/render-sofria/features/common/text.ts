@@ -76,3 +76,11 @@ export function isTopWrapper(
     const depth = workspace.scopeManager.depth(wrapper);
     return !!wrapper && depth >= 0 && depth === workspace.scopeManager.depth('wrapper');
 }
+
+export function parseVerseRange(range: string) {
+    const parts = range.split('-');
+    return {
+        start: Number(parts[0]),
+        end: Number(parts[1] || parts[0])
+    };
+}
