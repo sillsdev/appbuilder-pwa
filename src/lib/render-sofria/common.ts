@@ -221,6 +221,8 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
     PKRenderWorkspace & {
         document: Document;
         currentTextPosition: {
+            // render current section, used for verse range
+            render: boolean;
             verse: string;
             phraseIndex?: number;
         };
@@ -237,7 +239,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             isBibleBook: boolean;
             redLetters: boolean;
             verseLayout: string;
-            verseRangeNumber?: string;
+            verseRange?: { start: number; end?: number };
         };
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;

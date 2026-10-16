@@ -30,6 +30,7 @@ LOGGING:
         setBookTab: (value: number) => void;
         selectedVerses: SelectedVersesStore;
         isActivePanel: boolean;
+        verseRange?: { start: number; end?: number };
     }
 </script>
 
@@ -116,7 +117,8 @@ LOGGING:
         setReference,
         setBookTab,
         selectedVerses,
-        isActivePanel
+        isActivePanel,
+        verseRange
     } = $derived(props);
 
     const currentBook = $derived(references.book);
@@ -400,8 +402,9 @@ LOGGING:
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = new ScopeManager();
-        workspace.currentTextPosition = workspace.currentTextPosition ?? {
-            verse: 'none'
+        workspace.currentTextPosition = {
+            verse: 'none',
+            render: !verseRange
         };
         workspace.logSettings = $scriptureLogs;
         workspace.scratch = {};
@@ -416,7 +419,8 @@ LOGGING:
         workspace.viewSettings = {
             isBibleBook: isBibleBook(references, workspace.config),
             redLetters,
-            verseLayout
+            verseLayout,
+            verseRange
         };
         workspace.events = {
             navigate(ref: Reference) {

@@ -6,7 +6,7 @@ import {
     type RenderWorkspace
 } from '../common';
 import { getElement } from './common';
-import { terminatePhrase, type SharedTextScratch } from './common/text';
+import { parseVerseRange, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     startDocument: {
@@ -49,7 +49,16 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
                 v: getElement(context).atts['number']
             }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-            action({ workspace }) {
+            action({ context, workspace }) {
+                // set render status for start of verse range (end is handled in endParagraph - Main Text)
+                if (workspace.viewSettings.verseRange && !workspace.currentTextPosition.render) {
+                    if (
+                        parseVerseRange(getElement(context).atts['number']).end + 1 ===
+                        workspace.viewSettings.verseRange.start
+                    ) {
+                        workspace.currentTextPosition.render = true;
+                    }
+                }
                 workspace.currentTextPosition.verse = 'none';
             }
         }
