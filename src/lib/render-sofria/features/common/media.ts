@@ -32,7 +32,11 @@ export function placeElement(
             console.log('Could not find data element for verse', verse);
         }
     } else if (pos === 'top') {
-        const el = workspace.root.getElementsByClassName('m')[0];
+        let els = workspace.root.getElementsByClassName('m');
+        if (els.length === 0) {
+            els = workspace.root.getElementsByClassName('c');
+        }
+        const el = els[0];
         el.insertAdjacentElement('beforebegin', element);
     } else if (pos === 'bottom') {
         const els = workspace.root.querySelectorAll('span[id^=bookmarks]');

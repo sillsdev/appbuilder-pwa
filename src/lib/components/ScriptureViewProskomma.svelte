@@ -277,6 +277,9 @@ LOGGING:
             if (generation !== annotationGeneration) {
                 return;
             }
+            for (const span of scriptureRoot.querySelectorAll('span[id^="notes"]') ?? []) {
+                span.replaceChildren();
+            }
             for (const span of scriptureRoot.querySelectorAll('span[id^="bookmarks"]') ?? []) {
                 span.replaceChildren();
             }

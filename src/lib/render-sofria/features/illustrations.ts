@@ -129,7 +129,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             }
         }
     },
-    { tag: 'show-illustrations', enabledValue: 'true' }
+    { feature: 'show-illustrations', enabledValue: true }
 );
 
 export const illustrationsFallback = new FeatureSpec(
@@ -143,7 +143,7 @@ export const illustrationsFallback = new FeatureSpec(
             action: noaction
         }
     },
-    { tag: 'show-illustrations', enabledValue: 'false' }
+    { feature: 'show-illustrations', enabledValue: false }
 );
 
 function showImages(workspace: RenderWorkspace) {

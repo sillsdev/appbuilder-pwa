@@ -1,4 +1,4 @@
-import type { FeatureConfig, ScriptureConfig } from '$config';
+import type { FeatureConfig, FeatureValue, ScriptureConfig } from '$config';
 import type { BookmarkItem } from '$lib/data/bookmarks';
 import type { HighlightItem } from '$lib/data/highlights';
 import type { NoteItem } from '$lib/data/notes';
@@ -137,7 +137,9 @@ export function noaction() {}
  */
 export type ActionDictionary = Partial<{ [key in RenderEvent]: Array<RenderAction> }>;
 
-export type FeatureFlag = { tag: string; enabledValue: string };
+export type FeatureFlag = ({ feature: string } | { setting: string }) & {
+    enabledValue: FeatureValue;
+};
 
 export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> {
     constructor(
@@ -148,18 +150,60 @@ export class FeatureSpec<Scratch extends DefaultScratchpad = DefaultScratchpad> 
                 Omit<RenderAction<Scratch>, 'event'> | Array<Omit<RenderAction<Scratch>, 'event'>>
             >
         >,
-        flag?: FeatureFlag
+        flag?: FeatureFlag | FeatureFlag[]
     ) {
-        this.flag = flag;
+        this.flag = (flag && (Array.isArray(flag) ? flag : [flag])) ?? [];
         this.actions = Object.keys(actions).flatMap((key) => {
             const e = key as RenderEvent;
             const arr = Array.isArray(actions[e]) ? actions[e]! : [actions[e]!];
             return arr.map((a) => ({ ...a, name: a.name || name, event: e }));
         });
+        this.name = name;
     }
 
-    flag?: FeatureFlag;
-    actions: Array<RenderAction<Scratch>>;
+    private flag: FeatureFlag[];
+    readonly actions: Array<RenderAction<Scratch>>;
+    readonly name: string;
+
+    private log(enabled: boolean) {
+        console.warn(`feature ${this.name} is ${enabled ? 'enabled' : 'disabled'}`);
+    }
+
+    enabled(
+        config: ScriptureConfig,
+        references: RenderWorkspace['stores']['references'],
+        settings: FeatureConfig,
+        log: boolean
+    ): boolean {
+        if (!this.flag.length) {
+            return true;
+        }
+        const featureFlags = this.flag.filter((f) => 'feature' in f);
+        const featureEnabled = featureFlags.some((f) =>
+            checkFeatureValueIs(
+                config,
+                f.feature,
+                f.enabledValue,
+                references.collection,
+                references.book
+            )
+        );
+        const settingFlags = this.flag.filter((f) => 'setting' in f);
+        const settingEnabled = settingFlags.some((f) =>
+            checkSettingIs(settings, f.setting, f.enabledValue)
+        );
+        if (settingFlags.length) {
+            if (log) {
+                this.log(settingEnabled);
+            }
+            return settingEnabled;
+        } else {
+            if (log) {
+                this.log(featureEnabled);
+            }
+            return featureEnabled;
+        }
+    }
 }
 
 type DefaultScratchpad = Partial<Record<RenderScopeLevel, Record<string, unknown>>>;
@@ -259,23 +303,7 @@ export function compileActionDictionary(
 ) {
     const result: ActionDictionary = {};
     for (const f of features) {
-        const enabled =
-            !f.flag ||
-            checkFeatureValueIs(
-                config,
-                f.flag.tag,
-                f.flag.enabledValue,
-                references.collection,
-                references.book
-            ) ||
-            checkSettingIs(settings, f.flag.tag, f.flag.enabledValue);
-
-        if (f.flag && logSettings.actions) {
-            console.warn(
-                `feature with ${f.flag.tag} === ${f.flag.enabledValue} is ${enabled ? 'enabled' : 'disabled'}`
-            );
-        }
-        if (enabled) {
+        if (f.enabled(config, references, settings, !!logSettings.actions)) {
             for (const a of f.actions) {
                 if (result[a.event]) {
                     result[a.event]!.push(a);
