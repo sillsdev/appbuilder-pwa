@@ -420,7 +420,9 @@ LOGGING:
             isBibleBook: isBibleBook(references, workspace.config),
             redLetters,
             verseLayout,
-            verseRange
+            verseRange: verseRange
+                ? { start: verseRange.start, end: verseRange.end ?? verseRange.start }
+                : undefined
         };
         workspace.events = {
             navigate(ref: Reference) {
