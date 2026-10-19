@@ -245,7 +245,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         hackRenderIntro: boolean;
         events: {
             navigate: (refs: Reference) => void;
-            openFootnoote: (event: MouseEvent, footnoteId: string) => void;
+            openFootnote: (event: MouseEvent, footnoteId: string) => void;
             openGlossary: (link: string, block: GlossaryBlock) => void;
             setPlanStore: (data: PlanStore) => void;
             clickHeaderRef: (

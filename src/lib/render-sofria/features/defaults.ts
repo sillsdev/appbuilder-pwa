@@ -6,7 +6,7 @@ import {
     type RenderWorkspace
 } from '../common';
 import { getElement } from './common';
-import { parseVerseRange, terminatePhrase, type SharedTextScratch } from './common/text';
+import { cleanText, parseVerseRange, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     startDocument: {
@@ -101,14 +101,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
             details: ({ context }) => ({ length: getElement(context).text.trim().length }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
             action({ context, workspace }) {
-                let cleanedText = getElement(context).text;
-
-                // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
-                // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-                cleanedText = cleanedText.replaceAll(
-                    /(\|\s*)default="([^"]*)"/g,
-                    (_m, bar, quoted) => ` ${bar}${quoted}`
-                );
+                const cleanedText = cleanText(getElement(context).text);
 
                 addToScratchPad(workspace.scratch, 'text', {
                     cleanedText,

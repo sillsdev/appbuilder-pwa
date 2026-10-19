@@ -44,7 +44,7 @@ A clickable verse card representing a single search result.
 
     function formatReferenceParts(reference: Reference): ReferenceDisplay {
         const numeralSystem = numerals.systemForBook(
-            scriptureConfig,
+            scriptureConfig.bookCollections,
             reference.collection,
             reference.bookCode
         );

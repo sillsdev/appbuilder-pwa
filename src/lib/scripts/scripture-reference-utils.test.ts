@@ -7,7 +7,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { catalog } from '../../../test_data/data/catalog';
 import config from '../../../test_data/data/config';
-import { generateHTMLTest, getDisplayStringMain, isBibleBook } from './scripture-reference-utils';
+import {
+    getDisplayStringMain,
+    isBibleBook,
+    test_generateReferenceLinkHTML
+} from './scripture-reference-utils';
 
 describe('Scripture Reference Utilities', () => {
     describe('generateHTMLTest', () => {
@@ -49,7 +53,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3)', () => {
             let result;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test0,
                     '',
                     'MAT',
@@ -81,7 +85,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter with text (John 3)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test9,
                     '',
                     'MAT',
@@ -113,7 +117,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3:16)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test1,
                     '',
                     'MAT',
@@ -143,7 +147,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test2,
                     '',
                     'MAT',
@@ -185,7 +189,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter range (John 3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test3,
                     '',
                     'MAT',
@@ -217,7 +221,7 @@ describe('Scripture Reference Utilities', () => {
         describe('chapter range (3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test10,
                     '',
                     'MAT',
@@ -250,7 +254,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test4,
                     '',
                     'MAT',
@@ -293,7 +297,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test5,
                     '',
                     'MAT',
@@ -339,7 +343,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test6,
                     '',
                     'MAT',
@@ -393,7 +397,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter verse chapter verse range (John 3:16-5:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test11,
                     '',
                     'MAT',
@@ -429,7 +433,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test7,
                     '',
                     'MAT',
@@ -480,7 +484,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Single chapter book (Jude 6)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test8,
                     '',
                     'MAT',
@@ -510,7 +514,7 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test12,
                     '',
                     'MAT',
@@ -567,7 +571,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Book abbreviation used (Exo 3:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test13,
                     '',
                     'MAT',
@@ -596,7 +600,7 @@ describe('Scripture Reference Utilities', () => {
         describe('Verse with letter (Luke 3:2b-20) Chapter 20 missing.', () => {
             let result: any;
             beforeEach(() => {
-                result = generateHTMLTest(
+                result = test_generateReferenceLinkHTML(
                     test14,
                     '',
                     'MAT',

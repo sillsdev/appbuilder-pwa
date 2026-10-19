@@ -6,6 +6,8 @@
  * @author David Moore
  **/
 
+import type { ScriptureConfig } from '$config';
+import { systemForBook, type NumeralSystem } from './numeralSystem';
 import {
     convertDigitsInStringToDefaultNumeralSystem,
     getIntFromNumberString
@@ -21,7 +23,8 @@ import {
 } from './stringUtils';
 
 export function getReferenceFromString(
-    reference: string
+    reference: string,
+    collections: Parameters<typeof systemForBook>[0]
 ): [string, string, number, number, [number, number, string][]] {
     let bookCollectionId: string;
     let bookId: string;
@@ -88,6 +91,8 @@ export function getReferenceFromString(
             // Verse or verse range
             let verses: string = m[3];
 
+            const numeralSystem = systemForBook(collections, bookCollectionId, bookId);
+
             // For case of only verse chapter in reference
             if (!containsRomanScriptLetter(m[1])) {
                 bookId = '';
@@ -98,10 +103,10 @@ export function getReferenceFromString(
                 fromChapter = getIntFromString(chapter);
                 toChapter = fromChapter;
             } else {
-                [fromChapter, toChapter] = parseChapterRange(chapter);
+                [fromChapter, toChapter] = parseChapterRange(chapter, numeralSystem);
             }
             if (isNotBlank(verses)) {
-                verseRanges = parseVerseRange(verses);
+                verseRanges = parseVerseRange(verses, numeralSystem);
             }
         }
     }
@@ -114,7 +119,7 @@ export function getReferenceFromString(
     ];
 }
 
-function parseChapterRange(chapterRange: string): [number, number] {
+function parseChapterRange(chapterRange: string, numeralSystem: NumeralSystem): [number, number] {
     let fromChapter: number;
     let toChapter: number;
 
@@ -123,10 +128,10 @@ function parseChapterRange(chapterRange: string): [number, number] {
         range = stripAllExceptDigitsAndHyphens(range);
         const hyphenPos: number = range.indexOf('-');
         if (hyphenPos > 0) {
-            fromChapter = getIntFromNumberString(range.substring(0, hyphenPos));
-            toChapter = getIntFromNumberString(range.substring(hyphenPos + 1));
+            fromChapter = getIntFromNumberString(range.substring(0, hyphenPos), numeralSystem);
+            toChapter = getIntFromNumberString(range.substring(hyphenPos + 1), numeralSystem);
         } else {
-            fromChapter = getIntFromNumberString(range);
+            fromChapter = getIntFromNumberString(range, numeralSystem);
             toChapter = fromChapter;
         }
     } else {
@@ -135,19 +140,25 @@ function parseChapterRange(chapterRange: string): [number, number] {
     }
     return [fromChapter, toChapter];
 }
-function parseVerseRange(verseRange: string): [number, number, string][] {
+function parseVerseRange(
+    verseRange: string,
+    numeralSystem: NumeralSystem
+): [number, number, string][] {
     const verseRanges: [number, number, string][] = [];
 
     if (isNotBlank(verseRange)) {
         const ranges: string[] = splitString(verseRange, ',');
         for (const range of ranges) {
-            const vRange: [number, number, string] = parseVerseRangeString(range);
+            const vRange: [number, number, string] = parseVerseRangeString(range, numeralSystem);
             verseRanges.push(vRange);
         }
     }
     return verseRanges;
 }
-function parseVerseRangeString(input: string): [number, number, string] {
+function parseVerseRangeString(
+    input: string,
+    numeralSystem: NumeralSystem
+): [number, number, string] {
     let fromVerse: number = -1;
     let toVerse: number = -1;
     let separator: string = '';
@@ -156,7 +167,7 @@ function parseVerseRangeString(input: string): [number, number, string] {
         // Replace en-dash by hyphen
         inputToUse = input.replace('\u2013', '-');
         // Replace any non-default numeral system digits
-        inputToUse = convertDigitsInStringToDefaultNumeralSystem(inputToUse);
+        inputToUse = convertDigitsInStringToDefaultNumeralSystem(inputToUse, numeralSystem);
         const VERSE_RANGE_PATTERN: RegExp = /(\d+(\w?))(?:\u200F?([-,])(\d+(\w?)))?/;
         const match: RegExpMatchArray | null = inputToUse.match(VERSE_RANGE_PATTERN);
 
