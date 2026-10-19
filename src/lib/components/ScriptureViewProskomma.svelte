@@ -397,7 +397,9 @@ LOGGING:
                     isBibleBook: isBibleBook(references, scriptureConfig),
                     redLetters,
                     verseLayout,
-                    verseRange
+                    verseRange: verseRange
+                        ? { start: verseRange.start, end: verseRange.end ?? verseRange.start }
+                        : undefined
                 },
                 events: {
                     navigate(ref: Reference) {
@@ -430,7 +432,11 @@ LOGGING:
                             const blockText = block.text.slice(glossaryLink?.length);
                             glossaryDiv.innerHTML += blockText;
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push({ type: 'plain', body: glossaryHTML, style: 'glossary' });
+                            footnotes.push({
+                                type: 'plain',
+                                body: glossaryHTML,
+                                style: 'glossary'
+                            });
                         }
                     },
                     setPlanStore(data: PlanStore) {

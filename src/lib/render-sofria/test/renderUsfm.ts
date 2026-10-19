@@ -47,7 +47,7 @@ export type RenderOptions = {
     videos?: ScriptureConfig['videos'];
     /** `config.audio` (audio sources and files, used by audio clips) */
     audio?: ScriptureConfig['audio'];
-    verseRange?: { start: number; end?: number };
+    verseRange?: { start: number; end: number };
 };
 
 const DEFAULT_FEATURES = {

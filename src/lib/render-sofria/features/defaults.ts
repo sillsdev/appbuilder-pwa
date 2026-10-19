@@ -25,7 +25,9 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
         stage: 'cleanup',
         details: ({ workspace }) => ({ ...workspace.stores.references }),
         action({ workspace, output }) {
-            addFooter(workspace);
+            if (workspace.currentTextPosition.render) {
+                addFooter(workspace);
+            }
 
             workspace.scopeManager.pop('document');
             output.root = workspace.root;
@@ -50,13 +52,23 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
             }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
             action({ context, workspace }) {
-                // set render status for start of verse range (end is handled in endParagraph - Main Text)
-                if (workspace.viewSettings.verseRange && !workspace.currentTextPosition.render) {
-                    if (
-                        parseVerseRange(getElement(context).atts['number']).end + 1 ===
-                        workspace.viewSettings.verseRange.start
-                    ) {
-                        workspace.currentTextPosition.render = true;
+                // set render status for verse range (filtering text is handled in endParagraph - Main Text)
+                if (workspace.viewSettings.verseRange) {
+                    const range = parseVerseRange(getElement(context).atts['number']);
+                    if (!workspace.currentTextPosition.render) {
+                        if (
+                            range.end + 1 >= workspace.viewSettings.verseRange.start &&
+                            range.start <= workspace.viewSettings.verseRange.end
+                        ) {
+                            workspace.currentTextPosition.render = true;
+                        }
+                    } else {
+                        if (
+                            range.start + 1 > workspace.viewSettings.verseRange.end ||
+                            range.end + 1 > workspace.viewSettings.verseRange.end
+                        ) {
+                            workspace.currentTextPosition.render = false;
+                        }
                     }
                 }
                 workspace.currentTextPosition.verse = 'none';

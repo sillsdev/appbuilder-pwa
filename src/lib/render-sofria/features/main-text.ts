@@ -130,8 +130,10 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                             // filter out verses not in range
                             if (
                                 !workspace.viewSettings.verseRange ||
-                                range.start >= workspace.viewSettings.verseRange.start ||
-                                range.end >= workspace.viewSettings.verseRange.start
+                                ((range.start >= workspace.viewSettings.verseRange.start ||
+                                    range.end >= workspace.viewSettings.verseRange.start) &&
+                                    (range.end <= workspace.viewSettings.verseRange.end ||
+                                        range.start <= workspace.viewSettings.verseRange.end))
                             ) {
                                 divs.push(verseDiv);
                             }
