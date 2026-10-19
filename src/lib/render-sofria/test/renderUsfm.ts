@@ -138,7 +138,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             hackRenderIntro: options.hackRenderIntro ?? false,
             events: {
                 navigate: noop,
-                openFootnoote: noop,
+                openFootnote: noop,
                 openGlossary: noop,
                 setPlanStore: noop,
                 clickHeaderRef: noop,

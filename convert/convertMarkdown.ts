@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { ConvertBookContext } from 'convertBooks';
 import { getReferenceFromString } from '../src/lib/scripts/scripture-reference-utils-common';
 import { getFilenameExt, isBlank } from './stringUtils';
 
@@ -11,18 +12,32 @@ export function convertMarkdownsToMilestones(
     content: string,
     bcId: string,
     bookId: string,
-    _ctx: unknown
+    ctx: {
+        scriptureConfig: {
+            bookCollections?: Parameters<typeof getReferenceFromString>[1];
+        };
+    }
 ): string {
-    return convertMarkdown(content, ConversionFormat.USFM, bcId, bookId);
+    return convertMarkdown(
+        content,
+        ConversionFormat.USFM,
+        ctx.scriptureConfig.bookCollections,
+        bcId,
+        bookId
+    );
 }
 
-export function convertMarkdownsToHTML(content: string): string {
-    return convertMarkdown(content, ConversionFormat.HTML);
+export function convertMarkdownsToHTML(
+    content: string,
+    collections: Parameters<typeof getReferenceFromString>[1]
+): string {
+    return convertMarkdown(content, ConversionFormat.HTML, collections);
 }
 
 function convertMarkdown(
     content: string,
     conversion: ConversionFormat,
+    collections: Parameters<typeof getReferenceFromString>[1],
     bcId: string | null = null,
     bookId: string | null = null
 ): string {
@@ -43,7 +58,9 @@ function convertMarkdown(
         if (conversion === ConversionFormat.HTML) {
             sb.push(htmlLink(excl, alt, ref, tooltip));
         } else if (conversion === ConversionFormat.USFM) {
-            sb.push(usfmLink(excl, alt, ref, tooltip, bcId as string, bookId as string));
+            sb.push(
+                usfmLink(excl, alt, ref, tooltip, bcId as string, bookId as string, collections)
+            );
         }
         content = content.substring(match.index + match[0].length);
     }
@@ -68,7 +85,8 @@ function usfmLink(
     ref: string,
     tooltip: string,
     bcId: string,
-    bookId: string
+    bookId: string,
+    collections: Parameters<typeof getReferenceFromString>[1]
 ): string {
     if (isBlank(ref)) {
         // Empty link reference, e.g. [alt]()
@@ -82,7 +100,7 @@ function usfmLink(
     } else if (isWebLink(ref) || isEmailLink(ref) || isTelephoneNumberLink(ref)) {
         return linkUSFM(ref, alt, tooltip);
     } else {
-        return referenceUSFM(ref, alt, tooltip, bcId, bookId);
+        return referenceUSFM(ref, alt, tooltip, bcId, bookId, collections);
     }
 }
 
@@ -186,11 +204,15 @@ function referenceUSFM(
     text: string,
     tooltip: string,
     bcId: string,
-    bookid: string
+    bookid: string,
+    collections: Parameters<typeof getReferenceFromString>[1]
 ): string {
     // \zreflink-s |link="ENGWEB.MAT.5.1" title="Matthew 5:1"\*Beatitudes\zreflink-e\* \
     let result: string = '';
-    const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(link);
+    const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(
+        link,
+        collections
+    );
     const [fromVerse, toVerse, separator] = verseRanges[0];
     if (book === '' && fromChapter === -1) {
         // Invalid link

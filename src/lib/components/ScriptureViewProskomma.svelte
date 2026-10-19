@@ -64,7 +64,7 @@ LOGGING:
         type PlanStore,
         type SelectedVersesStore
     } from '$lib/data/stores';
-    import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
+    import type { Reference } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
     import {
         compileRenderActions,
@@ -72,13 +72,13 @@ LOGGING:
         type RenderWorkspace
     } from '$lib/render-sofria/common';
     import { planDivInChapter } from '$lib/render-sofria/features/common/plans';
+    import { cleanText } from '$lib/render-sofria/features/common/text';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import * as numerals from '$lib/scripts/numeralSystem';
     import {
-        generateHTML,
-        handleHeaderLinkPressed,
+        generateReferenceLinkHTML,
         isBibleBook,
         type AnchorReference
     } from '$lib/scripts/scripture-reference-utils';
@@ -130,7 +130,7 @@ LOGGING:
             ?.textDirection || 'ltr'
     );
     const numeralSystem = $derived(
-        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
+        numerals.systemForBook(scriptureConfig.bookCollections, references.collection, currentBook)
     );
 
     const output: { root?: HTMLDivElement } = {};
@@ -406,7 +406,7 @@ LOGGING:
                         setReference(ref);
                         footnotes.reset();
                     },
-                    openFootnoote(event: MouseEvent, footnoteId: string) {
+                    openFootnote(event: MouseEvent, footnoteId: string) {
                         if ($footnotes.length === 0) {
                             event.stopPropagation();
                             const footnote = scriptureRoot.querySelector(`div[id="${footnoteId}"]`);
@@ -414,7 +414,7 @@ LOGGING:
                             const spans = workingSpan?.querySelectorAll('span.xt');
                             // Loop through each span and modify its inner HTML
                             spans.forEach((span) => {
-                                span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+                                span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
                             });
                             const parsed = workingSpan?.innerHTML;
                             footnotes.push({ type: 'plain', body: parsed, style: 'footnote' });
@@ -430,7 +430,7 @@ LOGGING:
                             glossarySpan.append(block.key);
                             glossaryDiv.append(glossarySpan);
                             const blockText = block.text.slice(glossaryLink?.length);
-                            glossaryDiv.innerHTML += blockText;
+                            glossaryDiv.innerHTML += cleanText(blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
                             footnotes.push({
                                 type: 'plain',
@@ -458,9 +458,6 @@ LOGGING:
                         if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
                             workspace.events.navigate(start);
                         } else {
-                            /* handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
-                                footnotes.push({ type: 'plain', body: footnoteHTML})
-                            ); */
                             footnotes.push({ type: 'rich', start, end, props, style: 'crossref' });
                         }
                     },

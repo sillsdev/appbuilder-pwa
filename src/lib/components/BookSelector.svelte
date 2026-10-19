@@ -38,7 +38,9 @@ The navbar component.
     const book = $derived($nextRef.book === '' ? $refs.book : $nextRef.book);
     const chapter = $derived($nextRef.chapter === '' ? $refs.chapter : $nextRef.chapter);
     const verseCount = $derived(getVerseCount(chapter, chapters));
-    const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
+    const numeralSystem = $derived(
+        numerals.systemForBook(scriptureConfig.bookCollections, $refs.collection, book)
+    );
     const chaptersLabels = $derived(
         scriptureConfig.bookCollections
             ?.find((x) => $refs.collection === x.id)

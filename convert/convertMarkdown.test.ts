@@ -3,11 +3,17 @@ import path from 'path';
 import { beforeEach, describe, expect, it, test } from 'vitest';
 import { convertMarkdownsToHTML, convertMarkdownsToMilestones } from './convertMarkdown';
 
+const context = {
+    scriptureConfig: {
+        bookCollections: undefined
+    }
+};
+
 describe('convertMarkdownsToMilestones', () => {
     const data = readFileSync(path.join('test_data', 'books', 'C01', '01GENengWEBbd.usfm'), 'utf8');
     let modifiedContent: string;
     beforeEach(() => {
-        modifiedContent = convertMarkdownsToMilestones(data, 'C01', 'GEN');
+        modifiedContent = convertMarkdownsToMilestones(data, 'C01', 'GEN', context);
     });
     it('converts an image markdown to a figure', () => {
         // Gen 3:14 translates this ![The serpent](Serpent.png)
@@ -69,13 +75,13 @@ describe('convertMarkdownsToMilestones', () => {
     });
     it('converts an image markdown to a figure', () => {
         const input = '![The serpent](Serpent.png "A Tooltip")';
-        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN');
+        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN', context);
         // Figures do not support tooltips
         expect(output).toContain('\\fig The serpent|src="Serpent.png" size="span"\\fig*');
     });
     it('converts a web link markdown to a milestone with tooltip', () => {
         const input = '[Web Link](https://www.sil.org/ "SIL Global")';
-        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN');
+        const output = convertMarkdownsToMilestones(input, 'C01', 'GEN', context);
         expect(output).toContain(
             '\\jmp Web Link|href="https://www.sil.org/" title="SIL Global"\\jmp*'
         );
@@ -85,7 +91,8 @@ describe('convertMarkdownsToMilestones', () => {
 describe('convertMarkdownsToHTML', () => {
     describe('converting image markdown', () => {
         const out = convertMarkdownsToHTML(
-            'This is my image: ![The serpent](Serpent.png) More text'
+            'This is my image: ![The serpent](Serpent.png) More text',
+            undefined
         );
 
         const prefix = 'This is my image: <img';
@@ -110,7 +117,8 @@ describe('convertMarkdownsToHTML', () => {
     });
     describe('converting web link markdown', () => {
         const out = convertMarkdownsToHTML(
-            'Please visit our [website](https://www.sil.org/) for more info.'
+            'Please visit our [website](https://www.sil.org/) for more info.',
+            undefined
         );
 
         const prefix = 'Please visit our <a';
@@ -129,7 +137,8 @@ describe('convertMarkdownsToHTML', () => {
     });
     describe('converting web link markdown', () => {
         const out = convertMarkdownsToHTML(
-            'Please [EMAIL DAVID](mailto:david_moore1@sil.org) with all your questions'
+            'Please [EMAIL DAVID](mailto:david_moore1@sil.org) with all your questions',
+            undefined
         );
 
         const prefix = 'Please <a';
@@ -148,7 +157,8 @@ describe('convertMarkdownsToHTML', () => {
     });
     describe('converting telephone link markdown', () => {
         const out = convertMarkdownsToHTML(
-            'Please [call us](tel:6145551212) with all your questions'
+            'Please [call us](tel:6145551212) with all your questions',
+            undefined
         );
 
         const prefix = 'Please <a';
@@ -167,24 +177,24 @@ describe('convertMarkdownsToHTML', () => {
     });
     it('converts empty link to simple text', () => {
         const input = 'This [link]() does nothing';
-        const out = convertMarkdownsToHTML(input);
+        const out = convertMarkdownsToHTML(input, undefined);
         expect(out).toBe('This link does nothing');
     });
     it('does not convert invalid link', () => {
         const input = 'This [link](anisondfsao) is bogus';
-        const out = convertMarkdownsToHTML(input);
+        const out = convertMarkdownsToHTML(input, undefined);
         expect(out).toBe(input);
     });
     it('converts an image markdown to HTML with tooltip', () => {
         const input = '![The serpent](Serpent.png "A Tooltip")';
-        const output = convertMarkdownsToHTML(input);
+        const output = convertMarkdownsToHTML(input, undefined);
         expect(output).toBe(
             '<span class="dy-tooltip" data-tip="A Tooltip" style="display: inline;"><img src="Serpent.png" alt="The serpent"></span>'
         );
     });
     it('converts a web link markdown to HTML with tooltip', () => {
         const input = '[Web Link](https://www.sil.org/ "SIL Global")';
-        const output = convertMarkdownsToHTML(input);
+        const output = convertMarkdownsToHTML(input, undefined);
         expect(output).toBe(
             '<span class="dy-tooltip" data-tip="SIL Global" style="display: inline;"><a href="https://www.sil.org/">Web Link</a></span>'
         );

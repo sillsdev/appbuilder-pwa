@@ -98,17 +98,17 @@ export function hasFeature(config: AppConfig, feature: string) {
 
 // Make config a parameter for testing.
 export function getStyle(
-    configData: {
-        bookCollections: (Pick<BookCollectionConfig, 'id'> & {
-            style?: Partial<StyleConfig>;
-            books: (Pick<BookConfig, 'id'> & { style?: Partial<StyleConfig> })[];
-        })[];
-    },
+    bookCollections:
+        | (Pick<BookCollectionConfig, 'id'> & {
+              style?: Partial<StyleConfig>;
+              books: (Pick<BookConfig, 'id'> & { style?: Partial<StyleConfig> })[];
+          })[]
+        | undefined,
     option: keyof StyleConfig,
     bc: string,
     book: string
 ): string | number {
-    const bcData = configData.bookCollections?.find((x) => x.id === bc);
+    const bcData = bookCollections?.find((x) => x.id === bc);
     const bookData = bcData?.books.find((x) => x.id === book);
     // Use the style of the book, if defined.
     if (bookData?.style?.[option] && bookData.style[option] !== 'inherit') {

@@ -184,7 +184,9 @@ function changeAndroidToRem(propValue: string) {
 }
 
 export function convertFooter(markdown: string | undefined, appdef: Document): string | undefined {
-    const footer = markdown?.length ? convertMarkdownsToHTML(removeCData(markdown)) : undefined;
+    const footer = markdown?.length
+        ? convertMarkdownsToHTML(removeCData(markdown), undefined)
+        : undefined;
     const appName = appdef.getElementsByTagName('app-name')[0].innerHTML;
     const versionName = appdef.getElementsByTagName('version')[0].getAttribute('name');
     const appDefinition = appdef.getElementsByTagName('app-definition')[0];
