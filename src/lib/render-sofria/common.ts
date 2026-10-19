@@ -239,7 +239,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             isBibleBook: boolean;
             redLetters: boolean;
             verseLayout: string;
-            verseRange?: { start: number; end?: number };
+            verseRange?: { start: number; end: number };
         };
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;
