@@ -269,7 +269,8 @@ export function parseItemLink(
                     console.log(`Found ${link.linkTarget} in ${collection.id} as ${book.type}`);
                 }
                 link.linkType = book.type;
-                link.linkLocation = `${link.linkType}/${collection.id}/${link.linkTarget}`;
+                const route = book.type === 'bloom-player' ? 'bloom' : book.type;
+                link.linkLocation = `${route}/${collection.id}/${link.linkTarget}`;
                 return true;
             }
             return false;
