@@ -9,11 +9,14 @@ import {
     DEFAULT_INDEX_URL,
     downloadProject,
     fetchIndex,
+    PROJECT_LISTS,
     type TestProject
 } from './remote-test-files';
 
 // Constants
 const PROJECTS_DIR = path.resolve('test_data/projects');
+// Shared with `npm run test:bloom` so bloom zips are only downloaded once
+const BLOOM_DIR = path.resolve('test_data/bloom');
 // Flatpak doesn't have access to system tmp, so use home instead
 const TEMP_DIR = path.join(os.platform() === 'linux' ? os.homedir() : os.tmpdir(), 'pwa_temp');
 const APP_DEF_EXT = '.appDef';
@@ -91,10 +94,11 @@ type Options = {
     indexUrl: string;
     projectName?: string;
     downloadAll: boolean;
+    list: boolean;
 };
 
 function parseArgs(argv: string[]): Options {
-    const options: Options = { indexUrl: DEFAULT_INDEX_URL, downloadAll: false };
+    const options: Options = { indexUrl: DEFAULT_INDEX_URL, downloadAll: false, list: false };
     for (let i = 0; i < argv.length; i++) {
         const arg = argv[i];
         switch (arg) {
@@ -103,6 +107,9 @@ function parseArgs(argv: string[]): Options {
                 break;
             case '--download-all':
                 options.downloadAll = true;
+                break;
+            case '--list':
+                options.list = true;
                 break;
             default:
                 if (arg.startsWith('--') || options.projectName) {
@@ -117,8 +124,28 @@ function parseArgs(argv: string[]): Options {
     return options;
 }
 
+function projectId(project: TestProject): string {
+    return path.basename(project.file, '.zip');
+}
+
+function listProjects(projects: TestProject[]): void {
+    const width = Math.max(...projects.map((p) => projectId(p).length));
+    const groups = [...new Set(projects.map((p) => `${p.program} ${p.list}`))];
+    for (const group of groups) {
+        const [program, list] = group.split(' ');
+        console.log(`\n${program.toUpperCase()}${list === 'projects' ? '' : ` (${list})`}`);
+        for (const p of projects.filter((p) => `${p.program} ${p.list}` === group)) {
+            console.log(
+                `  ${projectId(p).padEnd(width)}  ${p.size.padStart(8)}  ${p.description || p.name}`
+            );
+        }
+    }
+    console.log('\nUsage: npm run extract:example -- <project> | --download-all | --list');
+}
+
 function downloadExample(project: TestProject, indexUrl: string): Promise<string> {
-    return downloadProject(project, indexUrl, path.join(PROJECTS_DIR, project.program));
+    const dir = project.list === 'bloom' ? BLOOM_DIR : path.join(PROJECTS_DIR, project.program);
+    return downloadProject(project, indexUrl, dir);
 }
 
 async function getProjectProps(
@@ -126,15 +153,17 @@ async function getProjectProps(
     projectName: string,
     indexUrl: string
 ): Promise<[string, string]> {
-    const project = projects.find((p) => path.basename(p.file) === `${projectName}.zip`);
+    const project = projects.find((p) => projectId(p) === projectName);
     if (!project) {
+        listProjects(projects);
         throw new Error(`Project "${projectName}" not found in index.json`);
     }
     return [project.program, await downloadExample(project, indexUrl)];
 }
 
+// Bloom projects are left out: they are large and only used by `npm run test:bloom`
 async function downloadAll(projects: TestProject[], indexUrl: string): Promise<void> {
-    for (const project of projects) {
+    for (const project of projects.filter((p) => p.list === 'projects')) {
         await downloadExample(project, indexUrl);
     }
 }
@@ -217,14 +246,18 @@ export async function prepareAndBuild(zipFilePath: string, program: string): Pro
 async function main(): Promise<void> {
     try {
         const options = parseArgs(process.argv.slice(2));
-        if (!options.projectName && !options.downloadAll) {
-            console.error(
-                'Error: Please provide a project name (e.g., web_gospels) or --download-all'
-            );
-            process.exit(1);
-        }
+        const projects = await fetchIndex(options.indexUrl, PROJECT_LISTS);
 
-        const projects = await fetchIndex(options.indexUrl, 'projects');
+        if (options.list || (!options.projectName && !options.downloadAll)) {
+            if (!options.list) {
+                console.error(
+                    'Error: Please provide a project name (e.g., web_gospels) or --download-all'
+                );
+                process.exitCode = 1;
+            }
+            listProjects(projects);
+            return;
+        }
 
         if (options.downloadAll) {
             await downloadAll(projects, options.indexUrl);

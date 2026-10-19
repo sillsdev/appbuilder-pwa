@@ -23,6 +23,7 @@ export type TestProject = {
     sha1: string;
     tests: string[];
     program: string;
+    list: ProjectList;
 };
 
 export type RemoteFile = {
@@ -41,7 +42,7 @@ export async function fetchJson(url: string): Promise<unknown> {
     return response.json();
 }
 
-function validateEntry(entry: any, where: string, program: string): TestProject {
+function validateEntry(entry: any, where: string, program: string, list: ProjectList): TestProject {
     const fail = (reason: string) => {
         throw new Error(`Invalid index.json entry ${where}: ${reason}`);
     };
@@ -79,11 +80,16 @@ function validateEntry(entry: any, where: string, program: string): TestProject 
         size_bytes: entry.size_bytes,
         sha1: entry.sha1.trim().toLowerCase(),
         tests: entry.tests,
-        program
+        program,
+        list
     };
 }
 
-export async function fetchIndex(indexUrl: string, list: ProjectList): Promise<TestProject[]> {
+export async function fetchIndex(
+    indexUrl: string,
+    list: ProjectList | readonly ProjectList[]
+): Promise<TestProject[]> {
+    const wanted: readonly ProjectList[] = typeof list === 'string' ? [list] : list;
     const data = await fetchJson(indexUrl);
     if (typeof data !== 'object' || data === null || Array.isArray(data)) {
         throw new Error('index.json must be an object keyed by program');
@@ -98,15 +104,15 @@ export async function fetchIndex(indexUrl: string, list: ProjectList): Promise<T
                 throw new Error(`Invalid index.json list "${program}.${key}"`);
             }
             const validated = entries.map((entry, i) =>
-                validateEntry(entry, `${program}.${key}[${i}]`, program)
+                validateEntry(entry, `${program}.${key}[${i}]`, program, key as ProjectList)
             );
-            if (key === list) {
+            if (wanted.includes(key as ProjectList)) {
                 projects.push(...validated);
             }
         }
     }
     if (projects.length === 0) {
-        throw new Error(`index.json has no "${list}" entries`);
+        throw new Error(`index.json has no "${wanted.join('" or "')}" entries`);
     }
     return projects;
 }

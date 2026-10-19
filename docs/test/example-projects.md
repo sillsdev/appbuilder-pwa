@@ -17,16 +17,24 @@ This will:
    valid zip that was downloaded before is reused. A zip that fails verification is deleted.
 4. Build the project's data files with the App Builder for its program
 
+`<project_name>` can also be a project from a `bloom` list, for example
+`npm run extract:example bloom_big_fish`. Bloom zips are saved to `test_data/bloom/`, the same
+folder `npm run test:bloom` uses, so a zip downloaded by either script is reused by the other.
+
 Options:
 
 | Option           | Description                                                     |
 | ---------------- | --------------------------------------------------------------- |
-| `--download-all` | Download and verify every project in `index.json` without building |
+| `--download-all` | Download and verify every project in the `projects` lists without building. Bloom projects are not included |
+| `--list`         | List the projects and bloom projects in `index.json`, then exit |
 | `--index <url>`  | Use this `index.json` URL instead of the included URL           |
 
 Options are passed after `--`, for example `npm run extract:example -- --download-all`.
 `--download-all` can be combined with a project name to download everything and then build that
 project.
+
+Running without a project name, or with a name that is not in the index, also prints the list of
+projects.
 
 # index.json format
 
