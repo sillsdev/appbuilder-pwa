@@ -48,7 +48,9 @@ test('systemForBook gets numeralSystem from book collection', () => {
             }
         ]
     };
-    expect(num.systemForBook(config, 'C01', 'MAT')).toBe(num.NumeralSystemData.BENGALI);
+    expect(num.systemForBook(config.bookCollections, 'C01', 'MAT')).toBe(
+        num.NumeralSystemData.BENGALI
+    );
 });
 
 test('systemForBook gets numeralSystem from book', () => {
@@ -71,5 +73,7 @@ test('systemForBook gets numeralSystem from book', () => {
             }
         ]
     };
-    expect(num.systemForBook(config, 'C01', 'MAT')).toBe(num.NumeralSystemData.EASTERN_ARABIC);
+    expect(num.systemForBook(config.bookCollections, 'C01', 'MAT')).toBe(
+        num.NumeralSystemData.EASTERN_ARABIC
+    );
 });

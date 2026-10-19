@@ -1,5 +1,5 @@
 import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-import { generateHTML } from '$lib/scripts/scripture-reference-utils';
+import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import type { RenderContext } from 'proskomma-json-tools';
 import {
     addToScratchPad,
@@ -229,7 +229,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                 const container = workspace.scopeManager.has('wrapper:cell')
                     ? workspace.scopeManager.at(0).root
                     : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
-                container.innerHTML += generateHTML(
+                container.innerHTML += generateReferenceLinkHTML(
                     workspace.scratch.text!.cleanedText!,
                     'crossref_ref-link'
                 );
@@ -335,7 +335,7 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
         action({ workspace }) {
             workspace.root.querySelectorAll('span[data-graft]').forEach((el) => {
                 el.addEventListener('click', (e) =>
-                    workspace.events.openFootnoote(e as MouseEvent, el.getAttribute('data-graft')!)
+                    workspace.events.openFootnote(e as MouseEvent, el.getAttribute('data-graft')!)
                 );
             });
         }
