@@ -117,7 +117,7 @@ function loadGlossary(collection: BookCollectionConfig, dataDir: string): string
             }
             const glossaryContent = fs.readFileSync(glossaryBook, 'utf8');
             // Regular expression pattern
-            const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
+            const regex = /\\k\s*((?!\\k).+)\\k\*/g;
             let match;
             // Loop through all matches
             while ((match = regex.exec(glossaryContent)) !== null) {

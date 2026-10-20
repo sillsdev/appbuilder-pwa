@@ -2,7 +2,7 @@ import { ciEquals } from './stringUtils';
 
 export function verifyGlossaryEntries(content: string, glossary: string[]): string {
     // Regular expression pattern
-    const regex = /\\w\s*([^\\]+)\s*\\w\*/;
+    const regex = /\\w\s*((?!\\w).+)\\w\*/;
     let result: string = '';
     result = content;
     const sb = [];
