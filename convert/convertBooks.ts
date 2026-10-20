@@ -67,6 +67,22 @@ function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string
     return text.replace(/\\(c_[^\s]+)(.*?)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
 }
 /**
+ * Users might specify "custom tags" to have Custom Styles applied.
+ *
+ * See: https://github.com/sillsdev/appbuilder-pwa/issues/528 (data has non-standard \lw tags, which are messing with Proskomma's parsing)
+ */
+function replaceCustomTags(text: string, _bcId: string, _bookId: string, ctx: ConvertBookContext) {
+    if (ctx.scriptureConfig.customTags?.length) {
+        const end = new RegExp(
+            `\\\\(\\+)?(${ctx.scriptureConfig.customTags.join('|')})(.*?)\\\\\\1\\2\\*`,
+            'g'
+        );
+        return text.replace(end, '\\$1zwrapper-s |id="$2"\\*$3\\$1zwrapper-e\\*');
+    } else {
+        return text;
+    }
+}
+/**
  * Convert list tags to milestones
  */
 export function transformLists(text: string, _bcId: string, _bookId: string): string {
@@ -375,6 +391,7 @@ const usfmFilterFunctions: FilterFunction[] = [
     replaceVideoTags,
     replacePStyleTags,
     replaceCStyleTags,
+    replaceCustomTags,
     transformLists,
     convertMarkdownsToMilestones,
     encodeJmpLinks,

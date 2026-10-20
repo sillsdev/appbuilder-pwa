@@ -60,3 +60,42 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
         }
     }
 });
+
+export const customTags = new FeatureSpec<SharedTextScratch>('Custom Tags', {
+    startMilestone: {
+        stage: 'standard',
+        details: ({ context }) => ({ styles: getElement(context).atts['id'] }),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:zwrapper') && renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ context, workspace }) => {
+            const styles = getElement(context).atts['id'] as unknown as string[] | undefined;
+            const span = workspace.document.createElement('span');
+            if (styles?.length) {
+                span.classList.add(...styles);
+            }
+            workspace.scopeManager.push('wrapper:zwrapper', span);
+        }
+    },
+    endMilestone: {
+        stage: 'standard',
+        details: ({ context }) => ({ styles: getElement(context).atts['id'] }),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:zwrapper') && renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ workspace }) => {
+            workspace.scopeManager.promoteContent('wrapper:zwrapper');
+        }
+    },
+    text: {
+        stage: 'standard',
+        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty &&
+            renderIfRegularOrIfHackedIntro(workspace) &&
+            isTopWrapper(workspace, 'wrapper:zwrapper'),
+        action({ workspace }) {
+            addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
+                requireTop: true
+            });
+        }
+    }
+});
