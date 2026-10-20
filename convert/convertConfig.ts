@@ -75,6 +75,7 @@ export function parseStyles(stylesTag: Element, verbose: number) {
         //console.log(tag.outerHTML);
         const name = tag.attributes.getNamedItem('name')!.value;
         const category = tag.attributes.getNamedItem('category')?.value;
+        const type = tag.attributes.getNamedItem('type')?.value;
         const properties: { [key: string]: string } = {};
         const propertyTags = tag.getElementsByTagName('sd');
         for (const propertyTag of propertyTags) {
@@ -92,6 +93,7 @@ export function parseStyles(stylesTag: Element, verbose: number) {
         }
         styles.push({
             name,
+            type,
             category,
             properties
         });
@@ -293,6 +295,17 @@ async function convertConfig(dataDir: string, verbose: number) {
             data.singleEntryStyles = parseStyles(singleEntryStyles, verbose);
         } else if (verbose) {
             console.log('No single-entry styles found in the XML document');
+        }
+    }
+
+    if (isSAB(data)) {
+        data.customTags = data.styles
+            ?.filter((s) => s.category === 'custom' && s.type === 'character')
+            .map((s) => s.name.split('.')[1]);
+        if (verbose && data.customTags?.length) {
+            console.log(
+                `Adding ${data.customTags.length} custom tag(s): ${data.customTags.join(', ')}`
+            );
         }
     }
 

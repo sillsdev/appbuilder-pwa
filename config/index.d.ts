@@ -214,6 +214,7 @@ export type AppConfig = {
     }[];
     styles?: {
         name: string;
+        type?: string;
         category?: string;
         properties: {
             [key: string]: string;
@@ -333,6 +334,7 @@ export type ScriptureConfig = AppConfig & {
         };
         plans: PlanItem[];
     };
+    customTags?: string[];
 };
 
 export type PlanItem = {
