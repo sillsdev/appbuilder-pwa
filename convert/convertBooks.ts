@@ -112,7 +112,7 @@ function loadGlossary(
                 );
             }
             // Regular expression pattern
-            const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
+            const regex = /\\k\s*((?!\\k).+)\\k\*/g;
             let match;
             // Loop through all matches
             while ((match = regex.exec(glossaryContent)) !== null) {
