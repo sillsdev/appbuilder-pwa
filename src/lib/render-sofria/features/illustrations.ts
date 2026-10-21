@@ -8,7 +8,7 @@ import {
 import type { RenderElement } from 'proskomma-json-tools';
 import { getElement, getSequence, matchElement, matchSequence } from './common';
 import { mediaForChapter, placeElement } from './common/media';
-import { terminatePhrase, type SharedTextScratch } from './common/text';
+import { isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 const illustrationFiles = import.meta.glob('./*', {
     import: 'default',
@@ -89,7 +89,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             guard: ({ workspace }) =>
                 !workspace.scratch.text?.empty &&
                 renderIfRegularOrIfHackedIntro(workspace) &&
-                workspace.scopeManager.has('wrapper:figure'),
+                isTopWrapper(workspace, 'wrapper:figure'),
             action({ workspace }) {
                 const text: string = workspace.scratch.text!.cleanedText!;
                 // This is a HACK!

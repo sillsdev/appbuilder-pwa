@@ -1,6 +1,6 @@
 import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
 export const paragraphStyles = new FeatureSpec('Paragraph Styles', {
     startMilestone: {
@@ -35,7 +35,7 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
             const styles = getElement(context).atts['id'] as unknown as string[];
             const span = workspace.document.createElement('span');
             span.classList.add(...styles);
-            workspace.scopeManager.push('milestone:zcstyle', span);
+            workspace.scopeManager.push('wrapper:zcstyle', span);
         }
     },
     endMilestone: {
@@ -44,14 +44,14 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:zcstyle') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
-            workspace.scopeManager.promoteContent('milestone:zcstyle');
+            workspace.scopeManager.promoteContent('wrapper:zcstyle');
         }
     },
     text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && workspace.scopeManager.has(`milestone:zcstyle`),
+            !workspace.scratch.text?.empty && isTopWrapper(workspace, 'wrapper:zcstyle'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true

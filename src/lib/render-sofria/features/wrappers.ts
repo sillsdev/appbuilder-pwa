@@ -5,7 +5,7 @@ import {
     type RenderEnvironment
 } from '$lib/render-sofria/common';
 import { extractUSFMClassName, matchElement } from './common';
-import { addPhrases, terminatePhrase, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     return (
@@ -53,17 +53,9 @@ export const usfmWrappers = new FeatureSpec<
         stage: 'standard',
         name: 'Default Wrapper',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
-        guard: ({ workspace }) => {
-            if (!workspace.scratch.text?.empty) {
-                const found = workspace.scopeManager.depth(
-                    `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`
-                );
-                if (found >= 0) {
-                    return found === workspace.scopeManager.depth('wrapper');
-                }
-            }
-            return false;
-        },
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty &&
+            isTopWrapper(workspace, `wrapper:${workspace.scratch.wrapper?.typeStack?.at(-1)}`),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true
