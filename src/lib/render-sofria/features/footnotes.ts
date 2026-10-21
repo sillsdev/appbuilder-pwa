@@ -19,9 +19,9 @@ import {
     matchElement,
     matchSequence
 } from './common';
-import { getPhraseDiv, terminatePhrase, type SharedTextScratch } from './common/text';
+import { getPhraseDiv, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
-type FootnoteScratch = { inlineGraft?: { footnoteIdIndex?: number } };
+type FootnoteScratch = { inlineGraft?: { footnoteIdIndex?: number; typeStack?: string[] } };
 
 export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('Footnotes', {
     inlineGraft: {
@@ -81,6 +81,10 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
+
+            const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
+            typeStack.push(usfmWrapperType);
+            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
     endWrapper: {
@@ -90,6 +94,10 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             matchElement(context, /usfm:f/) && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
+
+            const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
+            typeStack.pop();
+            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
     text: {
@@ -99,7 +107,8 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
             !workspace.scratch.text?.empty &&
             !matchSequence(context, 'note_caller') &&
             matchSequence(context, 'footnote') &&
-            renderIfRegularOrIfHackedIntro(workspace),
+            renderIfRegularOrIfHackedIntro(workspace) &&
+            isTopWrapper(workspace, `wrapper:${workspace.scratch.inlineGraft?.typeStack?.at(-1)}`),
         action({ workspace }) {
             const text: string = workspace.scratch.text!.cleanedText!;
             workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
@@ -156,7 +165,10 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
     },
     startWrapper: {
         stage: 'standard',
-        details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
+        details: ({ context }) => ({
+            class: extractClassName(getElement(context)),
+            atts: { ...getElement(context).atts }
+        }),
         guard: ({ context, workspace }) =>
             matchElement(context, /usfm:x/) && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
@@ -165,6 +177,10 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
+
+            const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
+            typeStack.push(usfmWrapperType);
+            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
     endWrapper: {
@@ -176,6 +192,10 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             terminatePhrase(workspace);
 
             workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
+
+            const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
+            typeStack.pop();
+            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
         }
     },
     text: [
@@ -186,8 +206,12 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                 !workspace.scratch.text?.empty &&
                 !matchSequence(context, 'note_caller') &&
                 matchSequence(context, 'xref') &&
-                !workspace.scopeManager.has('wrapper:xt') &&
-                renderIfRegularOrIfHackedIntro(workspace),
+                renderIfRegularOrIfHackedIntro(workspace) &&
+                workspace.scratch.inlineGraft?.typeStack?.at(-1) !== 'xt' &&
+                isTopWrapper(
+                    workspace,
+                    `wrapper:${workspace.scratch.inlineGraft?.typeStack?.at(-1)}`
+                ),
             action({ workspace }) {
                 const text: string = workspace.scratch.text!.cleanedText!;
                 workspace.scopeManager.appendContent(workspace.document.createTextNode(text));
@@ -199,7 +223,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
             details: ({ workspace }) => workspace.scratch.text?.cleanedText,
             guard: ({ workspace }) =>
                 !workspace.scratch.text?.empty &&
-                workspace.scopeManager.has('wrapper:xt') &&
+                isTopWrapper(workspace, 'wrapper:xt') &&
                 renderIfRegularOrIfHackedIntro(workspace),
             action({ workspace }) {
                 const references = workspace.scratch.text!.cleanedText!.split('; ');

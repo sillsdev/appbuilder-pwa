@@ -2,7 +2,7 @@ import { generateHTML } from '$lib/scripts/scripture-reference-utils';
 import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
 import { renderBlock } from './common/grafts';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
 
@@ -50,6 +50,10 @@ export const headings = new FeatureSpec<
 
             headerDiv.id = prefix + count;
             workspace.scopeManager.push('paragraph:heading', headerDiv);
+            workspace.scopeManager.push(
+                'wrapper:heading',
+                workspace.document.createElement('span')
+            );
         }
     },
     endParagraph: {
@@ -58,6 +62,8 @@ export const headings = new FeatureSpec<
         guard: ({ context, workspace }) =>
             matchSequence(context, 'heading') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
+            const wrapper = workspace.scopeManager.pop('wrapper:heading');
+            workspace.scopeManager.appendChildrenFromContainer(wrapper.root, 'paragraph:heading');
             workspace.scopeManager.promoteContent('paragraph:heading');
         }
     },
@@ -67,7 +73,8 @@ export const headings = new FeatureSpec<
         guard: ({ context, workspace }) =>
             !workspace.scratch.text?.empty &&
             matchSequence(context, 'heading') &&
-            renderIfRegularOrIfHackedIntro(workspace),
+            renderIfRegularOrIfHackedIntro(workspace) &&
+            isTopWrapper(workspace, 'wrapper:heading'),
         action({ context, workspace }) {
             const text: string = workspace.scratch.text!.cleanedText!;
             if (matchBlock(context, 'usfm:r')) {

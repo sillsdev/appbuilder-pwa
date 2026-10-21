@@ -9,7 +9,7 @@ import {
     padWithInitialZeros
 } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, terminatePhrase, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 const clips = import.meta.glob('./*', {
     import: 'default',
@@ -33,7 +33,7 @@ export const audioclips = new FeatureSpec<
         action: ({ context, workspace }) => {
             const a = workspace.document.createElement('a');
             a.href = decodeURIComponent(getElement(context).atts['link'][0]);
-            workspace.scopeManager.push('milestone:zaudioc', a);
+            workspace.scopeManager.push('wrapper:zaudioc', a);
         }
     },
     endMilestone: {
@@ -43,7 +43,7 @@ export const audioclips = new FeatureSpec<
             matchElement(context, 'usfm:zaudioc') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
             terminatePhrase(workspace);
-            const a = workspace.scopeManager.pop('milestone:zaudioc').root as HTMLAnchorElement;
+            const a = workspace.scopeManager.pop('wrapper:zaudioc').root as HTMLAnchorElement;
             // use getAttribute instead of property name to preserve encoding and path
             const filename = filenameWithoutPath(a.getAttribute('href')!);
             let src = '';
@@ -105,7 +105,7 @@ export const audioclips = new FeatureSpec<
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && workspace.scopeManager.has('milestone:zaudioc'),
+            !workspace.scratch.text?.empty && isTopWrapper(workspace, 'wrapper:zaudioc'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true,

@@ -1,7 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { splitString } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
 export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
     startMilestone: {
@@ -34,7 +34,7 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
             a.style.display = 'inline';
             a.href = 'javascript:void(0)';
 
-            workspace.scopeManager.push('milestone:zreflink', a);
+            workspace.scopeManager.push('wrapper:zreflink', a);
         }
     },
     endMilestone: {
@@ -46,14 +46,14 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:zreflink') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
-            workspace.scopeManager.promoteContent('milestone:zreflink');
+            workspace.scopeManager.promoteContent('wrapper:zreflink');
         }
     },
     text: {
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && workspace.scopeManager.has('milestone:zreflink'),
+            !workspace.scratch.text?.empty && isTopWrapper(workspace, 'wrapper:zreflink'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                 requireTop: true,
