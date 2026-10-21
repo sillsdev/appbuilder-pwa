@@ -84,7 +84,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
 
             const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
             typeStack.push(usfmWrapperType);
-            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
+            addToScratchPad(workspace.scratch, 'inlineGraft', { typeStack });
         }
     },
     endWrapper: {
@@ -98,7 +98,7 @@ export const footnotes = new FeatureSpec<FootnoteScratch & SharedTextScratch>('F
 
             const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
             typeStack.pop();
-            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
+            addToScratchPad(workspace.scratch, 'inlineGraft', { typeStack });
         }
     },
     text: {
@@ -181,7 +181,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
 
             const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
             typeStack.push(usfmWrapperType);
-            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
+            addToScratchPad(workspace.scratch, 'inlineGraft', { typeStack });
         }
     },
     endWrapper: {
@@ -195,7 +195,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
 
             const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
             typeStack.pop();
-            addToScratchPad(workspace.scratch, 'wrapper', { typeStack });
+            addToScratchPad(workspace.scratch, 'inlineGraft', { typeStack });
         }
     },
     text: [
