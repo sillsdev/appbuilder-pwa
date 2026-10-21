@@ -1,7 +1,7 @@
 import { FeatureSpec, noaction } from '../common';
 import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
 import { renderBlock } from './common/grafts';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
 // NOTE: Are there any other block grafts besides titles and introductions??
 
@@ -49,6 +49,10 @@ export const introductions = new FeatureSpec<SharedTextScratch>('Introductions',
             const introductionDiv = workspace.document.createElement('div');
             introductionDiv.classList.add(extractClassName(getBlock(context)));
             workspace.scopeManager.push('paragraph:introduction', introductionDiv);
+            workspace.scopeManager.push(
+                'wrapper:introduction',
+                workspace.document.createElement('span')
+            );
         }
     },
     endParagraph: {
@@ -56,6 +60,11 @@ export const introductions = new FeatureSpec<SharedTextScratch>('Introductions',
         details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
         guard: ({ context }) => matchSequence(context, 'introduction'),
         action({ workspace }) {
+            const wrapper = workspace.scopeManager.pop('wrapper:introduction');
+            workspace.scopeManager.appendChildrenFromContainer(
+                wrapper.root,
+                'paragraph:introduction'
+            );
             workspace.scopeManager.promoteContent('paragraph:introduction');
         }
     },
@@ -63,7 +72,9 @@ export const introductions = new FeatureSpec<SharedTextScratch>('Introductions',
         stage: 'standard',
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace, context }) =>
-            !workspace.scratch.text?.empty && matchSequence(context, 'introduction'),
+            !workspace.scratch.text?.empty &&
+            matchSequence(context, 'introduction') &&
+            isTopWrapper(workspace, 'wrapper:introduction'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!);
         }

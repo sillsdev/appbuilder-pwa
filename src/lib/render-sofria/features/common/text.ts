@@ -68,3 +68,11 @@ export function addPhrases(
         }
     }
 }
+
+export function isTopWrapper(
+    workspace: RenderWorkspace,
+    wrapper: `wrapper:${string}` | undefined
+): boolean {
+    const depth = workspace.scopeManager.depth(wrapper);
+    return !!wrapper && depth >= 0 && depth === workspace.scopeManager.depth('wrapper');
+}

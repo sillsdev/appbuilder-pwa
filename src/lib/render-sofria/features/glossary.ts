@@ -1,7 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { ciEquals } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
 // if glossary words are disabled, glossary wrappers will be handled in usfmWrappers in ../index.ts
 export const glossary = new FeatureSpec<SharedTextScratch>(
@@ -23,7 +23,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             stage: 'standard',
             details: ({ workspace }) => workspace.scratch.text?.cleanedText,
             guard: ({ workspace }) =>
-                !workspace.scratch.text?.empty && workspace.scopeManager.has('wrapper:glossary'),
+                !workspace.scratch.text?.empty && isTopWrapper(workspace, 'wrapper:glossary'),
             action({ workspace }) {
                 addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
                     requireTop: true,
