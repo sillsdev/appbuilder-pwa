@@ -53,10 +53,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3)', () => {
             let result;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test0,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -85,10 +85,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter with text (John 3)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test9,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -117,10 +117,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Simple book chapter (John 3:16)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test1,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -147,10 +147,10 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test2,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -189,10 +189,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter range (John 3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test3,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -221,10 +221,10 @@ describe('Scripture Reference Utilities', () => {
         describe('chapter range (3:16-17)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test10,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -254,10 +254,10 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test4,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -297,10 +297,10 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test5,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -343,10 +343,10 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test6,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -397,10 +397,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Book chapter verse chapter verse range (John 3:16-5:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test11,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -433,10 +433,10 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test7,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -484,10 +484,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Single chapter book (Jude 6)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test8,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -514,10 +514,10 @@ describe('Scripture Reference Utilities', () => {
             let result: any;
             let results: string[];
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test12,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -571,10 +571,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Book abbreviation used (Exo 3:13)', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test13,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
@@ -600,10 +600,10 @@ describe('Scripture Reference Utilities', () => {
         describe('Verse with letter (Luke 3:2b-20) Chapter 20 missing.', () => {
             let result: any;
             beforeEach(() => {
-                result = test_generateReferenceLinkHTML(
+                test_generateReferenceLinkHTML(
                     test14,
                     '',
-                    'MAT',
+                    '',
                     ref,
                     config.bookCollections,
                     catalog[0]
