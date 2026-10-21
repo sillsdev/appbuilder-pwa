@@ -5,7 +5,14 @@
 
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { convertStyle, footnotes, refs, s, themeColors } from '$lib/data/stores';
+    import {
+        convertStyle,
+        footnotes,
+        refs,
+        s,
+        themeColors,
+        type FootnoteItem
+    } from '$lib/data/stores';
     import type { Reference } from '$lib/data/stores/reference';
     import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
@@ -63,7 +70,8 @@
         footnotes.reset();
         return;
     }
-    async function insideClick(target: HTMLElement) {
+    async function insideClick(target: HTMLElement, item: FootnoteItem) {
+        console.log(target, item);
         if (target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =
@@ -73,8 +81,13 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
-                footnotes.push({ type: 'plain', body: footnoteHTML, style: 'crossref' });
+                footnotes.push({
+                    type: 'rich',
+                    style: 'crossref',
+                    props: item.props,
+                    start,
+                    end
+                });
             }
         } else if (target.classList.contains('ref-link')) {
             referenceLinkClickHandler(target);
@@ -120,7 +133,7 @@
                     class="footnote place-self-center rounded-sm h-40 shadow-lg overflow-y-auto"
                     onclick={(e) => {
                         e.stopPropagation();
-                        insideClick((e.target || e.currentTarget) as HTMLElement);
+                        insideClick((e.target || e.currentTarget) as HTMLElement, item);
                     }}
                 >
                     <div

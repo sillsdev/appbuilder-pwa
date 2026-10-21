@@ -417,7 +417,12 @@ LOGGING:
                                 span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
                             });
                             const parsed = workingSpan?.innerHTML;
-                            footnotes.push({ type: 'plain', body: parsed, style: 'footnote' });
+                            footnotes.push({
+                                type: 'plain',
+                                body: parsed,
+                                style: 'footnote',
+                                props
+                            });
                         }
                     },
                     openGlossary(glossaryLink: string, block: GlossaryBlock) {
@@ -435,14 +440,15 @@ LOGGING:
                             footnotes.push({
                                 type: 'plain',
                                 body: glossaryHTML,
-                                style: 'glossary'
+                                style: 'glossary',
+                                props
                             });
                         }
                     },
                     setPlanStore(data: PlanStore) {
                         plan.set(data);
                     },
-                    clickHeaderRef(
+                    openCrossRef(
                         event: MouseEvent,
                         target: HTMLElement,
                         workspace: RenderWorkspace

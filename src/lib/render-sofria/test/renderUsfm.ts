@@ -141,7 +141,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                 openFootnote: noop,
                 openGlossary: noop,
                 setPlanStore: noop,
-                clickHeaderRef: noop,
+                openCrossRef: noop,
                 clickText: noop,
                 updateAnnotations: noop
             },
