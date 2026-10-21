@@ -248,7 +248,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             openFootnote: (event: MouseEvent, footnoteId: string) => void;
             openGlossary: (link: string, block: GlossaryBlock) => void;
             setPlanStore: (data: PlanStore) => void;
-            clickHeaderRef: (
+            openCrossRef: (
                 event: MouseEvent,
                 target: HTMLElement,
                 workspace: RenderWorkspace

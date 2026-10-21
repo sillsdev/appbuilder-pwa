@@ -135,7 +135,7 @@ export const inlineReferences = new FeatureSpec<SharedTextScratch>('Inline Refer
         action({ workspace }) {
             workspace.root.querySelectorAll('a.inline_ref-link').forEach((el) => {
                 el.addEventListener('click', (e) =>
-                    workspace.events.clickHeaderRef(
+                    workspace.events.openCrossRef(
                         e as MouseEvent,
                         el as HTMLAnchorElement,
                         workspace

@@ -254,7 +254,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         action({ workspace }) {
             workspace.root.querySelectorAll('a.crossref_ref-link').forEach((el) => {
                 el.addEventListener('click', (e) =>
-                    workspace.events.clickHeaderRef(
+                    workspace.events.openCrossRef(
                         e as MouseEvent,
                         el as HTMLAnchorElement,
                         workspace
@@ -366,7 +366,7 @@ function pushFootnoteScopes(
     const contentRoot = workspace.document.createElement('div');
     contentRoot.id = footnoteId;
     contentRoot.style.display = 'none';
-    contentRoot.setAttribute('type', element.subType);
+    contentRoot.setAttribute('data-type', element.subType);
 
     const callerRoot = workspace.document.createElement('span');
     callerRoot.setAttribute('data-graft', footnoteId);
