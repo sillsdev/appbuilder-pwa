@@ -136,7 +136,7 @@
                             {@html item.body}
                         {:else if item.type === 'rich'}
                             <div class="flex flex-row justify-space-between">
-                                <div>
+                                <div class="grow">
                                     <span class="xo">
                                         {item.start.phrase}
                                     </span>
