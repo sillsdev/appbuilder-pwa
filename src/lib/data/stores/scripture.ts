@@ -28,17 +28,16 @@ function createStack<T>() {
     };
 }
 
-export const footnotes = createStack<
-    (
-        | { type: 'plain'; body: string }
-        | {
-              type: 'rich';
-              start: AnchorReference;
-              end?: AnchorReference;
-              props: ScriptureViewProskommaProps;
-          }
-    ) & { style: 'glossary' | 'footnote' | 'crossref' }
->();
+export type FootnoteItem = (
+    | { type: 'plain'; body: string }
+    | {
+          type: 'rich';
+          start: AnchorReference;
+          end?: AnchorReference;
+      }
+) & { style: 'glossary' | 'footnote' | 'crossref'; props: ScriptureViewProskommaProps };
+
+export const footnotes = createStack<FootnoteItem>();
 
 /** current reference */
 export const refs = referenceStore();

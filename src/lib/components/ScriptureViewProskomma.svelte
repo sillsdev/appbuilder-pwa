@@ -440,7 +440,7 @@ LOGGING:
                         span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
                     });
                     const parsed = workingSpan?.innerHTML;
-                    footnotes.push({ type: 'plain', body: parsed, style: 'footnote' });
+                    footnotes.push({ type: 'plain', body: parsed, style: 'footnote', props });
                 }
             },
             openGlossary(glossaryLink: string, block: GlossaryBlock) {
@@ -455,13 +455,13 @@ LOGGING:
                     const blockText = block.text.slice(glossaryLink?.length);
                     glossaryDiv.innerHTML += cleanText(blockText);
                     const glossaryHTML = glossaryDiv.outerHTML;
-                    footnotes.push({ type: 'plain', body: glossaryHTML, style: 'glossary' });
+                    footnotes.push({ type: 'plain', body: glossaryHTML, style: 'glossary', props });
                 }
             },
             setPlanStore(data: PlanStore) {
                 plan.set(data);
             },
-            clickHeaderRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
+            openCrossRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
                 event.stopPropagation();
                 const start: AnchorReference = JSON.parse(
                     target.getAttribute('data-start-ref') || '{}'

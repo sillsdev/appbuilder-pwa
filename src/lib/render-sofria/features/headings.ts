@@ -98,7 +98,7 @@ export const headings = new FeatureSpec<
         action({ workspace }) {
             workspace.root.querySelectorAll('a.heading_ref-link').forEach((el) => {
                 el.addEventListener('click', (e) =>
-                    workspace.events.clickHeaderRef(
+                    workspace.events.openCrossRef(
                         e as MouseEvent,
                         el as HTMLAnchorElement,
                         workspace
