@@ -5,7 +5,8 @@
  **/
 
 import { scriptureConfig } from '$assets/config';
-import type { ScriptureConfig } from '$config';
+import type { BookCollectionConfig, FeatureConfig, ScriptureConfig } from '$config';
+import type { ReferenceStore } from '$lib/data/stores/reference';
 import { get } from 'svelte/store';
 import type { CatalogData } from '../data/catalogData';
 import { getVerseText, refs } from '../data/stores';
@@ -29,10 +30,10 @@ import {
 } from './stringUtils';
 
 let ref: any;
-let bookCollections: any;
-let collection: any;
-let features: any;
-let showScriptureLinks; // Show scripture reference links
+let bookCollections: BookCollectionConfig[];
+let collection: BookCollectionConfig | undefined;
+let features: FeatureConfig | undefined;
+let showScriptureLinks: boolean; // Show scripture reference links
 let runtimeCatalog: CatalogData;
 
 // In text reference separators
@@ -58,7 +59,11 @@ let extras: string;
  *    verse: string;
  * }
  */
-export function generateAnchor(refClass: string, start, end = undefined): HTMLElement {
+export function generateAnchor(
+    refClass: string,
+    start: AnchorReference,
+    end?: AnchorReference
+): HTMLElement {
     const anchor = document.createElement('a');
     anchor.classList.add('cursor-pointer');
     if (isNotBlank(refClass)) {
@@ -73,14 +78,15 @@ export function generateAnchor(refClass: string, start, end = undefined): HTMLEl
 }
 function initGlobals() {
     collection = bookCollections.find((x) => x.id === ref.collection);
-    features = collection.features;
-    cvs = features['ref-chapter-verse-separator']; // Chapter verse separator
-    rov = features['ref-verse-range-separator']; // Range of verses separator
-    lov = features['ref-verse-list-separator']; // List of verses separator
-    roc = features['ref-chapter-range-separator']; // Range of chapters separator
-    cls = features['ref-chapter-list-separator']; // Chapter list separator
-    showScriptureLinks = features['show-scripture-refs']; // Show scripture reference links
-    extras = features['ref-extra-material'];
+    features = collection?.features;
+    cvs = features?.['ref-chapter-verse-separator'] as string; // Chapter verse separator
+    rov = features?.['ref-verse-range-separator'] as string; // Range of verses separator
+    lov = features?.['ref-verse-list-separator'] as string; // List of verses separator
+    roc = features?.['ref-chapter-range-separator'] as string; // Range of chapters separator
+    cls = features?.['ref-chapter-list-separator'] as string; // Chapter list separator
+    showScriptureLinks =
+        !!features?.['show-scripture-refs'] && features['show-scripture-refs'] !== 'false'; // Show scripture reference links
+    extras = features?.['ref-extra-material'] as string;
     if (isNotBlank(extras)) {
         // Reorder by length, otherwise if we have "See |See also", the See also will not be matched
         sortExtraMaterialMatchesByLength();
@@ -95,7 +101,7 @@ function initGlobals() {
  */
 export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
     ref = get(refs);
-    bookCollections = scriptureConfig.bookCollections;
+    bookCollections = scriptureConfig.bookCollections ?? [];
     runtimeCatalog = ref.catalog;
     return generateHTMLMain(crossRef, refClass, bookId);
 }
@@ -150,7 +156,10 @@ export function generateHTMLMain(crossRef: string, refClass: string, bookId: str
     sb += contentToMatch.substring(lastIndex);
     return sb;
 }
-export function isBibleBook(item, testConfig: ScriptureConfig | null = null) {
+export function isBibleBook(
+    item: Pick<ReferenceStore, 'collection' | 'book'>,
+    testConfig: ScriptureConfig | null = null
+) {
     const runtimeConfig = testConfig ?? scriptureConfig;
     const bookTestament =
         runtimeConfig.bookCollections
@@ -164,7 +173,7 @@ function processScriptureRef(
     reference: string,
     docSet: string,
     bookId: string,
-    displayText: string,
+    displayText: string | null,
     parseCvs: string,
     parseRov: string,
     refClass: string
@@ -192,13 +201,13 @@ function processScriptureRefLinks(
     reference: string,
     docSet: string,
     bookId: string,
-    displayText: string,
+    displayText: string | null,
     parseCvs: string,
     parseRov: string,
     refClass: string
 ): string {
     const results: any[] = [];
-    let prevBookId = bookId;
+    let prevBookId: string | null = bookId;
     const referenceRegEx = new RegExp(pattern, 'g');
     let referenceMatches: RegExpExecArray | null;
     const refResults: RegExpExecArray[] = [];
@@ -209,7 +218,7 @@ function processScriptureRefLinks(
     while ((referenceMatches = referenceRegEx.exec(reference)) !== null) {
         const isNumberOnly = isPositiveInteger(referenceMatches[0]);
         let bookName = referenceMatches[2];
-        let bookId: string = null;
+        let bookId: string | null = null;
         if (!isNumberOnly) {
             if (isNotBlank(bookName)) {
                 // We have found a possible book name
@@ -546,22 +555,23 @@ function getScriptureReferencePatternForVerseList(parseRov: string): string {
     return verseListPattern;
 }
 function getBookIdFromBookName(bookName: string): string | null {
-    let value: string;
+    let value: string | null = null;
     let i = 0;
-    while (i < collection.books.length) {
+    while (i < (collection?.books.length ?? 0)) {
         if (
-            ciEquals(collection.books[i].name, bookName) ||
-            ciEquals(collection.books[i].abbreviation, bookName) ||
-            ciEquals(collection.books[i].abbreviation + '.', bookName)
+            ciEquals(collection!.books[i].name, bookName) ||
+            ciEquals(collection!.books[i].abbreviation, bookName) ||
+            ciEquals(collection!.books[i].abbreviation + '.', bookName)
         ) {
-            value = collection.books[i].id;
+            value = collection!.books[i].id;
             break;
         }
-        if (isDefined(collection.books[i].additionalNames)) {
+        const additionalNames = collection!.books[i].additionalNames;
+        if (isDefined(additionalNames)) {
             let j = 0;
-            while (j < collection.books[i].additionalNames.length) {
-                if (ciEquals(collection.books[i].additionalNames[j].name, bookName)) {
-                    value = collection.books[i].id;
+            while (j < additionalNames.length) {
+                if (ciEquals(additionalNames[j].name, bookName)) {
+                    value = collection!.books[i].id;
                     break;
                 }
                 j++;
@@ -577,9 +587,9 @@ function getBookIdFromBookName(bookName: string): string | null {
 function checkBookId(bookId: string): string {
     let value: string = '';
     let i = 0;
-    while (i < collection.books.length) {
-        if (ciEquals(collection.books[i].id, bookId)) {
-            value = collection.books[i].id;
+    while (i < (collection?.books.length ?? 0)) {
+        if (ciEquals(collection!.books[i].id, bookId)) {
+            value = collection!.books[i].id;
             break;
         }
         i++;
@@ -587,12 +597,12 @@ function checkBookId(bookId: string): string {
     return value;
 }
 function getNumChaptersFromBookId(bookId: string): number {
-    const numberOfChapters = collection.books.find((x) => x.id === bookId)?.chapters || 0;
+    const numberOfChapters = collection?.books.find((x) => x.id === bookId)?.chapters || 0;
     return numberOfChapters;
 }
 function parseChapterList(
     reference: string,
-    displayText: string,
+    displayText: string | null,
     docSet: string,
     bookId: string,
     bookNameWithSp: string,
@@ -668,7 +678,7 @@ function parseChapterList(
 }
 function parseVerseList(
     reference: string,
-    displayText: string,
+    displayText: string | null,
     docSet: string,
     bookId: string,
     bookNameWithSp: string,
@@ -761,38 +771,53 @@ function parseVerseList(
     }
     return replace;
 }
+
+type AnchorReference = {
+    collection: string;
+    phrase: string;
+    docSet: string;
+    book: string;
+    chapter: string;
+    verse: string;
+    reference: string;
+};
+
 function getLinkText(
-    reference: any,
-    displayText: string,
+    reference: CreatedReference,
+    displayText: string | null,
     refText: string,
     refClass: string
 ): string {
     let value = '';
     let phrase = refText;
     if (isNotBlank(displayText)) {
-        phrase = displayText;
+        phrase = displayText!;
     }
     reference.text = phrase;
 
     const startAnchor = {
         phrase: reference.text,
         docSet: reference.collection,
+        collection: reference.collection,
         book: reference.bookId,
         chapter: reference.fromChapter,
-        verse: reference.fromVerse
-    };
+        verse: reference.fromVerse,
+        reference: ''
+    } satisfies AnchorReference;
     const noEndAnchor = isBlank(reference.toChapter) && isBlank(reference.toVerse);
     const endAnchor = noEndAnchor
         ? undefined
-        : {
+        : ({
               phrase: reference.text,
               docSet: reference.collection,
+              collection: reference.collection,
               book: reference.bookId,
               chapter: isNotBlank(reference.toChapter)
                   ? reference.toChapter
                   : reference.fromChapter,
-              verse: isNotBlank(reference.toVerse) ? reference.toVerse : reference.fromVerse
-          };
+              verse: isNotBlank(reference.toVerse) ? reference.toVerse : reference.fromVerse,
+              reference: ''
+          } satisfies AnchorReference);
     const anchor = generateAnchor(refClass, startAnchor, endAnchor);
     value = anchor.outerHTML;
     return value;
@@ -812,6 +837,7 @@ function lastVerseInChapter(book: string, chapter: string, docSet: string): stri
     const lastVerse = verses[verses.length - 1];
     return lastVerse;
 }
+type CreatedReference = ReturnType<typeof createReference>;
 export function createReference(
     referenceText: string,
     collection: string,
@@ -820,16 +846,8 @@ export function createReference(
     toChapter: string,
     fromVerse: string,
     toVerse: string
-): any {
-    const reference = {};
-    reference['text'] = referenceText;
-    reference['collection'] = collection;
-    reference['bookId'] = bookId;
-    reference['fromChapter'] = fromChapter;
-    reference['toChapter'] = toChapter;
-    reference['fromVerse'] = fromVerse;
-    reference['toVerse'] = toVerse;
-    return reference;
+) {
+    return { text: referenceText, collection, bookId, fromChapter, toChapter, fromVerse, toVerse };
 }
 function sortExtraMaterialMatchesByLength() {
     const matches = extras.split('|');
@@ -862,12 +880,12 @@ function escapeExtraMaterialSpecialCharactersForRegEx() {
     extras = extras.replace(']', '\\]');
 }
 export function getNonWordCharactersInBookNames(): string {
-    const chars = new Set();
+    const chars = new Set<string>();
     let i = 0;
-    while (i < collection.books.length) {
-        const bookName = collection.books[i].name;
-        const bookAbbrev = collection.books[i].abbreviation;
-        const bookAdditionalNames = collection.books[i].additionalNames;
+    while (i < (collection?.books.length ?? 0)) {
+        const bookName = collection!.books[i].name;
+        const bookAbbrev = collection!.books[i].abbreviation;
+        const bookAdditionalNames = collection!.books[i].additionalNames;
         let nonWordChars = isDefined(bookName) ? bookName.replace(/[\p{L}\p{M}]/gu, '') : '';
         addCharsToSet(nonWordChars, chars);
         nonWordChars = isDefined(bookAbbrev) ? bookAbbrev.replace(/[\p{L}\p{M}]/gu, '') : '';
@@ -886,12 +904,16 @@ export function getNonWordCharactersInBookNames(): string {
     return Array.from(chars).join('');
 }
 
-function addCharsToSet(nonWordChars, chars) {
+function addCharsToSet(nonWordChars: string, chars: Set<string>) {
     for (let i = 0; i < nonWordChars.length; i++) {
         chars.add(nonWordChars.charAt(i));
     }
 }
-export async function handleHeaderLinkPressed(start, end, colors): Promise<string> {
+export async function handleHeaderLinkPressed(
+    start: AnchorReference,
+    end: AnchorReference,
+    colors: Record<string, string>
+): Promise<string> {
     console.log('HandleHeaderLinkPressed start: %o end: %o colors: %o', start, end, colors);
     const primaryColor = colors['PrimaryColor'];
     const root = document.createElement('div');
