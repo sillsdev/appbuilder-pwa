@@ -29,7 +29,7 @@
     export let startPage: number | undefined = undefined;
     export let allowToggleAppBar = true;
     export let initiallyShowAppBar = false;
-    export let showBackButton = false;
+    export let showBackButton = true;
     export let hideFullScreenButton = false;
     export let centerVertically = true;
     export let useOriginalPageSize = false;
@@ -238,6 +238,44 @@
         scaleFixStyleEl.textContent = newCss;
     }
 
+    // Injecting the arrow into the Bloom Player seems to be the only way to make the back arrow show up.
+    // This is because bloom-player does not see this as window.top and replaces it with '...' because
+    // we are using an iframe. Currently for android it is calling the webview with the path to the webview thus
+    // making window == window.top which shows the arrow instead of the elipses.
+    const BACK_ARROW_PATH = 'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z';
+
+    let backArrowObserver: MutationObserver | null = null;
+
+    function applyBackArrowFix() {
+        const doc = iframeEl?.contentDocument;
+        const icon = doc?.querySelector<SVGSVGElement>(
+            '[data-testid="history-back-button"] svg[aria-label="More Menu"]'
+        );
+        const path = icon?.querySelector('path');
+        if (!icon || !path) {
+            return;
+        }
+        path.setAttribute('d', BACK_ARROW_PATH);
+        icon.setAttribute('aria-label', 'Go Back');
+    }
+
+    function setupBackArrowFix() {
+        const doc = iframeEl?.contentDocument;
+        if (!doc?.body || backArrowObserver) {
+            return;
+        }
+
+        applyBackArrowFix();
+
+        backArrowObserver = new MutationObserver(applyBackArrowFix);
+        backArrowObserver.observe(doc.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['aria-label']
+        });
+    }
+
     let scaleFixObserver: MutationObserver | null = null;
     let scaleFixResizeHandler: (() => void) | null = null;
 
@@ -249,6 +287,7 @@
         }
 
         applyScaleFix();
+        setupBackArrowFix();
 
         // Re-assert whenever bloom-player recomputes its own (wrong) scale,
         // e.g. on page turns or window resizes. Observing <head> (rather than
@@ -278,6 +317,8 @@
     }
 
     function teardownScaleFix() {
+        backArrowObserver?.disconnect();
+        backArrowObserver = null;
         scaleFixObserver?.disconnect();
         scaleFixObserver = null;
         if (scaleFixResizeHandler) {
