@@ -96,16 +96,16 @@ function initGlobals() {
  * that navigate to provided reference
  * @param reference: the string containing the reference
  */
-export function generateReferenceLinkHTML(crossRef: string, refClass: string, bookId: string = '') {
+export function generateReferenceLinkHTML(crossRef: string, refClass: string, linkHref?: string) {
     ref = get(refs);
     bookCollections = scriptureConfig.bookCollections ?? [];
     runtimeCatalog = ref.catalog;
-    return main_generateReferenceLinkHTML(crossRef, refClass, bookId);
+    return main_generateReferenceLinkHTML(crossRef, refClass, linkHref);
 }
 export function test_generateReferenceLinkHTML(
     crossRef: string,
     refClass: string,
-    bookId: string = '',
+    linkHref: string = '',
     testRefs: any = null,
     testCollections: any = null,
     testCatalog: any = null
@@ -113,11 +113,15 @@ export function test_generateReferenceLinkHTML(
     ref = testRefs;
     runtimeCatalog = testCatalog;
     bookCollections = testCollections;
-    return main_generateReferenceLinkHTML(crossRef, refClass, bookId);
+    return main_generateReferenceLinkHTML(crossRef, refClass, linkHref);
 }
-function main_generateReferenceLinkHTML(crossRef: string, refClass: string, bookId: string = '') {
+function main_generateReferenceLinkHTML(
+    crossRef: string,
+    refClass: string,
+    overrideLink: string = ''
+) {
     initGlobals();
-    const currentBookId = isBlank(bookId) ? ref.book : bookId;
+    const currentBookId = ref.book;
     const docSet = ref.docSet;
     const contentToMatch = '\\xt ' + crossRef + '\\xt*';
     const referencePattern =
@@ -128,8 +132,12 @@ function main_generateReferenceLinkHTML(crossRef: string, refClass: string, book
     let lastIndex = 0;
     while ((referenceMatches = referenceRegEx.exec(contentToMatch)) !== null) {
         const ref = referenceMatches[2];
-        const linkRef = referenceMatches[3];
-        const targetRef = isNotBlank(linkRef) ? linkRef : ref;
+        const linkRef = referenceMatches[3]?.match(/(link-href|default)="([^"]*)"/)?.at(2) ?? '';
+        const targetRef = isNotBlank(overrideLink)
+            ? overrideLink
+            : isNotBlank(linkRef)
+              ? linkRef
+              : ref;
         const displayText = isNotBlank(linkRef) ? ref : null;
         let parseCvs = cvs;
         let parseRov = rov;

@@ -168,7 +168,8 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         stage: 'standard',
         details: ({ context }) => ({
             class: extractClassName(getElement(context)),
-            atts: { ...getElement(context).atts }
+            'link-href':
+                getElement(context).atts['link-href'] ?? getElement(context).atts['default']
         }),
         guard: ({ context, workspace }) =>
             matchElement(context, /usfm:x/) && renderIfRegularOrIfHackedIntro(workspace),
@@ -177,6 +178,13 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
+            if (usfmWrapperType === 'xt') {
+                const atts = getElement(context).atts;
+                spanElement.setAttribute(
+                    'data-link-href',
+                    atts['link-href'] ?? atts['default'] ?? ''
+                );
+            }
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
 
             const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
@@ -225,13 +233,15 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                 !workspace.scratch.text?.empty &&
                 isTopWrapper(workspace, 'wrapper:xt') &&
                 renderIfRegularOrIfHackedIntro(workspace),
-            action({ workspace }) {
+            action({ context, workspace }) {
                 const container = workspace.scopeManager.has('wrapper:cell')
                     ? workspace.scopeManager.at(0).root
                     : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
+                const wrapper = workspace.scopeManager.find('wrapper:xt')!;
                 container.innerHTML += generateReferenceLinkHTML(
-                    workspace.scratch.text!.cleanedText!,
-                    'crossref_ref-link'
+                    getElement(context).text,
+                    'crossref_ref-link',
+                    wrapper.root.getAttribute('data-link-href') ?? undefined
                 );
                 if (!workspace.scopeManager.has('wrapper:cell')) {
                     workspace.scopeManager.push('phrase', container);
