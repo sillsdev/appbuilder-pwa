@@ -1,6 +1,6 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
     startWrapper: {
@@ -68,6 +68,7 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:jmp') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
+            terminatePhrase(workspace);
             workspace.scopeManager.promoteContent('wrapper:jmp');
         }
     },

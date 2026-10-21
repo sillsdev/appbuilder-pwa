@@ -1,5 +1,6 @@
 import { addToScratchPad, FeatureSpec, renderIfRegularOrIfHackedIntro } from '../common';
 import { getElement, matchElement } from './common';
+import { terminatePhrase } from './common/text';
 
 export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: number } }>(
     'Tables',
@@ -42,6 +43,7 @@ export const tables = new FeatureSpec<{ table?: { colIndex?: number; rowIndex?: 
                 // HACK `endRow` and `endWrapper` events arrive out of order when table has cells with column ranges
                 // see: https://github.com/Proskomma/proskomma-json-tools/issues/67
                 if (workspace.scopeManager.has('wrapper:cell')) {
+                    terminatePhrase(workspace);
                     workspace.scopeManager.promoteContent('wrapper:cell');
                 }
                 workspace.scopeManager.promoteContent('row');

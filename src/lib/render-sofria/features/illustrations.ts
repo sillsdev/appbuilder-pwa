@@ -76,6 +76,7 @@ export const illustrations = new FeatureSpec<SharedTextScratch>(
             guard: ({ context, workspace }) =>
                 renderIfRegularOrIfHackedIntro(workspace) && matchElement(context, 'usfm:fig'),
             action: ({ workspace }) => {
+                terminatePhrase(workspace);
                 if (showImages(workspace)) {
                     workspace.scopeManager.promoteContent('wrapper:figure');
                 } else {

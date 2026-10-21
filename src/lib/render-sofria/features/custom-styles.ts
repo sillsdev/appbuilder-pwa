@@ -1,6 +1,6 @@
 import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const paragraphStyles = new FeatureSpec('Paragraph Styles', {
     startMilestone: {
@@ -44,6 +44,7 @@ export const characterStyles = new FeatureSpec<SharedTextScratch>('Character Sty
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:zcstyle') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
+            terminatePhrase(workspace);
             workspace.scopeManager.promoteContent('wrapper:zcstyle');
         }
     },
