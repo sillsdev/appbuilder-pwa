@@ -1,7 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { splitString } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
     startMilestone: {
@@ -46,6 +46,7 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
         guard: ({ context, workspace }) =>
             matchElement(context, 'usfm:zreflink') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
+            terminatePhrase(workspace);
             workspace.scopeManager.promoteContent('wrapper:zreflink');
         }
     },
