@@ -453,18 +453,28 @@ LOGGING:
                         target: HTMLElement,
                         workspace: RenderWorkspace
                     ) {
-                        event.stopPropagation();
-                        const start: AnchorReference = JSON.parse(
-                            target.getAttribute('data-start-ref') || '{}'
-                        );
-                        const end: AnchorReference | undefined =
-                            target.getAttribute('data-end-ref') === 'undefined'
-                                ? undefined
-                                : JSON.parse(target.getAttribute('data-end-ref') || '{}');
-                        if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
-                            workspace.events.navigate(start);
-                        } else {
-                            footnotes.push({ type: 'rich', start, end, props, style: 'crossref' });
+                        if ($footnotes.length === 0) {
+                            event.stopPropagation();
+                            const start: AnchorReference = JSON.parse(
+                                target.getAttribute('data-start-ref') || '{}'
+                            );
+                            const end: AnchorReference | undefined =
+                                target.getAttribute('data-end-ref') === 'undefined'
+                                    ? undefined
+                                    : JSON.parse(target.getAttribute('data-end-ref') || '{}');
+                            if (
+                                workspace.config.mainFeatures['scripture-refs-display'] === 'viewer'
+                            ) {
+                                workspace.events.navigate(start);
+                            } else {
+                                footnotes.push({
+                                    type: 'rich',
+                                    start,
+                                    end,
+                                    props,
+                                    style: 'crossref'
+                                });
+                            }
                         }
                     },
                     clickText: (e) => {
