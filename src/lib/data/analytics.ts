@@ -1,18 +1,19 @@
 import { scriptureConfig } from '$assets/config';
+import type { BookConfig } from '$config';
 import { analytics, type AudioPlayer } from '$lib/data/stores';
 import type { HistoryItem } from './history';
 
-export function getBook(item: { collection?: string; book: string }) {
+export function getBook(item: { collection?: string; book?: string }) {
     return scriptureConfig.bookCollections
         ?.find((x) => x.id === item.collection)
         ?.books.find((x) => x.id === item.book);
 }
 
-function getDamId(item: { book: any; chapter: string }) {
+function getDamId(item: { book?: BookConfig; chapter?: string }) {
     let damId;
-    if (item.book.audio.length > 0) {
+    if (item.book?.audio.length) {
         const audio = item.book.audio.find((x) => x.num === Number(item.chapter));
-        const source = audio.src;
+        const source = audio?.src;
         if (source) {
             if (scriptureConfig.audio?.sources[source]?.type === 'fcbh') {
                 damId = scriptureConfig.audio.sources[source].damId;
@@ -25,7 +26,7 @@ function getDamId(item: { book: any; chapter: string }) {
 export function logScreenView(item: HistoryItem) {
     const book = getBook({ ...item });
     const chapter = item.chapter;
-    const bookAbbrev = book.abbreviation;
+    const bookAbbrev = book?.abbreviation;
     const damId = getDamId({ book, chapter });
     const params = {
         screenName: item.book,
@@ -41,9 +42,9 @@ export function logScreenView(item: HistoryItem) {
 export function logAudioPlay(audioPlayer: AudioPlayer) {
     const bookCol = audioPlayer.collection;
     const book = getBook({ collection: bookCol, book: audioPlayer.book });
-    const screenName = book.id;
+    const screenName = book?.id;
     const chapter = audioPlayer.chapter;
-    const bookAbbrev = book.abbreviation;
+    const bookAbbrev = book?.abbreviation;
     const damId = getDamId({ book, chapter });
     const playing = audioPlayer.playing;
     const params = {
@@ -60,9 +61,9 @@ export function logAudioPlay(audioPlayer: AudioPlayer) {
 export function logAudioDuration(audioPlayer: AudioPlayer) {
     const bookCol = audioPlayer.collection;
     const book = getBook({ collection: bookCol, book: audioPlayer.book });
-    const screenName = book.id;
+    const screenName = book?.id;
     const chapter = audioPlayer.chapter;
-    const bookAbbrev = book.abbreviation;
+    const bookAbbrev = book?.abbreviation;
     const damId = getDamId({ book, chapter });
     const playStart = audioPlayer.playStart;
     const playEnd = Date.now();
