@@ -39,7 +39,7 @@ describe('Scripture Reference Utilities', () => {
         const test6 = `${book1} 3${cvs}16${cls} 3${cvs}17${cls} ${book2} 1${cvs}1`; // John 3:16; 3:17; 1 Corinthians 1:1
         const test7 = `${book1} 3${cvs}16${roc}5${cvs}13${cls} 32${cvs}6${rov}9`; // John 3:16-5:13; 32:6-9
         const test8 = `${book3} 6`; // Jude 6
-        const test9 = `text| ${book1} 3`; // John 3
+        const test9 = `text|default="${book1} 3"`; // John 3
         const test10 = `3${cvs}16${rov}17`; // 3:16-17
         const test11 = `${book1} 3${cvs}16${roc}5${cvs}13`; // John 3:16-5:13
         const test12 = `${book4} 20${cvs}13${cls} ${book5} 5${cvs}17${lov}20${rov}22`; // Exodus 20:13; Matthew 5:17,20-22
