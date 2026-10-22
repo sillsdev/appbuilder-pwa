@@ -18,7 +18,7 @@ test('getStyle looks at book collection', () => {
         ]
     };
 
-    expect(getStyle(config1, 'font', 'C01', 'MAT')).toBe('collectionFont');
+    expect(getStyle(config1.bookCollections, 'font', 'C01', 'MAT')).toBe('collectionFont');
 });
 
 test('getStyle looks at book', () => {
@@ -39,7 +39,7 @@ test('getStyle looks at book', () => {
         ]
     };
 
-    expect(getStyle(config2, 'font', 'C01', 'MAT')).toBe('bookFont');
+    expect(getStyle(config2.bookCollections, 'font', 'C01', 'MAT')).toBe('bookFont');
 });
 
 test('getStyle prefers book style over collection sytle', () => {
@@ -62,7 +62,7 @@ test('getStyle prefers book style over collection sytle', () => {
         ]
     };
 
-    expect(getStyle(config3, 'font', 'C01', 'MAT')).toBe('bookFont');
+    expect(getStyle(config3.bookCollections, 'font', 'C01', 'MAT')).toBe('bookFont');
 });
 
 test('getStyle option missing from collection style', () => {
@@ -82,7 +82,7 @@ test('getStyle option missing from collection style', () => {
             }
         ]
     };
-    expect(getStyle(config, 'font', 'C01', 'MAT')).toBe('collectionFont');
+    expect(getStyle(config.bookCollections, 'font', 'C01', 'MAT')).toBe('collectionFont');
 });
 
 test('getStyle option missing from book style', () => {
@@ -102,7 +102,7 @@ test('getStyle option missing from book style', () => {
             }
         ]
     };
-    expect(getStyle(config, 'font', 'C01', 'MAT')).toBe('bookFont');
+    expect(getStyle(config.bookCollections, 'font', 'C01', 'MAT')).toBe('bookFont');
 });
 
 test('getStyle book inherits style', () => {
@@ -124,5 +124,5 @@ test('getStyle book inherits style', () => {
             }
         ]
     };
-    expect(getStyle(config, 'font', 'C01', 'MAT')).toBe('collectionFont');
+    expect(getStyle(config.bookCollections, 'font', 'C01', 'MAT')).toBe('collectionFont');
 });

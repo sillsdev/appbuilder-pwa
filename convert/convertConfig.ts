@@ -75,6 +75,7 @@ export function parseStyles(stylesTag: Element, verbose: number) {
         //console.log(tag.outerHTML);
         const name = tag.attributes.getNamedItem('name')!.value;
         const category = tag.attributes.getNamedItem('category')?.value;
+        const type = tag.attributes.getNamedItem('type')?.value;
         const properties: { [key: string]: string } = {};
         const propertyTags = tag.getElementsByTagName('sd');
         for (const propertyTag of propertyTags) {
@@ -92,6 +93,7 @@ export function parseStyles(stylesTag: Element, verbose: number) {
         }
         styles.push({
             name,
+            type,
             category,
             properties
         });
@@ -184,7 +186,9 @@ function changeAndroidToRem(propValue: string) {
 }
 
 export function convertFooter(markdown: string | undefined, appdef: Document): string | undefined {
-    const footer = markdown?.length ? convertMarkdownsToHTML(removeCData(markdown)) : undefined;
+    const footer = markdown?.length
+        ? convertMarkdownsToHTML(removeCData(markdown), undefined)
+        : undefined;
     const appName = appdef.getElementsByTagName('app-name')[0].innerHTML;
     const versionName = appdef.getElementsByTagName('version')[0].getAttribute('name');
     const appDefinition = appdef.getElementsByTagName('app-definition')[0];
@@ -291,6 +295,30 @@ async function convertConfig(dataDir: string, verbose: number) {
             data.singleEntryStyles = parseStyles(singleEntryStyles, verbose);
         } else if (verbose) {
             console.log('No single-entry styles found in the XML document');
+        }
+    }
+
+    if (isSAB(data)) {
+        const customStyles = data.styles?.filter((s) => s.category === 'custom');
+        data.customTags = {
+            paragraph: customStyles
+                .filter((s) => s.type === 'paragraph')
+                .map((s) => s.name.split('.')[1]),
+            char: customStyles
+                .filter((s) => s.type === 'character')
+                .map((s) => s.name.split('.')[1])
+        };
+        if (verbose) {
+            if (data.customTags?.paragraph?.length) {
+                console.log(
+                    `Adding ${data.customTags.paragraph.length} custom paragraph tag(s): ${data.customTags.paragraph.join(', ')}`
+                );
+            }
+            if (data.customTags.char?.length) {
+                console.log(
+                    `Adding ${data.customTags.char.length} custom character tag(s): ${data.customTags.char.join(', ')}`
+                );
+            }
         }
     }
 

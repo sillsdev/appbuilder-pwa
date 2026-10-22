@@ -66,6 +66,7 @@ function replacePStyleTags(text: string, _bcId: string, _bookId: string): string
 function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string {
     return text.replace(/\\(c_[^\s]+)(.*?)\\\1\*/g, '\\zcstyle-s |id="$1"\\*$2\\zcstyle-e\\*');
 }
+
 /**
  * Convert list tags to milestones
  */
@@ -101,7 +102,7 @@ function loadGlossary(collection: BookCollectionConfig, dataDir: string): string
             }
             const glossaryContent = fs.readFileSync(glossaryBook, 'utf8');
             // Regular expression pattern
-            const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
+            const regex = /\\k\s*((?!\\k).+)\\k\*/g;
             let match;
             // Loop through all matches
             while ((match = regex.exec(glossaryContent)) !== null) {
@@ -415,7 +416,7 @@ function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
     return ds;
 }
 
-type ConvertBookContext = {
+export type ConvertBookContext = {
     dataDir: string;
     scriptureConfig: ScriptureConfig;
     verbose: number;
@@ -854,7 +855,13 @@ function convertScriptureBook(
         const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
+            const pkDoc = pk.importDoc(
+                selectors,
+                contentType,
+                content,
+                tags,
+                context.scriptureConfig.customTags
+            );
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(

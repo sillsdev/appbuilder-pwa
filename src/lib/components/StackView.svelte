@@ -5,18 +5,27 @@
 
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { footnotes, refs, themeColors } from '$lib/data/stores';
-    import type { Reference } from '$lib/data/stores/reference';
-    import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
+    import {
+        convertStyle,
+        footnotes,
+        refs,
+        s,
+        themeColors,
+        type FootnoteItem
+    } from '$lib/data/stores';
+    import { navigateToText } from '$lib/navigate';
+    import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
+    import ScriptureViewProskomma from './ScriptureViewProskomma.svelte';
 
     interface Props {
         bodyFontSize: number | string;
         bodyLineHeight: number | string;
         font?: string;
+        onNavigate?: () => void;
     }
 
-    let { bodyFontSize, bodyLineHeight, font }: Props = $props();
+    let { bodyFontSize, bodyLineHeight, font, onNavigate }: Props = $props();
 
     let stack: HTMLDivElement | undefined = $state();
     let listening = false;
@@ -28,14 +37,15 @@
         }
     }
 
-    function navigate(reference: Reference) {
-        refs.set({
+    function navigate(reference: AnchorReference) {
+        footnotes.reset();
+        navigateToText({
             docSet: reference.docSet,
+            collection: reference.collection,
             book: reference.book,
             chapter: reference.chapter,
             verse: reference.verse
-        });
-        footnotes.reset();
+        }).then(() => onNavigate?.());
     }
 
     const openInNewIcon = () => {
@@ -62,7 +72,7 @@
         footnotes.reset();
         return;
     }
-    async function insideClick(target: HTMLElement) {
+    async function insideClick(target: HTMLElement, item: FootnoteItem) {
         if (target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =
@@ -72,22 +82,28 @@
             if (config.mainFeatures['scripture-refs-display-from-popup'] === 'viewer') {
                 navigate(start);
             } else {
-                const footnoteHTML = await handleHeaderLinkPressed(start, end, $themeColors);
-                footnotes.push(footnoteHTML);
+                footnotes.push({
+                    type: 'rich',
+                    style: 'crossref',
+                    props: item.props,
+                    start,
+                    end
+                });
             }
         } else if (target.classList.contains('ref-link')) {
             referenceLinkClickHandler(target);
             // will not work since it does not have a reference to the start object...
         } else if (document.getElementById('icon')?.contains(target)) {
             let start = JSON.parse(
-                document.getElementById('icon')?.firstElementChild?.getAttribute('reference') ||
-                    '{}'
+                document
+                    .getElementById('icon')
+                    ?.firstElementChild?.getAttribute('data-reference') || '{}'
             );
             navigate(start);
         }
     }
 
-    function toggleListener(footnotes: string[]) {
+    function toggleListener(footnotes: unknown[]) {
         if (listening && footnotes.length === 0) {
             document.removeEventListener('click', clickOutside);
             listening = false;
@@ -119,7 +135,7 @@
                     class="footnote place-self-center rounded-sm h-40 shadow-lg overflow-y-auto"
                     onclick={(e) => {
                         e.stopPropagation();
-                        insideClick((e.target || e.currentTarget) as HTMLElement);
+                        insideClick((e.target || e.currentTarget) as HTMLElement, item);
                     }}
                 >
                     <div
@@ -128,9 +144,46 @@
                         style:font-family={font}
                         style:font-size={fontSize}
                         style:line-height={lineHeight}
+                        style={convertStyle($s?.[`body.${item.style}`])}
                     >
-                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        {@html item}
+                        {#if item.type === 'plain'}
+                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                            {@html item.body}
+                        {:else if item.type === 'rich'}
+                            <div class="flex flex-row justify-space-between">
+                                <div class="grow">
+                                    <span class="xo">
+                                        {item.start.phrase}
+                                    </span>
+                                    <span>
+                                        <ScriptureViewProskomma
+                                            {...item.props}
+                                            references={{
+                                                ...item.start,
+                                                collection: item.props.references.collection,
+                                                bookTab: 0,
+                                                hasAudio: undefined,
+                                                catalog: item.props.references.catalog
+                                            }}
+                                            verseRange={{
+                                                start: Number(item.start.verse),
+                                                end: item.end?.verse
+                                                    ? Number(item.end.verse)
+                                                    : undefined
+                                            }}
+                                            maxSelections={0}
+                                        />
+                                    </span>
+                                </div>
+                                <div id="icon">
+                                    <!-- svelte-ignore a11y_consider_explicit_label -->
+                                    <button class="p-2" data-reference={JSON.stringify(item.start)}>
+                                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                                        {@html openInNewIcon()}
+                                    </button>
+                                </div>
+                            </div>
+                        {/if}
                     </div>
                 </div>
             {/each}
