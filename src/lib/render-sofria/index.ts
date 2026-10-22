@@ -1,7 +1,7 @@
 import type { FeatureSpec } from './common';
 import { annotations } from './features/annotations';
 import { audioclips } from './features/audio-clips';
-import { characterStyles, customTags, paragraphStyles } from './features/custom-styles';
+import { characterStyles, paragraphStyles } from './features/custom-styles';
 import { chapterNumber, verseNumbers } from './features/cv-numbers';
 import { defaults } from './features/defaults';
 import { crossrefs, footnotes, noteCallers } from './features/footnotes';
@@ -43,7 +43,6 @@ export const renderFeatures: Array<FeatureSpec<any>> = [
     audioclips,
     paragraphStyles,
     characterStyles,
-    customTags,
     orderedLists,
     unorderedLists,
     footnotes,
