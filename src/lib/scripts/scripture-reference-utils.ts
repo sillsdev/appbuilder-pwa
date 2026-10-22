@@ -17,6 +17,7 @@ import {
 } from './numeralUtils';
 import {
     ciEquals,
+    escapeHtml,
     getFirstDigitsAsInt,
     getIntFromString,
     isBlank,
@@ -132,12 +133,11 @@ function main_generateReferenceLinkHTML(
     let lastIndex = 0;
     while ((referenceMatches = referenceRegEx.exec(contentToMatch)) !== null) {
         const ref = referenceMatches[2];
-        const linkRef = referenceMatches[3]?.match(/(link-href|default)="([^"]*)"/)?.at(2) ?? '';
-        const targetRef = isNotBlank(overrideLink)
-            ? overrideLink
-            : isNotBlank(linkRef)
-              ? linkRef
-              : ref;
+        const linkRef =
+            overrideLink ||
+            referenceMatches[3]?.match(/(link-href|default)="([^"]*)"/)?.at(2) ||
+            '';
+        const targetRef = isNotBlank(linkRef) ? linkRef : ref;
         const displayText = isNotBlank(linkRef) ? ref : null;
         let parseCvs = cvs;
         let parseRov = rov;
@@ -197,7 +197,7 @@ function processScriptureRef(
             refClass
         );
     } else {
-        result = reference;
+        result = escapeHtml(reference);
     }
     return result;
 }
@@ -864,7 +864,7 @@ function createReference(
     numeralSystem: numerals.NumeralSystem
 ) {
     return {
-        text: referenceText,
+        text: escapeHtml(referenceText),
         collection,
         bookId,
         fromChapter: convertDigitsInStringToDefaultNumeralSystem(fromChapter || '', numeralSystem),

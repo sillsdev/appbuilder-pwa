@@ -10,6 +10,8 @@
  * when loading entries from the database.
  */
 
+import { escapeHtml } from '$lib/scripts/stringUtils';
+
 export type MultiTextItem = { ws: number; text: string };
 export type MultiText = MultiTextItem[];
 
@@ -127,10 +129,6 @@ export function hasGlossOrDefinitions(sense: LiftSense) {
 
 function isSenseEmpty(sense: LiftSense) {
     return !hasGlossOrDefinitions(sense) && sense.fields.length === 0 && sense.senseNumber === '';
-}
-
-function escapeHtml(text: string) {
-    return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
 function escapeAttr(text: string) {
