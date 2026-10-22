@@ -13,8 +13,8 @@
         themeColors,
         type FootnoteItem
     } from '$lib/data/stores';
-    import type { Reference } from '$lib/data/stores/reference';
-    import { handleHeaderLinkPressed } from '$lib/scripts/scripture-reference-utils';
+    import { navigateToText } from '$lib/navigate';
+    import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
     import { splitString } from '$lib/scripts/stringUtils';
     import ScriptureViewProskomma from './ScriptureViewProskomma.svelte';
 
@@ -22,9 +22,10 @@
         bodyFontSize: number | string;
         bodyLineHeight: number | string;
         font?: string;
+        onNavigate?: () => void;
     }
 
-    let { bodyFontSize, bodyLineHeight, font }: Props = $props();
+    let { bodyFontSize, bodyLineHeight, font, onNavigate }: Props = $props();
 
     let stack: HTMLDivElement | undefined = $state();
     let listening = false;
@@ -36,14 +37,15 @@
         }
     }
 
-    function navigate(reference: Reference) {
-        refs.set({
+    function navigate(reference: AnchorReference) {
+        footnotes.reset();
+        navigateToText({
             docSet: reference.docSet,
+            collection: reference.collection,
             book: reference.book,
             chapter: reference.chapter,
             verse: reference.verse
-        });
-        footnotes.reset();
+        }).then(() => onNavigate?.());
     }
 
     const openInNewIcon = () => {
@@ -71,7 +73,6 @@
         return;
     }
     async function insideClick(target: HTMLElement, item: FootnoteItem) {
-        console.log(target, item);
         if (target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =
@@ -94,8 +95,9 @@
             // will not work since it does not have a reference to the start object...
         } else if (document.getElementById('icon')?.contains(target)) {
             let start = JSON.parse(
-                document.getElementById('icon')?.firstElementChild?.getAttribute('reference') ||
-                    '{}'
+                document
+                    .getElementById('icon')
+                    ?.firstElementChild?.getAttribute('data-reference') || '{}'
             );
             navigate(start);
         }
