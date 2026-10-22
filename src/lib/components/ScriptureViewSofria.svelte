@@ -100,6 +100,7 @@ LOGGING:
         type RenderSequence as Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount, untrack } from 'svelte';
+    import type { Props as ScriptureViewProskommaProps } from './ScriptureViewProskomma.svelte';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -709,7 +710,12 @@ LOGGING:
                 span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
             const parsed = workingSpan?.innerHTML;
-            footnotes.push({ type: 'plain', body: parsed, style: 'footnote' });
+            footnotes.push({
+                type: 'plain',
+                body: parsed,
+                style: 'footnote',
+                props: {} as ScriptureViewProskommaProps
+            });
         }
     }
     // handles clicks on in text markdown reference links
@@ -748,7 +754,12 @@ LOGGING:
             navigate(start);
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
-            footnotes.push({ type: 'plain', body: footnoteHTML, style: 'crossref' });
+            footnotes.push({
+                type: 'plain',
+                body: footnoteHTML,
+                style: 'crossref',
+                props: {} as ScriptureViewProskommaProps
+            });
         }
     }
     function glossaryClickHandler(event: MouseEvent, target: HTMLElement) {
@@ -773,7 +784,8 @@ LOGGING:
                             footnotes.push({
                                 type: 'plain',
                                 body: glossaryHTML,
-                                style: 'glossary'
+                                style: 'glossary',
+                                props: {} as ScriptureViewProskommaProps
                             });
                         }
                     }
