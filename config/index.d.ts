@@ -334,7 +334,10 @@ export type ScriptureConfig = AppConfig & {
         };
         plans: PlanItem[];
     };
-    customTags?: string[];
+    customTags?: Partial<{
+        paragraph: string[];
+        char: string[];
+    }>;
 };
 
 export type PlanItem = {

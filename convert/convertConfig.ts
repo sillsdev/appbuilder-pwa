@@ -299,13 +299,26 @@ async function convertConfig(dataDir: string, verbose: number) {
     }
 
     if (isSAB(data)) {
-        data.customTags = data.styles
-            ?.filter((s) => s.category === 'custom' && s.type === 'character')
-            .map((s) => s.name.split('.')[1]);
-        if (verbose && data.customTags?.length) {
-            console.log(
-                `Adding ${data.customTags.length} custom tag(s): ${data.customTags.join(', ')}`
-            );
+        const customStyles = data.styles?.filter((s) => s.category === 'custom');
+        data.customTags = {
+            paragraph: customStyles
+                .filter((s) => s.type === 'paragraph')
+                .map((s) => s.name.split('.')[1]),
+            char: customStyles
+                .filter((s) => s.type === 'character')
+                .map((s) => s.name.split('.')[1])
+        };
+        if (verbose) {
+            if (data.customTags?.paragraph?.length) {
+                console.log(
+                    `Adding ${data.customTags.paragraph.length} custom paragraph tag(s): ${data.customTags.paragraph.join(', ')}`
+                );
+            }
+            if (data.customTags.char?.length) {
+                console.log(
+                    `Adding ${data.customTags.char.length} custom character tag(s): ${data.customTags.char.join(', ')}`
+                );
+            }
         }
     }
 

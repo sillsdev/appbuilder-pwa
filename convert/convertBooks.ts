@@ -72,9 +72,9 @@ function replaceCStyleTags(text: string, _bcId: string, _bookId: string): string
  * See: https://github.com/sillsdev/appbuilder-pwa/issues/528 (data has non-standard \lw tags, which are messing with Proskomma's parsing)
  */
 function replaceCustomTags(text: string, _bcId: string, _bookId: string, ctx: ConvertBookContext) {
-    if (ctx.scriptureConfig.customTags?.length) {
+    if (ctx.scriptureConfig.customTags?.char?.length) {
         const end = new RegExp(
-            `\\\\(\\+)?(${ctx.scriptureConfig.customTags.join('|')})(.*?)\\\\\\1\\2\\*`,
+            `\\\\(\\+)?(${ctx.scriptureConfig.customTags.char.join('|')})(.*?)\\\\\\1\\2\\*`,
             'g'
         );
         return text.replace(end, '\\$1zwrapper-s |id="$2"\\*$3\\$1zwrapper-e\\*');
@@ -391,7 +391,7 @@ const usfmFilterFunctions: FilterFunction[] = [
     replaceVideoTags,
     replacePStyleTags,
     replaceCStyleTags,
-    replaceCustomTags,
+    //replaceCustomTags,
     transformLists,
     convertMarkdownsToMilestones,
     encodeJmpLinks,
@@ -871,7 +871,13 @@ function convertScriptureBook(
         const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
+            const pkDoc = pk.importDoc(
+                selectors,
+                contentType,
+                content,
+                tags,
+                context.scriptureConfig.customTags
+            );
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(
