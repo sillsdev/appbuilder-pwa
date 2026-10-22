@@ -221,6 +221,8 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
     PKRenderWorkspace & {
         document: Document;
         currentTextPosition: {
+            // render current section, used for verse range
+            render: boolean;
             verse: string;
             phraseIndex?: number;
         };
@@ -237,16 +239,16 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             isBibleBook: boolean;
             redLetters: boolean;
             verseLayout: string;
-            verseRangeNumber?: string;
+            verseRange?: { start: number; end: number };
         };
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;
         events: {
             navigate: (refs: Reference) => void;
-            openFootnoote: (event: MouseEvent, footnoteId: string) => void;
+            openFootnote: (event: MouseEvent, footnoteId: string) => void;
             openGlossary: (link: string, block: GlossaryBlock) => void;
             setPlanStore: (data: PlanStore) => void;
-            clickHeaderRef: (
+            openCrossRef: (
                 event: MouseEvent,
                 target: HTMLElement,
                 workspace: RenderWorkspace
@@ -255,7 +257,10 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             updateAnnotations: () => void;
         };
         stores: {
-            references: ReferenceStore;
+            references: Pick<
+                ReferenceStore,
+                'book' | 'chapter' | 'docSet' | 'catalog' | 'collection' | 'bookTab' | 'hasAudio'
+            >;
             plan: PlanStore;
             currentPlanState: string;
             currentPlanData: PlansData | null;
@@ -294,7 +299,7 @@ function warnOnDuplicateSection(section: RenderStage | undefined) {
 export function compileActionDictionary(
     features: FeatureSpec<any>[],
     config: Readonly<ScriptureConfig>,
-    references: ReferenceStore,
+    references: RenderWorkspace['stores']['references'],
     settings: FeatureConfig,
     logSettings: ScriptureLogConfig
 ) {

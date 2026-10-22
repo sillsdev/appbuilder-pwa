@@ -40,7 +40,9 @@ The navbar component.
     }) as boolean;
 
     const verseCount = $derived(getVerseCount(book, chapter));
-    const numeralSystem = $derived(numerals.systemForBook(config, $refs.collection, book));
+    const numeralSystem = $derived(
+        numerals.systemForBook(scriptureConfig.bookCollections, $refs.collection, book)
+    );
     const chaptersLabels = $derived(
         scriptureConfig.bookCollections
             ?.find((x) => $refs.collection === x.id)

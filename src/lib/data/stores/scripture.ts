@@ -1,6 +1,8 @@
 import { scriptureConfig } from '$assets/config';
+import type { Props as ScriptureViewProskommaProps } from '$lib/components/ScriptureViewProskomma.svelte';
 import { persistedLocal } from '$lib/data/stores/storage';
 import type { RenderScopeLevel } from '$lib/render-sofria/common';
+import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';
@@ -26,7 +28,16 @@ function createStack<T>() {
     };
 }
 
-export const footnotes = createStack<string>();
+export type FootnoteItem = (
+    | { type: 'plain'; body: string }
+    | {
+          type: 'rich';
+          start: AnchorReference;
+          end?: AnchorReference;
+      }
+) & { style: 'glossary' | 'footnote' | 'crossref'; props: ScriptureViewProskommaProps };
+
+export const footnotes = createStack<FootnoteItem>();
 
 /** current reference */
 export const refs = referenceStore();
@@ -373,12 +384,14 @@ export type SelectedVersesStore = ReturnType<typeof createSelectedVerses>;
 
 export const selectedVerses = createSelectedVerses();
 
-export type ScriptureLogConfig = {
-    root: number;
-    docResult: number;
-    placement: number;
-    actions: number;
-} & Record<RenderScopeLevel, number>;
+export type ScriptureLogConfig = Partial<
+    {
+        root: number;
+        docResult: number;
+        placement: number;
+        actions: number;
+    } & Record<RenderScopeLevel, number>
+>;
 
 export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $logs]) => {
     return (

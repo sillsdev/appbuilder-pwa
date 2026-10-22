@@ -19,7 +19,7 @@ LOGGING:
         highlights: Promise<HighlightItem[]>;
         maxSelections: number;
         redLetters: boolean;
-        references: ReferenceStore;
+        references: RenderWorkspace['stores']['references'];
         glossary: Promise<GlossaryQueryResult>;
         themeColors: Record<string, string>;
         verseLayout: string;
@@ -30,6 +30,7 @@ LOGGING:
         setBookTab: (value: number) => void;
         selectedVerses: SelectedVersesStore;
         isActivePanel: boolean;
+        verseRange?: { start: number; end?: number };
     }
 </script>
 
@@ -65,7 +66,7 @@ LOGGING:
         type PlanStore,
         type SelectedVersesStore
     } from '$lib/data/stores';
-    import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
+    import type { Reference } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
     import {
         compileActionDictionary,
@@ -79,19 +80,23 @@ LOGGING:
     } from '$lib/render-sofria/common';
     import { getBlock, getElement, getSequence } from '$lib/render-sofria/features/common';
     import { planDivInChapter } from '$lib/render-sofria/features/common/plans';
+    import { cleanText } from '$lib/render-sofria/features/common/text';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
     import type { SABProskomma } from '$lib/sab-proskomma';
     import * as numerals from '$lib/scripts/numeralSystem';
     import {
-        generateHTML,
-        handleHeaderLinkPressed,
-        isBibleBook
+        generateReferenceLinkHTML,
+        isBibleBook,
+        type AnchorReference
     } from '$lib/scripts/scripture-reference-utils';
     import { onClickText, updateSelections } from '$lib/scripts/verseSelectUtil';
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, untrack } from 'svelte';
+
+    // eslint-disable-next-line svelte/no-unused-props
+    let props: Props = $props();
 
     let {
         audioPhraseEndChars,
@@ -112,8 +117,9 @@ LOGGING:
         setReference,
         setBookTab,
         selectedVerses,
-        isActivePanel
-    }: Props = $props();
+        isActivePanel,
+        verseRange
+    } = $derived(props);
 
     const currentBook = $derived(references.book);
     const currentChapter = $derived(references.chapter);
@@ -142,7 +148,7 @@ LOGGING:
             ?.textDirection || 'ltr'
     );
     const numeralSystem = $derived(
-        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
+        numerals.systemForBook(scriptureConfig.bookCollections, references.collection, currentBook)
     );
 
     const output: { root?: HTMLDivElement } = {};
@@ -396,8 +402,9 @@ LOGGING:
         workspace.document = document;
         workspace.root = scriptureRoot;
         workspace.scopeManager = new ScopeManager();
-        workspace.currentTextPosition = workspace.currentTextPosition ?? {
-            verse: 'none'
+        workspace.currentTextPosition = {
+            verse: 'none',
+            render: !verseRange
         };
         workspace.logSettings = $scriptureLogs;
         workspace.scratch = {};
@@ -412,14 +419,17 @@ LOGGING:
         workspace.viewSettings = {
             isBibleBook: isBibleBook(references, workspace.config),
             redLetters,
-            verseLayout
+            verseLayout,
+            verseRange: verseRange
+                ? { start: verseRange.start, end: verseRange.end ?? verseRange.start }
+                : undefined
         };
         workspace.events = {
             navigate(ref: Reference) {
                 setReference(ref);
                 footnotes.reset();
             },
-            openFootnoote(event: MouseEvent, footnoteId: string) {
+            openFootnote(event: MouseEvent, footnoteId: string) {
                 if ($footnotes.length === 0) {
                     event.stopPropagation();
                     const footnote = scriptureRoot.querySelector(`div[id="${footnoteId}"]`);
@@ -427,10 +437,10 @@ LOGGING:
                     const spans = workingSpan?.querySelectorAll('span.xt');
                     // Loop through each span and modify its inner HTML
                     spans.forEach((span) => {
-                        span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+                        span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
                     });
                     const parsed = workingSpan?.innerHTML;
-                    footnotes.push(parsed);
+                    footnotes.push({ type: 'plain', body: parsed, style: 'footnote', props });
                 }
             },
             openGlossary(glossaryLink: string, block: GlossaryBlock) {
@@ -443,27 +453,29 @@ LOGGING:
                     glossarySpan.append(block.key);
                     glossaryDiv.append(glossarySpan);
                     const blockText = block.text.slice(glossaryLink?.length);
-                    glossaryDiv.innerHTML += blockText;
+                    glossaryDiv.innerHTML += cleanText(blockText);
                     const glossaryHTML = glossaryDiv.outerHTML;
-                    footnotes.push(glossaryHTML);
+                    footnotes.push({ type: 'plain', body: glossaryHTML, style: 'glossary', props });
                 }
             },
             setPlanStore(data: PlanStore) {
                 plan.set(data);
             },
-            clickHeaderRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
-                event.stopPropagation();
-                const start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
-                const end =
-                    target.getAttribute('data-end-ref') === 'undefined'
-                        ? undefined
-                        : JSON.parse(target.getAttribute('data-end-ref') || '{}');
-                if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
-                    workspace.events.navigate(start);
-                } else {
-                    handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
-                        footnotes.push(footnoteHTML)
+            openCrossRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
+                if ($footnotes.length === 0) {
+                    event.stopPropagation();
+                    const start: AnchorReference = JSON.parse(
+                        target.getAttribute('data-start-ref') || '{}'
                     );
+                    const end: AnchorReference | undefined =
+                        target.getAttribute('data-end-ref') === 'undefined'
+                            ? undefined
+                            : JSON.parse(target.getAttribute('data-end-ref') || '{}');
+                    if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
+                        workspace.events.navigate(start);
+                    } else {
+                        footnotes.push({ type: 'rich', start, end, props, style: 'crossref' });
+                    }
                 }
             },
             clickText: (e) => {

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import config from '$assets/config';
+    import config, { scriptureConfig } from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
     import type { PlanDataItem } from '$lib/data/plansData';
@@ -95,8 +95,10 @@
     function getReferenceString(ref: string) {
         // Reminder - get book collection id
         let currentBookCollectionId = $refs.collection;
-        const [_collection, book, _fromChapter, toChapter, verseRanges] =
-            getReferenceFromString(ref);
+        const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
+            ref,
+            scriptureConfig.bookCollections
+        );
         const displayString = getDisplayString(
             currentBookCollectionId,
             book,
@@ -121,8 +123,10 @@
         // Only go to reference if in an active plan
         if (inUse) {
             let currentBookCollectionId = $refs.collection;
-            const [collection, book, fromChapter, toChapter, verseRanges] =
-                getReferenceFromString(ref);
+            const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(
+                ref,
+                scriptureConfig.bookCollections
+            );
             const [fromVerse, toVerse, separator] = verseRanges[0];
             if (checkReference(book, toChapter)) {
                 let destinationVerse = fromVerse === -1 ? 1 : fromVerse;

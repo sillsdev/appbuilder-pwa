@@ -76,3 +76,17 @@ export function isTopWrapper(
     const depth = workspace.scopeManager.depth(wrapper);
     return !!wrapper && depth >= 0 && depth === workspace.scopeManager.depth('wrapper');
 }
+
+export function cleanText(text: string) {
+    // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
+    // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
+    return text.replaceAll(/(\|\s*)default="([^"]*)"/g, (_m, bar, quoted) => ` ${bar}${quoted}`);
+}
+
+export function parseVerseRange(range: string) {
+    const parts = range.split('-');
+    return {
+        start: Number(parts[0]),
+        end: Number(parts[1] || parts[0])
+    };
+}

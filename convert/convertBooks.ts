@@ -415,7 +415,7 @@ function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
     return ds;
 }
 
-type ConvertBookContext = {
+export type ConvertBookContext = {
     dataDir: string;
     scriptureConfig: ScriptureConfig;
     verbose: number;

@@ -243,3 +243,9 @@ export function ensureTrailingSlash(url: string | undefined) {
     }
     return url;
 }
+
+// For plain text (attribute values, database columns, config) inserted as HTML.
+// Text from <t> elements is already escaped by parseLiftEntry, except for its <span> markup.
+export function escapeHtml(text: string) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}

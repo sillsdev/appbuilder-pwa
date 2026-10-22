@@ -527,7 +527,7 @@
             </ScripturePager>
         </div>
         <!-- Display pop-ups for cross-references, footnotes, etc. -->
-        <StackView {...stackSettings} />
+        <StackView {...stackSettings} onNavigate={() => pager?.setupSettingsCache()} />
         <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
     </div>
 

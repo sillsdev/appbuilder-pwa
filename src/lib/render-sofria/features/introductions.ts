@@ -3,8 +3,6 @@ import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } fr
 import { renderBlock } from './common/grafts';
 import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
-// NOTE: Are there any other block grafts besides titles and introductions??
-
 // HACK: for proskomma, introduction will only be given as a graft on chapter 1, so we need to pass chapter 1 into proskomma
 // open an issue?
 

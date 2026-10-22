@@ -1,5 +1,5 @@
 import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-import { generateHTML } from '$lib/scripts/scripture-reference-utils';
+import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import type { RenderContext } from 'proskomma-json-tools';
 import {
     addToScratchPad,
@@ -168,7 +168,8 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
         stage: 'standard',
         details: ({ context }) => ({
             class: extractClassName(getElement(context)),
-            atts: { ...getElement(context).atts }
+            'link-href':
+                getElement(context).atts['link-href'] ?? getElement(context).atts['default']
         }),
         guard: ({ context, workspace }) =>
             matchElement(context, /usfm:x/) && renderIfRegularOrIfHackedIntro(workspace),
@@ -177,6 +178,13 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
 
             const spanElement = workspace.document.createElement('span');
             spanElement.classList.add(usfmWrapperType);
+            if (usfmWrapperType === 'xt') {
+                const atts = getElement(context).atts;
+                spanElement.setAttribute(
+                    'data-link-href',
+                    atts['link-href'] ?? atts['default'] ?? ''
+                );
+            }
             workspace.scopeManager.push(`wrapper:${usfmWrapperType}`, spanElement);
 
             const typeStack = workspace.scratch.inlineGraft?.typeStack ?? [];
@@ -225,20 +233,16 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                 !workspace.scratch.text?.empty &&
                 isTopWrapper(workspace, 'wrapper:xt') &&
                 renderIfRegularOrIfHackedIntro(workspace),
-            action({ workspace }) {
-                const references = workspace.scratch.text!.cleanedText!.split('; ');
+            action({ context, workspace }) {
                 const container = workspace.scopeManager.has('wrapper:cell')
                     ? workspace.scopeManager.at(0).root
                     : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
-                for (let i = 0; i < references.length; i++) {
-                    const spanV = document.createElement('span');
-                    spanV.classList.add('reflink');
-                    spanV.innerHTML = generateHTML(references[i], 'header-ref');
-                    container.appendChild(spanV);
-                    if (i < references.length - 1) {
-                        container.innerHTML += '; ';
-                    }
-                }
+                const wrapper = workspace.scopeManager.find('wrapper:xt')!;
+                container.innerHTML += generateReferenceLinkHTML(
+                    getElement(context).text,
+                    'crossref_ref-link',
+                    wrapper.root.getAttribute('data-link-href') ?? undefined
+                );
                 if (!workspace.scopeManager.has('wrapper:cell')) {
                     workspace.scopeManager.push('phrase', container);
                 }
@@ -248,9 +252,9 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
     endDocument: {
         stage: 'standard',
         action({ workspace }) {
-            workspace.root.querySelectorAll('a.header-ref').forEach((el) => {
+            workspace.root.querySelectorAll('a.crossref_ref-link').forEach((el) => {
                 el.addEventListener('click', (e) =>
-                    workspace.events.clickHeaderRef(
+                    workspace.events.openCrossRef(
                         e as MouseEvent,
                         el as HTMLAnchorElement,
                         workspace
@@ -341,7 +345,7 @@ export const noteCallers = new FeatureSpec<CallerScratch & SharedTextScratch>('N
         action({ workspace }) {
             workspace.root.querySelectorAll('span[data-graft]').forEach((el) => {
                 el.addEventListener('click', (e) =>
-                    workspace.events.openFootnoote(e as MouseEvent, el.getAttribute('data-graft')!)
+                    workspace.events.openFootnote(e as MouseEvent, el.getAttribute('data-graft')!)
                 );
             });
         }
@@ -362,7 +366,7 @@ function pushFootnoteScopes(
     const contentRoot = workspace.document.createElement('div');
     contentRoot.id = footnoteId;
     contentRoot.style.display = 'none';
-    contentRoot.setAttribute('type', element.subType);
+    contentRoot.setAttribute('data-type', element.subType);
 
     const callerRoot = workspace.document.createElement('span');
     callerRoot.setAttribute('data-graft', footnoteId);

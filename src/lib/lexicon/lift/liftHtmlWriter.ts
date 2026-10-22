@@ -12,6 +12,7 @@
  *   Sense.hasFieldsBeforeDef() returns true only when the list is empty.
  */
 import type { DictionaryFieldConfig } from '$config';
+import { escapeHtml } from '$lib/scripts/stringUtils';
 import {
     getByWritingSystem,
     getFirstDigitsAsInt,
@@ -924,12 +925,6 @@ function endsWithPunctuationSpan(html: string) {
 
 function isNotBlank(text: string) {
     return text.trim() !== '';
-}
-
-// For plain text (attribute values, database columns, config) inserted as HTML.
-// Text from <t> elements is already escaped by parseLiftEntry, except for its <span> markup.
-function escapeHtml(text: string) {
-    return text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
 function escapeAttr(text: string) {

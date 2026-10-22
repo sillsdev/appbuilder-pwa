@@ -1,10 +1,8 @@
-import { generateHTML } from '$lib/scripts/scripture-reference-utils';
+import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
 import { renderBlock } from './common/grafts';
 import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
-
-// NOTE: Are there any other block grafts besides titles and introductions??
 
 export const headings = new FeatureSpec<
     {
@@ -58,13 +56,21 @@ export const headings = new FeatureSpec<
     },
     endParagraph: {
         stage: 'standard',
-        details: ({ context }) => ({ class: extractClassName(getBlock(context)) }),
+        details: ({ context, workspace }) => ({
+            class: extractClassName(getBlock(context)),
+            render: workspace.currentTextPosition.render
+        }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'heading') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             const wrapper = workspace.scopeManager.pop('wrapper:heading');
             workspace.scopeManager.appendChildrenFromContainer(wrapper.root, 'paragraph:heading');
-            workspace.scopeManager.promoteContent('paragraph:heading');
+            // only render heading if in target verse range
+            if (workspace.currentTextPosition.render) {
+                workspace.scopeManager.promoteContent('paragraph:heading');
+            } else {
+                workspace.scopeManager.pop('paragraph:heading');
+            }
         }
     },
     text: {
@@ -81,10 +87,24 @@ export const headings = new FeatureSpec<
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
-                headerDiv.innerHTML += generateHTML(text, 'header-ref');
+                headerDiv.innerHTML += generateReferenceLinkHTML(text, 'heading_ref-link');
             } else {
                 addPhrases(workspace, text, { requireTop: true, newPhrase: false });
             }
+        }
+    },
+    endDocument: {
+        stage: 'standard',
+        action({ workspace }) {
+            workspace.root.querySelectorAll('a.heading_ref-link').forEach((el) => {
+                el.addEventListener('click', (e) =>
+                    workspace.events.openCrossRef(
+                        e as MouseEvent,
+                        el as HTMLAnchorElement,
+                        workspace
+                    )
+                );
+            });
         }
     }
 });
