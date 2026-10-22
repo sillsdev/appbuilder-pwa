@@ -51,9 +51,9 @@ describe('Scripture Reference Utilities', () => {
             collection: 'C01'
         };
         describe('Simple book chapter (John 3)', () => {
-            let result;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test0,
                     '',
                     '',
@@ -63,7 +63,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -83,9 +83,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Simple book chapter with text (John 3)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test9,
                     '',
                     '',
@@ -95,7 +95,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -115,9 +115,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Simple book chapter (John 3:16)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test1,
                     '',
                     '',
@@ -127,7 +127,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -144,10 +144,10 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book with two chapter verse (John 3:16 3:17)', () => {
-            let result: any;
+            let result: string;
             let results: string[];
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test2,
                     '',
                     '',
@@ -158,7 +158,7 @@ describe('Scripture Reference Utilities', () => {
                 results = result.split('</a>');
             });
             it('has two results', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(2);
             });
             it('first has valid text', () => {
@@ -187,9 +187,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book chapter range (John 3:16-17)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test3,
                     '',
                     '',
@@ -199,7 +199,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -219,9 +219,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('chapter range (3:16-17)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test10,
                     '',
                     '',
@@ -231,7 +231,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -251,10 +251,10 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book with two chapter and verse list (John 3:16,17)', () => {
-            let result: any;
+            let result: string;
             let results: string[];
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test4,
                     '',
                     '',
@@ -265,7 +265,7 @@ describe('Scripture Reference Utilities', () => {
                 results = result.split('</a>');
             });
             it('has two results', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(2);
             });
             it('first has valid text', () => {
@@ -294,10 +294,10 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book with two chapter verse (John 3:16 3:17-18)', () => {
-            let result: any;
+            let result: string;
             let results: string[];
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test5,
                     '',
                     '',
@@ -308,7 +308,7 @@ describe('Scripture Reference Utilities', () => {
                 results = result.split('</a>');
             });
             it('has two results', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(2);
             });
             it('first has valid text', () => {
@@ -340,10 +340,10 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book with two chapter verse (John 3:16; 3:17; 1 Corinthians 1:1)', () => {
-            let result: any;
+            let result: string;
             let results: string[];
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test6,
                     '',
                     '',
@@ -354,7 +354,7 @@ describe('Scripture Reference Utilities', () => {
                 results = result.split('</a>');
             });
             it('has three results', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(3);
             });
             it('first has valid text', () => {
@@ -395,9 +395,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book chapter verse chapter verse range (John 3:16-5:13)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test11,
                     '',
                     '',
@@ -407,7 +407,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -430,10 +430,10 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book chapter verse chapter verse range with chapter verse range (John 3:16-5:13; 32:6-9)', () => {
-            let result: any;
+            let result: string;
             let results: string[];
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test7,
                     '',
                     '',
@@ -444,7 +444,7 @@ describe('Scripture Reference Utilities', () => {
                 results = result.split('</a>');
             });
             it('has two results', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(2);
             });
             it('first has valid text', () => {
@@ -482,9 +482,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Single chapter book (Jude 6)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test8,
                     '',
                     '',
@@ -494,7 +494,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -511,10 +511,10 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Complex entry (Exodus 20:13; Matthew 5:17,20-22)', () => {
-            let result: any;
+            let result: string;
             let results: string[];
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test12,
                     '',
                     '',
@@ -525,7 +525,7 @@ describe('Scripture Reference Utilities', () => {
                 results = result.split('</a>');
             });
             it('has three results', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(3);
             });
             it('first has valid text', () => {
@@ -569,9 +569,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Book abbreviation used (Exo 3:13)', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test13,
                     '',
                     '',
@@ -581,7 +581,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has one result', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(1);
             });
             it('has valid text', () => {
@@ -598,9 +598,9 @@ describe('Scripture Reference Utilities', () => {
             });
         });
         describe('Verse with letter (Luke 3:2b-20) Chapter 20 missing.', () => {
-            let result: any;
+            let result: string;
             beforeEach(() => {
-                test_generateReferenceLinkHTML(
+                result = test_generateReferenceLinkHTML(
                     test14,
                     '',
                     '',
@@ -610,7 +610,7 @@ describe('Scripture Reference Utilities', () => {
                 );
             });
             it('has two results and does not crash', () => {
-                const linkCount = result.match(/<a/g).length;
+                const linkCount = result.match(/<a/g)?.length;
                 expect(linkCount).toEqual(2);
             });
             it('has book ID', () => {
