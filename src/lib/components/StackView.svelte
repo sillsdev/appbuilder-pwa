@@ -73,6 +73,7 @@
         return;
     }
     async function insideClick(target: HTMLElement, item: FootnoteItem) {
+        const closest = target.closest('#icon')?.querySelector('[data-reference');
         if (target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =
@@ -93,13 +94,8 @@
         } else if (target.classList.contains('ref-link')) {
             referenceLinkClickHandler(target);
             // will not work since it does not have a reference to the start object...
-        } else if (document.getElementById('icon')?.contains(target)) {
-            let start = JSON.parse(
-                document
-                    .getElementById('icon')
-                    ?.firstElementChild?.getAttribute('data-reference') || '{}'
-            );
-            navigate(start);
+        } else if (closest) {
+            navigate(JSON.parse(closest.getAttribute('data-reference') || '{}'));
         }
     }
 
@@ -167,9 +163,24 @@
                                             }}
                                             verseRange={{
                                                 start: Number(item.start.verse),
-                                                end: item.end?.verse
-                                                    ? Number(item.end.verse)
-                                                    : undefined
+                                                end:
+                                                    item.end?.chapter !== item.start.chapter
+                                                        ? Object.keys(
+                                                              item.props.references.catalog.documents.find(
+                                                                  (d) =>
+                                                                      d.bookCode === item.start.book
+                                                              )?.versesByChapters[
+                                                                  item.start.chapter
+                                                              ] ?? {}
+                                                          )
+                                                              .map((k) => Number(k))
+                                                              .reduce(
+                                                                  (max, c) => (c > max ? c : max),
+                                                                  0
+                                                              ) || undefined
+                                                        : item.end?.verse
+                                                          ? Number(item.end.verse)
+                                                          : undefined
                                             }}
                                             maxSelections={0}
                                         />
