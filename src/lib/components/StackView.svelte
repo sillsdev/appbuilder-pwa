@@ -73,7 +73,7 @@
         return;
     }
     async function insideClick(target: HTMLElement, item: FootnoteItem) {
-        const closest = target.closest('#icon')?.querySelector('[data-reference');
+        const closest = target.closest('#icon')?.querySelector('[data-reference]');
         if (target.hasAttribute('data-start-ref')) {
             let start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
             let end =

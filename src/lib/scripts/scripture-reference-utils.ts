@@ -18,7 +18,6 @@ import {
 import {
     ciEquals,
     escapeHtml,
-    getFirstDigitsAsInt,
     getIntFromString,
     isBlank,
     isDefined,
@@ -197,7 +196,7 @@ function processScriptureRef(
             refClass
         );
     } else {
-        result = escapeHtml(reference);
+        result = escapeHtml(displayText || reference);
     }
     return result;
 }
