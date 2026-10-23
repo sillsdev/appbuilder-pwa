@@ -44,24 +44,6 @@ concern of the caller, not the pager).
     const hasPrev = $derived($refs.prev.chapter !== null);
     const hasNext = $derived($refs.next.chapter !== null);
 
-    const isIntro = $derived($refs.chapter === 'i');
-    const showBorderSetting = $derived(
-        isIntro
-            ? getFeatureValueBoolean(
-                  scriptureConfig,
-                  'show-border-intro',
-                  $refs.collection,
-                  $refs.book
-              )
-            : getFeatureValueBoolean(scriptureConfig, 'show-border', $refs.collection, $refs.book)
-    );
-    const showBorder = $derived(
-        !!(
-            scriptureConfig.traits?.['has-borders'] &&
-            ($userSettings['show-border'] ?? showBorderSetting)
-        )
-    );
-
     let innerHeight = $state(0);
     let x = new Tween(0);
     let startX = 0;
@@ -447,6 +429,23 @@ concern of the caller, not the pager).
         use:measure
     >
         {#each [0, 1, 2] as i (i)}
+            {@const settings = settingsCache[i]}
+            {@const showBorder = !!(
+                scriptureConfig.traits?.['has-borders'] &&
+                (($userSettings['show-border'] ?? settings.references.chapter === 'i')
+                    ? getFeatureValueBoolean(
+                          scriptureConfig,
+                          'show-border-intro',
+                          settings.references.collection,
+                          settings.references.book
+                      )
+                    : getFeatureValueBoolean(
+                          scriptureConfig,
+                          'show-border',
+                          settings.references.collection,
+                          settings.references.book
+                      ))
+            )}
             <div
                 bind:this={panelElements[i]}
                 class="p-2 w-full overflow-y-hidden"
@@ -473,7 +472,7 @@ concern of the caller, not the pager).
                             touchAction: 'pan-y'
                         }}
                     >
-                        {@render panel(settingsCache[i])}
+                        {@render panel(settings)}
                     </div>
                 </main>
             </div>
