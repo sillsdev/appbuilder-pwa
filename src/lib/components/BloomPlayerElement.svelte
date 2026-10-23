@@ -110,134 +110,6 @@
         postToPlayer({ messageType: 'control', controlAction: action });
     }
 
-    // bloom-player computes the book's on-screen scale by measuring the
-    // rendered .bloom-page box once per book load (see
-    // scalePageToWindow()/localMaxPageDimension in bloom-player-controls.tsx).
-    // In our setup that measurement comes back wrong: .bloom-page's CSS sizing
-    // (min/max-width/height: var(--page-width)/var(--page-height), set in
-    // basePage.css by the book's device-size class, e.g. Device16x9Landscape)
-    // does not resolve - computed max-width is "none" - so the page renders at
-    // its fluid/unconstrained content size instead of its true aspect-ratio
-    // size, and bloom-player then bakes that wrong box in as "native" size for
-    // the rest of the session (transform: scale(1), no further correction).
-    //
-    // We can't fix the variable resolution itself without patching
-    // bloom-player, so instead we recompute the correct scale ourselves - using
-    // the same page-size-class -> mm dimensions table bloom-player's own CSS
-    // defines - and inject an overriding stylesheet directly into the iframe.
-    const PX_PER_MM = 96 / 25.4;
-
-    // Mirrors the per-class --page-width/--page-height rules in basePage.css.
-    const PAGE_SIZE_MM: Record<string, { width: number; height: number }> = {
-        Device16x9Portrait: { width: 100, height: 177.77777778 },
-        Device16x9Landscape: { width: 177.77777778, height: 100 },
-        PictureStoryLandscape: { width: 177.77777778, height: 100 },
-        A5Portrait: { width: 148, height: 210 },
-        A5Landscape: { width: 210, height: 148 },
-        A4Portrait: { width: 210, height: 297 },
-        A4Landscape: { width: 297, height: 210 },
-        A6Portrait: { width: 105, height: 148 },
-        A6Landscape: { width: 148, height: 105 },
-        B5Portrait: { width: 176, height: 250 },
-        B5Landscape: { width: 250, height: 176 },
-        LetterPortrait: { width: 215.9, height: 279.4 },
-        LetterLandscape: { width: 279.4, height: 215.9 },
-        HalfLetterPortrait: { width: 139.7, height: 215.9 },
-        HalfLetterLandscape: { width: 215.9, height: 139.7 },
-        Cm13Landscape: { width: 130.175, height: 129.910417 }
-    };
-
-    let scaleFixStyleEl: HTMLStyleElement | null = null;
-
-    function getActiveBloomPage(doc: Document): HTMLElement | null {
-        return (
-            doc.querySelector<HTMLElement>('.swiper-slide-active .bloom-page') ??
-            doc.querySelector<HTMLElement>('.bloom-page')
-        );
-    }
-
-    function getPageSizeMm(page: HTMLElement): { width: number; height: number } | null {
-        for (const cls of page.classList) {
-            if (PAGE_SIZE_MM[cls]) {
-                return PAGE_SIZE_MM[cls];
-            }
-        }
-        return null;
-    }
-
-    function applyScaleFix() {
-        const doc = iframeEl?.contentDocument;
-        const win = iframeEl?.contentWindow;
-        if (!doc || !win) {
-            return;
-        }
-
-        const page = getActiveBloomPage(doc);
-        if (!page) {
-            return;
-        }
-        const sizeMm = getPageSizeMm(page);
-        if (!sizeMm) {
-            return;
-        }
-
-        const nativeWidth = sizeMm.width * PX_PER_MM;
-        const nativeHeight = sizeMm.height * PX_PER_MM;
-
-        const winWidth = win.innerWidth;
-        const winHeight = win.innerHeight;
-        if (!winWidth || !winHeight) {
-            return;
-        }
-
-        const scaleFactor = Math.min(winWidth / nativeWidth, winHeight / nativeHeight);
-        const actualWidth = nativeWidth * scaleFactor;
-        const actualHeight = nativeHeight * scaleFactor;
-        const translateX = Math.max((winWidth - actualWidth) / 2, 0);
-        const translateY = Math.max((winHeight - actualHeight) / 2, 0);
-
-        // NOTE: .bloom-page's contents (.marginBox and everything inside
-        // it - image containers, text boxes, etc.) are laid out in fixed,
-        // absolute mm/px units matching the page's *native* size - they are
-        // NOT sized as percentages of .bloom-page. bloom-player's own
-        // approach (see scale-style-sheet in bloomPlayer-controls) is to
-        // leave .bloom-page at its native size and instead scale the whole
-        // .bloomPlayer wrapper down/up with a CSS transform. If we instead
-        // resize .bloom-page itself to the final on-screen size (as an
-        // earlier version of this fix did) and disable that transform, every
-        // fixed-mm/px descendant keeps its native-size box inside a
-        // differently-sized page, so content (images included) ends up
-        // wrongly positioned/sized - effectively invisible - even though it
-        // loaded fine. So we replicate bloom-player's own transform-based
-        // approach here, just with a correctly computed scale factor,
-        // leaving .bloom-page's native sizing untouched.
-        const newCss = `
-            .bloomPlayer {
-                width: ${nativeWidth}px !important;
-                transform-origin: left top !important;
-                transform: translate(${translateX}px, ${translateY}px) scale(${scaleFactor}) !important;
-                margin-left: 0 !important;
-            }
-            .bloomPlayer-page, .swiper-slide {
-                height: ${nativeHeight}px !important;
-                overflow: hidden !important;
-            }
-        `;
-
-        if (scaleFixStyleEl?.textContent === newCss) {
-            return;
-        }
-
-        if (!scaleFixStyleEl) {
-            scaleFixStyleEl = doc.createElement('style');
-            scaleFixStyleEl.setAttribute('id', 'app-scale-fix-style-sheet');
-            doc.head?.appendChild(scaleFixStyleEl);
-        }
-        // Placed after (and !important over) bloom-player's own
-        // #scale-style-sheet, so it wins regardless of DOM order.
-        scaleFixStyleEl.textContent = newCss;
-    }
-
     // Injecting the arrow into the Bloom Player seems to be the only way to make the back arrow show up.
     // This is because bloom-player does not see this as window.top and replaces it with '...' because
     // we are using an iframe. Currently for android it is calling the webview with the path to the webview thus
@@ -276,56 +148,9 @@
         });
     }
 
-    let scaleFixObserver: MutationObserver | null = null;
-    let scaleFixResizeHandler: (() => void) | null = null;
-
-    function setupScaleFix() {
-        const doc = iframeEl?.contentDocument;
-        const win = iframeEl?.contentWindow;
-        if (!doc || !win) {
-            return;
-        }
-
-        //applyScaleFix();
-        setupBackArrowFix();
-
-        // Re-assert whenever bloom-player recomputes its own (wrong) scale,
-        // e.g. on page turns or window resizes. Observing <head> (rather than
-        // just #scale-style-sheet) also catches that element's first creation.
-        if (doc.head && !scaleFixObserver) {
-            scaleFixObserver = new MutationObserver((mutations) => {
-                const isOwnEdit = mutations.every(
-                    (m) =>
-                        scaleFixStyleEl &&
-                        (m.target === scaleFixStyleEl || scaleFixStyleEl.contains(m.target))
-                );
-                if (!isOwnEdit) {
-                    //applyScaleFix();
-                }
-            });
-            scaleFixObserver.observe(doc.head, {
-                childList: true,
-                characterData: true,
-                subtree: true
-            });
-        }
-
-        if (!scaleFixResizeHandler) {
-            scaleFixResizeHandler = () => {};
-            win.addEventListener('resize', scaleFixResizeHandler);
-        }
-    }
-
-    function teardownScaleFix() {
+    function teardownBackArrowFix() {
         backArrowObserver?.disconnect();
         backArrowObserver = null;
-        scaleFixObserver?.disconnect();
-        scaleFixObserver = null;
-        if (scaleFixResizeHandler) {
-            iframeEl?.contentWindow?.removeEventListener('resize', scaleFixResizeHandler);
-            scaleFixResizeHandler = null;
-        }
-        scaleFixStyleEl = null;
     }
 
     function handleWindowMessage(event: MessageEvent) {
@@ -360,7 +185,7 @@
         }
 
         if (messageType === 'reportBookProperties') {
-            setupScaleFix();
+            setupBackArrowFix();
         }
 
         dispatch(messageType as any, detail);
@@ -372,13 +197,13 @@
 
     // A new src means a new book/iframe document - drop the old fix state.
     $: if (src) {
-        teardownScaleFix();
+        teardownBackArrowFix();
     }
 
     onDestroy(() => {
         pause();
         window.removeEventListener('message', handleWindowMessage);
-        teardownScaleFix();
+        teardownBackArrowFix();
     });
 </script>
 

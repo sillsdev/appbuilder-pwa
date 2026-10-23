@@ -19,7 +19,7 @@
     const lang = $derived(data.book?.resolvedLang ?? data.bookCollection?.languageCode ?? '');
 </script>
 
-<div class="h-screen">
+<div class="h-dvh">
     <BloomPlayerElement
         bind:this={player}
         playerUrl="/bloom-player/bloom-player/bloomplayer.htm"
