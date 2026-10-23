@@ -286,7 +286,7 @@
             return;
         }
 
-        applyScaleFix();
+        //applyScaleFix();
         setupBackArrowFix();
 
         // Re-assert whenever bloom-player recomputes its own (wrong) scale,
@@ -300,7 +300,7 @@
                         (m.target === scaleFixStyleEl || scaleFixStyleEl.contains(m.target))
                 );
                 if (!isOwnEdit) {
-                    applyScaleFix();
+                    //applyScaleFix();
                 }
             });
             scaleFixObserver.observe(doc.head, {
@@ -311,7 +311,7 @@
         }
 
         if (!scaleFixResizeHandler) {
-            scaleFixResizeHandler = () => applyScaleFix();
+            scaleFixResizeHandler = () => {};
             win.addEventListener('resize', scaleFixResizeHandler);
         }
     }
