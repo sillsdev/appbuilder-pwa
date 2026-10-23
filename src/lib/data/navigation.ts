@@ -30,7 +30,7 @@ export class NavigationContext {
 
     private docSets: string[];
     private books: string[];
-    private versesByChapters: { [chapter: string]: { [verse: string]: string } };
+    private versesByChapters: { [chapter: string]: { [verse: string]: string } } = {}; // Blank object so that if a bloom book is served with out Scripture the PWA displays properly
 
     private docSetFromCollection(coll: Pick<BookCollectionConfig, 'id' | 'languageCode'>) {
         return `${coll.languageCode}_${coll.id}`;
