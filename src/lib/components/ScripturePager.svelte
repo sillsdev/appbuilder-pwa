@@ -16,6 +16,8 @@ concern of the caller, not the pager).
         panel: Snippet<[Record<string, any>]>;
         /** Bindable, read-only: the panel element currently in the center (visible) position */
         activePanel?: HTMLElement;
+        activeChapter?: string;
+        transitioning?: boolean;
     }
 </script>
 
@@ -29,7 +31,13 @@ concern of the caller, not the pager).
     import { pinch, swipe, type PinchPointerEventDetail } from 'svelte-gestures';
     import { Tween } from 'svelte/motion';
 
-    let { viewSettings, panel, activePanel = $bindable() }: Props = $props();
+    let {
+        viewSettings,
+        panel,
+        activePanel = $bindable(),
+        activeChapter = $bindable(),
+        transitioning = $bindable()
+    }: Props = $props();
 
     const borders = import.meta.glob('./*', {
         import: 'default',
@@ -44,24 +52,6 @@ concern of the caller, not the pager).
     const hasPrev = $derived($refs.prev.chapter !== null);
     const hasNext = $derived($refs.next.chapter !== null);
 
-    const isIntro = $derived($refs.chapter === 'i');
-    const showBorderSetting = $derived(
-        isIntro
-            ? getFeatureValueBoolean(
-                  scriptureConfig,
-                  'show-border-intro',
-                  $refs.collection,
-                  $refs.book
-              )
-            : getFeatureValueBoolean(scriptureConfig, 'show-border', $refs.collection, $refs.book)
-    );
-    const showBorder = $derived(
-        !!(
-            scriptureConfig.traits?.['has-borders'] &&
-            ($userSettings['show-border'] ?? showBorderSetting)
-        )
-    );
-
     let innerHeight = $state(0);
     let x = new Tween(0);
     let startX = 0;
@@ -74,13 +64,13 @@ concern of the caller, not the pager).
     let lastTime = 0;
     let momentum = 0;
     let maxMomentum = 0;
-    let transitionDone = true;
     let panelElements: HTMLElement[] = $state([]);
 
     // The center panel is the one positioned at x = 0; it moves between the three
     // panel slots as they rotate during prev/next navigation.
     $effect(() => {
         activePanel = panelElements[panels_X.indexOf(0)];
+        activeChapter = settingsCache[panels_X.indexOf(0)].references.chapter;
     });
 
     const settings0 = $derived({
@@ -142,6 +132,7 @@ concern of the caller, not the pager).
     // (e.g. after an explicit book/chapter pick, which isn't a prev/next swipe and so
     // can't be handled by adjustSettingsCache's rotation logic).
     export async function setupSettingsCache() {
+        transitioning = true;
         settingsCache[0] = {
             // Initial settings for left panel
             ...viewSettings,
@@ -178,6 +169,7 @@ concern of the caller, not the pager).
             panels_X[1] = 0;
             panels_X[2] = draggableWidth;
         }
+        transitioning = false;
     }
 
     async function adjustSettingsCache(direction: number) {
@@ -229,7 +221,7 @@ concern of the caller, not the pager).
 
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
-            if (x.current === 0 && transitionDone) {
+            if (x.current === 0 && !transitioning) {
                 const idx = panels_X.indexOf(0);
                 settingsCache[idx].highlights = highlights;
             }
@@ -241,7 +233,7 @@ concern of the caller, not the pager).
 
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
-            if (x.current === 0 && transitionDone) {
+            if (x.current === 0 && !transitioning) {
                 const idx = panels_X.indexOf(0);
                 settingsCache[idx].bookmarks = bookmarks;
             }
@@ -253,7 +245,7 @@ concern of the caller, not the pager).
 
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
-            if (x.current === 0 && transitionDone) {
+            if (x.current === 0 && !transitioning) {
                 const idx = panels_X.indexOf(0);
                 settingsCache[idx].notes = notes;
             }
@@ -306,6 +298,7 @@ concern of the caller, not the pager).
         const committing =
             draggableWidth > 0 && releaseX !== 0 && (distancePassed || momentumPassed);
 
+        transitioning = true;
         if (committing && releaseX < 0 && hasNext && navigateBetweenBooksNext) {
             // Finish sliding the next chapter fully into view first (using the release
             // velocity so it reads as a continuation of the swipe), then swap the
@@ -326,6 +319,7 @@ concern of the caller, not the pager).
         } else {
             await x.set(0, { duration: Math.abs(releaseX) });
         }
+        transitioning = false;
     }
 
     function handleMouseDown(event: PointerEvent) {
@@ -384,23 +378,33 @@ concern of the caller, not the pager).
         };
     }
 
-    async function prevChapter() {
-        transitionDone = false;
-        await navigateToTextChapterInDirection(-1);
-        await adjustSettingsCache(-1);
-        await x.set(-draggableWidth, { duration: 0 });
-        await tick();
-        await x.set(0);
-        transitionDone = true;
+    export async function prevChapter(chapter?: string) {
+        if (hasPrev && navigateBetweenBooksPrev) {
+            transitioning = true;
+            if (!chapter || chapter !== settingsCache[panels_X.indexOf(0)]?.references.chapter) {
+                console.log(chapter, settingsCache[panels_X.indexOf(0)]?.references.chapter)
+                await navigateToTextChapterInDirection(-1);
+            }
+            await adjustSettingsCache(-1);
+            await x.set(-draggableWidth, { duration: 0 });
+            await tick();
+            await x.set(0);
+            transitioning = false;
+        }
     }
-    async function nextChapter() {
-        transitionDone = false;
-        await navigateToTextChapterInDirection(1);
-        await adjustSettingsCache(1);
-        await x.set(draggableWidth, { duration: 0 });
-        await tick();
-        await x.set(0);
-        transitionDone = true;
+    export async function nextChapter(chapter?: string) {
+        if (hasNext && navigateBetweenBooksNext) {
+            transitioning = true;
+            if (!chapter || chapter !== settingsCache[panels_X.indexOf(0)]?.references.chapter) {
+                console.log(chapter, settingsCache[panels_X.indexOf(0)]?.references.chapter)
+                await navigateToTextChapterInDirection(1);
+            }
+            await adjustSettingsCache(1);
+            await x.set(draggableWidth, { duration: 0 });
+            await tick();
+            await x.set(0);
+            transitioning = false;
+        }
     }
 
     const minFontSize = config.mainFeatures['text-size-min'] as number;
@@ -432,7 +436,7 @@ concern of the caller, not the pager).
 <div class="md:flex md:flex-row mx-auto justify-center" style:direction={$direction}>
     <div class="hidden md:flex basis-1/12 justify-center">
         <button
-            onclick={prevChapter}
+            onclick={() => prevChapter()}
             class="fixed top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasPrev &&
             navigateBetweenBooksPrev
                 ? 'visible'
@@ -447,6 +451,23 @@ concern of the caller, not the pager).
         use:measure
     >
         {#each [0, 1, 2] as i (i)}
+            {@const settings = settingsCache[i]}
+            {@const showBorder = !!(
+                scriptureConfig.traits?.['has-borders'] &&
+                (($userSettings['show-border'] ?? settings.references.chapter === 'i')
+                    ? getFeatureValueBoolean(
+                          scriptureConfig,
+                          'show-border-intro',
+                          settings.references.collection,
+                          settings.references.book
+                      )
+                    : getFeatureValueBoolean(
+                          scriptureConfig,
+                          'show-border',
+                          settings.references.collection,
+                          settings.references.book
+                      ))
+            )}
             <div
                 bind:this={panelElements[i]}
                 class="p-2 w-full overflow-y-hidden"
@@ -473,7 +494,7 @@ concern of the caller, not the pager).
                             touchAction: 'pan-y'
                         }}
                     >
-                        {@render panel(settingsCache[i])}
+                        {@render panel(settings)}
                     </div>
                 </main>
             </div>
@@ -481,7 +502,7 @@ concern of the caller, not the pager).
     </div>
     <div class="hidden basis-1/12 md:flex justify-center">
         <button
-            onclick={nextChapter}
+            onclick={() => nextChapter()}
             class="fixed mx-auto top-1/2 dy-btn dy-btn-circle dy-btn-ghost {hasNext &&
             navigateBetweenBooksNext
                 ? 'visible'

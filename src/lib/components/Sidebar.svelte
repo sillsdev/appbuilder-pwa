@@ -18,6 +18,7 @@ The sidebar/drawer.
         languageDefault,
         modal,
         ModalType,
+        moreThanOneCollection,
         refs,
         s,
         showDesktopSidebar,
@@ -70,8 +71,7 @@ The sidebar/drawer.
 
     const menuItems = config?.menuItems;
     const showLayouts =
-        !!config.mainFeatures['layout-config-change-nav-drawer-menu'] &&
-        (scriptureConfig.bookCollections?.length ?? 0) > 1;
+        !!config.mainFeatures['layout-config-change-nav-drawer-menu'] && moreThanOneCollection;
     const showContents = !!contents.screens?.length;
     const showSearch = !!config.mainFeatures['search'];
     const showHistory = !!config.mainFeatures['history'];

@@ -69,7 +69,7 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, untrack } from 'svelte';
     import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
     import type { PageData } from './$types';
 
@@ -129,6 +129,24 @@
 
     let pager: ScripturePager;
     let activePanel: HTMLElement | undefined = $state();
+    let activeChapter: string | undefined = $state();
+    let transitioning: boolean | undefined = $state();
+
+    let currentChapter = $derived($refs.chapter);
+    $inspect(
+        `${$refs.prev.chapter} < (${currentChapter}, ${activeChapter}) > ${$refs.next.chapter}`
+    );
+    $effect(() => {
+        const a = untrack(() => activeChapter);
+        if (currentChapter !== activeChapter && !transitioning) {
+            const r = untrack(() => $refs);
+            if (a === r.next.chapter) {
+                pager.prevChapter(currentChapter);
+            } else if (a === r.prev.chapter) {
+                pager.nextChapter(currentChapter);
+            }
+        }
+    });
 
     const book = $derived(
         scriptureConfig?.bookCollections
@@ -166,10 +184,6 @@
     );
 
     const showSearch = !!config.mainFeatures['search'];
-    const enoughCollections = (scriptureConfig.bookCollections?.length ?? 0) > 1;
-    const showCollectionNavbar = !!config.mainFeatures['layout-config-change-toolbar-button'];
-    const showCollectionsOnFirstLaunch = !!config.mainFeatures['layout-config-first-launch'];
-    const showCollectionViewer = !!config.mainFeatures['layout-config-change-viewer-button'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
     const viewSettings = $derived(
@@ -209,12 +223,6 @@
                 } satisfies ScriptureViewSofriaProps)
               : {}
     );
-
-    function getFormat(bcId: string, bookId: string) {
-        return scriptureConfig.bookCollections
-            ?.find((x) => x.id === bcId)
-            ?.books.find((x) => x.id === bookId)?.format;
-    }
 
     const stackSettings = $derived({
         bodyFontSize: $bodyFontSize,
@@ -535,7 +543,13 @@
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
         >
-            <ScripturePager bind:this={pager} bind:activePanel {viewSettings}>
+            <ScripturePager
+                bind:this={pager}
+                bind:activePanel
+                {viewSettings}
+                bind:activeChapter
+                bind:transitioning
+            >
                 {#snippet panel(settings)}
                     {#if book?.format === 'html'}
                         <HtmlBookView {...settings as HtmlBookViewProps} />
@@ -550,7 +564,7 @@
         <!-- TODO: CHECK THAT THIS IS CORRECT, CHANGED FROM INSIDE ABOVE DIV-->
     </div>
 
-    {#if showCollectionViewer && enoughCollections}
+    {#if showCollection.viewer && moreThanOneCollection}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
