@@ -69,7 +69,7 @@
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { pathJoin } from '$lib/scripts/stringUtils';
     import { resolve } from '$lib/utils/paths';
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, untrack } from 'svelte';
     import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
     import type { PageData } from './$types';
 
@@ -129,6 +129,24 @@
 
     let pager: ScripturePager;
     let activePanel: HTMLElement | undefined = $state();
+    let activeChapter: string | undefined = $state();
+    let transitioning: boolean | undefined = $state();
+
+    let currentChapter = $derived($refs.chapter);
+    $inspect(
+        `${$refs.prev.chapter} < (${currentChapter}, ${activeChapter}) > ${$refs.next.chapter}`
+    );
+    $effect(() => {
+        const a = untrack(() => activeChapter);
+        if (currentChapter !== activeChapter && !transitioning) {
+            const r = untrack(() => $refs);
+            if (a === r.next.chapter) {
+                pager.prevChapter(currentChapter);
+            } else if (a === r.prev.chapter) {
+                pager.nextChapter(currentChapter);
+            }
+        }
+    });
 
     const book = $derived(
         scriptureConfig?.bookCollections
@@ -525,7 +543,13 @@
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
         >
-            <ScripturePager bind:this={pager} bind:activePanel {viewSettings}>
+            <ScripturePager
+                bind:this={pager}
+                bind:activePanel
+                {viewSettings}
+                bind:activeChapter
+                bind:transitioning
+            >
                 {#snippet panel(settings)}
                     {#if book?.format === 'html'}
                         <HtmlBookView {...settings as HtmlBookViewProps} />
