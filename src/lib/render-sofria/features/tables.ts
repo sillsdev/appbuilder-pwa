@@ -3,7 +3,7 @@ import { getElement, matchElement } from './common';
 import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const tables = new FeatureSpec<
-    { table?: { colIndex?: number; rowIndex?: number; headerRow?: boolean } } & SharedTextScratch
+    { table?: { colIndex?: number; rowIndex?: number } } & SharedTextScratch
 >('Tables', {
     startTable: {
         stage: 'fallback',
@@ -14,7 +14,6 @@ export const tables = new FeatureSpec<
             table.setAttribute('cellpadding', '5');
             table.classList.add('dy-table', 'dy-table-xs', 'w-fit', 'text-start');
             workspace.scopeManager.push('table:table', table);
-            workspace.scopeManager.push('table:head', workspace.document.createElement('thead'));
             workspace.scopeManager.push('table:body', workspace.document.createElement('tbody'));
             addToScratchPad(workspace.scratch, 'table', { rowIndex: 0 });
         }
@@ -24,10 +23,7 @@ export const tables = new FeatureSpec<
         details: () => undefined,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
-            const body = workspace.scopeManager.pop('table:body');
-            const head = workspace.scopeManager.pop('table:head');
-            workspace.scopeManager.appendContent(head.root);
-            workspace.scopeManager.appendContent(body.root);
+            workspace.scopeManager.promoteContent('table:body');
             workspace.scopeManager.promoteContent('table:table');
         }
     },
@@ -40,16 +36,14 @@ export const tables = new FeatureSpec<
             const rowIndex = (workspace.scratch.table?.rowIndex ?? 0) + 1;
             addToScratchPad(workspace.scratch, 'table', {
                 colIndex: 0,
-                rowIndex,
-                headerRow: false
+                rowIndex
             });
         }
     },
     endRow: {
         stage: 'fallback',
         details: ({ workspace }) => ({
-            row: workspace.scratch.table?.rowIndex,
-            headerRow: workspace.scratch.table?.headerRow
+            row: workspace.scratch.table?.rowIndex
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
@@ -59,13 +53,8 @@ export const tables = new FeatureSpec<
                 terminatePhrase(workspace);
                 workspace.scopeManager.promoteContent('wrapper:cell');
             }
-            if (workspace.scratch.table?.headerRow) {
-                const row = workspace.scopeManager.pop('row');
-                const head = workspace.scopeManager.find('table:head');
-                head?.root.append(row.root);
-            } else {
-                workspace.scopeManager.promoteContent('row');
-            }
+
+            workspace.scopeManager.promoteContent('row');
         }
     },
     startWrapper: {
@@ -84,12 +73,12 @@ export const tables = new FeatureSpec<
             const element = getElement(context);
             const nCols = Number(element.atts['nCols']);
             const alignment = element.atts['alignment'];
-            const headerRow = element.atts['role'] === 'colHeading';
+            const heading = element.atts['role'] === 'colHeading';
 
             const colIndex = (workspace.scratch.table?.colIndex ?? 0) + nCols;
-            addToScratchPad(workspace.scratch, 'table', { colIndex, headerRow });
-            const td = workspace.document.createElement(headerRow ? 'th' : 'td');
-            td.classList.add(`${headerRow ? 'th' : 'tc'}${colIndex}`);
+            addToScratchPad(workspace.scratch, 'table', { colIndex });
+            const td = workspace.document.createElement(heading ? 'th' : 'td');
+            td.classList.add(`${heading ? 'th' : 'tc'}${colIndex}`);
             td.colSpan = nCols;
             if (alignment === 'right') {
                 td.classList.add('text-end');
