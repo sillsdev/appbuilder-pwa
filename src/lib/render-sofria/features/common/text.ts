@@ -111,10 +111,17 @@ export function unwrapWrapperWithPhraseDivs(wrapper: HTMLElement) {
     return container;
 }
 
+/**
+ * Proskomma replaces slashes in attributes
+ */
+export function cleanAttribute(attr: string) {
+    return attr.replace(/÷/g, '/');
+}
+
 export function cleanText(text: string) {
     // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
     // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-    return text.replaceAll(/(\|\s*)default="([^"]*)"/g, (_m, bar, quoted) => ` ${bar}${quoted}`);
+    return text.replaceAll(/(\|\s*)default="([^"]*)"/g, (_m, bar, quoted) => ` ${bar}${cleanAttribute(quoted)}`);
 }
 
 export function parseVerseRange(range: string) {
