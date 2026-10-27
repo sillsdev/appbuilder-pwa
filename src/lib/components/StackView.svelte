@@ -159,7 +159,13 @@
                                                 collection: item.props.references.collection,
                                                 bookTab: 0,
                                                 hasAudio: undefined,
-                                                catalog: item.props.references.catalog
+                                                catalog: item.props.references.catalog,
+                                                sourceFormat:
+                                                    scriptureConfig.bookCollections
+                                                        ?.find((c) => c.id === item.start.docSet)
+                                                        ?.books.find(
+                                                            (b) => b.id === item.start.book
+                                                        )?.sourceFormat || 'none'
                                             }}
                                             verseRange={{
                                                 start: Number(item.start.verse),

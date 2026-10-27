@@ -175,10 +175,13 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                 const phraseDiv = getPhraseDiv(workspace);
                 for (let i = 0; i < parts.length; i++) {
                     if (parts[i].includes(']')) {
-                        const prefix = parts[i - 1]?.at(-1) === ' ' ? ' ' : '';
-                        const [chord, first, ...words] = parts[i].split(/\]| /);
+                        const [chord, ...rest] = parts[i].split(/\]/);
+
+                        const first = rest.join(']').split(' ')[0];
+                        const words = rest.join(']').replace(first, '');
+
                         const ruby = workspace.document.createElement('ruby');
-                        ruby.append(prefix + first);
+                        ruby.append(first);
                         ruby.classList.add('chord');
 
                         const rt = workspace.document.createElement('rt');
@@ -186,7 +189,7 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                         ruby.append(rt);
 
                         phraseDiv.append(ruby);
-                        phraseDiv.append((words.length ? prefix : '') + words.join(' '));
+                        phraseDiv.append(words);
                     } else {
                         phraseDiv.append(parts[i]);
                     }
