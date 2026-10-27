@@ -1,5 +1,5 @@
 import config from '$assets/config';
-import type { BookCollectionAudioConfig } from '$config';
+import type { BookCollectionAudioConfig, BookSourceType } from '$config';
 import { NavigationContext } from '$lib/data/navigation';
 import { derived, writable } from 'svelte/store';
 import type { CatalogData } from '../catalogData';
@@ -19,6 +19,7 @@ export interface ReferenceStore extends Reference {
     title: string;
     bookTab: number;
     name: string;
+    sourceFormat: BookSourceType;
     next: { book: string | null; chapter: string | null };
     prev: { book: string | null; chapter: string | null };
     catalog: CatalogData;
@@ -43,6 +44,7 @@ export const referenceStore = () => {
             title: nav.title,
             bookTab: nav.bookTab,
             name: nav.name,
+            sourceFormat: nav.sourceFormat,
             next: nav.next,
             prev: nav.prev,
             catalog: nav.catalog,
