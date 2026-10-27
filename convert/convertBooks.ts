@@ -381,7 +381,7 @@ type FilterFunction = (
     context: ConvertBookContext
 ) => string;
 
-const usfmFilterFunctions: FilterFunction[] = [
+export const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
     replacePStyleTags,
@@ -398,7 +398,7 @@ const usfmFilterFunctions: FilterFunction[] = [
 
 const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
 
-function applyFilters(
+export function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
@@ -426,7 +426,7 @@ function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
     return ds;
 }
 
-type ConvertBookContext = {
+export type ConvertBookContext = {
     dataDir: string;
     scriptureConfig: ScriptureConfig;
     verbose: number;
