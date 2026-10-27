@@ -183,12 +183,12 @@ export class NavigationContext {
         let newBook = await this.updateCatalog(docSet);
         if (book !== this.book && this.allBookIds.includes(book)) {
             this.book = book;
-            this.sourceFormat =
-                this.config.bookCollections
-                    ?.find((c) => docSet === this.docSetFromCollection(c))
-                    ?.books?.find((b) => b.id === book)?.sourceFormat || 'none';
             newBook = true;
         }
+        this.sourceFormat =
+            this.config.bookCollections
+                ?.find((c) => docSet === this.docSetFromCollection(c))
+                ?.books?.find((b) => b.id === book)?.sourceFormat || 'none';
         this.updateChapterVerse(chapter, verse, newBook);
     }
 
