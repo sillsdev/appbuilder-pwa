@@ -1,6 +1,12 @@
 import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getElement, getSequence, matchSequence } from './common';
-import { addPhrases, getPhraseDiv, terminatePhrase, type SharedTextScratch } from './common/text';
+import {
+    addPhrases,
+    getPhraseDiv,
+    parseVerseRange,
+    terminatePhrase,
+    type SharedTextScratch
+} from './common/text';
 
 export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
     startSequence: {
