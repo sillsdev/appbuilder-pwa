@@ -35,6 +35,7 @@ export type RenderOptions = {
     hackRenderIntro?: boolean;
     /** run the real `convert/convertBooks.ts` USFM filter chain before import (default true) */
     convert?: boolean;
+    bcGlossary?: string[];
 };
 
 const DEFAULT_FEATURES = {
@@ -87,7 +88,8 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             verbose: 0,
             lang: 'eng',
             docSet: `eng_${COLLECTION}`,
-            bcId: COLLECTION
+            bcId: COLLECTION,
+            bcGlossary: options.bcGlossary ?? []
         };
         content = applyFilters(content, usfmFilterFunctions, COLLECTION, BOOK, ctx);
     }
