@@ -35,6 +35,19 @@ describe('chapter and verse numbers', () => {
         expect(root.querySelector('div.c')?.textContent).toBe('1');
     });
 
+    test('chapter number renders as div.c-drop', () => {
+        const root = renderUsfm(chapter('\\v 1 One. \\v 2 Two.'), {
+            features: {
+                'chapter-number-format': 'drop-cap',
+                'hide-verse-number-1': true
+            }
+        });
+        expect(root.querySelector('div.m')?.textContent).toContain('1');
+        expect(root.querySelector('div.c-drop')?.textContent).toBe('1');
+        const verses = [...root.querySelectorAll('span.v')].map((v) => v.textContent);
+        expect(verses).toEqual(['2']);
+    });
+
     test('verse number renders as span.v', () => {
         const root = renderUsfm(chapter('\\v 1 One. \\v 2 Two.'));
         const verses = [...root.querySelectorAll('span.v')].map((v) => v.textContent);
