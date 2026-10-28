@@ -1,6 +1,24 @@
 import { describe, expect, test, vi } from 'vitest';
 import { renderUsfm } from './renderUsfm';
 
+/**
+ * TODO:
+ * - audio-clips
+ * - cross-references (handle in PR #1173)
+ * - glossary
+ * - custom tags (handle in separate PR)
+ * - headings
+ * - illustrations
+ * - introductions
+ * - ordered lists
+ * - verse divs
+ * - ref-links (handle in PR #1173)
+ * - titles
+ * - videos
+ * - ChordPro (handle in PR #1176)
+ * - table headers (handle in PR #1178)
+ */
+
 // $lib/data/audio spawns a Web Worker at import time; render-sofria only needs these two functions
 vi.mock('$lib/data/audio', () => ({ hasAudioPlayed: () => false, seekToVerse: () => {} }));
 
