@@ -5,7 +5,6 @@ import { renderUsfm } from './renderUsfm';
  * TODO:
  * - audio-clips
  * - cross-references (handle in PR #1173)
- * - glossary
  * - custom tags (handle in separate PR)
  * - headings
  * - illustrations
@@ -187,12 +186,6 @@ describe('SAB SFM extensions (via convert filters)', () => {
         expect(a?.textContent).toBe('next verse');
         expect(a?.getAttribute('data-link')).toBe('C01.GEN.1.2');
     });
-
-    test("Strong's numbers are stripped from \\w", () => {
-        const root = renderUsfm(chapter('\\v 1 \\w In|strong="H0430"\\w* the beginning'));
-        expect(root.querySelector('span.w')).toBeNull();
-        expect(root.textContent).toContain('In the beginning');
-    });
 });
 
 describe('nested markup inside footnotes', () => {
@@ -204,5 +197,35 @@ describe('nested markup inside footnotes', () => {
         const content = graft.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`)!;
         expect(content.querySelector('span.ft span.add')?.textContent).toBe('nested');
         expect(content.querySelector('div.seltxt')).toBeNull();
+    });
+});
+
+describe('glossary words', () => {
+    test("Strong's numbers are stripped from \\w", () => {
+        const root = renderUsfm(chapter('\\v 1 \\w In|strong="H0430"\\w* the beginning'));
+        expect(root.querySelector('span.w')).toBeNull();
+        expect(root.textContent).toContain('In the beginning');
+    });
+
+    test('glossary words are present', () => {
+        const root = renderUsfm(chapter('\\v 1 fruit from the \\w tree\\w*'), {
+            traits: { 'has-glossary': true },
+            settings: { 'glossary-words': true },
+            bcGlossary: ['tree']
+        });
+        expect(root.querySelector('span.glossary')?.textContent).toEqual('tree');
+        expect(root.querySelector('span.glossary')?.getAttribute('data-match')).toBeNull();
+    });
+
+    test('glossary words use lemma', () => {
+        const root = renderUsfm(chapter('\\v 1 fruit from the \\w trees|tree\\w*'), {
+            traits: { 'has-glossary': true },
+            settings: { 'glossary-words': true },
+            bcGlossary: ['tree']
+        });
+        expect(root.querySelector('span.glossary')?.textContent).toEqual('trees');
+        expect(
+            root.querySelector('span.glossary a[data-match]')?.getAttribute('data-match')
+        ).toEqual('tree');
     });
 });

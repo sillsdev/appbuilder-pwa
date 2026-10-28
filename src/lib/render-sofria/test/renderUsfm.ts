@@ -27,6 +27,8 @@ export type RenderOptions = {
     chapter?: string;
     /** overrides for `mainFeatures` (e.g. `{ 'show-glossary-words': true }`) */
     features?: Record<string, unknown>;
+    /** overrides for `traits` (e.g. `{ 'has-glossary': true }`) */
+    traits?: Record<string, unknown>;
     /** user settings (e.g. `{ 'verse-numbers': true }`) */
     settings?: Record<string, unknown>;
     redLetters?: boolean;
@@ -56,6 +58,7 @@ const DEFAULT_SETTINGS = {
 function makeConfig(options: RenderOptions): ScriptureConfig {
     return {
         mainFeatures: { ...DEFAULT_FEATURES, ...options.features },
+        traits: options.traits,
         bookCollections: [
             {
                 id: COLLECTION,
