@@ -36,7 +36,11 @@ export function getPhraseDiv(
             addToScratchPad(workspace.scratch, 'text', {
                 introductionIndex: introductionIndex + 1
             });
-        } else if (newPhrase && workspace.viewSettings.isBibleBook) {
+        } else if (
+            newPhrase &&
+            workspace.viewSettings.isBibleBook &&
+            !(workspace.scopeManager.has('inlineGraft') || workspace.scopeManager.has('blockGraft'))
+        ) {
             phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
             phraseDiv.setAttribute('data-verse', workspace.currentTextPosition.verse);
             phraseDiv.setAttribute('data-phrase', phraseIndex);
