@@ -110,10 +110,34 @@ describe('footnotes', () => {
 describe('tables', () => {
     test('\\tr/\\tc render table cells', () => {
         const root = renderUsfm(
-            '\\c 1\n\\p\n\\v 1 Table:\n\\tr \\tc1 A \\tc2 B\n\\tr \\tc1 C \\tc2 D\n'
+            chapter('\\v 1 Table:\n\\tr \\tc1 A \\tc2 B \\tc3 C\n\\tr \\tc1 D \\tc2 E \\tc3 F')
         );
         const cells = [...root.querySelectorAll('table td')].map((td) => td.textContent?.trim());
-        expect(cells).toEqual(['A', 'B', 'C', 'D']);
+        expect(cells).toEqual(['A', 'B', 'C', 'D', 'E', 'F']);
+    });
+
+    test('\\tr/\\tc render table cells with tc1-2 in row 2', () => {
+        const root = renderUsfm(
+            chapter('\\v 1 Table:\n\\tr \\tc1 A \\tc2 B \\tc3 C\n\\tr \\tc1-2 D E \\tc3 F')
+        );
+        const cells = [...root.querySelectorAll('table td')].map((td) => td.textContent?.trim());
+        expect(cells).toEqual(['A', 'B', 'C', 'D E', 'F']);
+    });
+
+    test('\\tr/\\tc render table cells with tc2-3 in row 2', () => {
+        const root = renderUsfm(
+            chapter('\\v 1 Table:\n\\tr \\tc1 A \\tc2 B \\tc3 C\n\\tr \\tc1 D \\tc2-3 E F')
+        );
+        const cells = [...root.querySelectorAll('table td')].map((td) => td.textContent?.trim());
+        expect(cells).toEqual(['A', 'B', 'C', 'D', 'E F']);
+    });
+
+    test('\\tr/\\tc render table cells with tc1-2 in row 1', () => {
+        const root = renderUsfm(
+            chapter('\\v 1 Table:\n\\tr \\tc1-2 A B \\tc3 C\n\\tr \\tc1 D \\tc2 E \\tc3 F')
+        );
+        const cells = [...root.querySelectorAll('table td')].map((td) => td.textContent?.trim());
+        expect(cells).toEqual(['A B', 'C', 'D', 'E', 'F']);
     });
 });
 
