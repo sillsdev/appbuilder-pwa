@@ -8,20 +8,13 @@
 import type { ScriptureConfig } from '$config';
 import { SABProskomma } from '$lib/sab-proskomma';
 import * as numerals from '$lib/scripts/numeralSystem';
-import type { ProskommaRenderAction } from 'proskomma-core';
 import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
 import {
     applyFilters,
     usfmFilterFunctions,
     type ConvertBookContext
 } from '../../../../convert/convertBooks';
-import {
-    compileActionDictionary,
-    renderEvents,
-    type RenderEnvironment,
-    type RenderEvent,
-    type RenderWorkspace
-} from '../common';
+import { compileRenderActions, type RenderWorkspace } from '../common';
 import { renderFeatures } from '../index';
 import ScopeManager from '../ScopeManager';
 import { getSeparatorRegex } from '../util';
@@ -102,95 +95,61 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
     pk.importDoc({ lang: 'eng', abbr: COLLECTION }, 'usfm', content, []);
     const docId: string = pk.gqlQuerySync('{ documents { id } }').data.documents[0].id;
 
-    const settings = { ...DEFAULT_SETTINGS, ...options.settings };
-    const references = {
-        docSet: `eng_${COLLECTION}`,
-        collection: COLLECTION,
-        book: BOOK,
-        chapter: options.chapter ?? '1',
-        verse: '1',
-        hasAudio: false
-    } as unknown as RenderWorkspace['stores']['references'];
-    const logSettings = {} as RenderWorkspace['logSettings'];
-
-    const actionsDict = compileActionDictionary(
-        renderFeatures,
-        config,
-        references,
-        settings as never,
-        logSettings
-    );
-
     const root = document.createElement('div');
-    let initialized = false;
 
-    function init(workspace: RenderWorkspace) {
-        workspace.document = document;
-        workspace.root = root;
-        workspace.scopeManager = new ScopeManager();
-        workspace.currentTextPosition = { verse: 'none' };
-        workspace.logSettings = logSettings;
-        workspace.scratch = {};
-        workspace.textConfig = {
-            numeralSystem: numerals.systemFromString('Default'),
-            separatorRegex: getSeparatorRegex('.?!'),
-            verseRangeSeparator: '-'
-        };
-        workspace.config = config;
-        workspace.viewSettings = {
-            isBibleBook: options.bibleBook ?? true,
-            redLetters: options.redLetters ?? false,
-            verseLayout: 'paragraphs'
-        };
-        workspace.hackRenderIntro = options.hackRenderIntro ?? false;
-        const noop = () => {};
-        workspace.events = {
-            navigate: noop,
-            openFootnoote: noop,
-            openGlossary: noop,
-            setPlanStore: noop,
-            clickHeaderRef: noop,
-            clickText: noop,
-            updateAnnotations: noop
-        };
-        workspace.stores = {
-            references,
-            plan: { planEntry: -1 } as never,
-            currentPlanState: '',
-            currentPlanData: null,
-            t: {},
-            language: 'eng',
-            lastPlanReference: false,
-            settings: settings as never
-        };
-        workspace.queries = { glossary: Promise.resolve({} as never) };
-    }
+    const noop = () => {};
 
-    // Mirrors handleSofriaRenderEvent (ScriptureViewProskomma.svelte)
-    function dispatch(environment: RenderEnvironment, eventName: RenderEvent) {
-        if (!initialized) {
-            init(environment.workspace);
-            initialized = true;
-        }
-        let execFallback = true;
-        for (const a of actionsDict[eventName] ?? []) {
-            if ((a.stage !== 'fallback' || execFallback) && (!a.guard || a.guard(environment))) {
-                a.action(environment);
-                execFallback &&= !!a.stage && a.stage !== 'standard';
-            }
-        }
-    }
-
-    const actions: Record<string, ProskommaRenderAction[]> = {};
-    for (const name of renderEvents) {
-        actions[name] = [
-            {
-                description: `Handling ${name}`,
-                test: () => true,
-                action: (environment: RenderEnvironment) => dispatch(environment, name)
-            }
-        ];
-    }
+    const actions = compileRenderActions(
+        renderFeatures,
+        {
+            document: document,
+            root,
+            scopeManager: new ScopeManager(),
+            currentTextPosition: { verse: 'none' },
+            logSettings: {} as RenderWorkspace['logSettings'],
+            scratch: {},
+            textConfig: {
+                numeralSystem: numerals.systemFromString('Default'),
+                separatorRegex: getSeparatorRegex('.?!'),
+                verseRangeSeparator: '-'
+            },
+            config,
+            viewSettings: {
+                isBibleBook: options.bibleBook ?? true,
+                redLetters: options.redLetters ?? false,
+                verseLayout: 'paragraphs'
+            },
+            hackRenderIntro: options.hackRenderIntro ?? false,
+            events: {
+                navigate: noop,
+                openFootnoote: noop,
+                openGlossary: noop,
+                setPlanStore: noop,
+                clickHeaderRef: noop,
+                clickText: noop,
+                updateAnnotations: noop
+            },
+            stores: {
+                references: {
+                    docSet: `eng_${COLLECTION}`,
+                    collection: COLLECTION,
+                    book: BOOK,
+                    chapter: options.chapter ?? '1',
+                    verse: '1',
+                    hasAudio: false
+                } as unknown as RenderWorkspace['stores']['references'],
+                plan: { planEntry: -1 } as never,
+                currentPlanState: '',
+                currentPlanData: null,
+                t: {},
+                language: 'eng',
+                lastPlanReference: false,
+                settings: { ...DEFAULT_SETTINGS, ...options.settings }
+            },
+            queries: { glossary: Promise.resolve({} as never) }
+        },
+        false
+    );
 
     const output: { root?: HTMLDivElement } = {};
     new SofriaRenderFromProskomma({ proskomma: pk, actions, debugLevel: 0 }).renderDocument({
