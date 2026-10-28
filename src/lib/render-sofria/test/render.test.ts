@@ -22,17 +22,6 @@ import { renderUsfm } from './renderUsfm';
 // $lib/data/audio spawns a Web Worker at import time; render-sofria only needs these two functions
 vi.mock('$lib/data/audio', () => ({ hasAudioPlayed: () => false, seekToVerse: () => {} }));
 
-// jsdom does not implement innerText; several features set it (chapter numbers, captions)
-Object.defineProperty(HTMLElement.prototype, 'innerText', {
-    configurable: true,
-    get() {
-        return this.textContent;
-    },
-    set(value: string) {
-        this.textContent = value;
-    }
-});
-
 const chapter = (body: string) => `\\c 1\n\\p\n${body}\n`;
 
 describe('paragraphs', () => {

@@ -24,7 +24,7 @@ import {
     joinUrlPath
 } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
-import { type Promisable, Task, type TaskOutput } from './Task';
+import { Task, type Promisable, type TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 const base = process.env.BUILD_BASE_PATH || '';

@@ -55,7 +55,7 @@ export const videos = new FeatureSpec<{
     endParagraph: {
         stage: 'init',
         details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText,
+            phrase: workspace.scopeManager.find('phrase')?.root.textContent,
             videos: workspace.scratch.milestone?.videos?.length
         }),
         guard: ({ context, workspace }) =>
