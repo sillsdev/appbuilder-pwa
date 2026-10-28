@@ -34,8 +34,6 @@ LOGGING:
 </script>
 
 <script lang="ts">
-    /* eslint-disable svelte/no-dom-manipulating */
-
     import { scriptureConfig } from '$assets/config';
     import type { FeatureConfig } from '$config';
     import type { BookmarkItem } from '$lib/data/bookmarks';
@@ -68,16 +66,10 @@ LOGGING:
     import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
     import { renderFeatures } from '$lib/render-sofria';
     import {
-        compileActionDictionary,
-        prettyRenderEvent,
-        RenderEvent2Scope,
-        renderEvents,
-        type ActionDictionary,
-        type RenderEnvironment,
+        compileRenderActions,
         type RenderEvent,
         type RenderWorkspace
     } from '$lib/render-sofria/common';
-    import { getBlock, getElement, getSequence } from '$lib/render-sofria/features/common';
     import { planDivInChapter } from '$lib/render-sofria/features/common/plans';
     import ScopeManager from '$lib/render-sofria/ScopeManager';
     import { getSeparatorRegex } from '$lib/render-sofria/util';
@@ -125,16 +117,6 @@ LOGGING:
             !!references.catalog.documents.find((x) => x.bookCode === currentBook)?.hasIntroduction
     );
 
-    const actionsDict: ActionDictionary = $derived(
-        compileActionDictionary(
-            renderFeatures,
-            scriptureConfig,
-            references,
-            userSettings,
-            $scriptureLogs
-        )
-    );
-
     const fontSize = $derived(bodyFontSize + 'px');
     const lineHeight = $derived(bodyLineHeight + '%');
     const direction = $derived(
@@ -148,7 +130,6 @@ LOGGING:
     const output: { root?: HTMLDivElement } = {};
     let scriptureRoot = $state(document.createElement('div'));
     let loading = $state(true);
-    let renderWorkspaceInitialized = $state(false);
 
     let planDivObserver: IntersectionObserver | null = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
@@ -378,202 +359,116 @@ LOGGING:
         return undefined;
     }
 
-    /**
-     * Bootstrap state from this component into the render workspace that
-     * Proskomma uses to handle events, for easier access within render actions.
-     * @param environment - the render environment on which to set state from this component
-     */
-    function initRenderWorkspace(
-        { workspace }: RenderEnvironment,
-        workspaceOptions: Partial<RenderWorkspace> = {}
-    ) {
-        scriptureRoot.replaceChildren();
-
-        if ($scriptureLogs.root) {
-            console.log('START: %o', scriptureRoot);
-        }
-
-        workspace.document = document;
-        workspace.root = scriptureRoot;
-        workspace.scopeManager = new ScopeManager();
-        workspace.currentTextPosition = workspace.currentTextPosition ?? {
-            verse: 'none'
-        };
-        workspace.logSettings = $scriptureLogs;
-        workspace.scratch = {};
-        workspace.textConfig = {
-            numeralSystem,
-            separatorRegex: getSeparatorRegex(audioPhraseEndChars),
-            verseRangeSeparator: scriptureConfig.bookCollections?.find(
-                (x) => x.id === references.collection
-            )?.features['ref-verse-range-separator'] as string
-        };
-        workspace.config = scriptureConfig;
-        workspace.viewSettings = {
-            isBibleBook: isBibleBook(references, workspace.config),
-            redLetters,
-            verseLayout
-        };
-        workspace.events = {
-            navigate(ref: Reference) {
-                setReference(ref);
-                footnotes.reset();
-            },
-            openFootnoote(event: MouseEvent, footnoteId: string) {
-                if ($footnotes.length === 0) {
-                    event.stopPropagation();
-                    const footnote = scriptureRoot.querySelector(`div[id="${footnoteId}"]`);
-                    const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
-                    const spans = workingSpan?.querySelectorAll('span.xt');
-                    // Loop through each span and modify its inner HTML
-                    spans.forEach((span) => {
-                        span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
-                    });
-                    const parsed = workingSpan?.innerHTML;
-                    footnotes.push(parsed);
-                }
-            },
-            openGlossary(glossaryLink: string, block: GlossaryBlock) {
-                if ($footnotes.length === 0) {
-                    const glossaryDiv = document.createElement('div');
-                    glossaryDiv.classList.add('txs');
-                    const glossarySpan = document.createElement('span');
-                    glossarySpan.classList.add('k');
-                    //const titleText = document.createTextNode(glossaryLink);
-                    glossarySpan.append(block.key);
-                    glossaryDiv.append(glossarySpan);
-                    const blockText = block.text.slice(glossaryLink?.length);
-                    glossaryDiv.innerHTML += blockText;
-                    const glossaryHTML = glossaryDiv.outerHTML;
-                    footnotes.push(glossaryHTML);
-                }
-            },
-            setPlanStore(data: PlanStore) {
-                plan.set(data);
-            },
-            clickHeaderRef(event: MouseEvent, target: HTMLElement, workspace: RenderWorkspace) {
-                event.stopPropagation();
-                const start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
-                const end =
-                    target.getAttribute('data-end-ref') === 'undefined'
-                        ? undefined
-                        : JSON.parse(target.getAttribute('data-end-ref') || '{}');
-                if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
-                    workspace.events.navigate(start);
-                } else {
-                    handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
-                        footnotes.push(footnoteHTML)
-                    );
-                }
-            },
-            clickText: (e) => {
-                if (!$audioPlayer.playing) {
-                    onClickText(e, selectedVerses, maxSelections);
-                }
-            },
-            updateAnnotations: applyAnnotations
-        };
-        workspace.stores = {
-            references,
-            plan: $plan,
-            currentPlanState: $currentPlanState,
-            currentPlanData: $currentPlanData,
-            t: $t,
-            language: $language,
-            lastPlanReference,
-            settings: userSettings
-        };
-        workspace.queries = {
-            glossary
-        };
-
-        Object.assign(workspace, workspaceOptions);
-    }
-
-    /**
-     * Generic callback for all (currently used) render events generated by Proskomma.
-     * Uses a stored stack of scopes to effectively translate the event sequence into a
-     * post-order traversal of the output document tree. Child scopes are rendered when
-     * their scope ends (i.e., when the respective `end` event is seen).
-     *
-     * @param environment - the render environment passed in from Proskomma
-     * @param eventName   - the Proskomma name of the event (e.g. `startDocument`, `text`)
-     */
-    function handleSofriaRenderEvent(
-        environment: RenderEnvironment,
-        eventName: RenderEvent,
-        workspaceOptions: Partial<RenderWorkspace> = {}
-    ) {
-        if (!renderWorkspaceInitialized) {
-            if ($scriptureLogs.actions) {
-                console.log('Initializing renderer\n%o', { ...environment });
-            }
-            initRenderWorkspace(environment, workspaceOptions);
-            renderWorkspaceInitialized = true;
-        }
-
-        let execFallback = true;
-
-        for (const a of actionsDict[eventName] ?? []) {
-            try {
-                if (
-                    (a.stage !== 'fallback' || execFallback) &&
-                    (!a.guard || a.guard(environment))
-                ) {
-                    if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
-                        console.log(
-                            '%s%s [%o]\n%o',
-                            prettyRenderEvent(eventName),
-                            a.name ? ` - ${a.name}` : '',
-                            a.stage,
-                            a.details
-                                ? a.details(environment)
-                                : {
-                                      sequence: getSequence(environment.context).type,
-                                      element: { ...getElement(environment.context) },
-                                      block: { ...getBlock(environment.context) }
-                                  }
-                        );
-                    }
-                    a.action(environment);
-                    execFallback &&= !!a.stage && a.stage !== 'standard';
-                } else {
-                    if (environment.workspace.logSettings[RenderEvent2Scope(eventName)]) {
-                        /* console.log(
-                            'Skipped: %s%s%s',
-                            prettyRenderEvent(eventName),
-                            a.name ? ` - ${a.name}` : '',
-                            ` (${a.section})`
-                        ); */
-                    }
-                }
-            } catch (e) {
-                console.log(`Error encountered while rendering:\n%o\n%o`, a, {
-                    ...environment
-                });
-                throw e;
-            }
-        }
-    }
-
     async function renderDocumentSofria(docSet: string, bookCode: string, chapter: string) {
         console.warn(`Rendering Document ${docSet}.${bookCode}.${chapter}`);
-        const actionObject: { [key in RenderEvent]?: ProskommaRenderAction[] } = {};
 
         if (hackRenderIntro) {
             chapter = '1';
         }
-        for (const name of renderEvents) {
-            actionObject[name] = [
-                {
-                    description: `Handling ${name}`,
-                    test: () => true,
-                    action: (environment: RenderEnvironment) => {
-                        handleSofriaRenderEvent(environment, name, { hackRenderIntro });
-                    }
+
+        const actions: { [key in RenderEvent]?: ProskommaRenderAction[] } = compileRenderActions(
+            renderFeatures,
+            {
+                document: document,
+                root: scriptureRoot,
+                scopeManager: new ScopeManager(),
+                currentTextPosition: {
+                    verse: 'none'
+                },
+                logSettings: $scriptureLogs,
+                scratch: {},
+                textConfig: {
+                    numeralSystem,
+                    separatorRegex: getSeparatorRegex(audioPhraseEndChars),
+                    verseRangeSeparator: scriptureConfig.bookCollections?.find(
+                        (x) => x.id === references.collection
+                    )?.features['ref-verse-range-separator'] as string
+                },
+                config: scriptureConfig,
+                hackRenderIntro,
+                viewSettings: {
+                    isBibleBook: isBibleBook(references, scriptureConfig),
+                    redLetters,
+                    verseLayout
+                },
+                events: {
+                    navigate(ref: Reference) {
+                        setReference(ref);
+                        footnotes.reset();
+                    },
+                    openFootnoote(event: MouseEvent, footnoteId: string) {
+                        if ($footnotes.length === 0) {
+                            event.stopPropagation();
+                            const footnote = scriptureRoot.querySelector(`div[id="${footnoteId}"]`);
+                            const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
+                            const spans = workingSpan?.querySelectorAll('span.xt');
+                            // Loop through each span and modify its inner HTML
+                            spans.forEach((span) => {
+                                span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+                            });
+                            const parsed = workingSpan?.innerHTML;
+                            footnotes.push(parsed);
+                        }
+                    },
+                    openGlossary(glossaryLink: string, block: GlossaryBlock) {
+                        if ($footnotes.length === 0) {
+                            const glossaryDiv = document.createElement('div');
+                            glossaryDiv.classList.add('txs');
+                            const glossarySpan = document.createElement('span');
+                            glossarySpan.classList.add('k');
+                            //const titleText = document.createTextNode(glossaryLink);
+                            glossarySpan.append(block.key);
+                            glossaryDiv.append(glossarySpan);
+                            const blockText = block.text.slice(glossaryLink?.length);
+                            glossaryDiv.innerHTML += blockText;
+                            const glossaryHTML = glossaryDiv.outerHTML;
+                            footnotes.push(glossaryHTML);
+                        }
+                    },
+                    setPlanStore(data: PlanStore) {
+                        plan.set(data);
+                    },
+                    clickHeaderRef(
+                        event: MouseEvent,
+                        target: HTMLElement,
+                        workspace: RenderWorkspace
+                    ) {
+                        event.stopPropagation();
+                        const start = JSON.parse(target.getAttribute('data-start-ref') || '{}');
+                        const end =
+                            target.getAttribute('data-end-ref') === 'undefined'
+                                ? undefined
+                                : JSON.parse(target.getAttribute('data-end-ref') || '{}');
+                        if (workspace.config.mainFeatures['scripture-refs-display'] === 'viewer') {
+                            workspace.events.navigate(start);
+                        } else {
+                            handleHeaderLinkPressed(start, end, themeColors).then((footnoteHTML) =>
+                                footnotes.push(footnoteHTML)
+                            );
+                        }
+                    },
+                    clickText: (e) => {
+                        if (!$audioPlayer.playing) {
+                            onClickText(e, selectedVerses, maxSelections);
+                        }
+                    },
+                    updateAnnotations: applyAnnotations
+                },
+                stores: {
+                    references,
+                    plan: $plan,
+                    currentPlanState: $currentPlanState,
+                    currentPlanData: $currentPlanData,
+                    t: $t,
+                    language: $language,
+                    lastPlanReference,
+                    settings: userSettings
+                },
+                queries: {
+                    glossary
                 }
-            ];
-        }
+            }
+        );
 
         await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
 
@@ -589,11 +484,9 @@ LOGGING:
             console.warn(`found docId ${docId}`);
         }
 
-        renderWorkspaceInitialized = false;
-
         const pkRenderer = new SofriaRenderFromProskomma({
             proskomma,
-            actions: actionObject,
+            actions: actions,
             debugLevel: 0
         });
         performance.mark('cl-render-start');
