@@ -44,7 +44,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
 
                     if (!deferChapterNum) {
                         const chapterNumDiv = workspace.document.createElement('div');
-                        chapterNumDiv.innerText = chapterNumText;
+                        chapterNumDiv.textContent = chapterNumText;
                         chapterNumDiv.classList.add('c');
                         workspace.scopeManager.appendContent(chapterNumDiv, 'document');
                     }
@@ -64,7 +64,7 @@ export const chapterNumber = new FeatureSpec<{ mark?: MarkScratch }>(
                     const currentParagraph = workspace.scopeManager.find('paragraph')?.root;
                     if (currentParagraph) {
                         const chapterNumDiv = workspace.document.createElement('div');
-                        chapterNumDiv.innerText = workspace.scratch.mark!.chapterNumText!;
+                        chapterNumDiv.textContent = workspace.scratch.mark!.chapterNumText!;
 
                         chapterNumDiv.classList.add('c-drop');
                         // SAB is statically generating div.c-drop: { float: left|right; } based on settings than can change
@@ -158,7 +158,7 @@ function addVerseNumber(workspace: RenderWorkspace, verse: string) {
 
     const spanVsp = workspace.document.createElement('span');
     spanVsp.classList.add('vsp');
-    spanVsp.innerText = '\u00A0'; // &nbsp
+    spanVsp.textContent = '\u00A0'; // &nbsp
     workspace.scopeManager.appendContent(spanV);
     workspace.scopeManager.appendContent(spanVsp);
 }
