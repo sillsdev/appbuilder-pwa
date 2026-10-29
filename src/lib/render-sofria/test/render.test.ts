@@ -587,12 +587,9 @@ describe('introductions', () => {
         expect(root.querySelector('span.ior div')).toBeNull();
     });
 
-    // BUG (Proskomma): \ipc is missing from its intro paragraph tags, so its text is merged
-    // into the previous paragraph ("Right. Center." in div.ipr)
-    test.fails('\\ipc renders div.ipc', () => {
-        const root = intro('\\ipr Right.\n\\ipc Center.');
-        expect(root.querySelector('div.ipc')?.textContent).toBe('Center.');
-    });
+    // \ipc is new in USFM 3.1.1 and Proskomma does not support it. Not needed yet: SAB writes
+    // \ipc as \pc in the PWA data files. Only 1 Scriptoria project uses \ipc.
+    test.todo('\\ipc renders div.ipc');
 
     // \imte# (~260 uses) becomes an introEndTitle graft in Proskomma, which is not handled
     test.todo('\\imte# introduction ending title');
