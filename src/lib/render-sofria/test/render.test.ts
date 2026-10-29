@@ -460,9 +460,7 @@ describe('titles', () => {
         expect(content?.querySelector('span.ft')?.textContent).toBe('Title note.');
     });
 
-    // BUG: the titles text action has no isTopWrapper check, so text inside a character
-    // marker is added by both titles and wrappers: <span class="it">GoodGood</span>
-    test.fails('character markup inside \\mt1 renders its text once', () => {
+    test('character markup inside \\mt1 renders its text once', () => {
         const mt = titleBlock(renderUsfm(`\\mt1 The \\it Good\\it* News\n${chapter1}`))!;
         expect(mt.querySelector('span.it')?.textContent).toBe('Good');
         expect(mt.querySelector('div.mt')?.textContent).toBe('The Good News');
