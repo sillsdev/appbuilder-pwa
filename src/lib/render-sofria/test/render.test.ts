@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderUsfm } from './renderUsfm';
 
 /**
@@ -6,7 +6,6 @@ import { renderUsfm } from './renderUsfm';
  * - audio-clips
  * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
- * - illustrations
  * - ordered lists
  * - verse divs
  * - ref-links (handle in PR #1173)
@@ -17,6 +16,17 @@ import { renderUsfm } from './renderUsfm';
 
 // $lib/data/audio spawns a Web Worker at import time; render-sofria only needs these two functions
 vi.mock('$lib/data/audio', () => ({ hasAudioPlayed: () => false, seekToVerse: () => {} }));
+
+// The convert filter removeMissingFigures drops \fig unless data/illustrations/<file> exists.
+// data/ is gitignored, so treat every illustration as present unless its name starts with "missing".
+vi.mock('fs', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('fs')>();
+    const existsSync = (p: import('fs').PathLike) =>
+        /data[\\/]illustrations[\\/]/.test(String(p))
+            ? !/[\\/]missing[^\\/]*$/.test(String(p))
+            : actual.existsSync(p);
+    return { ...actual, default: { ...actual, existsSync }, existsSync };
+});
 
 const chapter = (body: string) => `\\c 1\n\\p\n${body}\n`;
 
@@ -588,4 +598,188 @@ describe('introductions', () => {
 
     // \imte# (~260 uses) becomes an introEndTitle graft in Proskomma, which is not handled
     test.todo('\\imte# introduction ending title');
+});
+
+// \fig: https://docs.usfm.bible/usfm/3.1/char/features/fig.html
+// Image src is not checked: it comes from an import.meta.glob of src/gen-assets/illustrations,
+// which is gitignored and empty in CI.
+describe('illustrations', () => {
+    const imageBlock = (el: Element | null | undefined) => el?.querySelector('div.image-block');
+    const caption = (el: Element | null | undefined) =>
+        imageBlock(el)?.querySelector('div.caption span.caption')?.textContent;
+
+    // The image block checks its src with a HEAD request and hides itself if that fails
+    const fetchMock = vi.fn(async () => new Response(null, { status: 200 }));
+    beforeEach(() => vi.stubGlobal('fetch', fetchMock));
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        fetchMock.mockClear();
+    });
+
+    describe('\\fig in the text', () => {
+        const twoParagraphs = (fig: string) =>
+            `\\c 1\n\\p\n\\v 1 Text ${fig} more.\n\\v 2 Two.\n\\p\n\\v 3 Three.\n`;
+
+        test('USFM 3 \\fig renders an image block with its caption', () => {
+            const root = renderUsfm(
+                twoParagraphs('\\fig A caption|src="pic.jpg" size="col"\\fig*')
+            );
+            expect(imageBlock(root)?.querySelector('span.image img')).not.toBeNull();
+            expect(caption(root)).toBe('A caption');
+        });
+
+        test('caption text is not part of the verse text', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'));
+            expect(root.querySelector('div[data-verse="1"] div.seltxt')?.textContent).toBe(
+                'Text more. '
+            );
+        });
+
+        test('\\fig is moved to the end of its paragraph (convert moveFigureToNextNonVerseMarker)', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'));
+            const block = imageBlock(root)!;
+            expect(block.closest('[data-verse]')?.getAttribute('data-verse')).toBe('2');
+            expect(block.previousElementSibling?.textContent).toBe('Two.');
+        });
+
+        test('USFM 3 \\fig without a caption renders no caption', () => {
+            const root = renderUsfm(twoParagraphs('\\fig |src="pic.jpg" size="col"\\fig*'));
+            expect(imageBlock(root)).not.toBeNull();
+            expect(root.querySelector('div.caption')).toBeNull();
+            expect(root.textContent).not.toContain('NO_CAPTION');
+        });
+
+        test('\\fig whose image file is missing is removed', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="missing.jpg"\\fig*'));
+            expect(imageBlock(root)).toBeFalsy();
+            expect(root.querySelector('div[data-verse="1"]')?.textContent).toContain('Text more.');
+        });
+
+        test('USFM 2 \\fig renders an image block', () => {
+            const root = renderUsfm(
+                twoParagraphs('\\fig Heads of barley|pic.png|col||Louise Bass|Barley|1:1\\fig*')
+            );
+            expect(imageBlock(root)).not.toBeNull();
+        });
+
+        // BUG (also in legacy): USFM 2 is DESC|FILE|SIZE|LOC|COPY|CAP|REF. CAP is the printed
+        // caption, but the caption shown is DESC. ~5k of ~6.5k \fig in Scriptoria projects use
+        // USFM 2 syntax; ~1.8k have an empty DESC, so their caption is lost entirely.
+        test.fails.each([
+            ['Heads of barley|pic.png|col||Louise Bass|Barley|1:1', 'Barley'],
+            ['|pic.png|col|||Kaampono angguru|1.1', 'Kaampono angguru']
+        ])('USFM 2 \\fig %s shows the CAP field as caption', (fig, cap) => {
+            const root = renderUsfm(twoParagraphs(`\\fig ${fig}\\fig*`));
+            expect(caption(root)).toBe(cap);
+        });
+
+        test('display-images-in-bible-text off hides \\fig in a Bible book', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'), {
+                settings: { 'display-images-in-bible-text': 'off' }
+            });
+            expect(imageBlock(root)).toBeFalsy();
+        });
+
+        test('display-images-in-bible-text off still shows \\fig in a non-Bible book', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'), {
+                bibleBook: false,
+                settings: { 'display-images-in-bible-text': 'off' }
+            });
+            expect(caption(root)).toBe('A caption');
+        });
+
+        test('show-illustrations off hides \\fig', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'), {
+                features: { 'show-illustrations': false }
+            });
+            expect(imageBlock(root)).toBeFalsy();
+            expect(root.textContent).not.toContain('A caption');
+        });
+
+        test('image block is hidden when its image cannot be fetched', async () => {
+            fetchMock.mockResolvedValueOnce(new Response(null, { status: 404 }));
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'));
+            await vi.waitFor(() =>
+                expect(imageBlock(root)!.getAttribute('style')).toContain('display: none')
+            );
+            expect(fetchMock).toHaveBeenCalledWith(expect.anything(), { method: 'HEAD' });
+        });
+
+        test('zoom-illustrations opens a fullscreen popup on click', () => {
+            const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'), {
+                features: { 'zoom-illustrations': true }
+            });
+            imageBlock(root)!.querySelector('img')!.click();
+            const popup = document.body.querySelector('div.fullscreen-popup');
+            expect(popup?.querySelector('img')).not.toBeNull();
+            popup!.querySelector<HTMLButtonElement>('button.close-btn')!.click();
+            expect(document.body.querySelector('div.fullscreen-popup')).toBeNull();
+        });
+    });
+
+    describe('illustrations placed by the appDef (config.illustrations)', () => {
+        const usfm = '\\c 1\n\\p\n\\v 1 One.\n\\v 2 Two.\n\\p\n\\v 3 Three.\n';
+        const placed = (pos: string, ref: string, collection = 'C01') => [
+            {
+                width: 100,
+                height: 100,
+                filename: 'pic.jpg',
+                placement: { pos, ref, collection, caption: 'Placed' }
+            }
+        ];
+
+        test('before: placed before the verse div', () => {
+            const root = renderUsfm(usfm, { illustrations: placed('before', 'GEN 1:2') });
+            const block = imageBlock(root)!;
+            expect(caption(root)).toBe('Placed');
+            expect(block.nextElementSibling?.getAttribute('data-verse')).toBe('2');
+        });
+
+        test('after: placed after the verse bookmarks (ref with dots)', () => {
+            const root = renderUsfm(usfm, { illustrations: placed('after', 'GEN.1.2') });
+            expect(imageBlock(root)!.previousElementSibling?.id).toBe('bookmarks2');
+        });
+
+        test('top: placed before the chapter number', () => {
+            const root = renderUsfm(usfm, { illustrations: placed('top', 'GEN 1:1') });
+            expect(imageBlock(root)!.nextElementSibling?.classList.contains('c')).toBe(true);
+        });
+
+        test('top with drop-cap chapter number: placed before the drop-cap paragraph', () => {
+            const root = renderUsfm(usfm, {
+                illustrations: placed('top', 'GEN 1:1'),
+                features: { 'chapter-number-format': 'drop-cap' }
+            });
+            expect(imageBlock(root)!.nextElementSibling?.classList.contains('m')).toBe(true);
+        });
+
+        test('before verse 1 with drop-cap chapter number: placed before the drop cap', () => {
+            const root = renderUsfm(usfm, {
+                illustrations: placed('before', 'GEN 1:1'),
+                features: { 'chapter-number-format': 'drop-cap' }
+            });
+            expect(imageBlock(root)!.nextElementSibling?.classList.contains('c-drop')).toBe(true);
+        });
+
+        test('bottom: placed after the last verse bookmarks', () => {
+            const root = renderUsfm(usfm, { illustrations: placed('bottom', 'GEN 1:1') });
+            expect(imageBlock(root)!.previousElementSibling?.id).toBe('bookmarks3');
+        });
+
+        test.each([
+            ['another collection', placed('before', 'GEN 1:2', 'C02')],
+            ['another chapter', placed('before', 'GEN 2:2')],
+            ['another book', placed('before', 'EXO 1:2')]
+        ])('not placed for %s', (_name, illustrations) => {
+            expect(imageBlock(renderUsfm(usfm, { illustrations }))).toBeFalsy();
+        });
+
+        test('display-images-in-bible-text off hides placed illustrations', () => {
+            const root = renderUsfm(usfm, {
+                illustrations: placed('before', 'GEN 1:2'),
+                settings: { 'display-images-in-bible-text': 'off' }
+            });
+            expect(imageBlock(root)).toBeFalsy();
+        });
+    });
 });
