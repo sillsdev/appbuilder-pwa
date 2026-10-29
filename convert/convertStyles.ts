@@ -175,8 +175,10 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
 
     if (isSAB(configData.data)) {
         tempStyles.push('@media (hover: hover) and (pointer: fine) {');
-        tempStyles.push('.seltxt { cursor: pointer; }');
-        tempStyles.push('.seltxt:hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }');
+        tempStyles.push('div[data-verse] { cursor: pointer; }');
+        tempStyles.push(
+            'div[data-verse]:hover .seltxt { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }'
+        );
         tempStyles.push('}');
     }
 
