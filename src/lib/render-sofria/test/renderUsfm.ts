@@ -39,6 +39,8 @@ export type RenderOptions = {
     /** run the real `convert/convertBooks.ts` USFM filter chain before import (default true) */
     convert?: boolean;
     bcGlossary?: string[];
+    /** `config.illustrations` (appDef-placed illustrations) */
+    illustrations?: ScriptureConfig['illustrations'];
 };
 
 const DEFAULT_FEATURES = {
@@ -75,7 +77,7 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
                 ]
             }
         ],
-        illustrations: [],
+        illustrations: options.illustrations ?? [],
         videos: [],
         audio: { files: [], sources: {} }
     } as unknown as ScriptureConfig;
