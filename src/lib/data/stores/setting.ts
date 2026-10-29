@@ -67,6 +67,15 @@ export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             title: 'Scripture Logs',
             key: 'scripture-logs'
         });
+        settings.push({
+            type: 'list',
+            category: SettingsCategory.Interface,
+            title: 'Log which panes?',
+            key: 'scripture-log-panes',
+            entries: ['All Panes', 'Active Pane', 'Footnote Popup'],
+            values: ['all', 'active', 'footnote'],
+            defaultValue: 'all'
+        });
     }
 
     return settings;

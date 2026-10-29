@@ -393,6 +393,11 @@ export type ScriptureLogConfig = Partial<
     } & Record<RenderScopeLevel, number>
 >;
 
+export const logWhichPanes = derived(
+    userSettings,
+    ($userSettings) => $userSettings['scripture-log-panes']
+);
+
 export const scriptureLogs = derived([userSettings, logs], ([$userSettings, $logs]) => {
     return (
         $userSettings['scripture-logs']

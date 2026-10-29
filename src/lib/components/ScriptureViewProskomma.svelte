@@ -55,6 +55,7 @@ LOGGING:
         currentPlanState,
         footnotes,
         language,
+        logWhichPanes,
         modal,
         ModalType,
         monoIconColor,
@@ -125,6 +126,12 @@ LOGGING:
     const currentChapter = $derived(references.chapter);
     const currentDocset = $derived(references.docSet);
 
+    const logThisPanel = $derived(
+        $logWhichPanes === 'all' ||
+            ($logWhichPanes === 'active' && !!isActivePanel) ||
+            ($logWhichPanes === 'footnote' && !!verseRange)
+    );
+
     // HACK: The introduction is handled as a block graft on chapter 1, so we need to render chapter 1, but only the introduction
     const hackRenderIntro = $derived(
         currentChapter === 'i' &&
@@ -137,7 +144,7 @@ LOGGING:
             scriptureConfig,
             references,
             userSettings,
-            $scriptureLogs
+            logThisPanel ? $scriptureLogs : {}
         )
     );
 
@@ -368,12 +375,12 @@ LOGGING:
             '{documents { docSetId id bookCode: header(id: "bookCode") } }'
         );
 
-        if ($scriptureLogs.docResult) {
+        if (logThisPanel && $scriptureLogs.docResult) {
             console.warn('book query result: %o', bookDocuments);
         }
 
         for (const doc of bookDocuments?.data?.documents ?? []) {
-            if ($scriptureLogs.docResult) {
+            if (logThisPanel && $scriptureLogs.docResult) {
                 console.warn(`Checking current doc ${doc.bookCode} against id ${bookCode}`);
             }
             if (doc.docSetId === docSet && doc.bookCode === bookCode) {
@@ -395,7 +402,7 @@ LOGGING:
     ) {
         scriptureRoot.replaceChildren();
 
-        if ($scriptureLogs.root) {
+        if (logThisPanel && $scriptureLogs.root) {
             console.log('START: %o', scriptureRoot);
         }
 
@@ -406,7 +413,7 @@ LOGGING:
             verse: 'none',
             render: !verseRange
         };
-        workspace.logSettings = $scriptureLogs;
+        workspace.logSettings = logThisPanel ? $scriptureLogs : {};
         workspace.scratch = {};
         workspace.textConfig = {
             numeralSystem,
@@ -517,7 +524,7 @@ LOGGING:
         workspaceOptions: Partial<RenderWorkspace> = {}
     ) {
         if (!renderWorkspaceInitialized) {
-            if ($scriptureLogs.actions) {
+            if (logThisPanel && $scriptureLogs.actions) {
                 console.log('Initializing renderer\n%o', { ...environment });
             }
             initRenderWorkspace(environment, workspaceOptions);
@@ -597,7 +604,7 @@ LOGGING:
             'pk-query-books-start',
             'pk-query-books-end'
         );
-        if ($scriptureLogs.docResult) {
+        if (logThisPanel && $scriptureLogs.docResult) {
             console.warn(`found docId ${docId}`);
         }
 
@@ -617,7 +624,7 @@ LOGGING:
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
 
-        if ($scriptureLogs.root) {
+        if (logThisPanel && $scriptureLogs.root) {
             console.warn('Final rendering output: %o', output.root);
         }
         loading = false;
