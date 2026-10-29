@@ -6,7 +6,6 @@ import { renderUsfm } from './renderUsfm';
  * - audio-clips
  * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
- * - headings
  * - illustrations
  * - introductions
  * - ordered lists
@@ -228,4 +227,121 @@ describe('glossary words', () => {
             root.querySelector('span.glossary a[data-match]')?.getAttribute('data-match')
         ).toEqual('tree');
     });
+});
+
+// https://docs.usfm.bible/usfm/3.1/para/titles-sections/index.html (\mt# and \mte# are titles)
+describe('headings', () => {
+    const heading = (markers: string) => renderUsfm(`\\c 1\n${markers}\n\\p\n\\v 1 Text.\n`);
+
+    test('\\s1 renders div.s with an id', () => {
+        const root = heading('\\s1 The Creation');
+        const s = root.querySelector('div.s');
+        expect(s?.id).toBe('s1');
+        expect(s?.textContent).toBe('The Creation');
+    });
+
+    test('\\s2-\\s4 keep their level in the class', () => {
+        const root = heading('\\s2 Two\n\\s3 Three\n\\s4 Four');
+        expect(root.querySelector('div.s2')?.textContent).toBe('Two');
+        expect(root.querySelector('div.s3')?.textContent).toBe('Three');
+        expect(root.querySelector('div.s4')?.textContent).toBe('Four');
+    });
+
+    test('ids count headings by marker prefix, not by level (as legacy did)', () => {
+        const root = heading('\\s1 First\n\\s2 Second\n\\s1 Third');
+        const ids = [...root.querySelectorAll('div.s, div.s2')].map((d) => d.id);
+        expect(ids).toEqual(['s1', 's2', 's3']);
+    });
+
+    test('\\ms1 and \\mr render major section heading and range', () => {
+        const root = heading('\\ms1 Book One\n\\mr (Psalms 1–41)');
+        expect(root.querySelector('div.ms#ms1')?.textContent).toBe('Book One');
+        expect(root.querySelector('div.mr#mr1')?.textContent).toBe('(Psalms 1–41)');
+    });
+
+    test('\\sr renders section range', () => {
+        const root = heading('\\s1 Head\n\\sr (1:1-5)');
+        expect(root.querySelector('div.sr#sr1')?.textContent).toBe('(1:1-5)');
+    });
+
+    test('\\r renders parallel references', () => {
+        const root = heading('\\s1 Head\n\\r (John 1:1-3)');
+        expect(root.querySelector('div.r#r1')?.textContent).toBe('(John 1:1-3)');
+    });
+
+    test('\\sp renders speaker identification', () => {
+        const root = heading('\\sp Lover');
+        expect(root.querySelector('div.sp#sp1')?.textContent).toBe('Lover');
+    });
+
+    test('a heading mid-chapter is placed between the verses', () => {
+        const root = renderUsfm('\\c 1\n\\p\n\\v 1 One.\n\\s1 Mid\n\\p\n\\v 2 Two.\n');
+        const s = root.querySelector('div.s')!;
+        expect(s.previousElementSibling?.getAttribute('data-verse')).toBe('1');
+        expect(s.nextElementSibling?.getAttribute('data-verse')).toBe('2');
+    });
+
+    test('empty \\s5 (translationStudio chunk marker) renders nothing', () => {
+        const root = renderUsfm('\\c 1\n\\s5\n\\p\n\\v 1 One.\n\\s5\n\\p\n\\v 2 Two.\n');
+        expect(root.querySelector('div.s5')).toBeNull();
+        const verses = [...root.querySelectorAll('span.v')].map((v) => v.textContent);
+        expect(verses).toEqual(['1', '2']);
+    });
+
+    test('\\d renders a descriptive title before verse 1', () => {
+        const root = renderUsfm('\\c 1\n\\d A psalm of David.\n\\q1\n\\v 1 Text.\n');
+        const d = root.querySelector('div.d')!;
+        expect(d.textContent).toBe('A psalm of David.');
+        expect(d.nextElementSibling?.getAttribute('data-verse')).toBe('1');
+    });
+
+    test('\\d containing \\v 1 puts verse 1 inside the title', () => {
+        const root = renderUsfm('\\c 1\n\\d \\v 1 A psalm of David.\n\\q1\n\\v 2 Text.\n');
+        expect(root.querySelector('div.d span.v')?.textContent).toBe('1');
+        expect(root.querySelector('div.d')?.textContent).toContain('A psalm of David.');
+    });
+
+    test('\\cd renders a chapter description', () => {
+        const root = heading('\\cd About the chapter.');
+        expect(root.querySelector('div.cd')?.textContent).toBe('About the chapter.');
+    });
+
+    test.each([
+        ['nd', 'Praise the \\nd Lord\\nd*', 'Lord', 'Praise the Lord'],
+        ['it', 'The \\it Holy\\it* Land', 'Holy', 'The Holy Land'],
+        ['w', 'The \\w Lord\\w* speaks', 'Lord', 'The Lord speaks']
+    ])('\\%s inside \\s1 renders span.%s in the heading', (marker, content, inner, full) => {
+        const s = heading(`\\s1 ${content}`).querySelector('div.s')!;
+        expect(s.querySelector(`span.${marker}`)?.textContent).toBe(inner);
+        expect(s.textContent).toBe(full);
+    });
+
+    // BUG: the character span wraps a block div: <span class="nd"><div class="txs">Lord</div></span>
+    test.fails('character markup inside a heading contains no block elements', () => {
+        const s = heading('\\s1 Praise the \\nd Lord\\nd*').querySelector('div.s')!;
+        expect(s.querySelector('span.nd div')).toBeNull();
+    });
+
+    test('footnote inside \\s1 stays in the heading', () => {
+        const s = heading('\\s1 Heading\\f + \\fr 1:1 \\ft Note.\\f* end').querySelector('div.s')!;
+        const graft = s.querySelector('span[data-graft]')!;
+        expect(graft.querySelector('sup.footnote')).not.toBeNull();
+        const content = graft.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+        expect(content?.querySelector('span.ft')?.textContent).toBe('Note.');
+        expect(s.querySelector(':scope > div.txs:last-child')?.textContent).toBe(' end');
+    });
+
+    // BUG: plain \r text is appended to the heading immediately but the \xt span is added at
+    // endParagraph, so this renders "()Mark 1:1"
+    test.fails('\\xt inside \\r keeps its position in the text', () => {
+        const r = heading('\\s1 Head\n\\r (\\xt Mark 1:1\\xt*)').querySelector('div.r');
+        expect(r?.textContent).toBe('(Mark 1:1)');
+    });
+
+    // \cl occurs ~8.6k times in Scriptoria projects and is currently dropped (legacy has no
+    // handling for it either); expected behaviour not decided yet
+    test.todo('\\cl chapter label');
+    // cross-references currently throw in the harness (handle in PR #1173)
+    test.todo('\\x inside \\s1');
+    test.todo('\\sd# semantic division renders vertical space');
 });
