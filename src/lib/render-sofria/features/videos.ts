@@ -9,7 +9,7 @@ import {
 import { addVideoLinks, createVideoBlock, createVideoBlockFromUrl } from '$lib/video';
 import { getElement, matchElement, matchSequence } from './common';
 import { mediaForChapter, placeElement } from './common/media';
-import { terminatePhrase } from './common/text';
+import { cleanAttribute, terminatePhrase } from './common/text';
 
 export const videos = new FeatureSpec<{
     milestone?: {
@@ -34,9 +34,11 @@ export const videos = new FeatureSpec<{
                     currentVideoIndex: idx + 1
                 });
             } else {
-                // Proskomma did replacement of slashes in id
-                const videoUrl = id.replace(/÷/g, '/');
-                div = createVideoBlockFromUrl(document, videoUrl, workspace.config.mainFeatures);
+                div = createVideoBlockFromUrl(
+                    document,
+                    cleanAttribute(id),
+                    workspace.config.mainFeatures
+                );
             }
             if (div) {
                 const videos = workspace.scratch.milestone?.videos ?? [];

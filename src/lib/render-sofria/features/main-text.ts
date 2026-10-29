@@ -1,6 +1,12 @@
-import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
+import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getElement, getSequence, matchSequence } from './common';
-import { addPhrases, parseVerseRange, type SharedTextScratch } from './common/text';
+import {
+    addPhrases,
+    getPhraseDiv,
+    parseVerseRange,
+    terminatePhrase,
+    type SharedTextScratch
+} from './common/text';
 
 export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
     startSequence: {
@@ -152,15 +158,55 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
             }
         }
     },
-    text: {
-        stage: 'fallback',
-        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
-        guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            addPhrases(workspace, workspace.scratch.text!.cleanedText!);
+    text: [
+        {
+            stage: 'standard',
+            name: 'ChordPro chords',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+            guard: ({ workspace }) =>
+                !workspace.scratch.text?.empty &&
+                renderIfRegularOrIfHackedIntro(workspace) &&
+                workspace.stores.references.sourceFormat === 'chordpro' &&
+                /\[[^\]]+\]/.test(workspace.scratch.text!.cleanedText!),
+            action({ workspace }) {
+                terminatePhrase(workspace);
+                const parts = workspace.scratch.text!.cleanedText!.split('[');
+
+                const phraseDiv = getPhraseDiv(workspace);
+                for (let i = 0; i < parts.length; i++) {
+                    if (parts[i].includes(']')) {
+                        const [chord, ...rest] = parts[i].split(/\]/);
+
+                        const first = rest.join(']').split(' ')[0];
+                        const words = rest.join(']').replace(first, '');
+
+                        const ruby = workspace.document.createElement('ruby');
+                        ruby.append(first);
+                        ruby.classList.add('chord');
+
+                        const rt = workspace.document.createElement('rt');
+                        rt.append(chord);
+                        ruby.append(rt);
+
+                        phraseDiv.append(ruby);
+                        phraseDiv.append(words);
+                    } else {
+                        phraseDiv.append(parts[i]);
+                    }
+                }
+                workspace.scopeManager.appendContent(phraseDiv);
+            }
+        },
+        {
+            stage: 'fallback',
+            details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+            guard: ({ workspace }) =>
+                !workspace.scratch.text?.empty && renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                addPhrases(workspace, workspace.scratch.text!.cleanedText!);
+            }
         }
-    },
+    ],
     endDocument: {
         stage: 'standard',
         action({ workspace }) {

@@ -1,5 +1,5 @@
 import { scriptureConfig } from '$assets/config';
-import type { BookCollectionAudioConfig, BookCollectionConfig } from '$config';
+import type { BookCollectionAudioConfig, BookCollectionConfig, BookSourceType } from '$config';
 import { isPositiveInteger } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
 
@@ -19,6 +19,7 @@ export class NavigationContext {
     title: string;
     bookTab: number;
     name: string;
+    sourceFormat: BookSourceType;
     catalog: CatalogData;
     allBookIds: string[];
     next: { book: string | null; chapter: string | null } = { book: null, chapter: null };
@@ -184,6 +185,10 @@ export class NavigationContext {
             this.book = book;
             newBook = true;
         }
+        this.sourceFormat =
+            this.config.bookCollections
+                ?.find((c) => docSet === this.docSetFromCollection(c))
+                ?.books?.find((b) => b.id === book)?.sourceFormat || 'none';
         this.updateChapterVerse(chapter, verse, newBook);
     }
 
