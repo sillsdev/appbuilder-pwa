@@ -11,7 +11,6 @@ import { renderUsfm } from './renderUsfm';
  * - ordered lists
  * - verse divs
  * - ref-links (handle in PR #1173)
- * - titles
  * - videos
  * - ChordPro (handle in PR #1176)
  * - table headers (handle in PR #1178)
@@ -361,4 +360,94 @@ describe('headings', () => {
     // cross-references currently throw in the harness (handle in PR #1173)
     test.todo('\\x inside \\s1');
     test.todo('\\sd# semantic division renders vertical space');
+});
+
+// https://docs.usfm.bible/usfm/3.1/para/titles-sections/index.html (\mt# and \mte#)
+describe('titles', () => {
+    const chapter1 = '\\c 1\n\\p\n\\v 1 Text.\n';
+    const titleBlock = (root: HTMLElement) => root.querySelector('div[data-verse="title"]');
+
+    test('\\mt renders a scroll-item title block before the chapter number', () => {
+        const root = renderUsfm(`\\mt Genesis\n${chapter1}`);
+        const block = titleBlock(root)!;
+        expect(block.classList.contains('scroll-item')).toBe(true);
+        expect(block.querySelector('div.mt')?.textContent).toBe('Genesis');
+        expect(block.nextElementSibling?.classList.contains('c')).toBe(true);
+    });
+
+    test('title block ends with two blank-line spacers', () => {
+        const block = titleBlock(renderUsfm(`\\mt1 Genesis\n${chapter1}`))!;
+        const tail = [...block.children].slice(-2).map((d) => d.className);
+        expect(tail).toEqual(['b', 'b']);
+    });
+
+    test('\\mt1 uses class mt (Proskomma normalizes the 1)', () => {
+        const block = titleBlock(renderUsfm(`\\mt1 Genesis\n${chapter1}`))!;
+        expect(block.querySelector('div.mt')?.textContent).toBe('Genesis');
+        expect(block.querySelector('div.mt1')).toBeNull();
+    });
+
+    test('\\mt2-\\mt4 keep their level and source order', () => {
+        const root = renderUsfm(
+            `\\mt2 The Book of\n\\mt1 Genesis\n\\mt3 or Beginnings\n\\mt4 small\n${chapter1}`
+        );
+        const lines = [...titleBlock(root)!.querySelectorAll('div[class^="mt"]')].map((d) => [
+            d.className,
+            d.textContent
+        ]);
+        expect(lines).toEqual([
+            ['mt2', 'The Book of'],
+            ['mt', 'Genesis'],
+            ['mt3', 'or Beginnings'],
+            ['mt4', 'small']
+        ]);
+    });
+
+    test('title text is not a selectable phrase', () => {
+        const block = titleBlock(renderUsfm(`\\mt1 Genesis\n${chapter1}`))!;
+        expect(block.querySelector('.seltxt')).toBeNull();
+    });
+
+    test('title only renders with chapter 1', () => {
+        const root = renderUsfm(`\\mt1 Genesis\n${chapter1}\\c 2\n\\p\n\\v 1 Two.\n`, {
+            chapter: '2'
+        });
+        expect(titleBlock(root)).toBeNull();
+        expect(root.querySelector('div.c')?.textContent).toBe('2');
+    });
+
+    test('title renders with the introduction', () => {
+        const root = renderUsfm(`\\mt1 Genesis\n\\ip Intro.\n${chapter1}`, {
+            hackRenderIntro: true
+        });
+        expect(titleBlock(root)?.querySelector('div.mt')?.textContent).toBe('Genesis');
+        expect(root.querySelector('div.ip')?.textContent).toBe('Intro.');
+    });
+
+    test('title renders in a non-Bible book', () => {
+        const root = renderUsfm(`\\mt1 Glossary\n${chapter1}`, { bibleBook: false });
+        expect(titleBlock(root)?.querySelector('div.mt')?.textContent).toBe('Glossary');
+    });
+
+    test('footnote inside \\mt1 stays in the title', () => {
+        const mt = titleBlock(
+            renderUsfm(`\\mt1 Genesis\\f + \\fr 0:0 \\ft Title note.\\f*\n${chapter1}`)
+        )!.querySelector('div.mt')!;
+        const graft = mt.querySelector('span[data-graft]')!;
+        expect(graft.querySelector('sup.footnote')).not.toBeNull();
+        const content = graft.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+        expect(content?.querySelector('span.ft')?.textContent).toBe('Title note.');
+    });
+
+    // BUG: the titles text action has no isTopWrapper check, so text inside a character
+    // marker is added by both titles and wrappers: <span class="it">GoodGood</span>
+    test.fails('character markup inside \\mt1 renders its text once', () => {
+        const mt = titleBlock(renderUsfm(`\\mt1 The \\it Good\\it* News\n${chapter1}`))!;
+        expect(mt.querySelector('span.it')?.textContent).toBe('Good');
+        expect(mt.querySelector('div.mt')?.textContent).toBe('The Good News');
+    });
+
+    // \mte is dropped wherever it appears (legacy has no handling either). ~200 uses in
+    // Scriptoria projects, almost all placed before \c 1 rather than at the end of the book
+    test.todo('\\mte main title at ending');
 });
