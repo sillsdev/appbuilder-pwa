@@ -1,6 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
+import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import { splitString } from '$lib/scripts/stringUtils';
-import { getElement, matchElement } from './common';
+import { extractClassName, getElement, matchElement } from './common';
 import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
@@ -65,10 +66,10 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
     endDocument: {
         stage: 'standard',
         details: ({ workspace }) => ({
-            count: workspace.root.querySelectorAll('a.ref-link').length
+            count: workspace.root.querySelectorAll('a.web-link.ref-link').length
         }),
         action({ workspace }) {
-            workspace.root.querySelectorAll('a.ref-link').forEach((el) => {
+            workspace.root.querySelectorAll('a.web-link.ref-link').forEach((el) => {
                 el.addEventListener('click', function clickRefLink(event) {
                     event.stopPropagation();
                     event.preventDefault();
@@ -86,6 +87,60 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
                         });
                     }
                 });
+            });
+        }
+    }
+});
+
+export const inlineReferences = new FeatureSpec<SharedTextScratch>('Inline References', {
+    startWrapper: {
+        stage: 'standard',
+        details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:rq') && renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ workspace }) => {
+            const spanElement = workspace.document.createElement('span');
+            spanElement.classList.add('rq');
+            workspace.scopeManager.push('wrapper:rq', spanElement);
+        }
+    },
+    endWrapper: {
+        stage: 'standard',
+        details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:rq') && renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ workspace }) => {
+            terminatePhrase(workspace);
+
+            workspace.scopeManager.promoteContent('wrapper:rq');
+        }
+    },
+    text: {
+        stage: 'standard',
+        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty &&
+            workspace.scopeManager.has('wrapper:rq') &&
+            renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
+            const span = workspace.scopeManager.find('wrapper:rq')!.root;
+            span.innerHTML += generateReferenceLinkHTML(
+                workspace.scratch.text!.cleanedText!,
+                'inline_ref-link'
+            );
+        }
+    },
+    endDocument: {
+        stage: 'standard',
+        action({ workspace }) {
+            workspace.root.querySelectorAll('a.inline_ref-link').forEach((el) => {
+                el.addEventListener('click', (e) =>
+                    workspace.events.openCrossRef(
+                        e as MouseEvent,
+                        el as HTMLAnchorElement,
+                        workspace
+                    )
+                );
             });
         }
     }

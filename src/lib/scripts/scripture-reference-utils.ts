@@ -17,16 +17,13 @@ import {
 } from './numeralUtils';
 import {
     ciEquals,
-    containsRomanScriptLetter,
-    getFirstDigitsAsInt,
+    escapeHtml,
     getIntFromString,
     isBlank,
     isDefined,
     isNotBlank,
     isPositiveInteger,
-    nullToEmpty,
-    splitString,
-    stripAllExceptDigitsAndHyphens
+    nullToEmpty
 } from './stringUtils';
 
 let ref: any;
@@ -99,16 +96,16 @@ function initGlobals() {
  * that navigate to provided reference
  * @param reference: the string containing the reference
  */
-export function generateHTML(crossRef: string, refClass: string, bookId: string = '') {
+export function generateReferenceLinkHTML(crossRef: string, refClass: string, linkHref?: string) {
     ref = get(refs);
     bookCollections = scriptureConfig.bookCollections ?? [];
     runtimeCatalog = ref.catalog;
-    return generateHTMLMain(crossRef, refClass, bookId);
+    return main_generateReferenceLinkHTML(crossRef, refClass, linkHref);
 }
-export function generateHTMLTest(
+export function test_generateReferenceLinkHTML(
     crossRef: string,
     refClass: string,
-    bookId: string = '',
+    linkHref: string = '',
     testRefs: any = null,
     testCollections: any = null,
     testCatalog: any = null
@@ -116,11 +113,15 @@ export function generateHTMLTest(
     ref = testRefs;
     runtimeCatalog = testCatalog;
     bookCollections = testCollections;
-    return generateHTMLMain(crossRef, refClass, bookId);
+    return main_generateReferenceLinkHTML(crossRef, refClass, linkHref);
 }
-export function generateHTMLMain(crossRef: string, refClass: string, bookId: string = '') {
+function main_generateReferenceLinkHTML(
+    crossRef: string,
+    refClass: string,
+    overrideLink: string = ''
+) {
     initGlobals();
-    const currentBookId = isBlank(bookId) ? ref.book : bookId;
+    const currentBookId = ref.book;
     const docSet = ref.docSet;
     const contentToMatch = '\\xt ' + crossRef + '\\xt*';
     const referencePattern =
@@ -131,7 +132,10 @@ export function generateHTMLMain(crossRef: string, refClass: string, bookId: str
     let lastIndex = 0;
     while ((referenceMatches = referenceRegEx.exec(contentToMatch)) !== null) {
         const ref = referenceMatches[2];
-        const linkRef = referenceMatches[3];
+        const linkRef =
+            overrideLink ||
+            referenceMatches[3]?.match(/(link-href|default)="([^"]*)"/)?.at(2) ||
+            '';
         const targetRef = isNotBlank(linkRef) ? linkRef : ref;
         const displayText = isNotBlank(linkRef) ? ref : null;
         let parseCvs = cvs;
@@ -192,7 +196,7 @@ function processScriptureRef(
             refClass
         );
     } else {
-        result = reference;
+        result = escapeHtml(displayText || reference);
     }
     return result;
 }
@@ -206,11 +210,9 @@ function processScriptureRefLinks(
     parseRov: string,
     refClass: string
 ): string {
-    const results: any[] = [];
     let prevBookId: string | null = bookId;
-    const referenceRegEx = new RegExp(pattern, 'g');
+    const referenceRegEx = new RegExp(pattern, 'gu');
     let referenceMatches: RegExpExecArray | null;
-    const refResults: RegExpExecArray[] = [];
     const replacements: string[] = [];
     let replacement: string = '';
     let refLink: string = '';
@@ -244,6 +246,8 @@ function processScriptureRefLinks(
             const extraBefore = nullToEmpty(referenceMatches[1]);
             const extraAfter = nullToEmpty(referenceMatches[13]);
 
+            const numeralSystem = numerals.systemForBook(bookCollections, collection!.id, bookId);
+
             if (isDefined(referenceMatches[3])) {
                 // Model 1
                 // Chapter ranges with verse numbers, e.g. 1:1—3:10
@@ -253,8 +257,6 @@ function processScriptureRefLinks(
                 const toChapter = referenceMatches[7];
                 const toVerse = referenceMatches[8];
 
-                const fromChapterNum = getFirstDigitsAsInt(fromChapter);
-                const toChapterNum = getFirstDigitsAsInt(toChapter);
                 const refText =
                     extraBefore +
                     bookNameWithSp +
@@ -273,7 +275,8 @@ function processScriptureRefLinks(
                     fromChapter,
                     toChapter,
                     fromVerse,
-                    toVerse
+                    toVerse,
+                    numeralSystem
                 );
                 replace = getLinkText(model1Reference, displayText, refText, refClass);
             } else if (isDefined(referenceMatches[9])) {
@@ -283,7 +286,7 @@ function processScriptureRefLinks(
 
                 // Chapter Number
                 let chapter = referenceMatches[10];
-                let chapterNum = getIntFromNumberString(chapter);
+                let chapterNum = getIntFromNumberString(chapter, numeralSystem);
 
                 // Separator between the first two numbers
                 // This could be a chapter/verse separator or a range separator
@@ -321,7 +324,8 @@ function processScriptureRefLinks(
                         chapter,
                         '',
                         '1',
-                        lastVerse
+                        lastVerse,
+                        numeralSystem
                     );
                     replace = getLinkText(chapterOnlyReference, displayText, refText, refClass);
                 } else if (sep === roc && maxChapters > 1) {
@@ -360,7 +364,8 @@ function processScriptureRefLinks(
                         verses,
                         parseCvs,
                         parseRov,
-                        refClass
+                        refClass,
+                        numeralSystem
                     );
                 } else {
                     // No change
@@ -379,6 +384,8 @@ function processScriptureRefLinks(
             const maxChapters = getNumChaptersFromBookId(bookId);
             let replace: string = '';
 
+            const numeralSystem = numerals.systemForBook(bookCollections, collection!.id, bookId);
+
             if (chapterNum <= maxChapters) {
                 const refText = chapterNum.toString();
                 const chapterFrom = chapterNum.toString();
@@ -390,7 +397,8 @@ function processScriptureRefLinks(
                     chapterFrom,
                     '',
                     '1',
-                    lastVerse
+                    lastVerse,
+                    numeralSystem
                 );
                 replace = getLinkText(reference, displayText, refText, refClass);
             } else {
@@ -411,15 +419,17 @@ function processScriptureRefLinks(
     refLink += reference.substring(matchIndex);
     return refLink;
 }
+const digitsPattern = '[\\d\\p{N}]';
+const cvNumberPattern = `${digitsPattern}{1,3}`;
 function getScriptureReferencePatternForBook(parseCvs: string, parseRov: string): string {
     const extraMaterial = isNotBlank(extras) ? '(' + extras + ')?' : '()';
     const sepChapterVs = parseCvs === '.' ? '\\.' : parseCvs;
     const sepVerseList = lov === '.' ? '\\.' : lov;
 
     const optionalRtlMark = '[\\u200f]?';
-    const chapterNumberGroup = '(\\d{1,3})';
-    const verseNumber = '\\d{1,3}';
-    const verseNumberGroup = '(\\d{1,3})';
+    const chapterNumberGroup = `(${cvNumberPattern})`;
+    const verseNumber = `${cvNumberPattern}`;
+    const verseNumberGroup = `(${cvNumberPattern})`;
     const bookName = getBookNamePattern();
 
     // Model 1
@@ -458,15 +468,14 @@ function getScriptureReferencePatternForBook(parseCvs: string, parseRov: string)
     // e.g. exclude including "1" as a verse in Exo 7:2, 1Pe 2:3
     // e.g. exclude including "2" as a verse in Exodus 1:8, 2 Peter 1:3
     // \p{Lu} matches any kind of uppercase letter from any language
-    const negLookaheadForChapterVerseSep =
-        '(?!' + '(\\d*' + sepChapterVs + '\\d)|(\\d?\\p{Lu})|(\\d?\\s\\p{Lu}))';
+    const negLookaheadForChapterVerseSep = `(?!(${digitsPattern}*${sepChapterVs}${digitsPattern})|(${digitsPattern}?\\p{Lu})|(${digitsPattern}?\\s\\p{Lu}))`;
     const verseRange =
         verseNumber +
         negLookaheadForChapterVerseSep +
         '(?:' +
         optionalRtlMark +
         '(?:' +
-        rangeSepChars +
+        rangeSepChars.replaceAll('\\-', '-') +
         ')' +
         verseNumber +
         ')?';
@@ -497,13 +506,13 @@ function getBookNamePattern(): string {
     let nonWordCharsInBookName = getNonWordCharactersInBookNames();
     nonWordCharsInBookName = nonWordCharsInBookName.replace(/-/g, '\\-');
     const bookNamePattern =
-        '(?:[123] )?[\\w\\p{L}][\\w\\p{L}\\p{M}\\s' + nonWordCharsInBookName + ']*';
+        '(?:[123\\p{N}] )?[\\w\\p{L}][\\w\\p{L}\\p{M}\\s' + nonWordCharsInBookName + ']*';
     return bookNamePattern;
 }
 function getScriptureReferencePatternForChapterList(): string {
     // Example:
     // 4—6, 8—9
-    const chapterNumber = '\\d{1,3}';
+    const chapterNumber = `${cvNumberPattern}`;
     const optionalRtlMark = '[\\u200f]?';
     let rangeSepChars = roc;
     if (roc === '-') {
@@ -523,7 +532,7 @@ function getScriptureReferencePatternForChapterList(): string {
     return chapterListPattern;
 }
 function getScriptureReferencePatternForVerseList(parseRov: string): string {
-    const verseNumber = '\\d{1,3}';
+    const verseNumber = `${cvNumberPattern}`;
     const optionalRtlMark = '[\\u200f]?';
 
     let rangeSepChars = parseRov;
@@ -617,7 +626,7 @@ function parseChapterList(
     let rangeIndex = 0;
     let replace = '';
 
-    const chapterRegEx = new RegExp(chapterListPattern, 'g');
+    const chapterRegEx = new RegExp(chapterListPattern, 'gu');
     let chapterMatch: RegExpExecArray | null;
     const chapterMatches: any[] = [];
 
@@ -627,6 +636,8 @@ function parseChapterList(
     }
     // Reset lastIndex to 0 to start matching from the beginning
     chapterRegEx.lastIndex = 0;
+
+    const numeralSystem = numerals.systemForBook(bookCollections, collection!.id, bookId);
 
     for (let i = 0; i < numberChapterRanges; i++) {
         const currentMatch = chapterMatches[i];
@@ -653,7 +664,8 @@ function parseChapterList(
             chapterFrom,
             chapterFrom,
             '1',
-            lastVerse
+            lastVerse,
+            numeralSystem
         );
         let refText: string;
         if (isFirstChapterRange) {
@@ -689,7 +701,8 @@ function parseVerseList(
     verses: string,
     parseCvs: string,
     parseRov: string,
-    refClass: string
+    refClass: string,
+    numeralSystem: numerals.NumeralSystem
 ): string {
     let replace: string = '';
     let numberVerseRanges = 0;
@@ -698,7 +711,7 @@ function parseVerseList(
     const containsRtlMark = reference.includes('\u200F');
     const verseListPattern = getScriptureReferencePatternForVerseList(parseRov);
 
-    const verseRegEx = new RegExp(verseListPattern, 'g');
+    const verseRegEx = new RegExp(verseListPattern, 'gu');
     let verseMatch: RegExpExecArray | null;
     const verseMatches: any[] = [];
 
@@ -731,7 +744,8 @@ function parseVerseList(
             chapterNum.toString(),
             '',
             verseFrom,
-            verseTo
+            verseTo,
+            numeralSystem
         );
         let refText = '';
         if (isFirstVerseRange) {
@@ -772,7 +786,7 @@ function parseVerseList(
     return replace;
 }
 
-type AnchorReference = {
+export type AnchorReference = {
     collection: string;
     phrase: string;
     docSet: string;
@@ -838,16 +852,25 @@ function lastVerseInChapter(book: string, chapter: string, docSet: string): stri
     return lastVerse;
 }
 type CreatedReference = ReturnType<typeof createReference>;
-export function createReference(
+function createReference(
     referenceText: string,
     collection: string,
     bookId: string,
     fromChapter: string,
     toChapter: string,
     fromVerse: string,
-    toVerse: string
+    toVerse: string,
+    numeralSystem: numerals.NumeralSystem
 ) {
-    return { text: referenceText, collection, bookId, fromChapter, toChapter, fromVerse, toVerse };
+    return {
+        text: escapeHtml(referenceText),
+        collection,
+        bookId,
+        fromChapter: convertDigitsInStringToDefaultNumeralSystem(fromChapter || '', numeralSystem),
+        toChapter: convertDigitsInStringToDefaultNumeralSystem(toChapter || '', numeralSystem),
+        fromVerse: convertDigitsInStringToDefaultNumeralSystem(fromVerse || '', numeralSystem),
+        toVerse: convertDigitsInStringToDefaultNumeralSystem(toVerse || '', numeralSystem)
+    };
 }
 function sortExtraMaterialMatchesByLength() {
     const matches = extras.split('|');
@@ -911,7 +934,7 @@ function addCharsToSet(nonWordChars: string, chars: Set<string>) {
 }
 export async function handleHeaderLinkPressed(
     start: AnchorReference,
-    end: AnchorReference,
+    end: AnchorReference | undefined,
     colors: Record<string, string>
 ): Promise<string> {
     console.log('HandleHeaderLinkPressed start: %o end: %o colors: %o', start, end, colors);
@@ -976,7 +999,7 @@ export function getDisplayStringMain(
     if (bookCollection) {
         const textDirection = bookCollection?.style?.textDirection;
         const rtl = textDirection?.toLowerCase() === 'rtl';
-        const numeralSystem = numerals.systemForBook(cfg, collection, bookId);
+        const numeralSystem = numerals.systemForBook(cfg.bookCollections, collection, bookId);
         const chapterString = numerals.formatNumber(numeralSystem, chapter.toString());
         const bookName = bookCollection.books.find((x) => x.id === bookId)?.name || bookId;
         if (rtl) {
