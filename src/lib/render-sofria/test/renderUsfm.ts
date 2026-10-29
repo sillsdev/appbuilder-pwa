@@ -34,6 +34,7 @@ export type RenderOptions = {
     redLetters?: boolean;
     /** treat the book as a Bible book (affects phrase ids / data-verse attributes) */
     bibleBook?: boolean;
+    hasAudio?: boolean;
     hackRenderIntro?: boolean;
     /** run the real `convert/convertBooks.ts` USFM filter chain before import (default true) */
     convert?: boolean;
@@ -115,7 +116,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             scratch: {},
             textConfig: {
                 numeralSystem: numerals.systemFromString('Default'),
-                separatorRegex: getSeparatorRegex('.?!'),
+                separatorRegex: getSeparatorRegex('.?!,;'),
                 verseRangeSeparator: '-'
             },
             config,
@@ -141,7 +142,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                     book: BOOK,
                     chapter: options.chapter ?? '1',
                     verse: '1',
-                    hasAudio: false
+                    hasAudio: !!options.hasAudio
                 } as unknown as RenderWorkspace['stores']['references'],
                 plan: { planEntry: -1 } as never,
                 currentPlanState: '',
