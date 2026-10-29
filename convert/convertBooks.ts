@@ -88,7 +88,11 @@ function transformZonTags(usfm: string): string {
     return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
-function loadGlossary(collection: BookCollectionConfig, dataDir: string, files: string[]): string[] {
+function loadGlossary(
+    collection: BookCollectionConfig,
+    dataDir: string,
+    files: string[]
+): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
         if (book.type === 'glossary') {
@@ -99,7 +103,13 @@ function loadGlossary(collection: BookCollectionConfig, dataDir: string, files: 
                 //read the single usfm file (pre-12.0)
                 glossaryContent = fs.readFileSync(bookPath, 'utf8');
             } else {
-                glossaryContent = joinBookFromMultipleFiles(bookPath, files, dataDir, collection.id, book.type);
+                glossaryContent = joinBookFromMultipleFiles(
+                    bookPath,
+                    files,
+                    dataDir,
+                    collection.id,
+                    book.type
+                );
             }
             // Regular expression pattern
             const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
@@ -809,7 +819,13 @@ function firstFiveLines(text: string): string {
     return text.split(/\r?\n/).slice(0, 5).join(eol);
 }
 
-function joinBookFromMultipleFiles(bookPath: string, files: string[], dataDir: string, bcId: string, bookType: string | undefined) {
+function joinBookFromMultipleFiles(
+    bookPath: string,
+    files: string[],
+    dataDir: string,
+    bcId: string,
+    bookType: string | undefined
+) {
     //read multiple files that have been split up (so that portions parameter is processed)
     const extension = extname(bookPath);
     const baseFilename = basename(bookPath, extension).normalize('NFC');
@@ -934,7 +950,17 @@ function convertScriptureBook(
                     processBookContent(resolve, err, content)
                 );
             } else {
-                processBookContent(resolve, null, joinBookFromMultipleFiles(bookPath, files, context.dataDir, context.bcId, book.type));
+                processBookContent(
+                    resolve,
+                    null,
+                    joinBookFromMultipleFiles(
+                        bookPath,
+                        files,
+                        context.dataDir,
+                        context.bcId,
+                        book.type
+                    )
+                );
             }
         })
     );
