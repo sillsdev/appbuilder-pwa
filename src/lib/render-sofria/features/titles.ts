@@ -1,7 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
 import { renderBlock } from './common/grafts';
-import { addPhrases, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
 
 export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
     blockGraft: {
@@ -48,6 +48,7 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
             const titleDiv = workspace.document.createElement('div');
             titleDiv.classList.add(extractClassName(getBlock(context)));
             workspace.scopeManager.push('paragraph:title', titleDiv);
+            workspace.scopeManager.push('wrapper:title', workspace.document.createElement('span'));
         }
     },
     endParagraph: {
@@ -56,6 +57,7 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
         guard: ({ context, workspace }) =>
             matchSequence(context, 'title') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
+            workspace.scopeManager.promoteContent('wrapper:title');
             workspace.scopeManager.promoteContent('paragraph:title');
         }
     },
@@ -65,7 +67,8 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
         guard: ({ context, workspace }) =>
             !workspace.scratch.text?.empty &&
             matchSequence(context, 'title') &&
-            renderIfRegularOrIfHackedIntro(workspace),
+            renderIfRegularOrIfHackedIntro(workspace) &&
+            isTopWrapper(workspace, 'wrapper:title'),
         action({ workspace }) {
             addPhrases(workspace, workspace.scratch.text!.cleanedText!);
         }
