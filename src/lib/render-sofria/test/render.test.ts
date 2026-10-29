@@ -7,7 +7,6 @@ import { renderUsfm } from './renderUsfm';
  * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
  * - illustrations
- * - introductions
  * - ordered lists
  * - verse divs
  * - ref-links (handle in PR #1173)
@@ -450,4 +449,133 @@ describe('titles', () => {
     // \mte is dropped wherever it appears (legacy has no handling either). ~200 uses in
     // Scriptoria projects, almost all placed before \c 1 rather than at the end of the book
     test.todo('\\mte main title at ending');
+});
+
+// https://docs.usfm.bible/usfm/3.1.1/para/introductions/index.html
+// The introduction is only rendered when the view asks for it (hackRenderIntro), and then
+// only the introduction is rendered, not the chapter.
+describe('introductions', () => {
+    const chapter1 = '\\c 1\n\\p\n\\v 1 Text.\n';
+    const intro = (markers: string) =>
+        renderUsfm(`${markers}\n${chapter1}`, { hackRenderIntro: true });
+
+    test('introduction is not rendered with the chapter', () => {
+        const root = renderUsfm(`\\ip Intro para.\n${chapter1}`);
+        expect(root.querySelector('div.ip')).toBeNull();
+        expect(root.querySelector('div.c')?.textContent).toBe('1');
+    });
+
+    test('chapter is not rendered with the introduction', () => {
+        const root = intro('\\ip Intro para.');
+        expect(root.querySelector('div.ip')?.textContent).toBe('Intro para.');
+        expect(root.querySelector('div.c')).toBeNull();
+        expect(root.querySelector('span.v')).toBeNull();
+    });
+
+    test.each(['ip', 'ipi', 'im', 'imi', 'ipq', 'imq', 'ipr', 'iex'])(
+        '\\%s renders div.%s',
+        (marker) => {
+            const root = intro(`\\${marker} Some text.`);
+            expect(root.querySelector(`div.${marker}`)?.textContent).toBe('Some text.');
+        }
+    );
+
+    test('\\iq# and \\ili# keep their level (Proskomma normalizes the 1)', () => {
+        const root = intro('\\iq1 Line one\n\\iq2 Line two\n\\ili1 Item one\n\\ili2 Item two');
+        expect(root.querySelector('div.iq')?.textContent).toBe('Line one');
+        expect(root.querySelector('div.iq2')?.textContent).toBe('Line two');
+        expect(root.querySelector('div.ili')?.textContent).toBe('Item one');
+        expect(root.querySelector('div.ili2')?.textContent).toBe('Item two');
+    });
+
+    test('\\ib renders div.ib', () => {
+        const root = intro('\\ip Before.\n\\ib\n\\ip After.');
+        const ib = root.querySelector('div.ib')!;
+        expect(ib.previousElementSibling?.textContent).toBe('Before.');
+        expect(ib.nextElementSibling?.textContent).toBe('After.');
+    });
+
+    test('\\is1 and \\is2 render as headings with ids', () => {
+        const root = intro('\\is1 Section\n\\ip Text.\n\\is2 Sub section');
+        expect(root.querySelector('div.is#is1')?.textContent).toBe('Section');
+        expect(root.querySelector('div.is2#is2')?.textContent).toBe('Sub section');
+    });
+
+    test('\\imt# renders in a title block', () => {
+        const root = intro('\\imt1 Introduction\n\\imt2 to Genesis\n\\ip Text.');
+        const block = root.querySelector('div[data-verse="title"]')!;
+        expect(block.querySelector('div.imt')?.textContent).toBe('Introduction');
+        expect(block.querySelector('div.imt2')?.textContent).toBe('to Genesis');
+    });
+
+    test('\\mt# title block comes before the \\imt# title block', () => {
+        const root = intro('\\mt1 Genesis\n\\imt1 Introduction\n\\ip Text.');
+        const blocks = [...root.querySelectorAll('div[data-verse="title"]')];
+        expect(blocks.map((b) => b.textContent)).toEqual(['Genesis', 'Introduction']);
+    });
+
+    test('\\iot and \\io1-\\io3 render the outline with \\ior references', () => {
+        const root = intro(
+            '\\iot Outline\n\\io1 Part one \\ior (1:1-3)\\ior*\n\\io2 Sub part \\ior 1:4\\ior*\n\\io3 Deep'
+        );
+        expect(root.querySelector('div.iot#iot1')?.textContent).toBe('Outline');
+        expect(root.querySelector('div.io')?.textContent).toBe('Part one (1:1-3)');
+        expect(root.querySelector('div.io span.ior')?.textContent).toBe('(1:1-3)');
+        expect(root.querySelector('div.io2 span.ior')?.textContent).toBe('1:4');
+        expect(root.querySelector('div.io3')?.textContent).toBe('Deep');
+    });
+
+    test('\\ie renders nothing', () => {
+        const root = intro('\\ip Text.\n\\ie');
+        expect(root.querySelector('div.ie')).toBeNull();
+        expect(root.querySelector('div.ip')?.textContent).toBe('Text.');
+    });
+
+    test('introduction text is not selectable and uses +N ids (as legacy did)', () => {
+        const root = intro('\\is1 Section\n\\ip One. Two.\n\\ip Three.');
+        expect(root.querySelector('.seltxt')).toBeNull();
+        const ids = [...root.querySelectorAll('div.txs')].map((d) => d.id);
+        expect(ids.every((id) => /^\+\d+$/.test(id))).toBe(true);
+        expect(new Set(ids).size).toBe(ids.length);
+    });
+
+    test.each([
+        ['bk', 'The \\bk Book\\bk* says', 'Book'],
+        ['k', 'A \\k keyword\\k* here', 'keyword'],
+        ['iqt', 'He said \\iqt quoted\\iqt* there', 'quoted']
+    ])('\\%s inside \\ip renders span.%s', (marker, content, inner) => {
+        const ip = intro(`\\ip ${content}`).querySelector('div.ip')!;
+        expect(ip.querySelector(`span.${marker}`)?.textContent).toBe(inner);
+    });
+
+    test('\\xt inside \\ip renders a reference link', () => {
+        const ip = intro('\\ip See \\xt Mark 1:1\\xt*.').querySelector('div.ip')!;
+        expect(ip.querySelector('span.xt span.reflink')?.textContent).toBe('Mark 1:1');
+        expect(ip.textContent).toBe('See Mark 1:1.');
+    });
+
+    test('footnote inside \\ip stays in the paragraph', () => {
+        const ip = intro('\\ip Para\\f + \\fr 0:0 \\ft Note.\\f* end.').querySelector('div.ip')!;
+        const graft = ip.querySelector('span[data-graft]')!;
+        expect(graft.querySelector('sup.footnote')).not.toBeNull();
+        const content = graft.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+        expect(content?.querySelector('span.ft')?.textContent).toBe('Note.');
+    });
+
+    // BUG: \ior (~14.7k uses in Scriptoria projects) wraps a block div:
+    // <span class="ior"><div class="txs">(1:1-3)</div></span>
+    test.fails('\\ior contains no block elements', () => {
+        const root = intro('\\io1 Part one \\ior (1:1-3)\\ior*');
+        expect(root.querySelector('span.ior div')).toBeNull();
+    });
+
+    // BUG (Proskomma): \ipc is missing from its intro paragraph tags, so its text is merged
+    // into the previous paragraph ("Right. Center." in div.ipr)
+    test.fails('\\ipc renders div.ipc', () => {
+        const root = intro('\\ipr Right.\n\\ipc Center.');
+        expect(root.querySelector('div.ipc')?.textContent).toBe('Center.');
+    });
+
+    // \imte# (~260 uses) becomes an introEndTitle graft in Proskomma, which is not handled
+    test.todo('\\imte# introduction ending title');
 });
