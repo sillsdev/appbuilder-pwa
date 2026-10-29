@@ -187,15 +187,32 @@ describe('SAB SFM extensions (via convert filters)', () => {
     });
 });
 
+// Footnotes adapted from real projects (\add is not valid inside notes in USFM 3.1)
 describe('nested markup inside footnotes', () => {
-    test('\\+add inside \\ft stays inside the footnote content', () => {
-        const root = renderUsfm(
-            chapter('\\v 1 Text\\f + \\ft A \\+add nested\\+add* note.\\f* more.')
-        );
+    const renderNote = (note: string) => {
+        const root = renderUsfm(chapter(`\\v 1 Text${note} more.`));
         const graft = root.querySelector('span[data-graft]')!;
         const content = graft.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`)!;
-        expect(content.querySelector('span.ft span.add')?.textContent).toBe('nested');
+        return { root, content };
+    };
+
+    test.each([
+        ['it', '\\f + \\fr 3:20 \\fq Hewa \\ft bi îbranî \\+it jiyan\\+it* e.\\f*', 'jiyan'],
+        ['nd', '\\f + \\fr 1:6 \\ft hinanggan \\+nd Apu Dios\\+nd*.\\f*', 'Apu Dios'],
+        ['w', '\\f + \\fr 1:1 \\ft bnêre \\+w Yahweh\\+w*\\f*', 'Yahweh']
+    ])('\\+%s inside \\ft stays inside the footnote content', (marker, note, inner) => {
+        const { root, content } = renderNote(note);
+        expect(content.querySelector(`span.ft span.${marker}`)?.textContent).toBe(inner);
         expect(content.querySelector('div.seltxt')).toBeNull();
+        // the footnote must not consume a main-text phrase id
+        const phrases = [...root.querySelectorAll('div.seltxt')].map((d) => d.id);
+        expect(phrases).toEqual(['1a', '1b']);
+    });
+
+    // BUG: the nested span wraps a block div: <span class="it"><div class="txs">jiyan</div></span>
+    test.fails('nested markup inside \\ft contains no block elements', () => {
+        const { content } = renderNote('\\f + \\ft bi îbranî \\+it jiyan\\+it* e.\\f*');
+        expect(content.querySelector('span.it div')).toBeNull();
     });
 });
 
