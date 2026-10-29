@@ -84,6 +84,20 @@ describe('generic character markers', () => {
         const root = renderUsfm(chapter('\\v 1 \\add outer \\+nd LORD\\+nd* text\\add*'));
         expect(root.querySelector('span.add span.nd')?.textContent).toBe('LORD');
     });
+
+    test('wrappers contain no block elements', () => {
+        const root = renderUsfm(chapter('\\v 1 \\it jiyan\\it*'));
+        expect(root.querySelector('span.it div')).toBeNull();
+    });
+
+    test('wrapper with phrase breaks is split', () => {
+        const root = renderUsfm(chapter('\\v 1 \\it before, after\\it*'), {
+            hasAudio: true,
+            bibleBook: true
+        });
+        console.log(root.outerHTML);
+        expect(root.querySelectorAll('div span.it').length).toBe(2);
+    });
 });
 
 describe('words of Jesus', () => {
@@ -207,8 +221,7 @@ describe('nested markup inside footnotes', () => {
         expect(phrases).toEqual(['1a', '1b']);
     });
 
-    // BUG: the nested span wraps a block div: <span class="it"><div class="txs">jiyan</div></span>
-    test.fails('nested markup inside \\ft contains no block elements', () => {
+    test('nested markup inside \\ft contains no block elements', () => {
         const { content } = renderNote('\\f + \\ft bi îbranî \\+it jiyan\\+it* e.\\f*');
         expect(content.querySelector('span.it div')).toBeNull();
     });
@@ -331,8 +344,7 @@ describe('headings', () => {
         expect(s.textContent).toBe(full);
     });
 
-    // BUG: the character span wraps a block div: <span class="nd"><div class="txs">Lord</div></span>
-    test.fails('character markup inside a heading contains no block elements', () => {
+    test('character markup inside a heading contains no block elements', () => {
         const s = heading('\\s1 Praise the \\nd Lord\\nd*').querySelector('div.s')!;
         expect(s.querySelector('span.nd div')).toBeNull();
     });
@@ -562,9 +574,7 @@ describe('introductions', () => {
         expect(content?.querySelector('span.ft')?.textContent).toBe('Note.');
     });
 
-    // BUG: \ior (~14.7k uses in Scriptoria projects) wraps a block div:
-    // <span class="ior"><div class="txs">(1:1-3)</div></span>
-    test.fails('\\ior contains no block elements', () => {
+    test('\\ior contains no block elements', () => {
         const root = intro('\\io1 Part one \\ior (1:1-3)\\ior*');
         expect(root.querySelector('span.ior div')).toBeNull();
     });
