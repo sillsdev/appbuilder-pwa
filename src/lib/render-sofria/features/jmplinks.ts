@@ -5,6 +5,7 @@ import {
     isTopWrapper,
     safeDecodeAttribute,
     terminatePhrase,
+    unwrapWrapperWithPhraseDivs,
     type SharedTextScratch
 } from './common/text';
 
@@ -63,7 +64,9 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
             matchElement(context, 'usfm:jmp') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
             terminatePhrase(workspace);
-            workspace.scopeManager.promoteContent('wrapper:jmp');
+            workspace.scopeManager.appendChildrenFromContainer(
+                unwrapWrapperWithPhraseDivs(workspace.scopeManager.pop('wrapper:jmp').root)
+            );
         }
     },
     text: {
