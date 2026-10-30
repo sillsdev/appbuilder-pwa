@@ -41,6 +41,8 @@ export type RenderOptions = {
     bcGlossary?: string[];
     /** `config.illustrations` (appDef-placed illustrations) */
     illustrations?: ScriptureConfig['illustrations'];
+    /** `config.audio` (audio sources and files, used by audio clips) */
+    audio?: ScriptureConfig['audio'];
 };
 
 const DEFAULT_FEATURES = {
@@ -79,7 +81,7 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
         ],
         illustrations: options.illustrations ?? [],
         videos: [],
-        audio: { files: [], sources: {} }
+        audio: options.audio ?? { files: [], sources: {} }
     } as unknown as ScriptureConfig;
 }
 
