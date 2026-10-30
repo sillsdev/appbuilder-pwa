@@ -40,6 +40,8 @@ this window open, the test results will update every time you save a source file
 instant feedback about whether your tests are passing. If I have two monitors, I like to keep
 VSCode open in one and vitest open in the other.
 
+Bloom tests are run separately. See [Bloom Tests](testing-bloom.md).
+
 # Test-Driven Development
 
 As a side note, I like to practice test-driven development (TDD). In TDD, you write code
