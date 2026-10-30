@@ -6,7 +6,6 @@ import { renderUsfm } from './renderUsfm';
  * - audio-clips
  * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
- * - ordered lists
  * - verse divs
  * - ref-links (handle in PR #1173)
  * - videos
@@ -199,6 +198,96 @@ describe('SAB SFM extensions (via convert filters)', () => {
         );
         const items = [...root.querySelectorAll('div.list-item')].map((d) => d.textContent?.trim());
         expect(items).toEqual(['First item', 'Second item']);
+    });
+
+    describe('ordered lists', () => {
+        // \zon# N sets the start number; each \zoli# becomes a \nb paragraph numbered by
+        // counter-set and indented by level
+        const list = (body: string) => renderUsfm(`\\c 1\n\\p\n\\v 1 Intro.\n${body}\n`);
+        const items = (root: Element) =>
+            [...root.querySelectorAll('div.list-item')].map((d) => {
+                const style = (d as HTMLElement).style;
+                return [
+                    d.textContent?.trim(),
+                    style.getPropertyValue('counter-set'),
+                    style.paddingInlineStart
+                ];
+            });
+
+        test('\\zoli1 renders numbered list items starting at 1', () => {
+            const root = list('\\zoli1 One\n\\zoli1 Two');
+            expect(root.querySelectorAll('div.nb.list-item.list-decimal.list-inside').length).toBe(
+                2
+            );
+            expect(items(root)).toEqual([
+                ['One', 'list-item 1', '1rem'],
+                ['Two', 'list-item 2', '1rem']
+            ]);
+        });
+
+        test('\\zon1 sets the start number', () => {
+            expect(items(list('\\zon1 10\n\\zoli1 One\n\\zoli1 Two'))).toEqual([
+                ['One', 'list-item 10', '1rem'],
+                ['Two', 'list-item 11', '1rem']
+            ]);
+        });
+
+        test('several \\zoli1 on one line become separate items', () => {
+            expect(items(list('\\zoli1 One \\zoli1 Two')).map(([text]) => text)).toEqual([
+                'One',
+                'Two'
+            ]);
+        });
+
+        test('\\zoli2 is indented and numbered separately, restarting under each \\zoli1', () => {
+            const root = list('\\zoli1 A\n\\zoli2 A1\n\\zoli2 A2\n\\zoli1 B\n\\zoli2 B1');
+            expect(items(root)).toEqual([
+                ['A', 'list-item 1', '1rem'],
+                ['A1', 'list-item 1', '3rem'],
+                ['A2', 'list-item 2', '3rem'],
+                ['B', 'list-item 2', '1rem'],
+                ['B1', 'list-item 1', '3rem']
+            ]);
+        });
+
+        test('\\zon2 sets the start number of a nested list', () => {
+            expect(items(list('\\zoli1 A\n\\zon2 5\n\\zoli2 A1\n\\zoli2 A2'))).toEqual([
+                ['A', 'list-item 1', '1rem'],
+                ['A1', 'list-item 5', '3rem'],
+                ['A2', 'list-item 6', '3rem']
+            ]);
+        });
+
+        test('\\zon1 1 restarts the numbering', () => {
+            const numbers = items(list('\\zoli1 A\n\\zoli1 B\n\\zon1 1\n\\zoli1 C'));
+            expect(numbers.map(([, counter]) => counter)).toEqual([
+                'list-item 1',
+                'list-item 2',
+                'list-item 1'
+            ]);
+        });
+
+        // Only \zon restarts a list: numbering carries on across other paragraphs and verses
+        test('numbering continues after an intervening paragraph', () => {
+            const root = list('\\zoli1 A\n\\zoli1 B\n\\p\n\\v 2 Middle.\n\\zoli1 C');
+            expect(items(root).map(([, counter]) => counter)).toEqual([
+                'list-item 1',
+                'list-item 2',
+                'list-item 3'
+            ]);
+        });
+
+        test('character markup stays inside the list item', () => {
+            const item = list('\\zoli1 A \\bd bold\\bd* text').querySelector('div.list-item');
+            expect(item?.querySelector('span.bd')?.textContent).toBe('bold');
+            expect(item?.textContent).toBe('A bold text');
+        });
+
+        test('a verse starting in a list item puts its verse number in the item', () => {
+            const item = list('\\zoli1 A\n\\zoli1 \\v 2 B').querySelectorAll('div.list-item')[1];
+            expect(item.querySelector('span.v')?.textContent).toBe('2');
+            expect(item.closest('[data-verse="2"]')).not.toBeNull();
+        });
     });
 
     test('markdown [label](GEN.1.2) becomes an internal reference link', () => {
