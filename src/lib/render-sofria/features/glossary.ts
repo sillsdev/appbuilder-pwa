@@ -39,7 +39,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             action: ({ workspace }) => {
                 const a = workspace.scopeManager.pop('wrapper:glossary').root;
 
-                const matchWord = a.getAttribute('data-match') || a.innerText || '';
+                const matchWord = a.getAttribute('data-match') || a.textContent || '';
                 a.setAttribute('data-match', matchWord.trim());
 
                 const span = workspace.document.createElement('span');

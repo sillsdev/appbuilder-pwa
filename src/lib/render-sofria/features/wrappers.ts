@@ -5,7 +5,13 @@ import {
     type RenderEnvironment
 } from '$lib/render-sofria/common';
 import { extractUSFMClassName, matchElement } from './common';
-import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
+import {
+    addPhrases,
+    isTopWrapper,
+    terminatePhrase,
+    unwrapWrapperWithPhraseDivs,
+    type SharedTextScratch
+} from './common/text';
 
 function shouldAddWrapper({ context, workspace }: RenderEnvironment) {
     return (
@@ -42,7 +48,11 @@ export const usfmWrappers = new FeatureSpec<
         action: ({ context, workspace }) => {
             terminatePhrase(workspace);
 
-            workspace.scopeManager.promoteContent(`wrapper:${extractUSFMClassName(context)}`);
+            workspace.scopeManager.appendChildrenFromContainer(
+                unwrapWrapperWithPhraseDivs(
+                    workspace.scopeManager.pop(`wrapper:${extractUSFMClassName(context)}`).root
+                )
+            );
 
             const typeStack = workspace.scratch.wrapper?.typeStack ?? [];
             typeStack.pop();

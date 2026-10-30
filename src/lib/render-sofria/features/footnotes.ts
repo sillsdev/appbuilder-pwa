@@ -229,7 +229,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                 const references = workspace.scratch.text!.cleanedText!.split('; ');
                 const container = workspace.scopeManager.has('wrapper:cell')
                     ? workspace.scopeManager.at(0).root
-                    : getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
+                    : workspace.document.createElement('span');
                 for (let i = 0; i < references.length; i++) {
                     const spanV = document.createElement('span');
                     spanV.classList.add('reflink');

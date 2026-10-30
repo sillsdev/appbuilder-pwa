@@ -36,7 +36,11 @@ export function getPhraseDiv(
             addToScratchPad(workspace.scratch, 'text', {
                 introductionIndex: introductionIndex + 1
             });
-        } else if (newPhrase && workspace.viewSettings.isBibleBook) {
+        } else if (
+            newPhrase &&
+            workspace.viewSettings.isBibleBook &&
+            !(workspace.scopeManager.has('inlineGraft') || workspace.scopeManager.has('blockGraft'))
+        ) {
             phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
             phraseDiv.setAttribute('data-verse', workspace.currentTextPosition.verse);
             phraseDiv.setAttribute('data-phrase', phraseIndex);
@@ -75,4 +79,24 @@ export function isTopWrapper(
 ): boolean {
     const depth = workspace.scopeManager.depth(wrapper);
     return !!wrapper && depth >= 0 && depth === workspace.scopeManager.depth('wrapper');
+}
+
+export function unwrapWrapperWithPhraseDivs(wrapper: HTMLElement) {
+    const container = document.createElement('div');
+
+    const phraseDivs = Array.from(wrapper.querySelectorAll('div.txs') ?? []);
+    if (phraseDivs.length) {
+        for (const div of phraseDivs) {
+            const w = wrapper.cloneNode();
+            for (const child of Array.from(div.childNodes)) {
+                w.appendChild(child);
+            }
+            div.replaceChildren(w);
+            container.appendChild(div);
+        }
+    } else {
+        container.append(wrapper);
+    }
+
+    return container;
 }

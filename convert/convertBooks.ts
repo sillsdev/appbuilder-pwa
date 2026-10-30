@@ -24,7 +24,7 @@ import {
     joinUrlPath
 } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
-import { Promisable, Task, TaskOutput } from './Task';
+import { Task, type Promisable, type TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 const base = process.env.BUILD_BASE_PATH || '';
@@ -88,18 +88,29 @@ function transformZonTags(usfm: string): string {
     return usfm.replace(/(\\zon\d+)\s(\d+)/g, '$1 |start="$2"\\*');
 }
 
-function loadGlossary(collection: BookCollectionConfig, dataDir: string): string[] {
+function loadGlossary(
+    collection: BookCollectionConfig,
+    dataDir: string,
+    files: string[]
+): string[] {
     const glossary: string[] = [];
     for (const book of collection.books) {
-        if (book.type && book.type === 'glossary') {
-            let glossaryBook = path.join(dataDir, 'books', collection.id, book.file);
-            if (!fs.existsSync(glossaryBook)) {
-                const extension = extname(book.file);
-                const filename = basename(book.file, extension);
-                glossaryBook = path.join(dataDir, 'books', collection.id, filename + '-001.sfm');
-                //process.stdout.write('Replacing filename: ' + glossaryBook);
+        if (book.type === 'glossary') {
+            let glossaryContent = '';
+            const bookPath = path.join(dataDir, 'books', collection.id, book.file);
+            //process.stdout.write(`Checking for book: ${bookPath}\n`);
+            if (fs.existsSync(bookPath)) {
+                //read the single usfm file (pre-12.0)
+                glossaryContent = fs.readFileSync(bookPath, 'utf8');
+            } else {
+                glossaryContent = joinBookFromMultipleFiles(
+                    bookPath,
+                    files,
+                    dataDir,
+                    collection.id,
+                    book.type
+                );
             }
-            const glossaryContent = fs.readFileSync(glossaryBook, 'utf8');
             // Regular expression pattern
             const regex = /\\k\s*([^\\]+)\s*\\k\*/g;
             let match;
@@ -124,27 +135,36 @@ function removeStrongNumberReferences(
     return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
 }
 
-function removeMissingVerses(text: string, _bcId: string, _bookId: string): string {
-    // Regular expression to match the pattern:
-    // \v (any number of digits) followed by any number of such patterns
-    const regex = /(\\v\s\d+\s*)+/g;
+function removeMissingVerses(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    ctx: ConvertBookContext
+): string {
+    if (ctx.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
+        // Regular expression to match the pattern:
+        // \v (any number of digits) followed by any number of such patterns
+        const regex = /(\\v\s\d+\s*)+/g;
 
-    // Replace matches with the last occurrence
-    return text.replace(regex, (match) => {
-        // Split the matched string by \v and filter out empty parts
-        const parts = match
-            .trim()
-            .split(/\\v\s*/)
-            .filter(Boolean);
+        // Replace matches with the last occurrence
+        return text.replace(regex, (match) => {
+            // Split the matched string by \v and filter out empty parts
+            const parts = match
+                .trim()
+                .split(/\\v\s*/)
+                .filter(Boolean);
 
-        // If there are multiple parts, return only the last one with \v prepended
-        if (parts.length > 1) {
-            return `\\v ${parts.pop()} `;
-        }
+            // If there are multiple parts, return only the last one with \v prepended
+            if (parts.length > 1) {
+                return `\\v ${parts.pop()} `;
+            }
 
-        // If only one part or none, return the match unchanged
-        return match;
-    });
+            // If only one part or none, return the match unchanged
+            return match;
+        });
+    } else {
+        return text;
+    }
 }
 
 export function encodeJmpLinks(
@@ -363,6 +383,18 @@ function moveFigureToNextNonVerseMarker(
     return result.join(eol);
 }
 
+function removeInvalidGlossaryEntries(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    ctx: ConvertBookContext
+): string {
+    if (ctx.scriptureConfig.traits?.['has-glossary']) {
+        text = verifyGlossaryEntries(text, ctx.bcGlossary);
+    }
+    return text;
+}
+
 type FilterFunction = (
     text: string,
     bcId: string,
@@ -370,7 +402,7 @@ type FilterFunction = (
     context: ConvertBookContext
 ) => string;
 
-const usfmFilterFunctions: FilterFunction[] = [
+export const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
     replacePStyleTags,
@@ -382,12 +414,14 @@ const usfmFilterFunctions: FilterFunction[] = [
     removeMissingFigures,
     trimTrailingWhitespace,
     addParagraphMarkersAroundTableRows,
-    moveFigureToNextNonVerseMarker
+    moveFigureToNextNonVerseMarker,
+    removeInvalidGlossaryEntries,
+    removeMissingVerses
 ];
 
 const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
 
-function applyFilters(
+export function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
@@ -415,13 +449,14 @@ function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
     return ds;
 }
 
-type ConvertBookContext = {
+export type ConvertBookContext = {
     dataDir: string;
     scriptureConfig: ScriptureConfig;
     verbose: number;
     lang: string;
     docSet: string;
     bcId: string;
+    bcGlossary: string[];
 };
 
 const unsupportedBookTypes = ['audio-only', 'bloom-player', 'quiz', 'undefined'];
@@ -466,9 +501,9 @@ export async function convertBooks(
             verbose,
             lang: collection.languageCode,
             docSet: collection.languageCode + '_' + collection.id,
-            bcId: collection.id
+            bcId: collection.id,
+            bcGlossary: []
         };
-        let bcGlossary: string[] = [];
         if (verbose && usedLangs.has(context.lang)) {
             console.warn(
                 `Language ${context.lang} already used in another collection. Proceeding anyway.`
@@ -489,7 +524,7 @@ export async function convertBooks(
         const ignoredBooks = [];
         // If the collection has a glossary, load it
         if (scriptureConfig.traits?.['has-glossary']) {
-            bcGlossary = loadGlossary(collection, dataDir);
+            context.bcGlossary = loadGlossary(collection, dataDir, inputFiles);
         }
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
@@ -531,19 +566,11 @@ export async function convertBooks(
                         displayBookId(context.bcId, book.id);
                         htmlBooks[context.docSet].push({ id: book.id, name: book.name });
                     } else {
-                        convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
+                        convertScriptureBook(pk, context, book, docs, inputFiles);
                     }
                     if (book.bookTabs) {
                         for (const bookTab of book.bookTabs.tabs) {
-                            convertScriptureBook(
-                                pk,
-                                context,
-                                book,
-                                bcGlossary,
-                                docs,
-                                inputFiles,
-                                bookTab
-                            );
+                            convertScriptureBook(pk, context, book, docs, inputFiles, bookTab);
                         }
                     }
                     break;
@@ -808,11 +835,64 @@ function firstFiveLines(text: string): string {
     return text.split(/\r?\n/).slice(0, 5).join(eol);
 }
 
+function joinBookFromMultipleFiles(
+    bookPath: string,
+    files: string[],
+    dataDir: string,
+    bcId: string,
+    bookType: string | undefined
+) {
+    //read multiple files that have been split up (so that portions parameter is processed)
+    const extension = extname(bookPath);
+    const baseFilename = basename(bookPath, extension).normalize('NFC');
+
+    //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
+    const matchingFiles = files.filter((file) => {
+        const ext = extname(file);
+        const filenameWithoutExt = basename(file, ext).normalize('NFC');
+
+        // Check if the filename starts with baseFilename
+        if (!filenameWithoutExt.startsWith(baseFilename)) {
+            return false;
+        }
+
+        // Get the part after baseFilename
+        const suffix = filenameWithoutExt.slice(baseFilename.length);
+
+        // Check if it matches `-###` pattern
+        return suffix.startsWith('-') && /^\d{3}$/.test(suffix.slice(1));
+    });
+
+    matchingFiles.sort();
+    //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
+
+    const fileContents: string[] = [];
+    matchingFiles.map((file) => {
+        const filePath = path.join(dataDir, 'books', bcId, file);
+        fileContents.push(fs.readFileSync(filePath, 'utf-8'));
+    });
+    // Collect the file contents into a single document
+    let usfm: string;
+
+    if (bookType === 'story') {
+        // The first file contains meta-content (id, title, etc)
+        usfm = fileContents[0];
+
+        // Subsequent files represent storybook pages.
+        // SAB deletes the \page tags. Replace them with chapter tags.
+        for (let i = 1; i < fileContents.length; i++) {
+            usfm += `\\c ${i} ${fileContents[i]}`;
+        }
+    } else {
+        usfm = fileContents.join('');
+    }
+    return usfm;
+}
+
 function convertScriptureBook(
     pk: SABProskomma,
     context: ConvertBookContext,
     book: BookConfig,
-    bcGlossary: string[],
     docs: Promise<void>[],
     files: string[],
     bookTab?: BookTabConfig
@@ -834,12 +914,6 @@ function convertScriptureBook(
                 firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +
                 '\n' +
                 remainingLines;
-        }
-        if (context.scriptureConfig.traits?.['has-glossary']) {
-            content = verifyGlossaryEntries(content, bcGlossary);
-        }
-        if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
-            content = removeMissingVerses(content, context.bcId, id);
         }
         // Cannot use GraphQL mutation asynchronously since content with triple double quotes
         // in the contents (see Scriptoria project 3949 for an example) will fail to load.
@@ -885,51 +959,17 @@ function convertScriptureBook(
                     processBookContent(resolve, err, content)
                 );
             } else {
-                //read multiple files that have been split up (so that portions parameter is processed)
-                const extension = extname(bookPath);
-                const baseFilename = basename(bookPath, extension).normalize('NFC');
-
-                //process.stdout.write(`Checking multiple files: ${baseFilename}-XXX.sfm\n`);
-                const matchingFiles = files.filter((file) => {
-                    const ext = extname(file);
-                    const filenameWithoutExt = basename(file, ext).normalize('NFC');
-
-                    // Check if the filename starts with baseFilename
-                    if (!filenameWithoutExt.startsWith(baseFilename)) {
-                        return false;
-                    }
-
-                    // Get the part after baseFilename
-                    const suffix = filenameWithoutExt.slice(baseFilename.length);
-
-                    // Check if it matches `-###` pattern
-                    return suffix.startsWith('-') && /^\d{3}$/.test(suffix.slice(1));
-                });
-
-                matchingFiles.sort();
-                //process.stdout.write(`Found Files\n${matchingFiles.join('\n')}\n`);
-
-                const fileContents: string[] = [];
-                matchingFiles.map((file) => {
-                    const filePath = path.join(context.dataDir, 'books', context.bcId, file);
-                    fileContents.push(fs.readFileSync(filePath, 'utf-8'));
-                });
-                // Collect the file contents into a single document
-                let usfm: string;
-
-                if (book.type === 'story') {
-                    // The first file contains meta-content (id, title, etc)
-                    usfm = fileContents[0];
-
-                    // Subsequent files represent storybook pages.
-                    // SAB deletes the \page tags. Replace them with chapter tags.
-                    for (let i = 1; i < fileContents.length; i++) {
-                        usfm += `\\c ${i} ${fileContents[i]}`;
-                    }
-                } else {
-                    usfm = fileContents.join('');
-                }
-                processBookContent(resolve, null, usfm);
+                processBookContent(
+                    resolve,
+                    null,
+                    joinBookFromMultipleFiles(
+                        bookPath,
+                        files,
+                        context.dataDir,
+                        context.bcId,
+                        book.type
+                    )
+                );
             }
         })
     );

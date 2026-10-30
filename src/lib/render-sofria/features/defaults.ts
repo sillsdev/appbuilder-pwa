@@ -36,7 +36,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
             stage: 'init',
             details: ({ context, workspace }) => ({
                 v: getElement(context).atts['number'],
-                phrase: workspace.scopeManager.find('phrase')?.root.innerText
+                phrase: workspace.scopeManager.find('phrase')?.root.textContent
             }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
             action({ workspace }) {
@@ -57,7 +57,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     startParagraph: {
         stage: 'init',
         details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText
+            phrase: workspace.scopeManager.find('phrase')?.root.textContent
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
@@ -67,7 +67,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     endParagraph: {
         stage: 'init',
         details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.innerText
+            phrase: workspace.scopeManager.find('phrase')?.root.textContent
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
