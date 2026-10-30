@@ -3,7 +3,6 @@ import { renderUsfm } from './renderUsfm';
 
 /**
  * TODO:
- * - audio-clips
  * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
  * - verse divs
@@ -865,5 +864,91 @@ describe('illustrations', () => {
             });
             expect(imageBlock(root)).toBeFalsy();
         });
+    });
+});
+
+// Audio clips are markdown links to .mp3/.wav files, converted to \zaudioc milestones.
+// Asset src is only checked for its suffix: it may come from an import.meta.glob of
+// src/gen-assets/clips, which is gitignored and empty in CI.
+describe('audio clips', () => {
+    const audio = {
+        files: [
+            { name: 'clip one.mp3', src: 'assets' },
+            { name: 'remote.wav', src: 'download' },
+            { name: 'fcbh.mp3', src: 'fcbh' }
+        ],
+        sources: {
+            assets: { type: 'assets', name: 'Assets' },
+            download: { type: 'download', name: 'Web', address: 'https://example.org/audio' },
+            fcbh: { type: 'fcbh', name: 'FCBH' }
+        }
+    };
+    const render = (body: string, options: Parameters<typeof renderUsfm>[1] = { audio }) =>
+        renderUsfm(chapter(body), options);
+    const clipSrcs = (root: Element) =>
+        [...root.querySelectorAll('audio')].map((a) => [a.id, a.getAttribute('src')]);
+
+    beforeEach(() => {
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    test('clip from an assets source renders an audio element and an audioclip link', () => {
+        const root = render('\\v 1 Hear [Listen](clip one.mp3) now.');
+        const a = root.querySelector('a.audioclip');
+        expect(a?.textContent).toBe('Listen');
+        expect(a?.getAttribute('href')).toBe('javascript:void(0)');
+        const el = a?.previousElementSibling as HTMLAudioElement;
+        expect(el.tagName).toBe('AUDIO');
+        expect(el.id).toBe('audio001');
+        expect(el.getAttribute('preload')).toBe('auto');
+        expect(el.getAttribute('src')).toMatch(/clips\/clip one\.mp3$/);
+    });
+
+    test('clip from a download source uses the source address', () => {
+        const root = render('\\v 1 Hear [Listen](remote.wav) now.');
+        expect(clipSrcs(root)).toEqual([['audio001', 'https://example.org/audio/remote.wav']]);
+    });
+
+    test('the path in the link is ignored when matching the file', () => {
+        const root = render('\\v 1 Hear [Listen](sounds/remote.wav) now.');
+        expect(clipSrcs(root)).toEqual([['audio001', 'https://example.org/audio/remote.wav']]);
+    });
+
+    test('ids count clips across the text and footnotes', () => {
+        const root = render(
+            '\\v 1 [A](clip one.mp3)\\f + \\fr 1:1 \\ft Note [B](remote.wav)\\f* and [C](remote.wav)'
+        );
+        expect(clipSrcs(root).map(([id]) => id)).toEqual(['audio001', 'audio002', 'audio003']);
+        expect(root.querySelector('div[type="footnote"] a.audioclip')?.textContent).toBe('B');
+    });
+
+    test('clicking a clip plays its audio element', () => {
+        const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
+        const root = render('\\v 1 [A](clip one.mp3) and [B](remote.wav)');
+        root.querySelectorAll<HTMLElement>('a.audioclip')[1].click();
+        expect(play).toHaveBeenCalledOnce();
+        expect(play.mock.contexts[0]).toBe(root.querySelector('audio#audio002'));
+    });
+
+    test.each([
+        ['a file not in config.audio.files', 'missing.mp3', audio],
+        ['an unsupported source type', 'fcbh.mp3', audio],
+        ['no config.audio.files', 'clip one.mp3', { sources: {} }]
+    ])('%s renders the label as plain text', (_name, file, config) => {
+        const root = render(`\\v 1 Hear [Listen](${file}) now.`, { audio: config });
+        expect(root.querySelector('audio')).toBeNull();
+        expect(root.querySelector('a')).toBeNull();
+        expect(root.querySelector('div.p')?.textContent).toContain('Hear Listen now.');
+    });
+
+    // BUG (also in legacy): convertMarkdown wraps the \zaudioc milestone in spaces, so
+    // punctuation after a clip is pushed away from it ("Listen .")
+    test.fails('punctuation directly after a clip is not separated by a space', () => {
+        const root = render('\\v 1 Hear [Listen](clip one.mp3).');
+        expect(root.querySelector('div.p')?.textContent).toContain('Listen.');
     });
 });
