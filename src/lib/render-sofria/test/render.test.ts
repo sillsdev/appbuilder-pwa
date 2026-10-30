@@ -1,3 +1,4 @@
+import config from '$assets/config';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderUsfm } from './renderUsfm';
 
@@ -7,7 +8,6 @@ import { renderUsfm } from './renderUsfm';
  * - custom tags (handle in separate PR)
  * - verse divs
  * - ref-links (handle in PR #1173)
- * - videos
  * - ChordPro (handle in PR #1176)
  * - table headers (handle in PR #1178)
  */
@@ -950,5 +950,187 @@ describe('audio clips', () => {
     test.fails('punctuation directly after a clip is not separated by a space', () => {
         const root = render('\\v 1 Hear [Listen](clip one.mp3).');
         expect(root.querySelector('div.p')?.textContent).toContain('Listen.');
+    });
+});
+
+// \video ids (converted to \zvideo milestones) and videos placed by the appDef.
+// createVideoBlock reads mainFeatures and audio from the global $assets/config (the built
+// project's config), so the keys it uses are set here and restored after each test.
+describe('videos', () => {
+    const video = (id: string, onlineUrl: string, extra: object = {}) => ({
+        id,
+        onlineUrl,
+        width: 640,
+        height: 360,
+        thumbnail: `${id}.jpg`,
+        filename: `${id}.mp4`,
+        title: `Title ${id}`,
+        ...extra
+    });
+    const youtube = video('V1', 'https://www.youtube.com/watch?v=abc');
+    const vimeo = video('V2', 'https://vimeo.com/123');
+    const hls = video('V3', 'https://example.org/v3.m3u8');
+    const local = video('V4', 'https://example.org/v4.mp4', { src: 'local' });
+    const videos = [youtube, vimeo, hls, local];
+
+    const blocks = (root: Element) => [...root.querySelectorAll('div.video-block')];
+    const container = (block: Element | undefined) => block?.querySelector('div.video-container');
+    const onclick = (block: Element | undefined) =>
+        block?.querySelector('a')?.getAttribute('onclick');
+    const scripts = () => [...document.head.querySelectorAll('script')].map((s) => s.id);
+
+    const appConfig = config as { mainFeatures: Record<string, unknown>; audio?: unknown };
+    const featureKeys = ['video-show-titles', 'video-youtube-related-same-channel'];
+    let saved: { features: Record<string, unknown>; audio: unknown };
+
+    beforeEach(() => {
+        saved = {
+            features: Object.fromEntries(featureKeys.map((k) => [k, appConfig.mainFeatures[k]])),
+            audio: appConfig.audio
+        };
+        appConfig.mainFeatures['video-show-titles'] = true;
+        appConfig.mainFeatures['video-youtube-related-same-channel'] = false;
+        appConfig.audio = { sources: { local: { type: 'assets', name: 'Local' } } };
+    });
+
+    afterEach(() => {
+        for (const [k, v] of Object.entries(saved.features)) {
+            if (v === undefined) {
+                delete appConfig.mainFeatures[k];
+            } else {
+                appConfig.mainFeatures[k] = v;
+            }
+        }
+        appConfig.audio = saved.audio;
+        document.head.querySelectorAll('script').forEach((s) => s.remove());
+    });
+
+    describe('\\video in the text', () => {
+        const render = (markers: string, options: Parameters<typeof renderUsfm>[1] = {}) =>
+            renderUsfm(`\\c 1\n\\p\n\\v 1 One.\n${markers}\n\\v 2 Two.\n`, {
+                videos,
+                ...options
+            });
+
+        test('a video id from config.videos renders a video block with a play link', () => {
+            const block = blocks(render('\\video V1'))[0];
+            expect(container(block)?.id).toBe('VIDEO0');
+            expect([...container(block)!.classList]).toEqual([
+                'video-container',
+                'video-YouTube',
+                'video-16-9'
+            ]);
+            expect(onclick(block)).toBe(
+                "playOnlineVideo('VIDEO0', 'https://www.youtube.com/watch?v=abc&rel=0'); return false;"
+            );
+            expect(block.querySelector('span.video-title')?.textContent).toBe('Title V1');
+        });
+
+        test('video-youtube-related-same-channel leaves the YouTube url as is', () => {
+            appConfig.mainFeatures['video-youtube-related-same-channel'] = true;
+            expect(onclick(blocks(render('\\video V1'))[0])).toBe(
+                "playOnlineVideo('VIDEO0', 'https://www.youtube.com/watch?v=abc'); return false;"
+            );
+        });
+
+        test('video-show-titles off hides the title', () => {
+            appConfig.mainFeatures['video-show-titles'] = false;
+            expect(blocks(render('\\video V1'))[0].querySelector('.video-title')).toBeNull();
+        });
+
+        test('a video from an assets source plays the video file', () => {
+            expect(onclick(blocks(render('\\video V4'))[0])).toMatch(/^playVideoFile\('VIDEO0', /);
+        });
+
+        test('ids count the videos in the text', () => {
+            const root = render('\\video V1\n\\v 2 Two.\n\\video V2');
+            expect(blocks(root).map((b) => container(b)?.id)).toEqual(['VIDEO0', 'VIDEO1']);
+        });
+
+        test.each([
+            ['https://vimeo.com/999', 'https://player.vimeo.com/video/999'],
+            ['https://www.youtube.com/watch?v=xyz', 'https://www.youtube.com/embed/xyz']
+        ])('a url not in config.videos (%s) renders an embedded player', (url, src) => {
+            const block = blocks(render(`\\video ${url}`))[0];
+            expect(block.querySelector('iframe')?.getAttribute('src')).toBe(src);
+        });
+
+        // BUG (not in legacy): legacy appends the video after its paragraph; here it is
+        // inserted at the start of the paragraph, before the paragraph's text
+        test.fails('the video follows the text of its paragraph', () => {
+            const root = render('\\video V1');
+            const text = root.querySelector('[data-verse="1"]')!;
+            const position = text.compareDocumentPosition(blocks(root)[0]);
+            expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        });
+
+        // BUG (also in legacy): addVideoLinks is only given the appDef-placed videos, so an
+        // HLS video in the text does not load hls.js
+        test.fails('an HLS video loads hls.js', () => {
+            render('\\video V3');
+            expect(scripts()).toContain('js_hls');
+        });
+    });
+
+    describe('videos placed by the appDef (config.videos)', () => {
+        const usfm = '\\c 1\n\\p\n\\v 1 One.\n\\v 2 Two.\n\\p\n\\v 3 Three.\n';
+        const placed = (pos: string, ref: string, v = vimeo, collection = 'C01') => [
+            { ...v, placement: { pos, ref, collection } }
+        ];
+
+        test('after: placed after the verse bookmarks', () => {
+            const root = renderUsfm(usfm, { videos: placed('after', 'GEN 1:2') });
+            const block = blocks(root)[0];
+            expect(block.previousElementSibling?.id).toBe('bookmarks2');
+            expect(container(block)?.classList.contains('video-vimeo')).toBe(true);
+        });
+
+        test('before: placed before the verse div (ref with dots)', () => {
+            const root = renderUsfm(usfm, { videos: placed('before', 'GEN.1.3') });
+            expect(blocks(root)[0].nextElementSibling?.getAttribute('data-verse')).toBe('3');
+        });
+
+        test.each([
+            ['another collection', placed('after', 'GEN 1:2', vimeo, 'C02')],
+            ['another chapter', placed('after', 'GEN 2:2')],
+            ['another book', placed('after', 'EXO 1:2')]
+        ])('not placed for %s', (_name, placedVideos) => {
+            expect(blocks(renderUsfm(usfm, { videos: placedVideos }))).toEqual([]);
+        });
+
+        test('loads the video script, and hls.js for an HLS video', () => {
+            renderUsfm(usfm, { videos: placed('after', 'GEN 1:2') });
+            expect(scripts()).toEqual(['js_video']);
+            renderUsfm(usfm, { videos: placed('after', 'GEN 1:2', hls) });
+            expect(scripts()).toEqual(['js_video', 'js_hls']);
+        });
+
+        test('display-videos-in-bible-text off hides placed videos in a Bible book', () => {
+            const root = renderUsfm(usfm, {
+                videos: placed('after', 'GEN 1:2'),
+                settings: { 'display-videos-in-bible-text': 'off' }
+            });
+            expect(blocks(root)).toEqual([]);
+        });
+
+        test('display-videos-in-bible-text off still shows placed videos in other books', () => {
+            const root = renderUsfm(usfm, {
+                videos: placed('after', 'GEN 1:2'),
+                settings: { 'display-videos-in-bible-text': 'off' },
+                bibleBook: false
+            });
+            expect(blocks(root)).toHaveLength(1);
+        });
+
+        // BUG (also in legacy): videos in the text and placed videos are numbered separately,
+        // so both get VIDEO0 and the play link of one opens the other
+        test.fails('a placed video and a video in the text get different ids', () => {
+            const root = renderUsfm('\\c 1\n\\p\n\\v 1 One.\n\\video V1\n\\v 2 Two.\n', {
+                videos: [youtube, ...placed('after', 'GEN 1:2')]
+            });
+            const ids = blocks(root).map((b) => container(b)?.id);
+            expect(ids).toHaveLength(2);
+            expect(new Set(ids).size).toBe(2);
+        });
     });
 });
