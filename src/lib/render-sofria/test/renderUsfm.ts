@@ -41,6 +41,8 @@ export type RenderOptions = {
     bcGlossary?: string[];
     /** `config.illustrations` (appDef-placed illustrations) */
     illustrations?: ScriptureConfig['illustrations'];
+    /** `config.videos` (\\video ids and appDef-placed videos) */
+    videos?: ScriptureConfig['videos'];
     /** `config.audio` (audio sources and files, used by audio clips) */
     audio?: ScriptureConfig['audio'];
 };
@@ -80,7 +82,7 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
             }
         ],
         illustrations: options.illustrations ?? [],
-        videos: [],
+        videos: options.videos ?? [],
         audio: options.audio ?? { files: [], sources: {} }
     } as unknown as ScriptureConfig;
 }
