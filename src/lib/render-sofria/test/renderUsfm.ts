@@ -36,6 +36,8 @@ export type RenderOptions = {
     bibleBook?: boolean;
     hasAudio?: boolean;
     hackRenderIntro?: boolean;
+    /** `viewSettings.verseLayout` (default 'paragraphs') */
+    verseLayout?: RenderWorkspace['viewSettings']['verseLayout'];
     /** run the real `convert/convertBooks.ts` USFM filter chain before import (default true) */
     convert?: boolean;
     bcGlossary?: string[];
@@ -129,7 +131,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             viewSettings: {
                 isBibleBook: options.bibleBook ?? true,
                 redLetters: options.redLetters ?? false,
-                verseLayout: 'paragraphs'
+                verseLayout: options.verseLayout ?? 'paragraphs'
             },
             hackRenderIntro: options.hackRenderIntro ?? false,
             events: {

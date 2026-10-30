@@ -6,7 +6,6 @@ import { renderUsfm } from './renderUsfm';
  * TODO:
  * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
- * - verse divs
  * - ref-links (handle in PR #1173)
  * - ChordPro (handle in PR #1176)
  * - table headers (handle in PR #1178)
@@ -63,6 +62,99 @@ describe('chapter and verse numbers', () => {
         const root = renderUsfm(chapter('\\v 1 One. \\v 2 Two.'));
         const verses = [...root.querySelectorAll('span.v')].map((v) => v.textContent);
         expect(verses).toEqual(['1', '2']);
+    });
+});
+
+// Unlike legacy, render-sofria aims to put each whole verse in one div[data-verse] (see
+// endParagraph in features/main-text.ts), e.g. for hover shading of a verse (#1115).
+// A paragraph with several verses holds one div per verse; a verse with several paragraphs
+// is one div holding those paragraphs.
+describe('verse divs', () => {
+    const verseDiv = (el: Element) =>
+        el.parentElement?.closest('[data-verse]:not([data-phrase])') ?? null;
+    /** phrases not inside the div of their own verse: [phrase id, data-verse of the div] */
+    const misplacedPhrases = (root: Element) =>
+        [...root.querySelectorAll('[data-phrase]:not([data-phrase="none"])')]
+            .map((p) => [p, verseDiv(p)?.getAttribute('data-verse')] as const)
+            .filter(([p, verse]) => p.getAttribute('data-verse') !== verse)
+            .map(([p, verse]) => [p.id, verse]);
+    /** phrases of `verse` all share one verse div, which holds no other verse */
+    const expectWholeVerse = (root: Element, verse: string) => {
+        const phrases = [...root.querySelectorAll(`[data-verse="${verse}"][data-phrase]`)];
+        const divs = new Set(phrases.map(verseDiv));
+        expect(divs.size).toBe(1);
+        const [div] = divs;
+        expect(div?.getAttribute('data-verse')).toBe(verse);
+        const others = div!.querySelectorAll(`[data-phrase]:not([data-verse="${verse}"])`);
+        expect([...others].map((p) => p.id)).toEqual([]);
+    };
+
+    test('several verses in a paragraph each get a div.txs inside the paragraph', () => {
+        const root = renderUsfm(chapter('\\v 1 One.\n\\v 2 Two.'));
+        const divs = [...root.querySelectorAll('div.p > div.txs[data-verse]')];
+        expect(divs.map((d) => d.getAttribute('data-verse'))).toEqual(['1', '2']);
+        expectWholeVerse(root, '1');
+        expectWholeVerse(root, '2');
+    });
+
+    test('one-per-line layout uses div.verse-block', () => {
+        const root = renderUsfm(chapter('\\v 1 One.\n\\v 2 Two.'), {
+            verseLayout: 'one-per-line'
+        });
+        const divs = [...root.querySelectorAll('div.verse-block')];
+        expect(divs.map((d) => d.getAttribute('data-verse'))).toEqual(['1', '2']);
+    });
+
+    test('a verse range keeps the range in data-verse', () => {
+        const root = renderUsfm(chapter('\\v 1-2 One and two.\n\\v 3 Three.'));
+        expectWholeVerse(root, '1-2');
+    });
+
+    test('a verse over several paragraphs is one div holding the paragraphs', () => {
+        const root = renderUsfm('\\c 1\n\\p\n\\v 1 One a.\n\\p One b.\n\\p\n\\v 2 Two.\n');
+        const div = root.querySelector('div.txs[data-verse="1"]');
+        expect([...div!.children].map((c) => c.className)).toEqual(['p', 'p']);
+        expectWholeVerse(root, '1');
+        expectWholeVerse(root, '2');
+    });
+
+    test('poetry lines of a verse share one verse div', () => {
+        const root = renderUsfm(
+            '\\c 1\n\\q1\n\\v 1 Line a\n\\q2 line b\n\\q1\n\\v 2 Line c\n\\q2 line d\n'
+        );
+        expectWholeVerse(root, '1');
+        expectWholeVerse(root, '2');
+    });
+
+    test('a heading between verses is outside the verse divs', () => {
+        const root = renderUsfm('\\c 1\n\\p\n\\v 1 One.\n\\s1 Head\n\\p\n\\v 2 Two.\n');
+        expect(verseDiv(root.querySelector('div.s')!)).toBeNull();
+        expectWholeVerse(root, '1');
+        expectWholeVerse(root, '2');
+    });
+
+    // BUG (render-sofria only; legacy has no whole-verse divs): when a paragraph continues
+    // a verse and then starts another, endParagraph sees one verse started in it and wraps
+    // the whole paragraph in that verse's div, so the continued text belongs to the wrong
+    // verse (shaded with it on hover, and media placed "before" it lands mid-verse).
+    // When the paragraph starts two or more verses, the continued text is in no verse div.
+    test.fails.each([
+        ['continues verse 1, starts verse 2', '\\p\n\\v 1 One a.\n\\p One b.\n\\v 2 Two.'],
+        [
+            'continues verse 1 over two paragraphs, starts verse 2',
+            '\\p\n\\v 1 One a.\n\\p One b.\n\\p One c.\n\\v 2 Two.'
+        ],
+        [
+            'continues verse 2 of a multi-verse paragraph, starts verse 3',
+            '\\p\n\\v 1 One.\n\\v 2 Two a.\n\\p Two b.\n\\v 3 Three.'
+        ],
+        [
+            'continues verse 1, starts verses 2 and 3',
+            '\\p\n\\v 1 One a.\n\\p One b.\n\\v 2 Two.\n\\v 3 Three.'
+        ]
+    ])('paragraph that %s: every phrase is in its own verse div', (_name, body) => {
+        const root = renderUsfm(`\\c 1\n${body}\n`);
+        expect(misplacedPhrases(root)).toEqual([]);
     });
 });
 
