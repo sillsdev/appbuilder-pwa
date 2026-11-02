@@ -15,6 +15,7 @@ export const videos = new FeatureSpec<{
     milestone?: {
         currentVideoIndex?: number;
         videos?: HTMLElement[];
+        videoContainerPara?: HTMLElement;
     };
 }>('Videos', {
     startMilestone: {
@@ -52,22 +53,42 @@ export const videos = new FeatureSpec<{
             matchElement(context, 'usfm:zvideo') && renderIfRegularOrIfHackedIntro(workspace),
         action: noaction
     },
-    endParagraph: {
-        stage: 'init',
-        details: ({ workspace }) => ({
-            phrase: workspace.scopeManager.find('phrase')?.root.textContent,
-            videos: workspace.scratch.milestone?.videos?.length
-        }),
-        guard: ({ context, workspace }) =>
-            matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            terminatePhrase(workspace);
-            workspace.scratch.milestone?.videos?.forEach((el) =>
-                workspace.scopeManager.appendContent(el, 'paragraph:main')
-            );
-            addToScratchPad(workspace.scratch, 'milestone', { videos: [] });
+    endParagraph: [
+        {
+            stage: 'init',
+            details: ({ workspace }) => ({
+                phrase: workspace.scopeManager.find('phrase')?.root.textContent
+            }),
+            guard: ({ context, workspace }) =>
+                matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                terminatePhrase(workspace);
+
+                // cache paragraph before it is moved by verseDiv handlers in main-text
+                const videoContainerPara = workspace.scopeManager.find('paragraph:main')?.root;
+                addToScratchPad(workspace.scratch, 'milestone', { videoContainerPara });
+            }
+        },
+        {
+            stage: 'cleanup',
+            details: ({ workspace }) => ({
+                videos: workspace.scratch.milestone?.videos?.length,
+                container: workspace.scratch.milestone?.videoContainerPara
+            }),
+            guard: ({ context, workspace }) =>
+                matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                // append videos to cached paragraph div
+                workspace.scratch.milestone?.videos?.forEach((el) =>
+                    workspace.scratch.milestone?.videoContainerPara?.appendChild(el)
+                );
+                addToScratchPad(workspace.scratch, 'milestone', {
+                    videos: [],
+                    videoContainerPara: undefined
+                });
+            }
         }
-    },
+    ],
     endDocument: {
         stage: 'standard',
         details: ({ workspace }) => ({

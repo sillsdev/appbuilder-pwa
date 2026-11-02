@@ -195,7 +195,6 @@ describe('generic character markers', () => {
             hasAudio: true,
             bibleBook: true
         });
-        console.log(root.outerHTML);
         expect(root.querySelectorAll('div span.it').length).toBe(2);
     });
 });
@@ -1147,9 +1146,7 @@ describe('videos', () => {
             expect(block.querySelector('iframe')?.getAttribute('src')).toBe(src);
         });
 
-        // BUG (not in legacy): legacy appends the video after its paragraph; here it is
-        // inserted at the start of the paragraph, before the paragraph's text
-        test.fails('the video follows the text of its paragraph', () => {
+        test('the video follows the text of its paragraph', () => {
             const root = render('\\video V1');
             const text = root.querySelector('[data-verse="1"]')!;
             const position = text.compareDocumentPosition(blocks(root)[0]);
