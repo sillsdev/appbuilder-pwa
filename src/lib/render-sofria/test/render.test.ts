@@ -1214,9 +1214,7 @@ describe('videos', () => {
             expect(blocks(root)).toHaveLength(1);
         });
 
-        // BUG (also in legacy): videos in the text and placed videos are numbered separately,
-        // so both get VIDEO0 and the play link of one opens the other
-        test.fails('a placed video and a video in the text get different ids', () => {
+        test('a placed video and a video in the text get different ids', () => {
             const root = renderUsfm('\\c 1\n\\p\n\\v 1 One.\n\\video V1\n\\v 2 Two.\n', {
                 videos: [youtube, ...placed('after', 'GEN 1:2')]
             });

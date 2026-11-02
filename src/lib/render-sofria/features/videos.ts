@@ -82,7 +82,11 @@ export const videos = new FeatureSpec<{
                     // ref can be MAT 1:1 or MAT.1.1
                     const verse = video.placement.ref.split(/[:.]/).at(-1);
                     if (verse) {
-                        const videoBlockDiv = createVideoBlock(document, video, index);
+                        const videoBlockDiv = createVideoBlock(
+                            document,
+                            video,
+                            index + (workspace.scratch.milestone?.currentVideoIndex ?? 0)
+                        );
                         placeElement(workspace, videoBlockDiv, video.placement.pos, verse);
                     }
                 }
