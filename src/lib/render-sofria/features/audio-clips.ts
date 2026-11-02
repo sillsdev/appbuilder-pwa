@@ -112,16 +112,16 @@ export const audioclips = new FeatureSpec<
     endDocument: {
         stage: 'standard',
         details: ({ workspace }) => ({
-            count: workspace.root.querySelectorAll('.audioclip').length
+            count: workspace.root.querySelectorAll('a.audioclip').length
         }),
-        guard: ({ workspace }) =>
-            !workspace.scratch.text?.empty && isTopWrapper(workspace, 'wrapper:zaudioc'),
+        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
-            workspace.root.querySelectorAll('.audioclip').forEach((el) =>
+            workspace.root.querySelectorAll('a.audioclip').forEach((el) =>
                 el.addEventListener(
                     'click',
                     function remoteAudioClipHandler(event) {
                         event.stopPropagation();
+                        console.log(el.getAttribute('data-audio-id'));
                         const audio: HTMLAudioElement | null = workspace.root.querySelector(
                             `audio[id="${el.getAttribute('data-audio-id')}"]`
                         );
