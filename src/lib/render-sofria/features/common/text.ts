@@ -76,3 +76,13 @@ export function isTopWrapper(
     const depth = workspace.scopeManager.depth(wrapper);
     return !!wrapper && depth >= 0 && depth === workspace.scopeManager.depth('wrapper');
 }
+
+export function safeDecodeAttribute(attr: string | null | undefined) {
+    let ret = attr ?? '';
+    try {
+        ret = decodeURIComponent(ret);
+    } catch {
+        // empty
+    }
+    return ret;
+}

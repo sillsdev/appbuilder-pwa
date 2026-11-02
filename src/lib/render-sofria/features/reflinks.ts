@@ -1,7 +1,13 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { splitString } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
+import {
+    addPhrases,
+    isTopWrapper,
+    safeDecodeAttribute,
+    terminatePhrase,
+    type SharedTextScratch
+} from './common/text';
 
 export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
     startMilestone: {
@@ -14,23 +20,11 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
             matchElement(context, 'usfm:zreflink') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const element = getElement(context);
-            let link = element.atts['link']?.[0] ?? '';
-            try {
-                link = decodeURIComponent(link);
-            } catch {
-                // empty
-            }
-            let title = element.atts['title']?.[0] ?? '';
-            try {
-                title = decodeURIComponent(title);
-            } catch {
-                // empty
-            }
 
             const a = workspace.document.createElement('a');
             a.classList.add('web-link', 'ref-link', 'dy-tooltip');
-            a.setAttribute('data-link', link);
-            a.setAttribute('data-tip', title);
+            a.setAttribute('data-link', safeDecodeAttribute(element.atts['link']?.[0]));
+            a.setAttribute('data-tip', safeDecodeAttribute(element.atts['title']?.[0]));
             a.style.display = 'inline';
             a.href = 'javascript:void(0)';
 

@@ -1,6 +1,12 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
+import {
+    addPhrases,
+    isTopWrapper,
+    safeDecodeAttribute,
+    terminatePhrase,
+    type SharedTextScratch
+} from './common/text';
 
 export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
     startWrapper: {
@@ -13,12 +19,7 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
 
             let jmpLink: HTMLElement;
 
-            let href = element.atts['href']?.[0] ?? '';
-            try {
-                href = decodeURIComponent(href);
-            } catch {
-                // empty
-            }
+            let href = safeDecodeAttribute(element.atts['href']?.[0]);
             if (href) {
                 const hrefLower = href.trim().toLowerCase();
                 const allowed =
@@ -48,16 +49,9 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
                 jmpLink = workspace.document.createElement('span');
             }
 
-            let jmpTitle = element.atts['title']?.[0] ?? '';
-            try {
-                jmpTitle = decodeURIComponent(jmpTitle);
-            } catch {
-                // empty
-            }
-
             jmpLink.style.display = 'inline';
             jmpLink.classList.add('dy-tooltip');
-            jmpLink.setAttribute('data-tip', jmpTitle);
+            jmpLink.setAttribute('data-tip', safeDecodeAttribute(element.atts['title']?.[0]));
 
             workspace.scopeManager.push('wrapper:jmp', jmpLink);
         }

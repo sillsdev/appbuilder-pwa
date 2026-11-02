@@ -1,7 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
 import { ciEquals } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
+import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
 
 // if glossary words are disabled, glossary wrappers will be handled in usfmWrappers in ../index.ts
 export const glossary = new FeatureSpec<SharedTextScratch>(
@@ -37,6 +37,7 @@ export const glossary = new FeatureSpec<SharedTextScratch>(
             guard: ({ context, workspace }) =>
                 matchElement(context, 'usfm:w') && renderIfRegularOrIfHackedIntro(workspace),
             action: ({ workspace }) => {
+                terminatePhrase(workspace);
                 const a = workspace.scopeManager.pop('wrapper:glossary').root;
 
                 const matchWord = a.getAttribute('data-match') || a.innerText || '';

@@ -9,7 +9,13 @@ import {
     padWithInitialZeros
 } from '$lib/scripts/stringUtils';
 import { getElement, matchElement } from './common';
-import { addPhrases, isTopWrapper, terminatePhrase, type SharedTextScratch } from './common/text';
+import {
+    addPhrases,
+    isTopWrapper,
+    safeDecodeAttribute,
+    terminatePhrase,
+    type SharedTextScratch
+} from './common/text';
 
 const clips = import.meta.glob('./*', {
     import: 'default',
@@ -32,7 +38,7 @@ export const audioclips = new FeatureSpec<
             matchElement(context, 'usfm:zaudioc') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
             const a = workspace.document.createElement('a');
-            a.href = decodeURIComponent(getElement(context).atts['link'][0]);
+            a.href = safeDecodeAttribute(getElement(context).atts['link']?.[0]);
             workspace.scopeManager.push('wrapper:zaudioc', a);
         }
     },
@@ -76,17 +82,7 @@ export const audioclips = new FeatureSpec<
 
                 a.href = 'javascript:void(0)';
                 a.classList.add('audioclip');
-                a.addEventListener(
-                    'click',
-                    function remoteAudioClipHandler(event: MouseEvent) {
-                        event.stopPropagation();
-                        const el: HTMLAudioElement | null = workspace.root.querySelector(
-                            `audio[id="${audioId}"]`
-                        );
-                        el?.play();
-                    },
-                    false
-                );
+                a.setAttribute('data-audio-id', audioId);
 
                 workspace.scopeManager.appendContent(audio);
                 workspace.scopeManager.appendContent(a);
@@ -111,6 +107,29 @@ export const audioclips = new FeatureSpec<
                 requireTop: true,
                 newPhrase: false
             });
+        }
+    },
+    endDocument: {
+        stage: 'standard',
+        details: ({ workspace }) => ({
+            count: workspace.root.querySelectorAll('.audioclip').length
+        }),
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty && isTopWrapper(workspace, 'wrapper:zaudioc'),
+        action({ workspace }) {
+            workspace.root.querySelectorAll('.audioclip').forEach((el) =>
+                el.addEventListener(
+                    'click',
+                    function remoteAudioClipHandler(event) {
+                        event.stopPropagation();
+                        const audio: HTMLAudioElement | null = workspace.root.querySelector(
+                            `audio[id="${el.getAttribute('data-audio-id')}"]`
+                        );
+                        audio?.play();
+                    },
+                    false
+                )
+            );
         }
     }
 });
