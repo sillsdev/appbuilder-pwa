@@ -560,11 +560,9 @@ describe('headings', () => {
         expect(s.querySelector(':scope > div.txs:last-child')?.textContent).toBe(' end');
     });
 
-    // BUG: plain \r text is appended to the heading immediately but the \xt span is added at
-    // endParagraph, so this renders "()Mark 1:1"
-    test.fails('\\xt inside \\r keeps its position in the text', () => {
-        const r = heading('\\s1 Head\n\\r (\\xt Mark 1:1\\xt*)').querySelector('div.r');
-        expect(r?.textContent).toBe('(Mark 1:1)');
+    test('\\xt inside \\r keeps its position in the text', () => {
+        const r = heading('\\s1 Head\n\\r (\\xt Genesis 1:1\\xt*)').querySelector('div.r');
+        expect(r?.textContent).toBe('(Genesis 1:1)');
     });
 
     // \cl occurs ~8.6k times in Scriptoria projects and is currently dropped (legacy has no

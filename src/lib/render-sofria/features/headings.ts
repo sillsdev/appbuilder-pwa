@@ -1,7 +1,14 @@
 import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
-import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
+import {
+    extractClassName,
+    getBlock,
+    getElement,
+    getSequence,
+    matchBlock,
+    matchSequence
+} from './common';
 import { renderBlock } from './common/grafts';
-import { addPhrases, isTopWrapper, type SharedTextScratch } from './common/text';
+import { addPhrases, getPhraseDiv, isTopWrapper, type SharedTextScratch } from './common/text';
 
 export const headings = new FeatureSpec<
     {
@@ -81,17 +88,20 @@ export const headings = new FeatureSpec<
             renderIfRegularOrIfHackedIntro(workspace) &&
             isTopWrapper(workspace, 'wrapper:heading'),
         action({ context, workspace }) {
-            const text: string = workspace.scratch.text!.cleanedText!;
             if (matchBlock(context, 'usfm:r')) {
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain references inline
-                const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
-                headerDiv.innerHTML += workspace.functions.generateReferenceLinkHTML(
-                    text,
+                const container = getPhraseDiv(workspace, { requireTop: true, newPhrase: false });
+                container.innerHTML += workspace.functions.generateReferenceLinkHTML(
+                    getElement(context).text,
                     'heading_ref-link'
                 );
+                workspace.scopeManager.push('phrase', container);
             } else {
-                addPhrases(workspace, text, { requireTop: true, newPhrase: false });
+                addPhrases(workspace, workspace.scratch.text!.cleanedText!, {
+                    requireTop: true,
+                    newPhrase: false
+                });
             }
         }
     },
