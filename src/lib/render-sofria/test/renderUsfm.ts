@@ -8,12 +8,14 @@
 import type { ScriptureConfig } from '$config';
 import { SABProskomma } from '$lib/sab-proskomma';
 import * as numerals from '$lib/scripts/numeralSystem';
+import { test_generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
 import {
     applyFilters,
     usfmFilterFunctions,
     type ConvertBookContext
 } from '../../../../convert/convertBooks';
+import { catalog } from '../../../../test_data/data/catalog';
 import { compileRenderActions, type RenderWorkspace } from '../common';
 import { renderFeatures } from '../index';
 import ScopeManager from '../ScopeManager';
@@ -21,6 +23,7 @@ import { getSeparatorRegex } from '../util';
 
 export const COLLECTION = 'C01';
 export const BOOK = 'GEN';
+export const BOOK_NAME = 'Genesis';
 
 export type RenderOptions = {
     /** chapter to render (default '1') */
@@ -73,11 +76,16 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
             {
                 id: COLLECTION,
                 languageCode: 'eng',
-                features: { 'ref-verse-range-separator': '-' },
+                features: {
+                    'ref-verse-range-separator': '-',
+                    'ref-chapter-verse-separator': ':',
+                    'show-scripture-refs': true
+                },
                 style: { textDirection: 'ltr' },
                 books: [
                     {
                         id: BOOK,
+                        name: BOOK_NAME,
                         testament: options.bibleBook === false ? '' : 'OT',
                         features: {}
                     }
@@ -114,6 +122,15 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
 
     const noop = () => {};
 
+    const refs = {
+        docSet: `eng_${COLLECTION}`,
+        collection: COLLECTION,
+        book: BOOK,
+        chapter: options.chapter ?? '1',
+        verse: '1',
+        hasAudio: !!options.hasAudio
+    } as unknown as RenderWorkspace['stores']['references'];
+
     const actions = compileRenderActions(
         renderFeatures,
         {
@@ -146,14 +163,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                 updateAnnotations: noop
             },
             stores: {
-                references: {
-                    docSet: `eng_${COLLECTION}`,
-                    collection: COLLECTION,
-                    book: BOOK,
-                    chapter: options.chapter ?? '1',
-                    verse: '1',
-                    hasAudio: !!options.hasAudio
-                } as unknown as RenderWorkspace['stores']['references'],
+                references: refs,
                 plan: { planEntry: -1 } as never,
                 currentPlanState: '',
                 currentPlanData: null,
@@ -162,7 +172,18 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                 lastPlanReference: false,
                 settings: { ...DEFAULT_SETTINGS, ...options.settings }
             },
-            queries: { glossary: Promise.resolve({} as never) }
+            queries: { glossary: Promise.resolve({} as never) },
+            functions: {
+                generateReferenceLinkHTML: (crossRef, refClass, linkHref) =>
+                    test_generateReferenceLinkHTML(
+                        crossRef,
+                        refClass,
+                        linkHref,
+                        refs,
+                        config.bookCollections,
+                        catalog[0]
+                    )
+            }
         },
         false
     );

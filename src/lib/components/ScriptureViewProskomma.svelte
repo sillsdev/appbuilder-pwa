@@ -503,6 +503,9 @@ LOGGING:
                 },
                 queries: {
                     glossary
+                },
+                functions: {
+                    generateReferenceLinkHTML
                 }
             }
         );

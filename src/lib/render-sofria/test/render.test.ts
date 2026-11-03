@@ -761,9 +761,9 @@ describe('introductions', () => {
     });
 
     test('\\xt inside \\ip renders a reference link', () => {
-        const ip = intro('\\ip See \\xt Mark 1:1\\xt*.').querySelector('div.ip')!;
-        expect(ip.querySelector('span.xt span.reflink')?.textContent).toBe('Mark 1:1');
-        expect(ip.textContent).toBe('See Mark 1:1.');
+        const ip = intro('\\ip See \\xt Genesis 1:1\\xt*.').querySelector('div.ip')!;
+        expect(ip.querySelector('span.xt a.crossref_ref-link')?.textContent).toBe('Genesis 1:1');
+        expect(ip.textContent).toBe('See Genesis 1:1.');
     });
 
     test('footnote inside \\ip stays in the paragraph', () => {
@@ -1027,7 +1027,7 @@ describe('audio clips', () => {
             '\\v 1 [A](clip one.mp3)\\f + \\fr 1:1 \\ft Note [B](remote.wav)\\f* and [C](remote.wav)'
         );
         expect(clipSrcs(root).map(([id]) => id)).toEqual(['audio001', 'audio002', 'audio003']);
-        expect(root.querySelector('div[type="footnote"] a.audioclip')?.textContent).toBe('B');
+        expect(root.querySelector('div[data-type="footnote"] a.audioclip')?.textContent).toBe('B');
     });
 
     test('clicking a clip plays its audio element', () => {

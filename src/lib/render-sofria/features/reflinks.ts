@@ -1,5 +1,4 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
-import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import { splitString } from '$lib/scripts/stringUtils';
 import { extractClassName, getElement, matchElement } from './common';
 import {
@@ -118,7 +117,7 @@ export const inlineReferences = new FeatureSpec<SharedTextScratch>('Inline Refer
             renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             const span = workspace.scopeManager.find('wrapper:rq')!.root;
-            span.innerHTML += generateReferenceLinkHTML(
+            span.innerHTML += workspace.functions.generateReferenceLinkHTML(
                 workspace.scratch.text!.cleanedText!,
                 'inline_ref-link'
             );

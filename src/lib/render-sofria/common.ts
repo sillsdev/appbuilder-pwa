@@ -1,7 +1,4 @@
 import type { FeatureConfig, FeatureValue, ScriptureConfig } from '$config';
-import type { BookmarkItem } from '$lib/data/bookmarks';
-import type { HighlightItem } from '$lib/data/highlights';
-import type { NoteItem } from '$lib/data/notes';
 import type { PlansData } from '$lib/data/plansData';
 import {
     checkSettingIs,
@@ -14,6 +11,7 @@ import {
 import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
 import { checkFeatureValueIs } from '$lib/scripts/configUtils';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
+import type { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import type {
     RenderContext as PKRenderContext,
     RenderWorkspace as PKRenderWorkspace,
@@ -273,6 +271,9 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         };
         queries: {
             glossary: Promise<GlossaryQueryResult>;
+        };
+        functions: {
+            generateReferenceLinkHTML: typeof generateReferenceLinkHTML;
         };
     };
 

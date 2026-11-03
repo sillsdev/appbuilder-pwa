@@ -1,4 +1,3 @@
-import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getSequence, matchBlock, matchSequence } from './common';
 import { renderBlock } from './common/grafts';
@@ -87,7 +86,10 @@ export const headings = new FeatureSpec<
                 // This is for usfm:r like you will find in CUK Headers
                 // which contain references inline
                 const headerDiv = workspace.scopeManager.find('paragraph:heading')!.root;
-                headerDiv.innerHTML += generateReferenceLinkHTML(text, 'heading_ref-link');
+                headerDiv.innerHTML += workspace.functions.generateReferenceLinkHTML(
+                    text,
+                    'heading_ref-link'
+                );
             } else {
                 addPhrases(workspace, text, { requireTop: true, newPhrase: false });
             }

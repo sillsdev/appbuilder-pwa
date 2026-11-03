@@ -1,5 +1,4 @@
 import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
-import { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import type { RenderContext } from 'proskomma-json-tools';
 import {
     addToScratchPad,
@@ -238,7 +237,7 @@ export const crossrefs = new FeatureSpec<FootnoteScratch & SharedTextScratch>('C
                     ? workspace.scopeManager.at(0).root
                     : workspace.document.createElement('span');
                 const wrapper = workspace.scopeManager.find('wrapper:xt')!;
-                container.innerHTML += generateReferenceLinkHTML(
+                container.innerHTML += workspace.functions.generateReferenceLinkHTML(
                     getElement(context).text,
                     'crossref_ref-link',
                     wrapper.root.getAttribute('data-link-href') ?? undefined
