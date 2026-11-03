@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { ConvertBookContext } from 'convertBooks';
 import { getReferenceFromString } from '../src/lib/scripts/scripture-reference-utils-common';
 import { getFilenameExt, isBlank } from './stringUtils';
 
