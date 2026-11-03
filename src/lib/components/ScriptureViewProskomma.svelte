@@ -557,7 +557,7 @@ LOGGING:
         }
 
         .fullscreen-popup .close-btn::before {
-            content: '\\2190'; /* Unicode for left arrow */
+            content: '\2190'; /* Unicode for left arrow */
         }
     </style>
 </svelte:head>
