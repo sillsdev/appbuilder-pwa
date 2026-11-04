@@ -1,9 +1,9 @@
+import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderUsfm } from './renderUsfm';
 
 /**
  * TODO:
- * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
  * - ref-links (handle in PR #1173)
  * - ChordPro (handle in PR #1176)
@@ -565,11 +565,28 @@ describe('headings', () => {
         expect(r?.textContent).toBe('(Genesis 1:1)');
     });
 
+    describe('\\x inside \\s1', () => {
+        const render = (ref: string) =>
+            renderUsfm(chapter(`\\s1 Header \\x + \\xo 1:1 \\xt ${ref}\\x*`));
+        test('\\x renders caller sup and hidden content', () => {
+            const root = render('Genesis 1:1');
+            const graft = root.querySelector('span[data-graft]');
+            expect(graft?.querySelector('sup.footnote')?.textContent).toBe('a ');
+            const content = graft?.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+            expect(content?.querySelector('span.xt')?.textContent).toContain('Genesis 1:1');
+        });
+
+        test('\\xt renders with link for valid book', () => {
+            const root = render('Genesis 1:1');
+            expect(root?.querySelector('span.xt a.crossref_ref-link')?.textContent).toContain(
+                'Genesis 1:1'
+            );
+        });
+    });
+
     // \cl occurs ~8.6k times in Scriptoria projects and is currently dropped (legacy has no
     // handling for it either); expected behaviour not decided yet
     test.todo('\\cl chapter label');
-    // cross-references currently throw in the harness (handle in PR #1173)
-    test.todo('\\x inside \\s1');
     test.todo('\\sd# semantic division renders vertical space');
 });
 
@@ -1216,5 +1233,38 @@ describe('videos', () => {
             expect(ids).toHaveLength(2);
             expect(new Set(ids).size).toBe(2);
         });
+    });
+});
+
+describe('cross-references', () => {
+    const render = (ref: string) =>
+        renderUsfm(chapter(`\\v 1 One. \\x + \\xo 1:1 \\xt ${ref}\\x*`));
+    test('\\x renders caller sup and hidden content', () => {
+        const root = render('Genesis 1:1');
+        const graft = root.querySelector('span[data-graft]');
+        expect(graft?.querySelector('sup.footnote')?.textContent).toBe('a ');
+        const content = graft?.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+        expect(content?.querySelector('span.xt')?.textContent).toBe('Genesis 1:1');
+    });
+
+    test('\\xt renders with link for valid book', () => {
+        const root = render('Genesis 1:1');
+        expect(root?.querySelector('span.xt a.crossref_ref-link')?.textContent).toBe('Genesis 1:1');
+    });
+
+    test('\\xt renders without link for invalid book', () => {
+        const root = render('Matthew 1:1');
+        expect(root.querySelector('span.xt a.crossref_ref-link')).toBe(null);
+        expect(root.querySelector('span.xt')?.textContent).toBe('Matthew 1:1');
+    });
+
+    test('\\xt renders with separate text from link-href', () => {
+        const root = render('The Beginning | link-href="GEN 1:1"');
+        const a = root?.querySelector('span.xt a.crossref_ref-link');
+        expect(a?.textContent).toBe('The Beginning');
+        const startRef: AnchorReference = JSON.parse(a?.getAttribute('data-start-ref') || '{}');
+        expect(startRef.book).toBe('GEN');
+        expect(startRef.chapter).toBe('1');
+        expect(startRef.verse).toBe('1');
     });
 });
