@@ -13,8 +13,7 @@ export const tables = new FeatureSpec<
             const table = workspace.document.createElement('table');
             table.setAttribute('cellpadding', '5');
             table.classList.add('dy-table', 'dy-table-xs', 'w-fit', 'text-start');
-            workspace.scopeManager.push('table:table', table);
-            workspace.scopeManager.push('table:body', workspace.document.createElement('tbody'));
+            workspace.scopeManager.push('table', table);
             addToScratchPad(workspace.scratch, 'table', { rowIndex: 0 });
         }
     },
@@ -23,8 +22,7 @@ export const tables = new FeatureSpec<
         details: () => undefined,
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
-            workspace.scopeManager.promoteContent('table:body');
-            workspace.scopeManager.promoteContent('table:table');
+            workspace.scopeManager.promoteContent('table');
         }
     },
     startRow: {

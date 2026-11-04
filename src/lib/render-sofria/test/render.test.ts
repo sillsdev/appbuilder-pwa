@@ -5,7 +5,6 @@ import { renderUsfm, type RenderOptions } from './renderUsfm';
 /**
  * TODO:
  * - custom tags (handle in separate PR)
- * - table headers (handle in PR #1178)
  */
 
 // $lib/data/audio spawns a Web Worker at import time; render-sofria only needs these two functions
@@ -265,6 +264,74 @@ describe('tables', () => {
         );
         const cells = [...root.querySelectorAll('table td')].map((td) => td.textContent?.trim());
         expect(cells).toEqual(['A B', 'C', 'D', 'E', 'F']);
+    });
+
+    // BUG: Proskomma is inconsistent in sending endTable events
+    // see https://github.com/Proskomma/proskomma-json-tools/issues/69
+    describe('multiple tables', () => {
+        const render = (separator: string) =>
+            renderUsfm(
+                chapter(
+                    `\\v 1 Table:\n\\tr \\tc A \\tc B\n${separator}\n\\s1 Header\n\\tr \\tc C \\tc D`
+                )
+            );
+
+        test.fails('two tables with intervening empty paragraph', () => {
+            const root = render('\\p');
+            expect(root.querySelectorAll('table').length).toBe(2);
+            expect(root.querySelectorAll('table div.s').length).toBe(0);
+        });
+
+        test('two tables with intervening break', () => {
+            const root = render('\\b');
+            expect(root.querySelectorAll('table').length).toBe(2);
+            expect(root.querySelectorAll('table div.s').length).toBe(0);
+        });
+
+        describe('two tables with intervening paragraph', () => {
+            const root = render('\\p abc');
+            const tables = root.querySelectorAll('table');
+            expect(tables.length).toBe(2);
+            expect(root.querySelectorAll('table div.s').length).toBe(0);
+
+            const para = root.querySelectorAll('div.p')[1];
+            expect(para?.textContent).toBe('abc');
+
+            test.fails('paragraph is between tables', () => {
+                const table0 = para!.compareDocumentPosition(tables[0]);
+                const table1 = para!.compareDocumentPosition(tables[1]);
+                expect(
+                    table0 & Node.DOCUMENT_POSITION_FOLLOWING &&
+                        table1 & Node.DOCUMENT_POSITION_PRECEDING
+                ).toBeTruthy();
+            });
+        });
+    });
+
+    describe('headers', () => {
+        const root = renderUsfm(
+            chapter('\\v 1 Table:\n\\tr \\th A \\th B\n\\tr \\tc C \\tc D\n\\tr \\th E \\th F')
+        );
+
+        test('cells are rendered as cells', () => {
+            expect(
+                Array.from(root.querySelectorAll('table td')).map((el) => el.textContent?.trim())
+            ).toEqual(['C', 'D']);
+        });
+
+        test('headers are rendered as headers', () => {
+            expect(
+                Array.from(root.querySelectorAll('table th')).map((el) => el.textContent?.trim())
+            ).toEqual(['A', 'B', 'E', 'F']);
+        });
+
+        test('header rows are in order relative to content rows', () => {
+            expect(
+                Array.from(root.querySelectorAll('table th, table td')).map((el) =>
+                    el.textContent?.trim()
+                )
+            ).toEqual(['A', 'B', 'C', 'D', 'E', 'F']);
+        });
     });
 });
 
