@@ -229,12 +229,10 @@ function referenceUSFM(
         if (refChapter < 1) {
             refChapter = 1;
         }
-        let refVerse = fromVerse;
-        if (refVerse < 1) {
-            refVerse = 1;
+        let reference = refCollection + '.' + refBook + '.' + refChapter.toString();
+        if (fromVerse >= 1) {
+            reference += '.' + fromVerse.toString();
         }
-        const reference =
-            refCollection + '.' + refBook + '.' + refChapter.toString() + '.' + refVerse.toString();
         const title = tooltip ? ` title="${encodeURIComponent(tooltip)}"` : '';
         result =
             ' \\zreflink-s |link="' +

@@ -5,7 +5,6 @@ import { renderUsfm, type RenderOptions } from './renderUsfm';
 /**
  * TODO:
  * - custom tags (handle in separate PR)
- * - ref-links (handle in PR #1173)
  * - ChordPro (handle in PR #1176)
  * - table headers (handle in PR #1178)
  */
@@ -395,9 +394,11 @@ describe('SAB SFM extensions (via convert filters)', () => {
 
     test('markdown [label](GEN.1.2) becomes an internal reference link', () => {
         const root = renderUsfm(chapter('\\v 1 See [next verse](GEN.1.2) here.'));
-        const a = root.querySelector('a.ref-link');
+        const a = root.querySelector('a.markdown_ref-link');
         expect(a?.textContent).toBe('next verse');
-        expect(a?.getAttribute('data-link')).toBe('C01.GEN.1.2');
+        const ref: AnchorReference = JSON.parse(a!.getAttribute('data-start-ref')!);
+        expect(ref.reference).toBe('C01.GEN.1.2');
+        expect(ref.docSet).toBe('eng_C01');
     });
 });
 

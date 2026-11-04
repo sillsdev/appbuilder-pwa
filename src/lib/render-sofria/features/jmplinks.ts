@@ -87,13 +87,13 @@ export const jmplinks = new FeatureSpec<SharedTextScratch>('JMP Links', {
         stage: 'standard',
         details: ({ workspace }) => ({
             count: workspace.root.querySelectorAll(
-                '.email-link, .tel-link, .web-link:not(.ref-link)'
+                '.email-link, .tel-link, .web-link:not(.markdown_ref-link)'
             ).length
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
             workspace.root
-                .querySelectorAll('.email-link, .tel-link, .web-link:not(.ref-link)')
+                .querySelectorAll('.email-link, .tel-link, .web-link:not(.markdown_ref-link)')
                 .forEach((el) => {
                     el.addEventListener('click', (e) => e.stopPropagation());
                 });

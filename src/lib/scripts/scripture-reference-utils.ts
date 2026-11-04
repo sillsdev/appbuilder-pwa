@@ -26,7 +26,7 @@ import {
     nullToEmpty
 } from './stringUtils';
 
-let ref: any;
+let ref: ReferenceStore;
 let bookCollections: BookCollectionConfig[];
 let collection: BookCollectionConfig | undefined;
 let features: FeatureConfig | undefined;
@@ -60,7 +60,7 @@ export function generateAnchor(
     refClass: string,
     start: AnchorReference,
     end?: AnchorReference
-): HTMLElement {
+): HTMLAnchorElement {
     const anchor = document.createElement('a');
     anchor.classList.add('cursor-pointer');
     if (isNotBlank(refClass)) {

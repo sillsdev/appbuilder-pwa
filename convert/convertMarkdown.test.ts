@@ -64,7 +64,7 @@ describe('convertMarkdownsToMilestones', () => {
     it('converts a markdown reference without book collection or verse', () => {
         // Gen 3:9 translates [No BC No Verse Link](MAT.5)
         expect(modifiedContent).toContain(
-            '\\zreflink-s |link="C01.MAT.5.1"\\*No BC No Verse Link\\zreflink-e\\*'
+            '\\zreflink-s |link="C01.MAT.5"\\*No BC No Verse Link\\zreflink-e\\*'
         );
     });
     it('converts a markdown reference with just chapter verse', () => {

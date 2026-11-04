@@ -91,9 +91,6 @@
                     end
                 });
             }
-        } else if (target.classList.contains('ref-link')) {
-            referenceLinkClickHandler(target);
-            // will not work since it does not have a reference to the start object...
         } else if (closest) {
             navigate(JSON.parse(closest.getAttribute('data-reference') || '{}'));
         }
