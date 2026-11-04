@@ -1338,3 +1338,28 @@ describe('verse ranges', () => {
         });
     });
 });
+
+describe('inline references (\\rq)', () => {
+    const render = (ref: string) => renderUsfm(chapter(`\\v 1 One. \\rq ${ref}\\rq*`));
+
+    test('\\rq renders with link for valid book', () => {
+        const root = render('Genesis 1:1');
+        expect(root?.querySelector('span.rq a.inline_ref-link')?.textContent).toBe('Genesis 1:1');
+    });
+
+    test('\\rq renders without link for invalid book', () => {
+        const root = render('Matthew 1:1');
+        expect(root.querySelector('span.rq a.inline_ref-link')).toBe(null);
+        expect(root.querySelector('span.rq')?.textContent).toBe('Matthew 1:1');
+    });
+
+    test('\\rq renders with separate text from link-href', () => {
+        const root = render('The Beginning | link-href="GEN 1:1"');
+        const a = root?.querySelector('span.rq a.inline_ref-link');
+        expect(a?.textContent).toBe('The Beginning');
+        const startRef: AnchorReference = JSON.parse(a?.getAttribute('data-start-ref') || '{}');
+        expect(startRef.book).toBe('GEN');
+        expect(startRef.chapter).toBe('1');
+        expect(startRef.verse).toBe('1');
+    });
+});
