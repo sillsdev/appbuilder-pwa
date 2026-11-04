@@ -51,6 +51,7 @@ export type RenderOptions = {
     /** `config.audio` (audio sources and files, used by audio clips) */
     audio?: ScriptureConfig['audio'];
     verseRange?: { start: number; end: number };
+    footer?: string;
 };
 
 const DEFAULT_FEATURES = {
@@ -87,7 +88,8 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
                         id: BOOK,
                         name: BOOK_NAME,
                         testament: options.bibleBook === false ? '' : 'OT',
-                        features: {}
+                        features: {},
+                        footer: options.footer
                     }
                 ]
             }

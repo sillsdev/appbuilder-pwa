@@ -25,7 +25,10 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
     },
     endSequence: {
         stage: 'standard',
-        details: ({ context }) => ({ type: getSequence(context).type }),
+        details: ({ context, workspace }) => ({
+            type: getSequence(context).type,
+            render: workspace.currentTextPosition.render || workspace.viewSettings.verseRange?.start
+        }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'title') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
@@ -36,7 +39,14 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
                 spacer.cloneNode(true) as Element,
                 'sequence:title'
             );
-            workspace.scopeManager.promoteContent('sequence:title');
+            if (
+                workspace.currentTextPosition.render ||
+                workspace.viewSettings.verseRange?.start === 1
+            ) {
+                workspace.scopeManager.promoteContent('sequence:title');
+            } else {
+                workspace.scopeManager.pop('sequence:title');
+            }
         }
     },
     startParagraph: {
@@ -53,24 +63,15 @@ export const titles = new FeatureSpec<SharedTextScratch>('Titles', {
     },
     endParagraph: {
         stage: 'standard',
-        details: ({ context, workspace }) => ({
-            class: extractClassName(getBlock(context)),
-            render: workspace.currentTextPosition.render || workspace.viewSettings.verseRange?.start
+        details: ({ context }) => ({
+            class: extractClassName(getBlock(context))
         }),
         guard: ({ context, workspace }) =>
             matchSequence(context, 'title') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
             const wrapper = workspace.scopeManager.pop('wrapper:title');
             workspace.scopeManager.appendChildrenFromContainer(wrapper.root, 'paragraph:title');
-            // if rendering verse range, only render title if verse 1 is included
-            if (
-                workspace.currentTextPosition.render ||
-                workspace.viewSettings.verseRange?.start === 1
-            ) {
-                workspace.scopeManager.promoteContent('paragraph:title');
-            } else {
-                workspace.scopeManager.pop('paragraph:title');
-            }
+            workspace.scopeManager.promoteContent('paragraph:title');
         }
     },
     text: {

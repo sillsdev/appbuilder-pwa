@@ -1,6 +1,6 @@
 import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { renderUsfm } from './renderUsfm';
+import { renderUsfm, type RenderOptions } from './renderUsfm';
 
 /**
  * TODO:
@@ -1266,5 +1266,74 @@ describe('cross-references', () => {
         expect(startRef.book).toBe('GEN');
         expect(startRef.chapter).toBe('1');
         expect(startRef.verse).toBe('1');
+    });
+});
+
+describe('verse ranges', () => {
+    const renderWithRange = (range: { start: number; end?: number }, options?: RenderOptions) =>
+        renderUsfm(
+            `\\mt Genesis\n${chapter(
+                `\\v 1 One. \\v 2 Two.\n\\s1 Heading\n\\p \\v 3-4 Three and Four. \\v 5 Five.`
+            )}`,
+            { ...options, verseRange: { start: range.start, end: range.end ?? range.start } }
+        );
+
+    test('only one verse is rendered when end is omitted', () => {
+        const root = renderWithRange({ start: 1 });
+        expect(root.querySelectorAll('[data-verse]:not([data-phrase])').length).toBe(1);
+    });
+
+    test('title is included if verse 1 (of chapter 1) is included', () => {
+        const root = renderWithRange({ start: 1 });
+        expect(root.querySelector('div[data-verse="title"]')?.textContent).toBe('Genesis');
+    });
+
+    test('title is excluded if verse 1 is excluded', () => {
+        const root = renderWithRange({ start: 2 });
+        expect(root.querySelector('div[data-verse="title"]')).toBe(null);
+    });
+
+    test('heading is included if following verse is included', () => {
+        const root = renderWithRange({ start: 3 });
+        expect(root.querySelector('div.s')?.textContent).toBe('Heading');
+    });
+
+    test('heading is excluded if following verse is excluded', () => {
+        const root = renderWithRange({ start: 5 });
+        expect(root.querySelector('div.s')).toBe(null);
+    });
+
+    test('footer is excluded even if last verse is included', () => {
+        const root = renderWithRange({ start: 5 }, { footer: 'Footer' });
+        expect(root.querySelector('div.footer')).toBe(null);
+    });
+
+    describe('ranges that include verse ranges', () => {
+        test('partial verse range at start', () => {
+            const root = renderWithRange({ start: 4, end: 5 });
+            const verses = Array.from(root.querySelectorAll('[data-verse]:not([data-phrase])')).map(
+                (el) => el.getAttribute('data-verse')!
+            );
+            expect(verses[0]).toBe('3-4');
+            expect(verses.length).toBe(2);
+        });
+
+        test('partial verse range at end', () => {
+            const root = renderWithRange({ start: 2, end: 3 });
+            const verses = Array.from(root.querySelectorAll('[data-verse]:not([data-phrase])')).map(
+                (el) => el.getAttribute('data-verse')!
+            );
+            expect(verses[1]).toBe('3-4');
+            expect(verses.length).toBe(2);
+        });
+
+        test('fully overlapping verse range', () => {
+            const root = renderWithRange({ start: 3, end: 4 });
+            const verses = Array.from(root.querySelectorAll('[data-verse]:not([data-phrase])')).map(
+                (el) => el.getAttribute('data-verse')!
+            );
+            expect(verses[0]).toBe('3-4');
+            expect(verses.length).toBe(1);
+        });
     });
 });
