@@ -1,4 +1,3 @@
-import config from '$assets/config';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { renderUsfm } from './renderUsfm';
 
@@ -24,6 +23,20 @@ vi.mock('fs', async (importOriginal) => {
             : actual.existsSync(p);
     return { ...actual, default: { ...actual, existsSync }, existsSync };
 });
+
+// $assets/config is generated from whichever project was last built. Modules in the render chain
+// (e.g. $lib/video) read it directly, so replace it with a test-owned config that tests set as needed.
+const appConfig = vi.hoisted(() => ({
+    mainFeatures: {} as Record<string, unknown>,
+    audio: undefined as unknown,
+    interfaceLanguages: { writingSystems: {} }
+}));
+vi.mock('$assets/config', () => ({
+    default: appConfig,
+    config: appConfig,
+    scriptureConfig: appConfig,
+    dictionaryConfig: appConfig
+}));
 
 const chapter = (body: string) => `\\c 1\n\\p\n${body}\n`;
 
@@ -1045,8 +1058,8 @@ describe('audio clips', () => {
 });
 
 // \video ids (converted to \zvideo milestones) and videos placed by the appDef.
-// createVideoBlock reads mainFeatures and audio from the global $assets/config (the built
-// project's config), so the keys it uses are set here and restored after each test.
+// createVideoBlock reads mainFeatures and audio from the mocked $assets/config (appConfig),
+// so the keys it uses are reset before each test.
 describe('videos', () => {
     const video = (id: string, onlineUrl: string, extra: object = {}) => ({
         id,
@@ -1070,29 +1083,15 @@ describe('videos', () => {
         block?.querySelector('a')?.getAttribute('onclick');
     const scripts = () => [...document.head.querySelectorAll('script')].map((s) => s.id);
 
-    const appConfig = config as { mainFeatures: Record<string, unknown>; audio?: unknown };
-    const featureKeys = ['video-show-titles', 'video-youtube-related-same-channel'];
-    let saved: { features: Record<string, unknown>; audio: unknown };
-
     beforeEach(() => {
-        saved = {
-            features: Object.fromEntries(featureKeys.map((k) => [k, appConfig.mainFeatures[k]])),
-            audio: appConfig.audio
+        appConfig.mainFeatures = {
+            'video-show-titles': true,
+            'video-youtube-related-same-channel': false
         };
-        appConfig.mainFeatures['video-show-titles'] = true;
-        appConfig.mainFeatures['video-youtube-related-same-channel'] = false;
         appConfig.audio = { sources: { local: { type: 'assets', name: 'Local' } } };
     });
 
     afterEach(() => {
-        for (const [k, v] of Object.entries(saved.features)) {
-            if (v === undefined) {
-                delete appConfig.mainFeatures[k];
-            } else {
-                appConfig.mainFeatures[k] = v;
-            }
-        }
-        appConfig.audio = saved.audio;
         document.head.querySelectorAll('script').forEach((s) => s.remove());
     });
 
