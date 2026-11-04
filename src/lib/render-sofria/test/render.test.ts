@@ -5,7 +5,6 @@ import { renderUsfm, type RenderOptions } from './renderUsfm';
 /**
  * TODO:
  * - custom tags (handle in separate PR)
- * - ChordPro (handle in PR #1176)
  * - table headers (handle in PR #1178)
  */
 
@@ -1361,5 +1360,28 @@ describe('inline references (\\rq)', () => {
         expect(startRef.book).toBe('GEN');
         expect(startRef.chapter).toBe('1');
         expect(startRef.verse).toBe('1');
+    });
+});
+
+describe('ChordPro chords', () => {
+    const root = renderUsfm(chapter('\\q1 How [G]precious did that [C]grace ap[G]pear'), {
+        sourceFormat: 'chordpro'
+    });
+    const line = root.querySelector('div.q')!;
+
+    test('line includes both text and chords', () => {
+        expect(line.textContent).toBe('How preciousG did that graceC appearG');
+    });
+
+    test('chords are rendered above main text', () => {
+        expect(
+            Array.from(line.querySelectorAll('ruby.chord rt')).map((el) => el.textContent)
+        ).toEqual(['G', 'C', 'G']);
+    });
+
+    test('chords are rendered only above the immediately following word portion', () => {
+        expect(Array.from(line.querySelectorAll('ruby.chord')).map((el) => el.textContent)).toEqual(
+            ['preciousG', 'graceC', 'pearG']
+        );
     });
 });
