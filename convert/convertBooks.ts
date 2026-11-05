@@ -928,7 +928,13 @@ function convertScriptureBook(
         const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
+            const pkDoc = pk.importDoc(
+                selectors,
+                contentType,
+                content,
+                tags,
+                context.scriptureConfig.customTags
+            );
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(
@@ -989,6 +995,7 @@ export class ConvertBooks extends Task {
     public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
 
     public static lastBookCollections: ScriptureConfig['bookCollections'];
+    public static lastCustomTags: ScriptureConfig['customTags'];
 
     constructor(dataDir: string) {
         super(dataDir);
@@ -1007,6 +1014,11 @@ export class ConvertBooks extends Task {
                 ConvertBooks.lastBookCollections,
                 scriptureConfig.bookCollections,
                 new Set(['id', 'books', 'languageCode'])
+            ) &&
+            deepCompareObjects(
+                ConvertBooks.lastCustomTags,
+                scriptureConfig.customTags,
+                new Set(['paragraph', 'char'])
             )
         ) {
             return {
@@ -1017,6 +1029,7 @@ export class ConvertBooks extends Task {
 
         const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
         ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
+        ConvertBooks.lastCustomTags = scriptureConfig.customTags;
         return ret;
     }
 }
