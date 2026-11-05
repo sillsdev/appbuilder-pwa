@@ -266,7 +266,6 @@ describe('tables', () => {
         expect(cells).toEqual(['A B', 'C', 'D', 'E', 'F']);
     });
 
-    // BUG: Proskomma is inconsistent in sending endTable events
     // see https://github.com/Proskomma/proskomma-json-tools/issues/69
     describe('multiple tables', () => {
         const render = (separator: string) =>
@@ -276,7 +275,7 @@ describe('tables', () => {
                 )
             );
 
-        test.fails('two tables with intervening empty paragraph', () => {
+        test('two tables with intervening empty paragraph', () => {
             const root = render('\\p');
             expect(root.querySelectorAll('table').length).toBe(2);
             expect(root.querySelectorAll('table div.s').length).toBe(0);
@@ -291,18 +290,21 @@ describe('tables', () => {
         describe('two tables with intervening paragraph', () => {
             const root = render('\\p abc');
             const tables = root.querySelectorAll('table');
-            expect(tables.length).toBe(2);
-            expect(root.querySelectorAll('table div.s').length).toBe(0);
-
             const para = root.querySelectorAll('div.p')[1];
-            expect(para?.textContent).toBe('abc');
 
+            test('two tables, no section heading inside', () => {
+                expect(tables.length).toBe(2);
+                expect(root.querySelectorAll('table div.s').length).toBe(0);
+                expect(para?.textContent).toBe('abc');
+            });
+
+            // BUG: renderer appends the paragraph to the open verse div, ahead of the first table
             test.fails('paragraph is between tables', () => {
                 const table0 = para!.compareDocumentPosition(tables[0]);
                 const table1 = para!.compareDocumentPosition(tables[1]);
                 expect(
-                    table0 & Node.DOCUMENT_POSITION_FOLLOWING &&
-                        table1 & Node.DOCUMENT_POSITION_PRECEDING
+                    table0 & Node.DOCUMENT_POSITION_PRECEDING &&
+                        table1 & Node.DOCUMENT_POSITION_FOLLOWING
                 ).toBeTruthy();
             });
         });
