@@ -928,7 +928,13 @@ function convertScriptureBook(
         const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
+            const pkDoc = pk.importDoc(
+                selectors,
+                contentType,
+                content,
+                tags,
+                context.scriptureConfig.customTags
+            );
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(
