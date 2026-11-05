@@ -63,6 +63,7 @@ function createModal() {
         clear: () => set([])
     };
 }
+export type Modal = ReturnType<typeof createModal>;
 export const modal = createModal();
 
 const createWindowSizeStore = () => {

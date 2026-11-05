@@ -1,5 +1,5 @@
 import type { AudioConfig } from '$config';
-import { filenameWithoutPath, padWithInitialZeros } from './stringUtils';
+import { ensureTrailingSlash, filenameWithoutPath, padWithInitialZeros } from './stringUtils';
 
 const clips = import.meta.glob('./*', {
     import: 'default',
@@ -38,21 +38,6 @@ export function checkForMilestoneLinks(
             appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
             break;
         }
-        case 'usfm:zweblink': {
-            const reflink = getWebLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
-            break;
-        }
-        case 'usfm:ztellink': {
-            const reflink = getTelephoneLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
-            break;
-        }
-        case 'usfm:zelink': {
-            const reflink = getEmailLinkHtml(milestoneLink, milestoneText);
-            appendMilestoneElement(textType, footnoteDiv, parentDiv, reflink, true);
-            break;
-        }
         default: {
             break;
         }
@@ -74,33 +59,6 @@ function appendMilestoneElement(
     if (pop) {
         textType.pop();
     }
-}
-
-function getWebLinkHtml(link: string, text: string): HTMLElement {
-    const a = document.createElement('a');
-    a.href = link;
-    a.setAttribute('target', '_blank');
-    a.classList.add('web-link');
-    a.innerHTML = text;
-    return a;
-}
-
-function getEmailLinkHtml(link: string, text: string): HTMLElement {
-    const a = document.createElement('a');
-    a.href = link;
-    a.setAttribute('target', '_blank');
-    a.classList.add('email-link');
-    a.innerHTML = text;
-    return a;
-}
-
-function getTelephoneLinkHtml(link: string, text: string): HTMLElement {
-    const a = document.createElement('a');
-    a.href = link;
-    a.setAttribute('target', '_blank');
-    a.classList.add('tel-link');
-    a.innerHTML = text;
-    return a;
 }
 function getAudioLinkHtml(
     link: string,
@@ -167,11 +125,4 @@ function getReferenceLinkHtml(link: string, text: string, title: string): HTMLEl
         return span;
     }
     return a;
-}
-
-function ensureTrailingSlash(url) {
-    if (!url.endsWith('/')) {
-        return url + '/';
-    }
-    return url;
 }

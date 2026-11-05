@@ -2,30 +2,50 @@
 ///<reference path="./proskomma.d.ts" />
 
 declare module 'proskomma-json-tools' {
-    export type Block = { type: string; subType?: string; sequence: Partial<Sequence> };
+    export type Block = Readonly<{
+        type: string;
+        subType?: string;
+        sequence: Partial<RenderSequence>;
+    }>;
 
-    export type Element = {
+    export type RenderElement = Readonly<{
         type: string;
         subType: string;
         text: string;
         atts: Record<string, string>;
-        sequence: Partial<Sequence>;
-    };
+        sequence: Partial<RenderSequence>;
+    }>;
 
-    export type Sequence = {
+    export type RenderSequence = Readonly<{
         id: string;
         type: string;
         block: Block;
-        element: Element;
-    };
+        element: RenderElement;
+    }>;
 
-    export type Context = {
+    export type RenderContext = Readonly<{
         document: { metadata: { document: unknown } };
-        sequences: Sequence[];
+        sequences: RenderSequence[];
         renderer: SofriaRenderFromProskomma;
-    };
+    }>;
 
-    export type ProskommaRenderAction<Params extends { context: Context }> = {
+    export type RenderWorkspace = Readonly<{
+        chapters?: string[];
+        blockId: number[];
+        nbBlock: number;
+        inTable: boolean;
+        tableHasContent: boolean;
+        skipEndRow: boolean;
+    }>;
+
+    export type RenderConfig = Readonly<{
+        nbBlock: number;
+        chapters?: string[];
+        byVerseExperimental: boolean;
+        excludeScopeTypes: string[];
+    }>;
+
+    export type ProskommaRenderAction<Params extends { context: RenderContext }> = {
         description: string;
         test: (args: Params) => boolean;
         action: (args: Params) => void;
@@ -42,5 +62,6 @@ declare module 'proskomma-json-tools' {
             output: unknown;
         }): void;
         renderSequence(args: ActionParams);
+        currentCV: Readonly<{ chapter: string | null; verses: string | null }>;
     }
 }

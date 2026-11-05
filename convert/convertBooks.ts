@@ -24,7 +24,7 @@ import {
     joinUrlPath
 } from './fileUtils';
 import { hasAudioExtension, hasImageExtension } from './stringUtils';
-import { Promisable, Task, TaskOutput } from './Task';
+import { Task, type Promisable, type TaskOutput } from './Task';
 import { verifyGlossaryEntries } from './verifyGlossaryEntries';
 
 const base = process.env.BUILD_BASE_PATH || '';
@@ -135,27 +135,36 @@ function removeStrongNumberReferences(
     return text.replace(/(\\\+?w) ([^|]*)\|strong="[^"]*"\1\*/g, '$2');
 }
 
-function removeMissingVerses(text: string, _bcId: string, _bookId: string): string {
-    // Regular expression to match the pattern:
-    // \v (any number of digits) followed by any number of such patterns
-    const regex = /(\\v\s\d+\s*)+/g;
+function removeMissingVerses(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    ctx: ConvertBookContext
+): string {
+    if (ctx.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
+        // Regular expression to match the pattern:
+        // \v (any number of digits) followed by any number of such patterns
+        const regex = /(\\v\s\d+\s*)+/g;
 
-    // Replace matches with the last occurrence
-    return text.replace(regex, (match) => {
-        // Split the matched string by \v and filter out empty parts
-        const parts = match
-            .trim()
-            .split(/\\v\s*/)
-            .filter(Boolean);
+        // Replace matches with the last occurrence
+        return text.replace(regex, (match) => {
+            // Split the matched string by \v and filter out empty parts
+            const parts = match
+                .trim()
+                .split(/\\v\s*/)
+                .filter(Boolean);
 
-        // If there are multiple parts, return only the last one with \v prepended
-        if (parts.length > 1) {
-            return `\\v ${parts.pop()} `;
-        }
+            // If there are multiple parts, return only the last one with \v prepended
+            if (parts.length > 1) {
+                return `\\v ${parts.pop()} `;
+            }
 
-        // If only one part or none, return the match unchanged
-        return match;
-    });
+            // If only one part or none, return the match unchanged
+            return match;
+        });
+    } else {
+        return text;
+    }
 }
 
 export function encodeJmpLinks(
@@ -374,6 +383,18 @@ function moveFigureToNextNonVerseMarker(
     return result.join(eol);
 }
 
+function removeInvalidGlossaryEntries(
+    text: string,
+    _bcId: string,
+    _bookId: string,
+    ctx: ConvertBookContext
+): string {
+    if (ctx.scriptureConfig.traits?.['has-glossary']) {
+        text = verifyGlossaryEntries(text, ctx.bcGlossary);
+    }
+    return text;
+}
+
 type FilterFunction = (
     text: string,
     bcId: string,
@@ -381,7 +402,7 @@ type FilterFunction = (
     context: ConvertBookContext
 ) => string;
 
-const usfmFilterFunctions: FilterFunction[] = [
+export const usfmFilterFunctions: FilterFunction[] = [
     removeStrongNumberReferences,
     replaceVideoTags,
     replacePStyleTags,
@@ -393,12 +414,14 @@ const usfmFilterFunctions: FilterFunction[] = [
     removeMissingFigures,
     trimTrailingWhitespace,
     addParagraphMarkersAroundTableRows,
-    moveFigureToNextNonVerseMarker
+    moveFigureToNextNonVerseMarker,
+    removeInvalidGlossaryEntries,
+    removeMissingVerses
 ];
 
 const htmlFilterFunctions: FilterFunction[] = [updateImgTags, trimTrailingWhitespace];
 
-function applyFilters(
+export function applyFilters(
     text: string,
     filterFunctions: FilterFunction[],
     bcId: string,
@@ -426,13 +449,14 @@ function transformCatalogEntry(entry: any, quizzes: any, htmlBooks: any): any {
     return ds;
 }
 
-type ConvertBookContext = {
+export type ConvertBookContext = {
     dataDir: string;
     scriptureConfig: ScriptureConfig;
     verbose: number;
     lang: string;
     docSet: string;
     bcId: string;
+    bcGlossary: string[];
 };
 
 const unsupportedBookTypes = ['audio-only', 'bloom-player', 'quiz', 'undefined'];
@@ -477,9 +501,9 @@ export async function convertBooks(
             verbose,
             lang: collection.languageCode,
             docSet: collection.languageCode + '_' + collection.id,
-            bcId: collection.id
+            bcId: collection.id,
+            bcGlossary: []
         };
-        let bcGlossary: string[] = [];
         if (verbose && usedLangs.has(context.lang)) {
             console.warn(
                 `Language ${context.lang} already used in another collection. Proceeding anyway.`
@@ -500,7 +524,7 @@ export async function convertBooks(
         const ignoredBooks = [];
         // If the collection has a glossary, load it
         if (scriptureConfig.traits?.['has-glossary']) {
-            bcGlossary = loadGlossary(collection, dataDir, inputFiles);
+            context.bcGlossary = loadGlossary(collection, dataDir, inputFiles);
         }
         //add empty array of quizzes for book collection
         quizzes[context.docSet] = [];
@@ -542,19 +566,11 @@ export async function convertBooks(
                         displayBookId(context.bcId, book.id);
                         htmlBooks[context.docSet].push({ id: book.id, name: book.name });
                     } else {
-                        convertScriptureBook(pk, context, book, bcGlossary, docs, inputFiles);
+                        convertScriptureBook(pk, context, book, docs, inputFiles);
                     }
                     if (book.bookTabs) {
                         for (const bookTab of book.bookTabs.tabs) {
-                            convertScriptureBook(
-                                pk,
-                                context,
-                                book,
-                                bcGlossary,
-                                docs,
-                                inputFiles,
-                                bookTab
-                            );
+                            convertScriptureBook(pk, context, book, docs, inputFiles, bookTab);
                         }
                     }
                     break;
@@ -877,7 +893,6 @@ function convertScriptureBook(
     pk: SABProskomma,
     context: ConvertBookContext,
     book: BookConfig,
-    bcGlossary: string[],
     docs: Promise<void>[],
     files: string[],
     bookTab?: BookTabConfig
@@ -899,12 +914,6 @@ function convertScriptureBook(
                 firstLine.replace(/\\id [^\s]+/g, `\\id ${book.id}${bookTab.bookTabID}`) +
                 '\n' +
                 remainingLines;
-        }
-        if (context.scriptureConfig.traits?.['has-glossary']) {
-            content = verifyGlossaryEntries(content, bcGlossary);
-        }
-        if (context.scriptureConfig.mainFeatures['hide-empty-verses'] === true) {
-            content = removeMissingVerses(content, context.bcId, id);
         }
         // Cannot use GraphQL mutation asynchronously since content with triple double quotes
         // in the contents (see Scriptoria project 3949 for an example) will fail to load.

@@ -3,6 +3,7 @@ import type {
     BookCollectionConfig,
     BookConfig,
     DictionaryConfig,
+    FeatureValue,
     ScriptureConfig,
     StyleConfig
 } from '$config';
@@ -41,7 +42,7 @@ export function getFeatureValueBoolean(
         }
     }
 
-    if (value === true || value === 'yes') {
+    if (value === true || value === 'yes' || value === 'true') {
         returnValue = true;
     }
     // console.log('getFeatureValueBoolean %o %o %o', feature, value, returnValue);
@@ -76,6 +77,20 @@ export function getFeatureValueString(
     }
     // console.log('getFeatureValueString %o %o', feature, value);
     return value;
+}
+export function checkFeatureValueIs(
+    config: ScriptureConfig,
+    feature: string,
+    expectedValue: FeatureValue,
+    bc: string,
+    book: string
+) {
+    expectedValue = expectedValue.toString();
+    if (['true', 'false'].includes(expectedValue)) {
+        return getFeatureValueBoolean(config, feature, bc, book).toString() === expectedValue;
+    } else {
+        return getFeatureValueString(config, feature, bc, book) === expectedValue;
+    }
 }
 export function hasFeature(config: AppConfig, feature: string) {
     return config.mainFeatures[feature] != null;
