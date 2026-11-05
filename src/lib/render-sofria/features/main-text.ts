@@ -1,14 +1,17 @@
-import { FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
+import { addToScratchPad, FeatureSpec, noaction, renderIfRegularOrIfHackedIntro } from '../common';
 import { extractClassName, getBlock, getElement, getSequence, matchSequence } from './common';
 import {
     addPhrases,
     getPhraseDiv,
     parseVerseRange,
     terminatePhrase,
+    verseInRange,
     type SharedTextScratch
 } from './common/text';
 
-export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
+export const text = new FeatureSpec<
+    SharedTextScratch & { verses?: { orphanedPhrases?: { verse: string; phrase: string }[] } }
+>('Main Text', {
     startSequence: {
         stage: 'standard',
         details: ({ context }) => ({ type: getSequence(context).type }),
@@ -69,6 +72,27 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
         guard: ({ context, workspace }) =>
             matchSequence(context, 'main') && renderIfRegularOrIfHackedIntro(workspace),
         action({ workspace }) {
+            function getOrphans(paragraphDiv: HTMLElement) {
+                const orphans = Array.from(
+                    paragraphDiv.querySelectorAll('[data-verse][data-phrase]')
+                ).map((el) => ({
+                    verse: el.getAttribute('data-verse')!,
+                    phrase: el.getAttribute('data-phrase')!
+                }));
+
+                orphans
+                    .filter(({ verse }) => !verseInRange(workspace, verse))
+                    .forEach(({ verse, phrase }) => {
+                        paragraphDiv.removeChild(
+                            paragraphDiv.querySelector(
+                                `[data-verse="${verse}"][data-phrase="${phrase}"]`
+                            )!
+                        );
+                    });
+
+                return orphans.filter(({ verse }) => verseInRange(workspace, verse));
+            }
+
             /**
              * The goal of this code, and its counterpart in `startVerses` is to create a single `div` to hold a full verse.
              * This is necessary to efficiently implement Issue [#1115](https://github.com/sillsdev/appbuilder-pwa/issues/1115).
@@ -115,13 +139,30 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                 case 1:
                     {
                         const verseDiv = workspace.scopeManager.pop('verses').root;
-                        workspace.scopeManager.appendChildrenFromContainer(verseDiv);
-                        const paragraphDiv = workspace.scopeManager.pop('paragraph:main').root;
-                        verseDiv.replaceChildren(paragraphDiv);
-                        // render is set to true by verse right before start of verse range
-                        // endVerse event for this verse is not sent until after paragraph ends
-                        if (workspace.currentTextPosition.render) {
-                            workspace.scopeManager.appendContent(verseDiv);
+                        const paragraphDiv = workspace.scopeManager.top('paragraph:main').root;
+
+                        const orphans = getOrphans(paragraphDiv);
+
+                        if (orphans.length) {
+                            const orphanedPhrases = orphans.concat(
+                                workspace.scratch.verses?.orphanedPhrases ?? []
+                            );
+                            addToScratchPad(workspace.scratch, 'verses', { orphanedPhrases });
+
+                            if (workspace.currentTextPosition.render) {
+                                workspace.scopeManager.appendContent(verseDiv);
+                            }
+                            workspace.scopeManager.promoteContent('paragraph:main');
+                        } else {
+                            workspace.scopeManager.appendChildrenFromContainer(verseDiv);
+
+                            verseDiv.replaceChildren(paragraphDiv);
+                            workspace.scopeManager.pop('paragraph:main');
+                            // render is set to true by verse right before start of verse range
+                            // endVerse event for this verse is not sent until after paragraph ends
+                            if (workspace.currentTextPosition.render) {
+                                workspace.scopeManager.appendContent(verseDiv);
+                            }
                         }
                     }
                     break;
@@ -131,19 +172,16 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
                         const divs: HTMLElement[] = [];
                         for (let i = 0; i < depth; i++) {
                             const verseDiv = workspace.scopeManager.pop('verses').root;
-                            const verse = verseDiv.getAttribute('data-verse')!;
-                            const range = parseVerseRange(verse);
-                            // filter out verses not in range
-                            if (
-                                !workspace.viewSettings.verseRange ||
-                                ((range.start >= workspace.viewSettings.verseRange.start ||
-                                    range.end >= workspace.viewSettings.verseRange.start) &&
-                                    (range.end <= workspace.viewSettings.verseRange.end ||
-                                        range.start <= workspace.viewSettings.verseRange.end))
-                            ) {
+                            if (verseInRange(workspace, verseDiv.getAttribute('data-verse')!)) {
                                 divs.push(verseDiv);
                             }
                         }
+
+                        const orphanedPhrases = getOrphans(
+                            workspace.scopeManager.top('paragraph:main').root
+                        ).concat(workspace.scratch.verses?.orphanedPhrases ?? []);
+                        addToScratchPad(workspace.scratch, 'verses', { orphanedPhrases });
+
                         if (divs.length) {
                             const count = divs.length;
                             for (let i = 0; i < count; i++) {
@@ -207,12 +245,63 @@ export const text = new FeatureSpec<SharedTextScratch>('Main Text', {
             }
         }
     ],
-    endDocument: {
-        stage: 'standard',
-        action({ workspace }) {
-            workspace.root.querySelectorAll('.seltxt').forEach((el) => {
-                el.addEventListener('click', (e) => workspace.events.clickText(e as MouseEvent));
-            });
+    endDocument: [
+        {
+            stage: 'standard',
+            details: ({ workspace }) => ({
+                count: workspace.root.querySelectorAll('.seltxt').length
+            }),
+            action: ({ workspace }) => {
+                workspace.root.querySelectorAll('.seltxt').forEach((el) => {
+                    el.addEventListener('click', (e) =>
+                        workspace.events.clickText(e as MouseEvent)
+                    );
+                });
+            }
+        },
+        {
+            stage: 'standard',
+            name: 'Orphaned Phrases',
+            details: ({ workspace }) => ({
+                orphanedPhrases: workspace.scratch.verses?.orphanedPhrases
+            }),
+            action: ({ workspace }) => {
+                const orphanedPhrases = workspace.scratch.verses?.orphanedPhrases;
+                if (orphanedPhrases?.length) {
+                    orphanedPhrases
+                        .concat(
+                            // add in verse divs
+                            Array.from(new Set(orphanedPhrases.map(({ verse }) => verse))).map(
+                                (verse) => ({ verse, phrase: '' })
+                            )
+                        )
+                        .forEach(({ verse, phrase }) => {
+                            const div = workspace.root.querySelector(
+                                `[data-verse="${verse}"]${phrase ? `[data-phrase="${phrase}"]` : `:not([data-phrase])`}`
+                            );
+                            div?.addEventListener('mouseover', (e) => {
+                                e.stopPropagation();
+                                if (!div.classList.contains('force-hover')) {
+                                    workspace.root
+                                        .querySelectorAll(`[data-verse="${verse}"]`)
+                                        .forEach((el) => {
+                                            el.classList.add('force-hover');
+                                        });
+                                }
+                            });
+                            div?.addEventListener('mouseleave', (e) => {
+                                e.stopPropagation();
+                                if (div.classList.contains('force-hover')) {
+                                    workspace.root
+                                        .querySelectorAll(`[data-verse="${verse}"]`)
+                                        .forEach((el) => {
+                                            el.classList.remove('force-hover');
+                                        });
+                                }
+                            });
+                        });
+                }
+            }
         }
-    }
+    ]
 });

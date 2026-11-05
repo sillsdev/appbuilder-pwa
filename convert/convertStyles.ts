@@ -177,7 +177,7 @@ function getTempStyles(configData: ConfigTaskOutput, verbose: number): string {
         tempStyles.push('@media (hover: hover) and (pointer: fine) {');
         tempStyles.push('div[data-verse] { cursor: pointer; }');
         tempStyles.push(
-            'div[data-verse]:hover .seltxt { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }'
+            'div[data-verse]:hover .seltxt, .force-hover { background-color: color-mix(in srgb, var(--BackgroundColor), var(--TextColor) 15%); }'
         );
         tempStyles.push('}');
     }
