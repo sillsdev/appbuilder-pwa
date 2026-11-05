@@ -43,9 +43,21 @@ export type BookTabsConfig = {
     tabs: BookTabConfig[];
 };
 
+export type BookSourceType =
+    | 'none'
+    | 'sfm'
+    | 'usx'
+    | 'docx'
+    | 'html'
+    | 'epub'
+    | 'markdown'
+    | 'chordpro'
+    | 'youversion';
+
 export type BookConfig = {
     id: string;
     type?: string;
+    sourceFormat: BookSourceType;
     format?: string;
     name: string;
     abbreviation: string;

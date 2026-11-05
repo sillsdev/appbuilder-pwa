@@ -5,7 +5,7 @@
  * mirrors `handleSofriaRenderEvent` in `ScriptureViewProskomma.svelte`; if that loop changes,
  * this copy must change with it (or the loop should be extracted so both share it).
  */
-import type { ScriptureConfig } from '$config';
+import type { BookSourceType, ScriptureConfig } from '$config';
 import { SABProskomma } from '$lib/sab-proskomma';
 import * as numerals from '$lib/scripts/numeralSystem';
 import { test_generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
@@ -52,6 +52,7 @@ export type RenderOptions = {
     audio?: ScriptureConfig['audio'];
     verseRange?: { start: number; end: number };
     footer?: string;
+    sourceFormat?: BookSourceType;
 };
 
 const DEFAULT_FEATURES = {
@@ -89,7 +90,8 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
                         name: BOOK_NAME,
                         testament: options.bibleBook === false ? '' : 'OT',
                         features: {},
-                        footer: options.footer
+                        footer: options.footer,
+                        sourceFormat: options.sourceFormat
                     }
                 ]
             }
@@ -130,7 +132,8 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
         book: BOOK,
         chapter: options.chapter ?? '1',
         verse: '1',
-        hasAudio: !!options.hasAudio
+        hasAudio: !!options.hasAudio,
+        sourceFormat: options.sourceFormat
     } as unknown as RenderWorkspace['stores']['references'];
 
     const actions = compileRenderActions(

@@ -5,6 +5,7 @@ import type {
     AudioConfig,
     BookCollectionAudioConfig,
     BookCollectionConfig,
+    BookSourceType,
     BookTabConfig,
     BookTabsConfig,
     DictionaryConfig,
@@ -21,7 +22,7 @@ import { getBibleBrainUrl } from '../src/lib/scripts/mediaUtils';
 import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getHashedName } from './fileUtils';
-import { compareVersions, splitVersion } from './stringUtils';
+import { ciEquals, compareVersions, getFilenameExt, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
 const fontFamilies: string[] = [];
@@ -639,6 +640,47 @@ export function parseTraits(document: Document, dataDir: string, verbose: number
     return traits;
 }
 
+function getSourceFormatFromFilename(filename: string) {
+    let type: BookSourceType = 'none';
+
+    if (filename) {
+        const ext = getFilenameExt(filename);
+
+        if (ciEquals(ext, 'usx')) {
+            // USX or encrypted USX
+            type = 'usx';
+        } else if (ciEquals(ext, 'usfm')) {
+            // USFM or encrypted USFM
+            type = 'sfm';
+        } else if (ciEquals(ext, 'docx')) {
+            type = 'docx';
+        } else if (ciEquals(ext, 'htm') || ciEquals(ext, 'html') || ciEquals(ext, 'xhtml')) {
+            type = 'html';
+        } else if (ciEquals(ext, 'epub')) {
+            type = 'epub';
+        } else if (
+            ciEquals(ext, 'cho') ||
+            ciEquals(ext, 'chordpro') ||
+            ciEquals(ext, 'chopro') ||
+            ciEquals(ext, 'crd') ||
+            ciEquals(ext, 'pro')
+        ) {
+            type = 'chordpro';
+        } else if (ciEquals(ext, 'yvr')) {
+            // YouVersion Platform - added in the app at runtime
+            type = 'youversion';
+        } else if (ciEquals(ext, 'md')) {
+            // Markdown - used for gloss/textStories Scripture Burrito bundles (e.g. OBS)
+            type = 'markdown';
+        } else {
+            // SFM is the default source type
+            type = 'sfm';
+        }
+    }
+
+    return type;
+}
+
 export function parseBookCollections(document: Document, dataDir: string, verbose: number) {
     const booksTags = document.getElementsByTagName('books');
     const bookCollections = [];
@@ -889,6 +931,7 @@ export function parseBookCollections(document: Document, dataDir: string, verbos
                 id: book.attributes.getNamedItem('id')!.value,
                 type: book.attributes.getNamedItem('type')?.value,
                 format,
+                sourceFormat: getSourceFormatFromFilename(file),
                 name: book.getElementsByTagName('n')[0]?.innerHTML,
                 additionalNames,
                 section: book.getElementsByTagName('sg')[0]?.innerHTML,
