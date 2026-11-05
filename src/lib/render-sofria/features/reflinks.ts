@@ -131,8 +131,8 @@ export const inlineReferences = new FeatureSpec<SharedTextScratch>('Inline Refer
         details: ({ workspace }) => workspace.scratch.text?.cleanedText,
         guard: ({ workspace }) =>
             !workspace.scratch.text?.empty &&
-            workspace.scopeManager.has('wrapper:rq') &&
-            renderIfRegularOrIfHackedIntro(workspace),
+            renderIfRegularOrIfHackedIntro(workspace) &&
+            isTopWrapper(workspace, 'wrapper:rq'),
         action({ workspace }) {
             const span = workspace.scopeManager.find('wrapper:rq')!.root;
             span.innerHTML += workspace.functions.generateReferenceLinkHTML(
