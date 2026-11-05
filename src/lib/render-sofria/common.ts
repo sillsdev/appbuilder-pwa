@@ -1,7 +1,4 @@
 import type { FeatureConfig, FeatureValue, ScriptureConfig } from '$config';
-import type { BookmarkItem } from '$lib/data/bookmarks';
-import type { HighlightItem } from '$lib/data/highlights';
-import type { NoteItem } from '$lib/data/notes';
 import type { PlansData } from '$lib/data/plansData';
 import {
     checkSettingIs,
@@ -14,6 +11,7 @@ import {
 import type { Reference, ReferenceStore } from '$lib/data/stores/reference';
 import { checkFeatureValueIs } from '$lib/scripts/configUtils';
 import type { NumeralSystem } from '$lib/scripts/numeralSystem';
+import type { generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import type {
     RenderContext as PKRenderContext,
     RenderWorkspace as PKRenderWorkspace,
@@ -223,6 +221,8 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
     PKRenderWorkspace & {
         document: Document;
         currentTextPosition: {
+            // render current section, used for verse range
+            render: boolean;
             verse: string;
             phraseIndex?: number;
         };
@@ -239,16 +239,16 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             isBibleBook: boolean;
             redLetters: boolean;
             verseLayout: string;
-            verseRangeNumber?: string;
+            verseRange?: { start: number; end: number };
         };
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;
         events: {
             navigate: (refs: Reference) => void;
-            openFootnoote: (event: MouseEvent, footnoteId: string) => void;
+            openFootnote: (event: MouseEvent, footnoteId: string) => void;
             openGlossary: (link: string, block: GlossaryBlock) => void;
             setPlanStore: (data: PlanStore) => void;
-            clickHeaderRef: (
+            openCrossRef: (
                 event: MouseEvent,
                 target: HTMLElement,
                 workspace: RenderWorkspace
@@ -257,7 +257,10 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             updateAnnotations: () => void;
         };
         stores: {
-            references: ReferenceStore;
+            references: Pick<
+                ReferenceStore,
+                'book' | 'chapter' | 'docSet' | 'catalog' | 'collection' | 'bookTab' | 'hasAudio'
+            >;
             plan: PlanStore;
             currentPlanState: string;
             currentPlanData: PlansData | null;
@@ -268,6 +271,9 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
         };
         queries: {
             glossary: Promise<GlossaryQueryResult>;
+        };
+        functions: {
+            generateReferenceLinkHTML: typeof generateReferenceLinkHTML;
         };
     };
 

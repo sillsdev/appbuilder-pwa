@@ -8,12 +8,14 @@
 import type { ScriptureConfig } from '$config';
 import { SABProskomma } from '$lib/sab-proskomma';
 import * as numerals from '$lib/scripts/numeralSystem';
+import { test_generateReferenceLinkHTML } from '$lib/scripts/scripture-reference-utils';
 import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
 import {
     applyFilters,
     usfmFilterFunctions,
     type ConvertBookContext
 } from '../../../../convert/convertBooks';
+import { catalog } from '../../../../test_data/data/catalog';
 import { compileRenderActions, type RenderWorkspace } from '../common';
 import { renderFeatures } from '../index';
 import ScopeManager from '../ScopeManager';
@@ -21,6 +23,7 @@ import { getSeparatorRegex } from '../util';
 
 export const COLLECTION = 'C01';
 export const BOOK = 'GEN';
+export const BOOK_NAME = 'Genesis';
 
 export type RenderOptions = {
     /** chapter to render (default '1') */
@@ -47,6 +50,8 @@ export type RenderOptions = {
     videos?: ScriptureConfig['videos'];
     /** `config.audio` (audio sources and files, used by audio clips) */
     audio?: ScriptureConfig['audio'];
+    verseRange?: { start: number; end: number };
+    footer?: string;
 };
 
 const DEFAULT_FEATURES = {
@@ -72,13 +77,19 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
             {
                 id: COLLECTION,
                 languageCode: 'eng',
-                features: { 'ref-verse-range-separator': '-' },
+                features: {
+                    'ref-verse-range-separator': '-',
+                    'ref-chapter-verse-separator': ':',
+                    'show-scripture-refs': true
+                },
                 style: { textDirection: 'ltr' },
                 books: [
                     {
                         id: BOOK,
+                        name: BOOK_NAME,
                         testament: options.bibleBook === false ? '' : 'OT',
-                        features: {}
+                        features: {},
+                        footer: options.footer
                     }
                 ]
             }
@@ -113,13 +124,22 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
 
     const noop = () => {};
 
+    const refs = {
+        docSet: `eng_${COLLECTION}`,
+        collection: COLLECTION,
+        book: BOOK,
+        chapter: options.chapter ?? '1',
+        verse: '1',
+        hasAudio: !!options.hasAudio
+    } as unknown as RenderWorkspace['stores']['references'];
+
     const actions = compileRenderActions(
         renderFeatures,
         {
             document: document,
             root,
             scopeManager: new ScopeManager(),
-            currentTextPosition: { verse: 'none' },
+            currentTextPosition: { verse: 'none', render: !options.verseRange },
             logSettings: {} as RenderWorkspace['logSettings'],
             scratch: {},
             textConfig: {
@@ -131,27 +151,21 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             viewSettings: {
                 isBibleBook: options.bibleBook ?? true,
                 redLetters: options.redLetters ?? false,
-                verseLayout: options.verseLayout ?? 'paragraphs'
+                verseLayout: options.verseLayout ?? 'paragraphs',
+                verseRange: options.verseRange
             },
             hackRenderIntro: options.hackRenderIntro ?? false,
             events: {
                 navigate: noop,
-                openFootnoote: noop,
+                openFootnote: noop,
                 openGlossary: noop,
                 setPlanStore: noop,
-                clickHeaderRef: noop,
+                openCrossRef: noop,
                 clickText: noop,
                 updateAnnotations: noop
             },
             stores: {
-                references: {
-                    docSet: `eng_${COLLECTION}`,
-                    collection: COLLECTION,
-                    book: BOOK,
-                    chapter: options.chapter ?? '1',
-                    verse: '1',
-                    hasAudio: !!options.hasAudio
-                } as unknown as RenderWorkspace['stores']['references'],
+                references: refs,
                 plan: { planEntry: -1 } as never,
                 currentPlanState: '',
                 currentPlanData: null,
@@ -160,7 +174,18 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                 lastPlanReference: false,
                 settings: { ...DEFAULT_SETTINGS, ...options.settings }
             },
-            queries: { glossary: Promise.resolve({} as never) }
+            queries: { glossary: Promise.resolve({} as never) },
+            functions: {
+                generateReferenceLinkHTML: (crossRef, refClass, linkHref) =>
+                    test_generateReferenceLinkHTML(
+                        crossRef,
+                        refClass,
+                        linkHref,
+                        refs,
+                        config.bookCollections,
+                        catalog[0]
+                    )
+            }
         },
         false
     );

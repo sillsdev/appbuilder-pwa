@@ -1,11 +1,10 @@
+import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { renderUsfm } from './renderUsfm';
+import { renderUsfm, type RenderOptions } from './renderUsfm';
 
 /**
  * TODO:
- * - cross-references (handle in PR #1173)
  * - custom tags (handle in separate PR)
- * - ref-links (handle in PR #1173)
  * - ChordPro (handle in PR #1176)
  * - table headers (handle in PR #1178)
  */
@@ -395,9 +394,11 @@ describe('SAB SFM extensions (via convert filters)', () => {
 
     test('markdown [label](GEN.1.2) becomes an internal reference link', () => {
         const root = renderUsfm(chapter('\\v 1 See [next verse](GEN.1.2) here.'));
-        const a = root.querySelector('a.ref-link');
+        const a = root.querySelector('a.markdown_ref-link');
         expect(a?.textContent).toBe('next verse');
-        expect(a?.getAttribute('data-link')).toBe('C01.GEN.1.2');
+        const ref: AnchorReference = JSON.parse(a!.getAttribute('data-start-ref')!);
+        expect(ref.reference).toBe('C01.GEN.1.2');
+        expect(ref.docSet).toBe('eng_C01');
     });
 });
 
@@ -560,18 +561,33 @@ describe('headings', () => {
         expect(s.querySelector(':scope > div.txs:last-child')?.textContent).toBe(' end');
     });
 
-    // BUG: plain \r text is appended to the heading immediately but the \xt span is added at
-    // endParagraph, so this renders "()Mark 1:1"
-    test.fails('\\xt inside \\r keeps its position in the text', () => {
-        const r = heading('\\s1 Head\n\\r (\\xt Mark 1:1\\xt*)').querySelector('div.r');
-        expect(r?.textContent).toBe('(Mark 1:1)');
+    test('\\xt inside \\r keeps its position in the text', () => {
+        const r = heading('\\s1 Head\n\\r (\\xt Genesis 1:1\\xt*)').querySelector('div.r');
+        expect(r?.textContent).toBe('(Genesis 1:1)');
+    });
+
+    describe('\\x inside \\s1', () => {
+        const render = (ref: string) =>
+            renderUsfm(chapter(`\\s1 Header \\x + \\xo 1:1 \\xt ${ref}\\x*`));
+        test('\\x renders caller sup and hidden content', () => {
+            const root = render('Genesis 1:1');
+            const graft = root.querySelector('span[data-graft]');
+            expect(graft?.querySelector('sup.footnote')?.textContent).toBe('a ');
+            const content = graft?.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+            expect(content?.querySelector('span.xt')?.textContent).toContain('Genesis 1:1');
+        });
+
+        test('\\xt renders with link for valid book', () => {
+            const root = render('Genesis 1:1');
+            expect(root?.querySelector('span.xt a.crossref_ref-link')?.textContent).toContain(
+                'Genesis 1:1'
+            );
+        });
     });
 
     // \cl occurs ~8.6k times in Scriptoria projects and is currently dropped (legacy has no
     // handling for it either); expected behaviour not decided yet
     test.todo('\\cl chapter label');
-    // cross-references currently throw in the harness (handle in PR #1173)
-    test.todo('\\x inside \\s1');
     test.todo('\\sd# semantic division renders vertical space');
 });
 
@@ -761,9 +777,9 @@ describe('introductions', () => {
     });
 
     test('\\xt inside \\ip renders a reference link', () => {
-        const ip = intro('\\ip See \\xt Mark 1:1\\xt*.').querySelector('div.ip')!;
-        expect(ip.querySelector('span.xt span.reflink')?.textContent).toBe('Mark 1:1');
-        expect(ip.textContent).toBe('See Mark 1:1.');
+        const ip = intro('\\ip See \\xt Genesis 1:1\\xt*.').querySelector('div.ip')!;
+        expect(ip.querySelector('span.xt a.crossref_ref-link')?.textContent).toBe('Genesis 1:1');
+        expect(ip.textContent).toBe('See Genesis 1:1.');
     });
 
     test('footnote inside \\ip stays in the paragraph', () => {
@@ -1027,7 +1043,7 @@ describe('audio clips', () => {
             '\\v 1 [A](clip one.mp3)\\f + \\fr 1:1 \\ft Note [B](remote.wav)\\f* and [C](remote.wav)'
         );
         expect(clipSrcs(root).map(([id]) => id)).toEqual(['audio001', 'audio002', 'audio003']);
-        expect(root.querySelector('div[type="footnote"] a.audioclip')?.textContent).toBe('B');
+        expect(root.querySelector('div[data-type="footnote"] a.audioclip')?.textContent).toBe('B');
     });
 
     test('clicking a clip plays its audio element', () => {
@@ -1218,5 +1234,132 @@ describe('videos', () => {
             expect(ids).toHaveLength(2);
             expect(new Set(ids).size).toBe(2);
         });
+    });
+});
+
+describe('cross-references', () => {
+    const render = (ref: string) =>
+        renderUsfm(chapter(`\\v 1 One. \\x + \\xo 1:1 \\xt ${ref}\\x*`));
+    test('\\x renders caller sup and hidden content', () => {
+        const root = render('Genesis 1:1');
+        const graft = root.querySelector('span[data-graft]');
+        expect(graft?.querySelector('sup.footnote')?.textContent).toBe('a ');
+        const content = graft?.querySelector(`div[id="${graft.getAttribute('data-graft')}"]`);
+        expect(content?.querySelector('span.xt')?.textContent).toBe('Genesis 1:1');
+    });
+
+    test('\\xt renders with link for valid book', () => {
+        const root = render('Genesis 1:1');
+        expect(root?.querySelector('span.xt a.crossref_ref-link')?.textContent).toBe('Genesis 1:1');
+    });
+
+    test('\\xt renders without link for invalid book', () => {
+        const root = render('Matthew 1:1');
+        expect(root.querySelector('span.xt a.crossref_ref-link')).toBe(null);
+        expect(root.querySelector('span.xt')?.textContent).toBe('Matthew 1:1');
+    });
+
+    test('\\xt renders with separate text from link-href', () => {
+        const root = render('The Beginning | link-href="GEN 1:1"');
+        const a = root?.querySelector('span.xt a.crossref_ref-link');
+        expect(a?.textContent).toBe('The Beginning');
+        const startRef: AnchorReference = JSON.parse(a?.getAttribute('data-start-ref') || '{}');
+        expect(startRef.book).toBe('GEN');
+        expect(startRef.chapter).toBe('1');
+        expect(startRef.verse).toBe('1');
+    });
+});
+
+describe('verse ranges', () => {
+    const renderWithRange = (range: { start: number; end?: number }, options?: RenderOptions) =>
+        renderUsfm(
+            `\\mt Genesis\n${chapter(
+                `\\v 1 One. \\v 2 Two.\n\\s1 Heading\n\\p \\v 3-4 Three and Four. \\v 5 Five.`
+            )}`,
+            { ...options, verseRange: { start: range.start, end: range.end ?? range.start } }
+        );
+
+    test('only one verse is rendered when end is omitted', () => {
+        const root = renderWithRange({ start: 1 });
+        expect(root.querySelectorAll('[data-verse]:not([data-phrase])').length).toBe(1);
+    });
+
+    test('title is included if verse 1 (of chapter 1) is included', () => {
+        const root = renderWithRange({ start: 1 });
+        expect(root.querySelector('div[data-verse="title"]')?.textContent).toBe('Genesis');
+    });
+
+    test('title is excluded if verse 1 is excluded', () => {
+        const root = renderWithRange({ start: 2 });
+        expect(root.querySelector('div[data-verse="title"]')).toBe(null);
+    });
+
+    test('heading is included if following verse is included', () => {
+        const root = renderWithRange({ start: 3 });
+        expect(root.querySelector('div.s')?.textContent).toBe('Heading');
+    });
+
+    test('heading is excluded if following verse is excluded', () => {
+        const root = renderWithRange({ start: 5 });
+        expect(root.querySelector('div.s')).toBe(null);
+    });
+
+    test('footer is excluded even if last verse is included', () => {
+        const root = renderWithRange({ start: 5 }, { footer: 'Footer' });
+        expect(root.querySelector('div.footer')).toBe(null);
+    });
+
+    describe('ranges that include verse ranges', () => {
+        test('partial verse range at start', () => {
+            const root = renderWithRange({ start: 4, end: 5 });
+            const verses = Array.from(root.querySelectorAll('[data-verse]:not([data-phrase])')).map(
+                (el) => el.getAttribute('data-verse')!
+            );
+            expect(verses[0]).toBe('3-4');
+            expect(verses.length).toBe(2);
+        });
+
+        test('partial verse range at end', () => {
+            const root = renderWithRange({ start: 2, end: 3 });
+            const verses = Array.from(root.querySelectorAll('[data-verse]:not([data-phrase])')).map(
+                (el) => el.getAttribute('data-verse')!
+            );
+            expect(verses[1]).toBe('3-4');
+            expect(verses.length).toBe(2);
+        });
+
+        test('fully overlapping verse range', () => {
+            const root = renderWithRange({ start: 3, end: 4 });
+            const verses = Array.from(root.querySelectorAll('[data-verse]:not([data-phrase])')).map(
+                (el) => el.getAttribute('data-verse')!
+            );
+            expect(verses[0]).toBe('3-4');
+            expect(verses.length).toBe(1);
+        });
+    });
+});
+
+describe('inline references (\\rq)', () => {
+    const render = (ref: string) => renderUsfm(chapter(`\\v 1 One. \\rq ${ref}\\rq*`));
+
+    test('\\rq renders with link for valid book', () => {
+        const root = render('Genesis 1:1');
+        expect(root?.querySelector('span.rq a.inline_ref-link')?.textContent).toBe('Genesis 1:1');
+    });
+
+    test('\\rq renders without link for invalid book', () => {
+        const root = render('Matthew 1:1');
+        expect(root.querySelector('span.rq a.inline_ref-link')).toBe(null);
+        expect(root.querySelector('span.rq')?.textContent).toBe('Matthew 1:1');
+    });
+
+    test('\\rq renders with separate text from link-href', () => {
+        const root = render('The Beginning | link-href="GEN 1:1"');
+        const a = root?.querySelector('span.rq a.inline_ref-link');
+        expect(a?.textContent).toBe('The Beginning');
+        const startRef: AnchorReference = JSON.parse(a?.getAttribute('data-start-ref') || '{}');
+        expect(startRef.book).toBe('GEN');
+        expect(startRef.chapter).toBe('1');
+        expect(startRef.verse).toBe('1');
     });
 });

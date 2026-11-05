@@ -6,7 +6,7 @@ import {
     type RenderWorkspace
 } from '../common';
 import { getElement } from './common';
-import { terminatePhrase, type SharedTextScratch } from './common/text';
+import { cleanText, parseVerseRange, terminatePhrase, type SharedTextScratch } from './common/text';
 
 export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
     startDocument: {
@@ -25,7 +25,9 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
         stage: 'cleanup',
         details: ({ workspace }) => ({ ...workspace.stores.references }),
         action({ workspace, output }) {
-            addFooter(workspace);
+            if (workspace.currentTextPosition.render) {
+                addFooter(workspace);
+            }
 
             workspace.scopeManager.pop('document');
             output.root = workspace.root;
@@ -49,7 +51,26 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
                 v: getElement(context).atts['number']
             }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-            action({ workspace }) {
+            action({ context, workspace }) {
+                // set render status for verse range (filtering text is handled in endParagraph - Main Text)
+                if (workspace.viewSettings.verseRange) {
+                    const range = parseVerseRange(getElement(context).atts['number']);
+                    if (!workspace.currentTextPosition.render) {
+                        if (
+                            range.end + 1 >= workspace.viewSettings.verseRange.start &&
+                            range.start <= workspace.viewSettings.verseRange.end
+                        ) {
+                            workspace.currentTextPosition.render = true;
+                        }
+                    } else {
+                        if (
+                            range.start + 1 > workspace.viewSettings.verseRange.end ||
+                            range.end + 1 > workspace.viewSettings.verseRange.end
+                        ) {
+                            workspace.currentTextPosition.render = false;
+                        }
+                    }
+                }
                 workspace.currentTextPosition.verse = 'none';
             }
         }
@@ -80,14 +101,7 @@ export const defaults = new FeatureSpec<SharedTextScratch>('Default', {
             details: ({ context }) => ({ length: getElement(context).text.trim().length }),
             guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
             action({ context, workspace }) {
-                let cleanedText = getElement(context).text;
-
-                // Next line is a HACK: Proskomma adds default="" to anonymous bars in text
-                // See https://community.scripture.software.sil.org/t/issues-with-cross-references-in-pwa-modern/4476
-                cleanedText = cleanedText.replaceAll(
-                    /(\|\s*)default="([^"]*)"/g,
-                    (_m, bar, quoted) => ` ${bar}${quoted}`
-                );
+                const cleanedText = cleanText(getElement(context).text);
 
                 addToScratchPad(workspace.scratch, 'text', {
                     cleanedText,

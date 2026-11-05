@@ -1,6 +1,7 @@
 import { FeatureSpec, renderIfRegularOrIfHackedIntro } from '$lib/render-sofria/common';
+import { generateAnchor } from '$lib/scripts/scripture-reference-utils';
 import { splitString } from '$lib/scripts/stringUtils';
-import { getElement, matchElement } from './common';
+import { extractClassName, getElement, matchElement } from './common';
 import {
     addPhrases,
     isTopWrapper,
@@ -21,10 +22,37 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
         action: ({ context, workspace }) => {
             const element = getElement(context);
 
-            const a = workspace.document.createElement('a');
-            a.classList.add('web-link', 'ref-link', 'dy-tooltip');
-            a.setAttribute('data-link', safeDecodeAttribute(element.atts['link']?.[0]));
-            a.setAttribute('data-tip', safeDecodeAttribute(element.atts['title']?.[0]));
+            const phrase = safeDecodeAttribute(element.atts['title']?.[0]);
+            const link = safeDecodeAttribute(element.atts['link']?.[0]);
+            const [collection, book, chapter, verse] = link.split('.');
+
+            const docSet = `${workspace.config.bookCollections?.find((bc) => bc.id === collection)?.languageCode}_${collection}`;
+
+            const a = generateAnchor(
+                'markdown_ref-link',
+                {
+                    collection,
+                    phrase,
+                    docSet,
+                    book,
+                    chapter,
+                    verse: verse ?? '1',
+                    reference: link
+                },
+                verse
+                    ? {
+                          collection,
+                          phrase,
+                          docSet,
+                          book,
+                          chapter,
+                          verse,
+                          reference: link
+                      }
+                    : undefined
+            );
+            a.classList.add('web-link', 'dy-tooltip');
+            a.setAttribute('data-tip', phrase);
             a.style.display = 'inline';
             a.href = 'javascript:void(0)';
 
@@ -59,27 +87,71 @@ export const reflinks = new FeatureSpec<SharedTextScratch>('Reference Links', {
     endDocument: {
         stage: 'standard',
         details: ({ workspace }) => ({
-            count: workspace.root.querySelectorAll('a.ref-link').length
+            count: workspace.root.querySelectorAll('a.markdown_ref-link').length
         }),
         action({ workspace }) {
-            workspace.root.querySelectorAll('a.ref-link').forEach((el) => {
-                el.addEventListener('click', function clickRefLink(event) {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    const [docSet, book, chapter, verse] = splitString(
-                        el.getAttribute('data-link') ?? '',
-                        '.'
-                    );
-                    const refBc = workspace.config.bookCollections?.find((x) => x.id === docSet);
-                    if (refBc) {
-                        workspace.events.navigate({
-                            docSet: refBc.languageCode + '_' + refBc.id,
-                            book,
-                            chapter,
-                            verse
-                        });
-                    }
-                });
+            workspace.root.querySelectorAll('a.markdown_ref-link').forEach((el) => {
+                el.addEventListener('click', (e) =>
+                    workspace.events.openCrossRef(
+                        e as MouseEvent,
+                        el as HTMLAnchorElement,
+                        workspace
+                    )
+                );
+            });
+        }
+    }
+});
+
+export const inlineReferences = new FeatureSpec<SharedTextScratch>('Inline References', {
+    startWrapper: {
+        stage: 'standard',
+        details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:rq') && renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ workspace }) => {
+            const spanElement = workspace.document.createElement('span');
+            spanElement.classList.add('rq');
+            workspace.scopeManager.push('wrapper:rq', spanElement);
+        }
+    },
+    endWrapper: {
+        stage: 'standard',
+        details: ({ context }) => ({ class: extractClassName(getElement(context)) }),
+        guard: ({ context, workspace }) =>
+            matchElement(context, 'usfm:rq') && renderIfRegularOrIfHackedIntro(workspace),
+        action: ({ workspace }) => {
+            terminatePhrase(workspace);
+
+            workspace.scopeManager.promoteContent('wrapper:rq');
+        }
+    },
+    text: {
+        stage: 'standard',
+        details: ({ workspace }) => workspace.scratch.text?.cleanedText,
+        guard: ({ workspace }) =>
+            !workspace.scratch.text?.empty &&
+            workspace.scopeManager.has('wrapper:rq') &&
+            renderIfRegularOrIfHackedIntro(workspace),
+        action({ workspace }) {
+            const span = workspace.scopeManager.find('wrapper:rq')!.root;
+            span.innerHTML += workspace.functions.generateReferenceLinkHTML(
+                workspace.scratch.text!.cleanedText!,
+                'inline_ref-link'
+            );
+        }
+    },
+    endDocument: {
+        stage: 'standard',
+        action({ workspace }) {
+            workspace.root.querySelectorAll('a.inline_ref-link').forEach((el) => {
+                el.addEventListener('click', (e) =>
+                    workspace.events.openCrossRef(
+                        e as MouseEvent,
+                        el as HTMLAnchorElement,
+                        workspace
+                    )
+                );
             });
         }
     }

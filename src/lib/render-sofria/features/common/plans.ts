@@ -7,7 +7,10 @@ import { getReferenceFromString } from '$lib/scripts/scripture-reference-utils-c
 import { resolve } from '$lib/utils/paths';
 import type { RenderWorkspace } from '../../common';
 
-export function planDivInChapter(plan: PlanStore, references: ReferenceStore) {
+export function planDivInChapter(
+    plan: PlanStore,
+    references: Pick<ReferenceStore, 'book' | 'chapter'>
+) {
     let planEntryInChapter = false;
     // If plan entry is -1, there is no active entry
     if (plan.planEntry !== -1) {
@@ -101,7 +104,8 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                 '',
                 getPlanReferenceString(
                     workspace.stores.plan.planReference,
-                    workspace.stores.references
+                    workspace.stores.references,
+                    workspace.config
                 ),
                 false,
                 workspace
@@ -133,7 +137,8 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                     '',
                     getPlanReferenceString(
                         workspace.stores.plan.planNextReference,
-                        workspace.stores.references
+                        workspace.stores.references,
+                        workspace.config
                     ),
                     false,
                     workspace
@@ -180,8 +185,15 @@ function appendPlanProgressTextDiv(
     progressDiv.append(textDiv);
 }
 
-function getPlanReferenceString(ref: string, references: ReferenceStore) {
-    const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(ref);
+function getPlanReferenceString(
+    ref: string,
+    references: Pick<ReferenceStore, 'collection'>,
+    config: RenderWorkspace['config']
+) {
+    const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
+        ref,
+        config.bookCollections
+    );
     return getDisplayString(references.collection, book, toChapter, verseRanges);
 }
 
@@ -200,7 +212,8 @@ function planClicked(workspace: RenderWorkspace) {
 async function gotoPlanReference(workspace: RenderWorkspace) {
     const currentBookCollectionId = workspace.stores.references.collection;
     const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
-        workspace.stores.plan.planNextReference
+        workspace.stores.plan.planNextReference,
+        workspace.config.bookCollections
     );
     const [fromVerse, toVerse, _separator] = verseRanges[0];
     const destinationVerse = fromVerse === -1 ? 1 : fromVerse;

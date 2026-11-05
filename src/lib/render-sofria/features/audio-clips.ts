@@ -121,7 +121,6 @@ export const audioclips = new FeatureSpec<
                     'click',
                     function remoteAudioClipHandler(event) {
                         event.stopPropagation();
-                        console.log(el.getAttribute('data-audio-id'));
                         const audio: HTMLAudioElement | null = workspace.root.querySelector(
                             `audio[id="${el.getAttribute('data-audio-id')}"]`
                         );

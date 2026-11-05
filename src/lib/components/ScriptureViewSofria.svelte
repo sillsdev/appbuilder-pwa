@@ -78,7 +78,7 @@ LOGGING:
     import * as numerals from '$lib/scripts/numeralSystem';
     import { parsePhrase, prepareAudioPhraseEndChars } from '$lib/scripts/parsePhrase';
     import {
-        generateHTML,
+        generateReferenceLinkHTML,
         getDisplayString,
         handleHeaderLinkPressed,
         isBibleBook
@@ -100,6 +100,7 @@ LOGGING:
         type RenderSequence as Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount, untrack } from 'svelte';
+    import type { Props as ScriptureViewProskommaProps } from './ScriptureViewProskomma.svelte';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -374,7 +375,7 @@ LOGGING:
                 for (let i = 0; i < references.length; i++) {
                     var spanV = document.createElement('span');
                     spanV.classList.add('reflink');
-                    const refText = generateHTML(text, 'header-ref');
+                    const refText = generateReferenceLinkHTML(text, 'header-ref');
                     spanV.innerHTML = refText;
                     spanV.addEventListener('click', onClick, false);
                     workspace.tableCellElement?.appendChild(spanV);
@@ -706,10 +707,15 @@ LOGGING:
             const spans = workingSpan?.querySelectorAll('span.xt');
             // Loop through each span and modify its inner HTML
             spans.forEach((span) => {
-                span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+                span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
             const parsed = workingSpan?.innerHTML;
-            footnotes.push(parsed);
+            footnotes.push({
+                type: 'plain',
+                body: parsed,
+                style: 'footnote',
+                props: {} as ScriptureViewProskommaProps
+            });
         }
     }
     // handles clicks on in text markdown reference links
@@ -748,7 +754,12 @@ LOGGING:
             navigate(start);
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
-            footnotes.push(footnoteHTML);
+            footnotes.push({
+                type: 'plain',
+                body: footnoteHTML,
+                style: 'crossref',
+                props: {} as ScriptureViewProskommaProps
+            });
         }
     }
     function glossaryClickHandler(event: MouseEvent, target: HTMLElement) {
@@ -770,7 +781,12 @@ LOGGING:
                             const blockText = block.text.slice(glossaryLink?.length);
                             appendTextToElement(glossaryDiv, blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push(glossaryHTML);
+                            footnotes.push({
+                                type: 'plain',
+                                body: glossaryHTML,
+                                style: 'glossary',
+                                props: {} as ScriptureViewProskommaProps
+                            });
                         }
                     }
                 });
@@ -1039,8 +1055,10 @@ LOGGING:
     }
     function getPlanReferenceString(ref: string) {
         let currentBookCollectionId = references.collection;
-        const [_collection, book, _fromChapter, toChapter, verseRanges] =
-            getReferenceFromString(ref);
+        const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
+            ref,
+            scriptureConfig.bookCollections
+        );
         const displayString = getDisplayString(
             currentBookCollectionId,
             book,
@@ -1052,7 +1070,8 @@ LOGGING:
     async function gotoPlanReference() {
         let currentBookCollectionId = references.collection;
         const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
-            $plan.planNextReference
+            $plan.planNextReference,
+            scriptureConfig.bookCollections
         );
         const [fromVerse, toVerse, _separator] = verseRanges[0];
         let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
@@ -2049,7 +2068,10 @@ LOGGING:
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
                                         if (blockType?.includes('usfm:r')) {
-                                            const refText = generateHTML(text, 'header-ref');
+                                            const refText = generateReferenceLinkHTML(
+                                                text,
+                                                'header-ref'
+                                            );
                                             // This is for usfm:r like you will find in CUK Headers
                                             // which contain references inline
                                             workspace.headerInnerDiv!.innerHTML = refText;
@@ -2094,7 +2116,10 @@ LOGGING:
                                             if (workspace.usfmWrapperType === 'xt') {
                                                 var spanV = document.createElement('span');
                                                 spanV.classList.add('reflink');
-                                                const refText = generateHTML(text, 'header-ref');
+                                                const refText = generateReferenceLinkHTML(
+                                                    text,
+                                                    'header-ref'
+                                                );
                                                 spanV.innerHTML = refText;
                                                 if (workspace.phraseDiv === null) {
                                                     workspace.phraseDiv = startPhrase(
@@ -2861,7 +2886,7 @@ LOGGING:
     const currentIsBibleBook = $derived(isBibleBook(references));
 
     const numeralSystem = $derived(
-        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
+        numerals.systemForBook(scriptureConfig.bookCollections, references.collection, currentBook)
     );
 
     const versePerLine = $derived(verseLayout === 'one-per-line');
