@@ -78,6 +78,26 @@ class ScopeManager {
         return level ? this.stack.findLast((s) => s.match(level)) : this.stack.at(-1);
     }
 
+    /**
+     * get scope at top of stack, asserting that the scope type matches
+     */
+    top(assertScopeType: RenderScopeWithSubType) {
+        const layers = this.stack.length;
+        if (layers < 1) {
+            throw new Error('Tried to get top of empty stack');
+        }
+
+        const topScope = this.stack.at(-1)!;
+
+        if (!topScope.match(assertScopeType)) {
+            throw new Error(
+                `Tried get top scope matching ${assertScopeType} but found ${topScope.level + (topScope.subType ? `:${topScope.subType}` : '')}`
+            );
+        }
+
+        return topScope;
+    }
+
     depth(level?: RenderScopeWithSubType) {
         if (level) {
             const idx = this.stack.findLastIndex((s) => s.match(level));
