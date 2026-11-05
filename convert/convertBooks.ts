@@ -995,6 +995,7 @@ export class ConvertBooks extends Task {
     public triggerFiles: string[] = ['books', 'quiz', 'songs', 'appdef.xml'];
 
     public static lastBookCollections: ScriptureConfig['bookCollections'];
+    public static lastCustomTags: ScriptureConfig['customTags'];
 
     constructor(dataDir: string) {
         super(dataDir);
@@ -1013,6 +1014,11 @@ export class ConvertBooks extends Task {
                 ConvertBooks.lastBookCollections,
                 scriptureConfig.bookCollections,
                 new Set(['id', 'books', 'languageCode'])
+            ) &&
+            deepCompareObjects(
+                ConvertBooks.lastCustomTags,
+                scriptureConfig.customTags,
+                new Set(['paragraph', 'char'])
             )
         ) {
             return {
@@ -1023,6 +1029,7 @@ export class ConvertBooks extends Task {
 
         const ret = convertBooks(this.dataDir, scriptureConfig, verbose);
         ConvertBooks.lastBookCollections = scriptureConfig.bookCollections;
+        ConvertBooks.lastCustomTags = scriptureConfig.customTags;
         return ret;
     }
 }

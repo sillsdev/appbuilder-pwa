@@ -310,7 +310,7 @@ async function convertConfig(dataDir: string, verbose: number) {
     }
 
     if (isSAB(data)) {
-        data.customTags = parseCustomTags(data);
+        data.customTags = parseCustomTags(data.styles);
         if (verbose) {
             if (data.customTags?.paragraph?.length) {
                 console.log(
