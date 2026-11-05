@@ -134,3 +134,16 @@ export function parseVerseRange(range: string) {
         end: Number(parts[1] || parts[0])
     };
 }
+
+export function verseInRange(workspace: RenderWorkspace, verse: string) {
+    if (!workspace.viewSettings.verseRange) {
+        return true;
+    }
+    const range = parseVerseRange(verse);
+    return (
+        (range.start >= workspace.viewSettings.verseRange.start ||
+            range.end >= workspace.viewSettings.verseRange.start) &&
+        (range.end <= workspace.viewSettings.verseRange.end ||
+            range.start <= workspace.viewSettings.verseRange.end)
+    );
+}
