@@ -1569,3 +1569,20 @@ describe('verses continued into a paragraph that starts another verse', () => {
         });
     });
 });
+describe('custom tags', () => {
+    test('custom paragraph tags are rendered', () => {
+        const root = renderUsfm(chapter('\\lp custom paragraph'), {
+            styles: [{ name: '.lp', type: 'paragraph', category: 'custom', properties: {} }]
+        });
+
+        expect(root.querySelector('div.lp')?.textContent).toBe('custom paragraph');
+    });
+
+    test('custom character tags are rendered', () => {
+        const root = renderUsfm(chapter('\\lw custom word \\lw*'), {
+            styles: [{ name: '.lw', type: 'character', category: 'custom', properties: {} }]
+        });
+
+        expect(root.querySelector('span.lw')?.textContent).toBe('custom word');
+    });
+});

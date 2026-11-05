@@ -15,6 +15,7 @@ import {
     usfmFilterFunctions,
     type ConvertBookContext
 } from '../../../../convert/convertBooks';
+import { parseCustomTags } from '../../../../convert/convertConfig';
 import { catalog } from '../../../../test_data/data/catalog';
 import { compileRenderActions, type RenderWorkspace } from '../common';
 import { renderFeatures } from '../index';
@@ -55,6 +56,14 @@ export type RenderOptions = {
     attachHoverListeners?: boolean;
     footer?: string;
     sourceFormat?: BookSourceType;
+    styles?: {
+        name: string;
+        type?: string;
+        category?: string;
+        properties: {
+            [key: string]: string;
+        };
+    }[];
 };
 
 const DEFAULT_FEATURES = {
@@ -100,7 +109,9 @@ function makeConfig(options: RenderOptions): ScriptureConfig {
         ],
         illustrations: options.illustrations ?? [],
         videos: options.videos ?? [],
-        audio: options.audio ?? { files: [], sources: {} }
+        audio: options.audio ?? { files: [], sources: {} },
+        styles: options.styles,
+        customTags: parseCustomTags(options.styles)
     } as unknown as ScriptureConfig;
 }
 
@@ -121,7 +132,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
         content = applyFilters(content, usfmFilterFunctions, COLLECTION, BOOK, ctx);
     }
     const pk = new SABProskomma();
-    pk.importDoc({ lang: 'eng', abbr: COLLECTION }, 'usfm', content, []);
+    pk.importDoc({ lang: 'eng', abbr: COLLECTION }, 'usfm', content, [], config.customTags);
     const docId: string = pk.gqlQuerySync('{ documents { id } }').data.documents[0].id;
 
     const root = document.createElement('div');
