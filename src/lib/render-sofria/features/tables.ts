@@ -45,13 +45,6 @@ export const tables = new FeatureSpec<
         }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
-            // HACK `endRow` and `endWrapper` events arrive out of order when table has cells with column ranges
-            // see: https://github.com/Proskomma/proskomma-json-tools/issues/67
-            if (workspace.scopeManager.has('wrapper:cell')) {
-                terminatePhrase(workspace);
-                workspace.scopeManager.promoteContent('wrapper:cell');
-            }
-
             workspace.scopeManager.promoteContent('row');
         }
     },
@@ -82,9 +75,6 @@ export const tables = new FeatureSpec<
                 td.classList.add('text-end');
             }
 
-            // HACK see comment in `endRow`
-            td.setAttribute('data-col', String(colIndex));
-
             workspace.scopeManager.push('wrapper:cell', td);
         }
     },
@@ -98,17 +88,7 @@ export const tables = new FeatureSpec<
             matchElement(context, 'cell') && renderIfRegularOrIfHackedIntro(workspace),
         action: ({ workspace }) => {
             terminatePhrase(workspace);
-            // HACK see comment in `endRow`
-            const cells: HTMLElement[] = [];
-            while (workspace.scopeManager.has('wrapper:cell')) {
-                cells.push(workspace.scopeManager.remove('wrapper:cell')!.root);
-            }
-            cells
-                .sort(
-                    (a, b) =>
-                        Number(a.getAttribute('data-col')) - Number(b.getAttribute('data-col'))
-                )
-                .forEach((c) => workspace.scopeManager.appendContent(c));
+            workspace.scopeManager.promoteContent('wrapper:cell');
         }
     },
     text: {
