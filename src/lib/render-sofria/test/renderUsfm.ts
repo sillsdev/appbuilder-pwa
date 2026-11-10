@@ -155,7 +155,8 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                 isBibleBook: options.bibleBook ?? true,
                 redLetters: options.redLetters ?? false,
                 verseLayout: options.verseLayout ?? 'paragraphs',
-                verseRange: options.verseRange
+                verseRange: options.verseRange,
+                attachHoverListeners: false
             },
             hackRenderIntro: options.hackRenderIntro ?? false,
             events: {

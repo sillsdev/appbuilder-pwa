@@ -406,7 +406,9 @@ LOGGING:
                     verseLayout,
                     verseRange: verseRange
                         ? { start: verseRange.start, end: verseRange.end ?? verseRange.start }
-                        : undefined
+                        : undefined,
+                    attachHoverListeners: window.matchMedia('(hover: hover) and (pointer: fine)')
+                        .matches
                 },
                 events: {
                     navigate(ref: Reference) {
