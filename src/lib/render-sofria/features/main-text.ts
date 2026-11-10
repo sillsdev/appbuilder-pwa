@@ -83,11 +83,9 @@ export const text = new FeatureSpec<
                 orphans
                     .filter(({ verse }) => !verseInRange(workspace, verse))
                     .forEach(({ verse, phrase }) => {
-                        paragraphDiv.removeChild(
-                            paragraphDiv.querySelector(
-                                `[data-verse="${verse}"][data-phrase="${phrase}"]`
-                            )!
-                        );
+                        paragraphDiv
+                            .querySelector(`[data-verse="${verse}"][data-phrase="${phrase}"]`)
+                            ?.remove();
                     });
 
                 return orphans.filter(({ verse }) => verseInRange(workspace, verse));
