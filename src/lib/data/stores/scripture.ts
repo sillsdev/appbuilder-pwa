@@ -1,9 +1,9 @@
 import { scriptureConfig } from '$assets/config';
 import type { Props as ScriptureViewProskommaProps } from '$lib/components/ScriptureViewProskomma.svelte';
 import { persistedLocal } from '$lib/data/stores/storage';
-import { updateSelections } from '$lib/scripts/verseSelectUtil';
 import type { RenderScopeLevel } from '$lib/render-sofria/common';
 import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
+import { updateSelections } from '$lib/scripts/verseSelectUtil';
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { isDefined } from '../../scripts/stringUtils';
 import { loadDocSetIfNotLoaded } from '../scripture';

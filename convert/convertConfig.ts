@@ -26,8 +26,6 @@ import { pathJoin } from '../src/lib/scripts/stringUtils';
 import { convertMarkdownsToHTML } from './convertMarkdown';
 import { getDirHash, getHashedName } from './fileUtils';
 import { getLangTagLookup, resolveLangTag } from './langtags';
-import { compareVersions, splitVersion } from './stringUtils';
-import { getHashedName } from './fileUtils';
 import { ciEquals, compareVersions, getFilenameExt, splitVersion } from './stringUtils';
 import { Task, type TaskOutput } from './Task';
 
@@ -732,7 +730,12 @@ function getSourceFormatFromFilename(filename: string) {
     return type;
 }
 
-export function parseBookCollections(document: Document, dataDir: string, verbose: number) {
+export function parseBookCollections(
+    document: Document,
+    dataDir: string,
+    verbose: number,
+    langTagLookup: Map<string, string>
+) {
     const booksTags = document.getElementsByTagName('books');
     const bookCollections = [];
 
