@@ -21,14 +21,12 @@
     }
     let { collection, results, queryDone, restore, queryId }: Props = $props();
 
-    // Changes to signal when to clear results
     const showSpinner = $derived(!queryDone && results.length === 0);
     let resultsShown = $state<SearchResult[]>([]);
-    // svelte-ignore state_referenced_locally
-    let displayQueryId = $state(queryId);
 
     const resultCountText = $derived(formatResultCount(results.length));
 
+    // A new query (queryId changed) clears the results shown from the previous one
     $effect(() => {
         clearResults(queryId);
     });
@@ -48,11 +46,8 @@
         ensureScreenFilled();
     }
 
-    function clearResults(query: number) {
-        if (query !== displayQueryId) {
-            displayQueryId = query;
-            resultsShown = [];
-        }
+    function clearResults(_queryId: number) {
+        resultsShown = [];
     }
 
     function formatResultCount(count: number): string {

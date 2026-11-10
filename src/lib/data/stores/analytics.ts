@@ -16,18 +16,23 @@ export const analyticsStore = () => {
 
     const init = async () => {
         if (config.firebase?.features['firebase-analytics'] && config.analytics?.enabled) {
+            if (!firebaseConfig) {
+                console.warn(
+                    'Analytics: Firebase analytics is enabled but firebase-config.js is missing; analytics disabled'
+                );
+                internal.set({ initialized: true });
+                return;
+            }
             try {
                 // Dynamically import Firebase modules
                 const { initializeApp } = await import('firebase/app');
                 const { getAnalytics, logEvent } = await import('firebase/analytics');
-                if (firebaseConfig) {
-                    console.log(
-                        `Analytics: Initializing Firebase: projectId=${firebaseConfig.projectId}, appId=${firebaseConfig.appId}`
-                    );
-                    const app = initializeApp(firebaseConfig);
-                    firebaseAnalytics = getAnalytics(app);
-                    firebaseLogEvent = logEvent;
-                }
+                console.log(
+                    `Analytics: Initializing Firebase: projectId=${firebaseConfig.projectId}, appId=${firebaseConfig.appId}`
+                );
+                const app = initializeApp(firebaseConfig);
+                firebaseAnalytics = getAnalytics(app);
+                firebaseLogEvent = logEvent;
                 internal.set({ initialized: true });
             } catch (error) {
                 console.error('Failed to initialize Firebase Analytics:', error);

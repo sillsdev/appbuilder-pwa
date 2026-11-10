@@ -6,7 +6,7 @@ export interface Reference {
     collection: string;
     bookCode: string;
     chapter: string;
-    verses: string;
+    verses?: string;
 }
 
 // Each search result is split into "chunks" to distinguish

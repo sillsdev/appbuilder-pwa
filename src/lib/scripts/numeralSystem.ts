@@ -37,8 +37,12 @@ export function systemNames(): string[] {
     return Object.values(NumeralSystemData).map((system) => system.name);
 }
 
-export function systemForBook(config: any, collection: string, book: string): NumeralSystem {
-    const system = getStyle(config, 'numeralSystem', collection, book) as string;
+export function systemForBook(
+    bookCollections: Parameters<typeof getStyle>[0],
+    collection: string,
+    book: string
+): NumeralSystem {
+    const system = getStyle(bookCollections, 'numeralSystem', collection, book) as string;
     return systemFromString(system);
 }
 

@@ -19,7 +19,7 @@ A clickable verse card representing a single search result.
     interface ReferenceDisplay {
         book: string;
         chapter: string;
-        verses: string;
+        verses?: string;
     }
 
     const direction = $derived(
@@ -44,14 +44,14 @@ A clickable verse card representing a single search result.
 
     function formatReferenceParts(reference: Reference): ReferenceDisplay {
         const numeralSystem = numerals.systemForBook(
-            scriptureConfig,
+            scriptureConfig.bookCollections,
             reference.collection,
             reference.bookCode
         );
         return {
             book: bookName(reference.bookCode),
             chapter: numerals.formatNumber(numeralSystem, reference.chapter),
-            verses: numerals.formatNumber(numeralSystem, reference.verses)
+            verses: reference.verses && numerals.formatNumber(numeralSystem, reference.verses)
         };
     }
 

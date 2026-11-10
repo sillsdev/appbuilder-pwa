@@ -85,3 +85,9 @@ export const s = derived(themeColors, ($themeColors) => {
 });
 
 export const actionBarColor = derived(s, ($s) => $s?.['ui.bar.action']?.['color'] ?? 'inherit');
+
+export const backgroundColor = derived(
+    [s, themeColors],
+    ([$s, $themeColors]) =>
+        $s?.['ui.background']?.['background-color'] ?? $themeColors['BackgroundColor']
+);

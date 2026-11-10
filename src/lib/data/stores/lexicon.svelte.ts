@@ -19,6 +19,19 @@ export type VernacularWord = {
 // Store for vernacularWordsList
 export const vernacularWords: { value: VernacularWord[] } = $state({ value: [] });
 
+// sense index -> entry id (LIFT senses are numbered consecutively in entry order)
+let senseEntryIds: number[] | null = null;
+let senseEntryIdsSource: VernacularWord[] | null = null;
+export function getEntryIdForSense(senseIndex: number): number | undefined {
+    if (!senseEntryIds || senseEntryIdsSource !== vernacularWords.value) {
+        senseEntryIdsSource = vernacularWords.value;
+        senseEntryIds = vernacularWords.value
+            .toSorted((a, b) => a.id - b.id)
+            .flatMap((word) => Array<number>(word.num_senses).fill(word.id));
+    }
+    return senseEntryIds[senseIndex];
+}
+
 // Store for reversalWordsList, keyed by language
 export type VernacularWordReference = {
     name: string;

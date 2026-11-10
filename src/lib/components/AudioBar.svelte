@@ -194,7 +194,12 @@ TODO:
                 onclick={seekAudio}
             ></progress>
         {:else}
-            <progress class="dy-progress audio-progress" value="0" max="1"></progress>
+            <progress
+                class="dy-progress audio-progress"
+                value="0"
+                max="1"
+                style={convertStyle($s?.['ui.bar.audio.icon'])}
+            ></progress>
         {/if}
         <div class="audio-progress-duration text-sm">
             {format($audioPlayer.duration)}

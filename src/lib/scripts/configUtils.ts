@@ -3,6 +3,7 @@ import type {
     BookCollectionConfig,
     BookConfig,
     DictionaryConfig,
+    FeatureValue,
     ScriptureConfig,
     StyleConfig
 } from '$config';
@@ -41,7 +42,7 @@ export function getFeatureValueBoolean(
         }
     }
 
-    if (value === true || value === 'yes') {
+    if (value === true || value === 'yes' || value === 'true') {
         returnValue = true;
     }
     // console.log('getFeatureValueBoolean %o %o %o', feature, value, returnValue);
@@ -77,23 +78,37 @@ export function getFeatureValueString(
     // console.log('getFeatureValueString %o %o', feature, value);
     return value;
 }
+export function checkFeatureValueIs(
+    config: ScriptureConfig,
+    feature: string,
+    expectedValue: FeatureValue,
+    bc: string,
+    book: string
+) {
+    expectedValue = expectedValue.toString();
+    if (['true', 'false'].includes(expectedValue)) {
+        return getFeatureValueBoolean(config, feature, bc, book).toString() === expectedValue;
+    } else {
+        return getFeatureValueString(config, feature, bc, book) === expectedValue;
+    }
+}
 export function hasFeature(config: AppConfig, feature: string) {
     return config.mainFeatures[feature] != null;
 }
 
 // Make config a parameter for testing.
 export function getStyle(
-    configData: {
-        bookCollections: (Pick<BookCollectionConfig, 'id'> & {
-            style?: Partial<StyleConfig>;
-            books: (Pick<BookConfig, 'id'> & { style?: Partial<StyleConfig> })[];
-        })[];
-    },
+    bookCollections:
+        | (Pick<BookCollectionConfig, 'id'> & {
+              style?: Partial<StyleConfig>;
+              books: (Pick<BookConfig, 'id'> & { style?: Partial<StyleConfig> })[];
+          })[]
+        | undefined,
     option: keyof StyleConfig,
     bc: string,
     book: string
 ): string | number {
-    const bcData = configData.bookCollections?.find((x) => x.id === bc);
+    const bcData = bookCollections?.find((x) => x.id === bc);
     const bookData = bcData?.books.find((x) => x.id === book);
     // Use the style of the book, if defined.
     if (bookData?.style?.[option] && bookData.style[option] !== 'inherit') {

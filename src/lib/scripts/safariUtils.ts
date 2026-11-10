@@ -7,7 +7,7 @@ export type SafariWarningContext = 'ios' | 'macos' | null;
 // The kinds of annotations that can trigger the first-annotation popup.
 export type AnnotationKind = 'bookmark' | 'note' | 'highlight';
 
-function isIOS(): boolean {
+export function isIOS(): boolean {
     if (/iPhone|iPod/.test(navigator.userAgent)) {
         return true;
     }

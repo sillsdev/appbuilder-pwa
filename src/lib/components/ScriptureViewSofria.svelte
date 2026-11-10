@@ -30,7 +30,9 @@ LOGGING:
         viewShowGlossaryWords: boolean;
         font: string;
         proskomma: SABProskomma;
-        selectedVersesStore: SelectedVersesStore;
+        setReference: (value: Reference) => void;
+        setBookTab: (tab: number) => void;
+        selectedVerses: SelectedVersesStore;
     }
 </script>
 
@@ -63,7 +65,6 @@ LOGGING:
         ModalType,
         monoIconColor,
         plan,
-        // refs is only used for set
         refs,
         t,
         userSettings,
@@ -77,7 +78,7 @@ LOGGING:
     import * as numerals from '$lib/scripts/numeralSystem';
     import { parsePhrase, prepareAudioPhraseEndChars } from '$lib/scripts/parsePhrase';
     import {
-        generateHTML,
+        generateReferenceLinkHTML,
         getDisplayString,
         handleHeaderLinkPressed,
         isBibleBook
@@ -94,11 +95,12 @@ LOGGING:
     import {
         SofriaRenderFromProskomma,
         type Block,
-        type Context,
-        type Element,
-        type Sequence
+        type RenderElement as Element,
+        type RenderContext,
+        type RenderSequence as Sequence
     } from 'proskomma-json-tools';
     import { onDestroy, onMount, untrack } from 'svelte';
+    import type { Props as ScriptureViewProskommaProps } from './ScriptureViewProskomma.svelte';
 
     const illustrations = import.meta.glob('./*', {
         import: 'default',
@@ -127,7 +129,9 @@ LOGGING:
         viewShowGlossaryWords,
         font,
         proskomma,
-        selectedVersesStore: selectedVerses
+        setReference,
+        setBookTab,
+        selectedVerses
     }: Props = $props();
 
     const scriptureLogs = $derived.by(() =>
@@ -279,6 +283,36 @@ LOGGING:
         }
     });
 
+    // Annotations are only read after query() awaits, so the render effect doesn't
+    // track them. Re-apply them to the rendered chapter whenever they change.
+    $effect(() => {
+        void [highlights, bookmarks, notes];
+        if (untrack(() => loading || displayingIntroduction)) {
+            return;
+        }
+        applyAnnotations();
+    });
+
+    // Each call bumps the generation so a slower, older pass can't overwrite a newer one.
+    let annotationGeneration = 0;
+    function applyAnnotations() {
+        const generation = ++annotationGeneration;
+        Promise.all([highlights, bookmarks, notes]).then(([highlights, bookmarks, notes]) => {
+            if (generation !== annotationGeneration) {
+                return;
+            }
+            for (const span of container?.querySelectorAll('span[id^="bookmarks"]') ?? []) {
+                span.replaceChildren();
+            }
+            for (const div of container?.querySelectorAll('div[class*="hlp"]') ?? []) {
+                div.classList.remove(...[...div.classList].filter((c) => c.startsWith('hlp')));
+            }
+            addNotedVerses(notes);
+            addBookmarkedVerses(bookmarks);
+            addHighlightedVerses(highlights);
+        });
+    }
+
     const countSubheadingPrefixes = (subHeadings: string[], labelPrefix: string) => {
         let result = 0;
         for (let i in subHeadings) {
@@ -341,7 +375,7 @@ LOGGING:
                 for (let i = 0; i < references.length; i++) {
                     var spanV = document.createElement('span');
                     spanV.classList.add('reflink');
-                    const refText = generateHTML(text, 'header-ref');
+                    const refText = generateReferenceLinkHTML(text, 'header-ref');
                     spanV.innerHTML = refText;
                     spanV.addEventListener('click', onClick, false);
                     workspace.tableCellElement?.appendChild(spanV);
@@ -673,10 +707,15 @@ LOGGING:
             const spans = workingSpan?.querySelectorAll('span.xt');
             // Loop through each span and modify its inner HTML
             spans.forEach((span) => {
-                span.innerHTML = generateHTML(span.innerHTML, ''); // Change inner HTML as needed
+                span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
             });
             const parsed = workingSpan?.innerHTML;
-            footnotes.push(parsed);
+            footnotes.push({
+                type: 'plain',
+                body: parsed,
+                style: 'footnote',
+                props: {} as ScriptureViewProskommaProps
+            });
         }
     }
     // handles clicks on in text markdown reference links
@@ -696,7 +735,12 @@ LOGGING:
             // Invalid collection
             return;
         }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
+        setReference({
+            docSet: refDocSet,
+            book: refBook,
+            chapter: splitChapter,
+            verse: splitVerse
+        });
         return;
     }
     async function headerLinkClickReference(event: MouseEvent, target: HTMLElement) {
@@ -710,7 +754,12 @@ LOGGING:
             navigate(start);
         } else {
             const footnoteHTML = await handleHeaderLinkPressed(start, end, themeColors);
-            footnotes.push(footnoteHTML);
+            footnotes.push({
+                type: 'plain',
+                body: footnoteHTML,
+                style: 'crossref',
+                props: {} as ScriptureViewProskommaProps
+            });
         }
     }
     function glossaryClickHandler(event: MouseEvent, target: HTMLElement) {
@@ -732,7 +781,12 @@ LOGGING:
                             const blockText = block.text.slice(glossaryLink?.length);
                             appendTextToElement(glossaryDiv, blockText);
                             const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push(glossaryHTML);
+                            footnotes.push({
+                                type: 'plain',
+                                body: glossaryHTML,
+                                style: 'glossary',
+                                props: {} as ScriptureViewProskommaProps
+                            });
                         }
                     }
                 });
@@ -752,7 +806,7 @@ LOGGING:
         }
     }
     function navigate(reference: Reference) {
-        refs.set({
+        setReference({
             docSet: reference.docSet,
             book: reference.book,
             chapter: reference.chapter,
@@ -781,26 +835,24 @@ LOGGING:
     function editNote(note: NoteItem) {
         modal.open(ModalType.Note, note);
     }
-    function addNotedVerses() {
-        notes.then((notes) => {
-            for (var k = 0; k < notes.length; k++) {
-                const note = notes[k];
-                const bookmarksSpan = container?.querySelector('#bookmarks' + note.verse);
-                if (!bookmarksSpan) {
-                    console.warn('No bookmarks span for verse %s', note.verse);
-                    continue;
-                }
-
-                const existingNoteSpan = container?.querySelector('#note' + k);
-                if (!existingNoteSpan) {
-                    let noteSpan = document.createElement('span');
-                    noteSpan.id = 'note' + k;
-                    noteSpan.innerHTML = noteSvg();
-                    noteSpan.onclick = (event) => editNote(note);
-                    bookmarksSpan.appendChild(noteSpan);
-                }
+    function addNotedVerses(notes: NoteItem[]) {
+        for (var k = 0; k < notes.length; k++) {
+            const note = notes[k];
+            const bookmarksSpan = container?.querySelector('#bookmarks' + note.verse);
+            if (!bookmarksSpan) {
+                console.warn('No bookmarks span for verse %s', note.verse);
+                continue;
             }
-        });
+
+            const existingNoteSpan = container?.querySelector('#note' + k);
+            if (!existingNoteSpan) {
+                let noteSpan = document.createElement('span');
+                noteSpan.id = 'note' + k;
+                noteSpan.innerHTML = noteSvg();
+                noteSpan.onclick = (event) => editNote(note);
+                bookmarksSpan.appendChild(noteSpan);
+            }
+        }
     }
     function addBookmarksDiv(workspace: Workspace) {
         const bookmarksSpan = document.createElement('span');
@@ -819,43 +871,37 @@ LOGGING:
     function bookmarkSvg() {
         return '<svg fill="#b10000" style="display:inline" xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path d="M5 21V5q0-.825.588-1.413Q6.175 3 7 3h10q.825 0 1.413.587Q19 4.175 19 5v16l-7-3Z"/></svg>';
     }
-    function addBookmarkedVerses() {
-        bookmarks.then((bookmarks) => {
-            for (var j = 0; j < bookmarks.length; j++) {
-                const bookmarksSpan = container?.querySelector(`#bookmarks${bookmarks[j].verse}`);
-                if (!bookmarksSpan) {
-                    console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
+    function addBookmarkedVerses(bookmarks: BookmarkItem[]) {
+        for (var j = 0; j < bookmarks.length; j++) {
+            const bookmarksSpan = container?.querySelector(`#bookmarks${bookmarks[j].verse}`);
+            if (!bookmarksSpan) {
+                console.warn('No bookmarks span for verse %s', bookmarks[j].verse);
+                continue;
+            }
+
+            const existingBookmarkSpan = container?.querySelector(`#bookmark${j}`);
+            if (!existingBookmarkSpan) {
+                let bookmarkSpan = document.createElement('span');
+                bookmarkSpan.id = 'bookmark' + j;
+                bookmarkSpan.innerHTML = bookmarkSvg();
+                bookmarksSpan.appendChild(bookmarkSpan);
+            }
+        }
+    }
+    function addHighlightedVerses(highlights: HighlightItem[]) {
+        for (let i = 0; i < highlights.length; i++) {
+            //Skip this entry if the the next is a highlight for the same verse
+            if (i < highlights.length - 1) {
+                if (highlights[i].verse === highlights[i + 1].verse) {
                     continue;
                 }
-
-                const existingBookmarkSpan = container?.querySelector(`#bookmark${j}`);
-                if (!existingBookmarkSpan) {
-                    let bookmarkSpan = document.createElement('span');
-                    bookmarkSpan.id = 'bookmark' + j;
-                    bookmarkSpan.innerHTML = bookmarkSvg();
-                    bookmarksSpan.appendChild(bookmarkSpan);
-                }
             }
-        });
-    }
-    function addHighlightedVerses() {
-        highlights.then((highlights) => {
-            for (let i = 0; i < highlights.length; i++) {
-                //Skip this entry if the the next is a highlight for the same verse
-                if (i < highlights.length - 1) {
-                    if (highlights[i].verse === highlights[i + 1].verse) {
-                        continue;
-                    }
-                }
-                let elements = container?.querySelectorAll(
-                    `div[data-verse="${highlights[i].verse}"]`
-                );
-                for (const element of elements ?? []) {
-                    const penClass = 'hlp' + highlights[i].penColor;
-                    element.classList.add(penClass);
-                }
+            let elements = container?.querySelectorAll(`div[data-verse="${highlights[i].verse}"]`);
+            for (const element of elements ?? []) {
+                const penClass = 'hlp' + highlights[i].penColor;
+                element.classList.add(penClass);
             }
-        });
+        }
     }
     function createFootnoteDiv(workspace: Workspace, element: Element) {
         let footnoteSpan = null;
@@ -1009,8 +1055,10 @@ LOGGING:
     }
     function getPlanReferenceString(ref: string) {
         let currentBookCollectionId = references.collection;
-        const [_collection, book, _fromChapter, toChapter, verseRanges] =
-            getReferenceFromString(ref);
+        const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
+            ref,
+            scriptureConfig.bookCollections
+        );
         const displayString = getDisplayString(
             currentBookCollectionId,
             book,
@@ -1022,7 +1070,8 @@ LOGGING:
     async function gotoPlanReference() {
         let currentBookCollectionId = references.collection;
         const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
-            $plan.planNextReference
+            $plan.planNextReference,
+            scriptureConfig.bookCollections
         );
         const [fromVerse, toVerse, _separator] = verseRanges[0];
         let destinationVerse = fromVerse === -1 ? 1 : fromVerse;
@@ -1048,7 +1097,7 @@ LOGGING:
                 planNextReferenceIndex: nextIndex,
                 completed: false
             };
-            refs.set({
+            setReference({
                 docSet: currentBookCollectionId,
                 book: book,
                 chapter: toChapter.toString(),
@@ -1587,7 +1636,7 @@ LOGGING:
         jmpText: string;
     } & Record<`level${number}ListNum`, number>;
 
-    type Action = { context: Context; workspace: Workspace };
+    type Action = { context: RenderContext; workspace: Workspace };
 
     const output = {};
     async function query(
@@ -1663,7 +1712,9 @@ LOGGING:
                             workspace.jmpLink = '';
                             workspace.jmpTitle = '';
                             workspace.jmpText = '';
-                            deselectAllElements(selectedVerses);
+                            if (container) {
+                                deselectAllElements(container);
+                            }
 
                             const div = document.createElement('div');
                             div.setAttribute('data-verse', 'start');
@@ -1683,9 +1734,7 @@ LOGGING:
                             preprocessAction('endDocument', workspace);
                             addOnClickDivs();
                             if (!displayingIntroduction) {
-                                addNotedVerses();
-                                addBookmarkedVerses();
-                                addHighlightedVerses();
+                                applyAnnotations();
                                 if (showVideo()) {
                                     addVideos(videos);
                                 }
@@ -2019,7 +2068,10 @@ LOGGING:
                                     case 'heading': {
                                         const blockType = context.sequences[0].block.subType;
                                         if (blockType?.includes('usfm:r')) {
-                                            const refText = generateHTML(text, 'header-ref');
+                                            const refText = generateReferenceLinkHTML(
+                                                text,
+                                                'header-ref'
+                                            );
                                             // This is for usfm:r like you will find in CUK Headers
                                             // which contain references inline
                                             workspace.headerInnerDiv!.innerHTML = refText;
@@ -2064,7 +2116,10 @@ LOGGING:
                                             if (workspace.usfmWrapperType === 'xt') {
                                                 var spanV = document.createElement('span');
                                                 spanV.classList.add('reflink');
-                                                const refText = generateHTML(text, 'header-ref');
+                                                const refText = generateReferenceLinkHTML(
+                                                    text,
+                                                    'header-ref'
+                                                );
                                                 spanV.innerHTML = refText;
                                                 if (workspace.phraseDiv === null) {
                                                     workspace.phraseDiv = startPhrase(
@@ -2354,7 +2409,7 @@ LOGGING:
                                 environment.workspace.titleGraft = true;
                             }
                             if (currentBlock.sequence) {
-                                graftRecord.sequence = {};
+                                //graftRecord.sequence = {}; // I don't think this code actually does anything???
                                 const cachedSequencePointer = environment.workspace.currentSequence;
                                 environment.workspace.currentSequence = graftRecord.sequence;
                                 environment.context.renderer.renderSequence(environment);
@@ -2824,14 +2879,14 @@ LOGGING:
 
     $effect(() => {
         if (!bookTabSelected) {
-            refs.setBookTab(0);
+            setBookTab(0);
         }
     });
 
     const currentIsBibleBook = $derived(isBibleBook(references));
 
     const numeralSystem = $derived(
-        numerals.systemForBook(scriptureConfig, references.collection, currentBook)
+        numerals.systemForBook(scriptureConfig.bookCollections, references.collection, currentBook)
     );
 
     const versePerLine = $derived(verseLayout === 'one-per-line');

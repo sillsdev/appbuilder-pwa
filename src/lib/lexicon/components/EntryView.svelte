@@ -1,15 +1,27 @@
 <script lang="ts">
     /* eslint-disable svelte/no-at-html-tags */
     import { dictionaryConfig } from '$assets/config';
-    import { bodyFontSize, currentFont, themeColors } from '$lib/data/stores';
+    import { bodyFontSize, currentFont, language, themeColors } from '$lib/data/stores';
     import {
         currentReversal,
+        getEntryIdForSense,
         initializeDatabase,
         selectWord,
         vernacularLanguageId,
         vernacularWords,
         wordIDs
     } from '$lib/data/stores/lexicon.svelte';
+    import {
+        getFirstDigitsAsInt,
+        getSubEntryIds,
+        parseLiftEntry,
+        type LiftEntry
+    } from '$lib/lexicon/lift/liftEntry';
+    import {
+        liftEntriesToHtml,
+        type LiftWritingSystem,
+        type LinkedEntry
+    } from '$lib/lexicon/lift/liftHtmlWriter';
     import type { SqlValue } from 'sql.js';
 
     const clips = import.meta.glob('./*', {
@@ -37,6 +49,8 @@
 
     let xmlData = $state('');
 
+    const isLift = dictionaryConfig.lexiconType === 'lift';
+
     async function queryXmlByWordId(wordIds: number[]): Promise<SqlValue[][] | null> {
         try {
             let db = await initializeDatabase({ fetch });
@@ -58,6 +72,68 @@
         }
     }
 
+    const liftWritingSystems: LiftWritingSystem[] = (
+        dictionaryConfig.writingSystemOrder ?? Object.keys(dictionaryConfig.writingSystems)
+    ).map((code) => ({
+        code,
+        vernacular: dictionaryConfig.writingSystems[code]?.type.includes('main') ?? false,
+        audio: code.includes('-audio'),
+        enabled: dictionaryConfig.writingSystems[code]?.enabled ?? true
+    }));
+
+    function resolveRelation(ref: string): LinkedEntry | undefined {
+        const index = getFirstDigitsAsInt(ref);
+        if (isNaN(index)) {
+            return undefined;
+        }
+        const id = ref.startsWith('S') ? getEntryIdForSense(index) : index;
+        const word = vernacularWords.value.find((w) => w.id === id);
+        return word && { id: word.id, name: word.name, homonymIndex: word.homonym_index };
+    }
+
+    async function getLiftHtml(wordIds: number[]): Promise<string> {
+        const db = await initializeDatabase({ fetch });
+        // eslint-disable-next-line svelte/prefer-svelte-reactivity
+        const entries = new Map<number, LiftEntry>();
+
+        // Load requested entries and (recursively) their sub-entries
+        let toLoad = wordIds;
+        while (toLoad.length) {
+            const results = db.exec(
+                `SELECT id, xml, homonym_index FROM entries WHERE id IN (${toLoad.map(() => '?').join(',')})`,
+                toLoad
+            );
+            const loaded = (results[0]?.values ?? [])
+                .map(([, xml, homonymIndex]) =>
+                    parseLiftEntry(
+                        xml as string,
+                        liftWritingSystems.map((ws) => ws.code),
+                        homonymIndex as number
+                    )
+                )
+                .filter((entry) => !!entry);
+            loaded.forEach((entry) => entries.set(entry.id, entry));
+            toLoad = [...new Set(loaded.flatMap(getSubEntryIds))].filter((id) => !entries.has(id));
+        }
+
+        return liftEntriesToHtml(
+            wordIds.map((id) => entries.get(id)).filter((entry) => !!entry),
+            {
+                mode: wordIds.length > 1 ? 'multiple' : 'single',
+                writingSystems: liftWritingSystems,
+                fields: dictionaryConfig.fields ?? [],
+                language: $language,
+                homonymFormat:
+                    dictionaryConfig.mainFeatures['format-homonym-number'] === 'superscript'
+                        ? 'superscript'
+                        : 'subscript',
+                showIllustrations: !!dictionaryConfig.mainFeatures['show-illustrations'],
+                resolveRelation,
+                getSubEntry: (id) => entries.get(id)
+            }
+        );
+    }
+
     function formatXmlByClass(xmlString: string) {
         if (!xmlString) {
             return '';
@@ -73,7 +149,10 @@
 
         function processNode(node: Node, parentHasSenseNumber = false): string {
             if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue ?? '';
+                return (node.nodeValue ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;');
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 const el = node as HTMLElement;
                 const tagName = el.tagName.toLowerCase();
@@ -179,6 +258,11 @@
             return;
         }
 
+        if (isLift) {
+            xmlData = formatXmlByClass(await getLiftHtml(entryWordIDs));
+            return;
+        }
+
         const xmlResults = (await queryXmlByWordId(entryWordIDs)) ?? [];
 
         // Insert an `<hr>` tag or a visible separator between entries
@@ -228,7 +312,9 @@
     }
 
     function applyStyles() {
+        // Single-entry style overrides only apply to XHTML lexicons (as in the native app)
         if (
+            !isLift &&
             dictionaryConfig.mainFeatures['modify-single-entry-styles'] &&
             entryWordIDs.length <= 1
         ) {
@@ -263,16 +349,28 @@
     });
 </script>
 
-<pre
-    class="p-4 whitespace-pre-wrap wrap-break-word"
-    style:background-color={$themeColors['BackgroundColor']}
-    style:font-size="{$bodyFontSize}px"
-    style:font-family={$currentFont}>{@html xmlData}</pre>
+{#if isLift}
+    <div
+        class="p-4 wrap-break-word"
+        style:background-color={$themeColors['BackgroundColor']}
+        style:font-size="{$bodyFontSize}px"
+        style:font-family={$currentFont}
+    >
+        {@html xmlData}
+    </div>
+{:else}
+    <pre
+        class="p-4 whitespace-pre-wrap wrap-break-word"
+        style:background-color={$themeColors['BackgroundColor']}
+        style:font-size="{$bodyFontSize}px"
+        style:font-family={$currentFont}>{@html xmlData}</pre>
+{/if}
 
 <!-- It is of utmost importance that this @html call be sandwiched between the tags. If this is undone by prettier, please look into ignoring prettier for the above line, WITHOUT including a comment inside the pre block. pre is VERY sensitive to "whitespace", which includes comments. -Aidan -->
 
 <style>
-    pre :global(button.audio-link) {
+    pre :global(button.audio-link),
+    div :global(button.audio-link) {
         display: inline-block;
         vertical-align: middle;
         margin: 0 2px;

@@ -4,7 +4,7 @@ A component to display tabbed menus.
 -->
 
 <script lang="ts">
-    import { actionBarColor, convertStyle, s } from '$lib/data/stores';
+    import { actionBarColor, backgroundColor, convertStyle, s } from '$lib/data/stores';
     import { preventDefault } from '$lib/scripts/event-wrappers';
 
     let {
@@ -71,7 +71,7 @@ A component to display tabbed menus.
     </div>
 {/if}
 <div
-    style={convertStyle($s?.['ui.background'])}
+    style:background-color={$backgroundColor}
     class:p-2={!hasTabs}
     style:overflow-y={scroll ? 'auto' : ''}
     style:max-height={height}

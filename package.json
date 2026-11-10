@@ -1,6 +1,6 @@
 {
     "name": "appbuilder-pwa",
-    "version": "14.6.0",
+    "version": "14.7.0",
     "type": "module",
     "scripts": {
         "dev": "ts-node scripts/dev.ts",
@@ -63,13 +63,13 @@
         "prettier": "^3.1.0",
         "prettier-plugin-svelte": "^3.2.6",
         "proskomma-core": "^0.11",
-        "proskomma-json-tools": "^0.9",
+        "proskomma-json-tools": "^0.9.3",
         "proskomma-tools": "^0.0.5",
         "rimraf": "^6",
         "rollup-plugin-visualizer": "^7.0.1",
         "sharp": "^0.34.5",
         "svelte": "^5.55.5",
-        "svelte-awesome-color-picker": "^2.4.7",
+        "svelte-awesome-color-picker": "^4.1.0",
         "svelte-check": "^4.1.1",
         "svelte-eslint-parser": "^0.43",
         "svelte-gestures": "5.0.7",

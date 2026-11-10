@@ -1,11 +1,11 @@
-export function isNotBlank(str: string | null): boolean {
+export function isNotBlank(str: string | null): str is string {
     let result: boolean = false;
     if (str && isDefined(str)) {
         result = str.length > 0 && str?.trim().length > 0;
     }
     return result;
 }
-export function isBlank(str: string | null): boolean {
+export function isBlank(str: string | null): str is null {
     return !isNotBlank(str);
 }
 export function getFilenameExt(filename: string): string {
@@ -236,4 +236,16 @@ export function compareVersions(version1: string, version2: string): number {
     }
 
     return 0;
+}
+export function ensureTrailingSlash(url: string | undefined) {
+    if (url && !url.endsWith('/')) {
+        return url + '/';
+    }
+    return url;
+}
+
+// For plain text (attribute values, database columns, config) inserted as HTML.
+// Text from <t> elements is already escaped by parseLiftEntry, except for its <span> markup.
+export function escapeHtml(text: string) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

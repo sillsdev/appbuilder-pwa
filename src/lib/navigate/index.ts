@@ -38,11 +38,11 @@ export async function navigateToText(item: {
     }
 }
 
-export async function navigateToTextReference(reference: string) {
+export async function navigateToTextReference(reference: string, { replaceState = false } = {}) {
     playStop();
     await refs.setReference(reference);
     const nowRef: any = get(refs);
-    goto(resolve(`/text`));
+    goto(resolve(`/text`), { replaceState });
     addHistory(
         {
             collection: nowRef.collection,

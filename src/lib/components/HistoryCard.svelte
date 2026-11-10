@@ -49,7 +49,7 @@ TODO:
 </script>
 
 <!-- history cards are alway LTR with the reference following the text direction -->
-<div class="history-item-block dy-card w-100 bg-base-100 shadow-lg my-4" style:direction="ltr">
+<div class="history-item-block dy-card w-100 shadow-lg my-4" style:direction="ltr">
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="text-decoration:none;" onclick={onHistoryClick}>
