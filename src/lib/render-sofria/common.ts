@@ -240,6 +240,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
             redLetters: boolean;
             verseLayout: string;
             verseRange?: { start: number; end: number };
+            attachHoverListeners: boolean;
         };
         config: Readonly<ScriptureConfig>;
         hackRenderIntro: boolean;

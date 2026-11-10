@@ -74,21 +74,22 @@ export const text = new FeatureSpec<
         action({ workspace }) {
             function getOrphans(paragraphDiv: HTMLElement) {
                 const orphans = Array.from(
-                    paragraphDiv.querySelectorAll('[data-verse][data-phrase]')
+                    paragraphDiv.querySelectorAll(
+                        '[data-verse][data-phrase]:not([data-verse="none"])'
+                    )
                 ).map((el) => ({
                     verse: el.getAttribute('data-verse')!,
-                    phrase: el.getAttribute('data-phrase')!
+                    phrase: el.getAttribute('data-phrase')!,
+                    el
                 }));
 
                 orphans
                     .filter(({ verse }) => !verseInRange(workspace, verse))
-                    .forEach(({ verse, phrase }) => {
-                        paragraphDiv
-                            .querySelector(`[data-verse="${verse}"][data-phrase="${phrase}"]`)
-                            ?.remove();
-                    });
+                    .forEach(({ el }) => el.remove());
 
-                return orphans.filter(({ verse }) => verseInRange(workspace, verse));
+                return orphans
+                    .filter(({ verse }) => verseInRange(workspace, verse))
+                    .map(({ verse, phrase }) => ({ verse, phrase }));
             }
 
             /**
@@ -175,12 +176,18 @@ export const text = new FeatureSpec<
                             }
                         }
 
-                        const orphanedPhrases = getOrphans(
+                        const orphans = getOrphans(
                             workspace.scopeManager.top('paragraph:main').root
-                        ).concat(workspace.scratch.verses?.orphanedPhrases ?? []);
-                        addToScratchPad(workspace.scratch, 'verses', { orphanedPhrases });
+                        );
 
-                        if (divs.length) {
+                        if (orphans.length) {
+                            const orphanedPhrases = orphans.concat(
+                                workspace.scratch.verses?.orphanedPhrases ?? []
+                            );
+                            addToScratchPad(workspace.scratch, 'verses', { orphanedPhrases });
+                        }
+
+                        if (divs.length || orphans.length) {
                             const count = divs.length;
                             for (let i = 0; i < count; i++) {
                                 workspace.scopeManager.appendContent(divs.pop()!);
@@ -261,11 +268,12 @@ export const text = new FeatureSpec<
             stage: 'standard',
             name: 'Orphaned Phrases',
             details: ({ workspace }) => ({
-                orphanedPhrases: workspace.scratch.verses?.orphanedPhrases
+                orphanedPhrases: workspace.scratch.verses?.orphanedPhrases,
+                attachHoverListeners: workspace.viewSettings.attachHoverListeners
             }),
             action: ({ workspace }) => {
                 const orphanedPhrases = workspace.scratch.verses?.orphanedPhrases;
-                if (orphanedPhrases?.length) {
+                if (orphanedPhrases?.length && workspace.viewSettings.attachHoverListeners) {
                     orphanedPhrases
                         .concat(
                             // add in verse divs
@@ -279,23 +287,23 @@ export const text = new FeatureSpec<
                             );
                             div?.addEventListener('mouseover', (e) => {
                                 e.stopPropagation();
-                                if (!div.classList.contains('force-hover')) {
-                                    workspace.root
-                                        .querySelectorAll(`[data-verse="${verse}"]`)
-                                        .forEach((el) => {
-                                            el.classList.add('force-hover');
-                                        });
-                                }
+                                workspace.root
+                                    .querySelectorAll(
+                                        `[data-verse="${verse}"][data-phrase]:not(.force-hover)`
+                                    )
+                                    .forEach((el) => {
+                                        el.classList.add('force-hover');
+                                    });
                             });
                             div?.addEventListener('mouseleave', (e) => {
                                 e.stopPropagation();
-                                if (div.classList.contains('force-hover')) {
-                                    workspace.root
-                                        .querySelectorAll(`[data-verse="${verse}"]`)
-                                        .forEach((el) => {
-                                            el.classList.remove('force-hover');
-                                        });
-                                }
+                                workspace.root
+                                    .querySelectorAll(
+                                        `[data-verse="${verse}"][data-phrase].force-hover`
+                                    )
+                                    .forEach((el) => {
+                                        el.classList.remove('force-hover');
+                                    });
                             });
                         });
                 }
