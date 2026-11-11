@@ -23,8 +23,7 @@ describe('ScopeManager top-of-stack assertions', () => {
         ['top', (sm: ScopeManager) => sm.top('verses')],
         ['promoteContent', (sm: ScopeManager) => sm.promoteContent('verses')]
     ])('%s throws when the top scope does not match', (_name, call) => {
-        vi.spyOn(console, 'log').mockImplementation(() => {});
-        vi.spyOn(console, 'table').mockImplementation(() => {});
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
         expect(() => call(withParagraph())).toThrow(/scope verses but found paragraph:main/);
     });
 
