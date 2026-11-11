@@ -1342,14 +1342,16 @@ describe('verse ranges', () => {
     const renderWithRange = (range: { start: number; end?: number }, options?: RenderOptions) =>
         renderUsfm(
             `\\mt Genesis\n${chapter(
-                `\\v 1 One. \\v 2 Two.\n\\s1 Heading\n\\p \\v 3-4 Three and Four. \\v 5 Five.`
+                `\\q1 \\v 1 One. \\q2 \\v 2 Two.\n\\s1 Heading\n\\p \\v 3-4 Three and Four. \\v 5 Five.`
             )}`,
             { ...options, verseRange: { start: range.start, end: range.end ?? range.start } }
         );
 
     test('only one verse is rendered when end is omitted', () => {
-        const root = renderWithRange({ start: 1 });
-        expect(root.querySelectorAll('[data-verse]:not([data-phrase])').length).toBe(1);
+        const root = renderWithRange({ start: 2 });
+        const verseDivs = root.querySelectorAll('[data-verse]:not([data-phrase])');
+        expect(verseDivs.length).toBe(1);
+        expect(verseDivs[0].getAttribute('data-verse')).toBe('2');
     });
 
     test('title is included if verse 1 (of chapter 1) is included', () => {
@@ -1498,16 +1500,12 @@ describe('verses continued into a paragraph that starts another verse', () => {
             expect(versesWithText(root)).toEqual(['3', '4']);
         });
 
-        // BUG (also on main): a verse that starts inside the continuation paragraph
-        // renders nothing when it is the only verse in the range.
-        test.fails('the single new verse in a continuation paragraph is rendered', () => {
+        test('the single new verse in a continuation paragraph is rendered', () => {
             const root = renderUsfm(startsOneVerse, range(3));
             expect(phraseText(root, '3')).toEqual(['Three.']);
         });
 
-        // BUG (also on main): the verse before the range is rendered when it is in its
-        // own paragraph.
-        test.fails('the verse before the range is not rendered', () => {
+        test('the verse before the range is not rendered', () => {
             const root = renderUsfm(startsTwoVerses, range(2));
             expect(phraseText(root, '1')).toEqual([]);
         });

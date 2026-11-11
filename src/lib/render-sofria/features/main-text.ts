@@ -148,7 +148,7 @@ export const text = new FeatureSpec<
                             );
                             addToScratchPad(workspace.scratch, 'verses', { orphanedPhrases });
 
-                            if (workspace.currentTextPosition.render) {
+                            if (verseInRange(workspace, verseDiv.getAttribute('data-verse')!)) {
                                 workspace.scopeManager.appendContent(verseDiv);
                             }
                             workspace.scopeManager.promoteContent('paragraph:main');
@@ -158,8 +158,8 @@ export const text = new FeatureSpec<
                             verseDiv.replaceChildren(paragraphDiv);
                             workspace.scopeManager.pop('paragraph:main');
                             // render is set to true by verse right before start of verse range
-                            // endVerse event for this verse is not sent until after paragraph ends
-                            if (workspace.currentTextPosition.render) {
+                            // endVerse event for this verse is sent before paragraph ends
+                            if (verseInRange(workspace, verseDiv.getAttribute('data-verse')!)) {
                                 workspace.scopeManager.appendContent(verseDiv);
                             }
                         }
