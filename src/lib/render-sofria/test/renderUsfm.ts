@@ -51,6 +51,8 @@ export type RenderOptions = {
     /** `config.audio` (audio sources and files, used by audio clips) */
     audio?: ScriptureConfig['audio'];
     verseRange?: { start: number; end: number };
+    /** `viewSettings.attachHoverListeners` (default false; the app sets it on hover-capable devices) */
+    attachHoverListeners?: boolean;
     footer?: string;
     sourceFormat?: BookSourceType;
 };
@@ -156,7 +158,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
                 redLetters: options.redLetters ?? false,
                 verseLayout: options.verseLayout ?? 'paragraphs',
                 verseRange: options.verseRange,
-                attachHoverListeners: false
+                attachHoverListeners: options.attachHoverListeners ?? false
             },
             hackRenderIntro: options.hackRenderIntro ?? false,
             events: {
