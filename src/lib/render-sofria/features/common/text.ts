@@ -39,7 +39,11 @@ export function getPhraseDiv(
         } else if (
             newPhrase &&
             workspace.viewSettings.isBibleBook &&
-            !(workspace.scopeManager.has('inlineGraft') || workspace.scopeManager.has('blockGraft'))
+            !(
+                workspace.scopeManager.has('inlineGraft') ||
+                workspace.scopeManager.has('blockGraft')
+            ) &&
+            workspace.currentTextPosition.verse !== 'none'
         ) {
             phraseDiv.id = workspace.currentTextPosition.verse + phraseIndex;
             phraseDiv.setAttribute('data-verse', workspace.currentTextPosition.verse);
