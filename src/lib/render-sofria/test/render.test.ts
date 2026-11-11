@@ -594,6 +594,32 @@ describe('headings', () => {
         expect(d.nextElementSibling?.getAttribute('data-verse')).toBe('1');
     });
 
+    // #1188: text before the first verse must not be selectable or get a 'none'-based id
+    test('\\d before verse 1 is not selectable', () => {
+        const root = renderUsfm('\\c 1\n\\d A psalm of David.\n\\q1\n\\v 1 Text.\n');
+        const d = root.querySelector('div.d')!;
+        expect(d.querySelector('.seltxt')).toBeNull();
+        expect(d.querySelector('[data-verse]')).toBeNull();
+        expect(root.querySelector('[id^="none"]')).toBeNull();
+        expect(root.querySelector('div[data-verse="1"] div.seltxt')?.textContent).toContain('Text.');
+    });
+
+    test('text in a paragraph before verse 1 is not selectable', () => {
+        const root = renderUsfm('\\c 1\n\\p Before any verse.\n\\v 1 Text.\n');
+        expect(root.querySelector('[id^="none"]')).toBeNull();
+        const selectable = [...root.querySelectorAll('div.seltxt')].map((d) => d.textContent);
+        expect(selectable.join('')).not.toContain('Before any verse.');
+    });
+
+    // Known gap (#1188 review): a \d after a verse (e.g. Habakkuk 3:19) is still selectable
+    // as part of the preceding verse. Remove .fails once \d is excluded by paragraph type.
+    test.fails('\\d after a verse is not selectable', () => {
+        const root = renderUsfm('\\c 1\n\\p\n\\v 1 One.\n\\d Mid desc\n\\p\n\\v 2 Two.\n');
+        const d = root.querySelector('div.d')!;
+        expect(d.textContent).toContain('Mid desc');
+        expect(d.querySelector('.seltxt')).toBeNull();
+    });
+
     test('\\d containing \\v 1 puts verse 1 inside the title', () => {
         const root = renderUsfm('\\c 1\n\\d \\v 1 A psalm of David.\n\\q1\n\\v 2 Text.\n');
         expect(root.querySelector('div.d span.v')?.textContent).toBe('1');
