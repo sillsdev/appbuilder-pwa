@@ -167,7 +167,8 @@
                                             verseRange={{
                                                 start: Number(item.start.verse),
                                                 end:
-                                                    item.end?.chapter !== item.start.chapter
+                                                    item.end &&
+                                                    item.end.chapter !== item.start.chapter
                                                         ? Object.keys(
                                                               item.props.references.catalog.documents.find(
                                                                   (d) =>
