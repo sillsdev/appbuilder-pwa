@@ -783,7 +783,7 @@ export function normalizeBloomFileNames(dir: string) {
     }
 }
 
-const BLOOM_REF_REGEXES: RegExp[] = [
+export const BLOOM_REF_REGEXES: RegExp[] = [
     /(\b(?:src|href|data-backgroundaudio)\s*=\s*)(["'])([^"']*)\2/gi,
     /(url\(\s*)(["']?)([^"')]*)\2/gi
 ];

@@ -9,6 +9,8 @@ All the testing projects under example and the Bloom related tests have been mov
 - Make your changes to the test projects
 - Run ./zip_projects.sh (Note that this will zip all the projects in this directory for other options check below)
 
+Note: you will find zip_projects.sh at the root of the S3 Bucket sil-app-builders-pwa-test-files.
+
 Options:
 
 | Option             | Description                                 |

@@ -35,7 +35,8 @@ TODO:
         if (history.url) {
             // the url should have the full path??
 
-            goto(resolve(history.url));
+            // eslint-disable-next-line svelte/no-navigation-without-resolve
+            goto(history.url);
         } else if (docSet) {
             refs.set({
                 docSet,

@@ -3,9 +3,7 @@ import path, { basename, extname, join } from 'path';
 import type {
     AppConfig,
     AudioConfig,
-    BloomLang,
     BloomMetaData,
-    BloomTitle,
     BookCollectionAudioConfig,
     BookCollectionConfig,
     BookSourceType,
@@ -134,8 +132,8 @@ export function parseBloomMeta(jsonPath: string, verbose: number): BloomMetaData
     }
 
     const meta = JSON.parse(readFileSync(jsonPath, 'utf-8'));
-    const langs: BloomLang[] = [];
-    const titles: BloomTitle[] = [];
+    const langs: { lang: string; name: string }[] = [];
+    const titles: { lang: string; name: string }[] = [];
     for (const k of Object.entries(meta['language-display-names'])) {
         const key = k[0];
         langs.push({ lang: key, name: meta['language-display-names'][key] });
@@ -978,19 +976,17 @@ export function parseBookCollections(
             let hashedDir: string | undefined;
             let bloomMetaData: Record<string, unknown> = {};
             const bookType = book.attributes.getNamedItem('type')?.value;
-            if (bookType !== undefined && ['html', 'bloom-player'].includes(bookType)) {
-                if (bookType === 'html') {
-                    hashedFileName = getHashedName(join(dataDir, 'books', tag.id), file);
-                }
+            if (bookType === 'html') {
+                hashedFileName = getHashedName(join(dataDir, 'books', tag.id), file);
+            }
 
-                if (bookType === 'bloom-player') {
-                    const dirHash = getDirHash(join(dataDir, 'books', tag.id, book.id));
-                    hashedDir = dirHash ? `${book.id}.${dirHash}` : undefined;
-                    bloomMetaData = parseBloomMeta(
-                        join(dataDir, 'books', tag.id, book.id, 'meta.json'),
-                        verbose
-                    );
-                }
+            if (bookType === 'bloom-player') {
+                const dirHash = getDirHash(join(dataDir, 'books', tag.id, book.id));
+                hashedDir = dirHash ? `${book.id}.${dirHash}` : undefined;
+                bloomMetaData = parseBloomMeta(
+                    join(dataDir, 'books', tag.id, book.id, 'meta.json'),
+                    verbose
+                );
             }
 
             books.push({

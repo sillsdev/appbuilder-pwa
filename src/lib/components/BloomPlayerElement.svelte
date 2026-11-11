@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
     export type AutoPlayType = 'yes' | 'no' | 'motion';
 </script>
 
@@ -15,46 +15,70 @@
     // This is an internal, unversioned contract - re-check those files when
     // upgrading the bloom-player version you point `playerUrl` at.
 
-    import { createEventDispatcher, onDestroy, onMount } from 'svelte';
     import { SvelteURLSearchParams } from 'svelte/reactivity';
 
-    /** Base URL of the bloom-player build, e.g. "/gen-assets/bloom-player/bloomplayer.htm" */
-    export let playerUrl: string;
-    /** URL of the book folder to load. */
-    export let bookUrl: string;
-    /** BCP-47 code of the language to display initially. */
-    export let lang: string | undefined = undefined;
-    export let paused = false;
-    export let autoplay: AutoPlayType = 'motion';
-    export let startPage: number | undefined = undefined;
-    export let allowToggleAppBar = true;
-    export let initiallyShowAppBar = false;
-    export let showBackButton = true;
-    export let hideFullScreenButton = false;
-    export let centerVertically = true;
-    export let useOriginalPageSize = false;
-    export let skipActivities = false;
-    export let hideNavButtons = false;
-    export let videoPreviewMode = false;
-    export let reportSoundLog = false;
+    type BloomPlayerEvents = {
+        onplaybackComplete?: (detail: Record<string, unknown>) => void;
+        onreportBookProperties?: (detail: Record<string, unknown>) => void;
+        onsendAnalytics?: (detail: Record<string, unknown>) => void;
+        onupdateBookProgressReport?: (detail: Record<string, unknown>) => void;
+        onbackButtonClicked?: (detail: Record<string, unknown>) => void;
+        onshowNavBar?: (detail: Record<string, unknown>) => void;
+        onhideNavBar?: (detail: Record<string, unknown>) => void;
+        onlogError?: (detail: Record<string, unknown>) => void;
+        onstorePageData?: (detail: Record<string, unknown>) => void;
+        oncapabilities?: (detail: Record<string, unknown>) => void;
+    };
 
-    const dispatch = createEventDispatcher<{
-        playbackComplete: any;
-        reportBookProperties: any;
-        sendAnalytics: any;
-        updateBookProgressReport: any;
-        backButtonClicked: any;
-        showNavBar: any;
-        hideNavBar: any;
-        logError: any;
-        storePageData: any;
-        capabilities: any;
-    }>();
+    interface Props extends BloomPlayerEvents {
+        /** Base URL of the bloom-player build, e.g. "/gen-assets/bloom-player/bloomplayer.htm" */
+        playerUrl: string;
+        /** URL of the book folder to load. */
+        bookUrl: string;
+        /** BCP-47 code of the language to display initially. */
+        lang?: string;
+        paused?: boolean;
+        autoplay?: AutoPlayType;
+        startPage?: number;
+        backButtonIcon: string;
+        allowToggleAppBar?: boolean;
+        initiallyShowAppBar?: boolean;
+        showBackButton?: boolean;
+        hideFullScreenButton?: boolean;
+        centerVertically?: boolean;
+        useOriginalPageSize?: boolean;
+        skipActivities?: boolean;
+        hideNavButtons?: boolean;
+        videoPreviewMode?: boolean;
+        reportSoundLog?: boolean;
+    }
 
-    let iframeEl: HTMLIFrameElement;
+    let {
+        playerUrl,
+        bookUrl,
+        lang,
+        paused = false,
+        autoplay = 'motion',
+        startPage,
+        backButtonIcon = 'arrow',
+        allowToggleAppBar = true,
+        initiallyShowAppBar = false,
+        showBackButton = true,
+        hideFullScreenButton = false,
+        centerVertically = true,
+        useOriginalPageSize = false,
+        skipActivities = false,
+        hideNavButtons = false,
+        videoPreviewMode = false,
+        reportSoundLog = false,
+        ...events
+    }: Props = $props();
 
-    $: src = (() => {
+    let iframeEl = $state<HTMLIFrameElement>();
+
+    const src = $derived.by(() => {
         const params = new SvelteURLSearchParams();
+
         params.set('url', bookUrl);
         if (lang) {
             params.set('lang', lang);
@@ -64,6 +88,7 @@
         if (startPage !== undefined) {
             params.set('start-page', String(startPage));
         }
+        params.set('backButtonIcon', String(backButtonIcon));
         params.set('allowToggleAppBar', String(allowToggleAppBar));
         params.set('initiallyShowAppBar', String(initiallyShowAppBar));
         params.set('showBackButton', String(showBackButton));
@@ -75,7 +100,7 @@
         params.set('videoPreviewMode', String(videoPreviewMode));
         params.set('reportSoundLog', String(reportSoundLog));
         return `${playerUrl}?${params.toString()}`;
-    })();
+    });
 
     function postToPlayer(message: Record<string, unknown>) {
         iframeEl?.contentWindow?.postMessage(JSON.stringify(message), '*');
@@ -110,49 +135,6 @@
         postToPlayer({ messageType: 'control', controlAction: action });
     }
 
-    // Injecting the arrow into the Bloom Player seems to be the only way to make the back arrow show up.
-    // This is because bloom-player does not see this as window.top and replaces it with '...' because
-    // we are using an iframe. Currently for android it is calling the webview with the path to the webview thus
-    // making window == window.top which shows the arrow instead of the elipses.
-    const BACK_ARROW_PATH = 'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z';
-
-    let backArrowObserver: MutationObserver | null = null;
-
-    function applyBackArrowFix() {
-        const doc = iframeEl?.contentDocument;
-        const icon = doc?.querySelector<SVGSVGElement>(
-            '[data-testid="history-back-button"] svg[aria-label="More Menu"]'
-        );
-        const path = icon?.querySelector('path');
-        if (!icon || !path) {
-            return;
-        }
-        path.setAttribute('d', BACK_ARROW_PATH);
-        icon.setAttribute('aria-label', 'Go Back');
-    }
-
-    function setupBackArrowFix() {
-        const doc = iframeEl?.contentDocument;
-        if (!doc?.body || backArrowObserver) {
-            return;
-        }
-
-        applyBackArrowFix();
-
-        backArrowObserver = new MutationObserver(applyBackArrowFix);
-        backArrowObserver.observe(doc.body, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['aria-label']
-        });
-    }
-
-    function teardownBackArrowFix() {
-        backArrowObserver?.disconnect();
-        backArrowObserver = null;
-    }
-
     function handleWindowMessage(event: MessageEvent) {
         // Only handle messages from our own iframe.
         if (!iframeEl || event.source !== iframeEl.contentWindow) {
@@ -184,26 +166,16 @@
             return;
         }
 
-        if (messageType === 'reportBookProperties') {
-            setupBackArrowFix();
-        }
-
-        dispatch(messageType as any, detail);
+        const handler = events[`on${messageType}` as keyof BloomPlayerEvents];
+        handler?.(detail);
     }
 
-    onMount(() => {
+    $effect(() => {
         window.addEventListener('message', handleWindowMessage);
-    });
-
-    // A new src means a new book/iframe document - drop the old fix state.
-    $: if (src) {
-        teardownBackArrowFix();
-    }
-
-    onDestroy(() => {
-        pause();
-        window.removeEventListener('message', handleWindowMessage);
-        teardownBackArrowFix();
+        return () => {
+            pause();
+            window.removeEventListener('message', handleWindowMessage);
+        };
     });
 </script>
 

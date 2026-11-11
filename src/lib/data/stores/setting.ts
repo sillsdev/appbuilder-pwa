@@ -422,7 +422,8 @@ export const userSettings = persistedLocal('userSettings', {
             setting.key,
             setting.defaultValue ?? defaultSettings[setting.key]
         ])
-    )
+    ),
+    ...JSON.parse(localStorage.userSettings || '{}')
 } as FeatureConfig);
 
 export const userSettingsOrDefault = derived(userSettings, ($userSettings) => {

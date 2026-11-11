@@ -1,6 +1,7 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import path from 'path';
 import jsdom from 'jsdom';
+import { BLOOM_REF_REGEXES } from '../../convertBooks';
 
 export const dataDir = './data/';
 
@@ -32,4 +33,37 @@ export function getBloomBooks(document: Document | undefined = loadAppDef()): Bl
 
 export function isBloomProjectLoaded(): boolean {
     return getBloomBooks().length > 0;
+}
+
+export function walkFiles(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const entryPath = path.join(dir, entry.name);
+        return entry.isDirectory() ? walkFiles(entryPath) : [entryPath];
+    });
+}
+
+export function walkNames(dir: string): string[] {
+    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+        entry.isDirectory() ? [entry.name, ...walkNames(path.join(dir, entry.name))] : [entry.name]
+    );
+}
+
+export function extractRefs(content: string): string[] {
+    return BLOOM_REF_REGEXES.flatMap((regex) => Array.from(content.matchAll(regex), (m) => m[2]));
+}
+
+export function isLocalRef(ref: string): boolean {
+    return ref !== '' && !/^(?:[a-z][a-z0-9+.-]*:|#|\/)/i.test(ref);
+}
+
+export function safeDecode(value: string): string {
+    try {
+        return decodeURIComponent(value);
+    } catch {
+        return value;
+    }
+}
+
+export function refToPath(ref: string): string {
+    return safeDecode(ref.split(/[?#]/)[0]);
 }

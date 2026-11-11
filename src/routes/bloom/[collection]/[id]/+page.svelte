@@ -25,8 +25,8 @@
         playerUrl="/bloom-player/bloom-player/bloomplayer.htm"
         {bookUrl}
         {lang}
-        showBackButton
-        on:backButtonClicked={() => history.back()}
+        backButtonIcon="arrow"
+        onbackButtonClicked={() => history.back()}
     />
 </div>
 

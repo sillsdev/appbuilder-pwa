@@ -1,46 +1,23 @@
-import { exists, existsSync, readdirSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import path from 'path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { parseBookCollections, parseColorThemes, parseFonts } from '../../convertConfig';
 import { getDirHash } from '../../fileUtils';
 import { getLangTagLookup } from '../../langtags';
-import { dataDir, getBloomBooks, isBloomProjectLoaded, loadAppDef } from './bloomTestUtils';
+import {
+    dataDir,
+    extractRefs,
+    getBloomBooks,
+    isBloomProjectLoaded,
+    isLocalRef,
+    loadAppDef,
+    refToPath,
+    safeDecode,
+    walkFiles,
+    walkNames
+} from './bloomTestUtils';
 
 type BookCollections = ReturnType<typeof parseBookCollections>;
-
-const REF_REGEXES: RegExp[] = [
-    /\b(?:src|href|data-backgroundaudio)\s*=\s*(["'])([^"']*)\1/gi,
-    /url\(\s*(["']?)([^"')]*)\1/gi
-];
-
-function walkFiles(dir: string): string[] {
-    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-        const entryPath = path.join(dir, entry.name);
-        return entry.isDirectory() ? walkFiles(entryPath) : [entryPath];
-    });
-}
-
-function walkNames(dir: string): string[] {
-    return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-        entry.isDirectory() ? [entry.name, ...walkNames(path.join(dir, entry.name))] : [entry.name]
-    );
-}
-
-function extractRefs(content: string): string[] {
-    return REF_REGEXES.flatMap((regex) => Array.from(content.matchAll(regex), (m) => m[2]));
-}
-
-function isLocalRef(ref: string): boolean {
-    return ref !== '' && !/^(?:[a-z][a-z0-9+.-]*:|#|\/)/i.test(ref);
-}
-
-function safeDecode(value: string): string {
-    try {
-        return decodeURIComponent(value);
-    } catch {
-        return value;
-    }
-}
 
 function readCatalog(collection: BookCollections[number]) {
     const catalogPath = path.join(
@@ -52,10 +29,6 @@ function readCatalog(collection: BookCollections[number]) {
     );
     expect(existsSync(catalogPath)).toBe(true);
     return JSON.parse(readFileSync(catalogPath, 'utf-8'));
-}
-
-function refToPath(ref: string): string {
-    return safeDecode(ref.split(/[?#]/)[0]);
 }
 
 describe.skipIf(!isBloomProjectLoaded())('bloom project conversion', () => {
