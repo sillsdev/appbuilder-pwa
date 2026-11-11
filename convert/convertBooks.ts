@@ -494,7 +494,7 @@ export async function convertBooks(
     const usedLangs = new Set<string>();
     //loop through collections
     for (const collection of collections!) {
-        const pk = new SABProskomma();
+        const pk = new SABProskomma(scriptureConfig.customTags);
         const context: ConvertBookContext = {
             dataDir,
             scriptureConfig,
@@ -928,13 +928,7 @@ function convertScriptureBook(
         const contentType = 'usfm'; //USFM is the only supported content type for now
         const tags = [`sections:${book.section}`, `testament:${book.testament}`];
         try {
-            const pkDoc = pk.importDoc(
-                selectors,
-                contentType,
-                content,
-                tags,
-                context.scriptureConfig.customTags
-            );
+            const pkDoc = pk.importDoc(selectors, contentType, content, tags);
             if (pkDoc) {
                 if (context.verbose) {
                     console.log(

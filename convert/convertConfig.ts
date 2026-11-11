@@ -243,11 +243,31 @@ function extractProgramType(document: Document) {
 
 export function parseCustomTags(styles: ScriptureConfig['styles']) {
     const customStyles = styles?.filter((s) => s.category === 'custom');
+
+    function getTags(styles: ScriptureConfig['styles'], type: string) {
+        return Array.from(
+            new Set(
+                styles
+                    ?.filter((s) => s.type === type)
+                    .map((s) => s.name.split('.').at(1))
+                    .filter((s) => {
+                        if (s) {
+                            const ret = /^[a-z-]+([1-9][0-9]*)?$/.test(s);
+                            if (!ret) {
+                                console.log(`⚠️ Skipping invalid custom SFM tag: '${s}'`);
+                            }
+                            return ret;
+                        }
+                    })
+                    .map((s) => s?.match(/^([a-z-]+)/)?.at(1))
+                    .filter((s) => !!s) as string[] | undefined
+            )
+        );
+    }
+
     return {
-        paragraph: customStyles
-            ?.filter((s) => s.type === 'paragraph')
-            .map((s) => s.name.split('.')[1]),
-        char: customStyles?.filter((s) => s.type === 'character').map((s) => s.name.split('.')[1])
+        paragraph: getTags(customStyles, 'paragraph'),
+        char: getTags(customStyles, 'character')
     };
 }
 

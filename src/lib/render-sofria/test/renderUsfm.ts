@@ -56,14 +56,7 @@ export type RenderOptions = {
     attachHoverListeners?: boolean;
     footer?: string;
     sourceFormat?: BookSourceType;
-    styles?: {
-        name: string;
-        type?: string;
-        category?: string;
-        properties: {
-            [key: string]: string;
-        };
-    }[];
+    styles?: ScriptureConfig['styles'];
 };
 
 const DEFAULT_FEATURES = {
@@ -131,8 +124,8 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
         };
         content = applyFilters(content, usfmFilterFunctions, COLLECTION, BOOK, ctx);
     }
-    const pk = new SABProskomma();
-    pk.importDoc({ lang: 'eng', abbr: COLLECTION }, 'usfm', content, [], config.customTags);
+    const pk = new SABProskomma(config.customTags);
+    pk.importDoc({ lang: 'eng', abbr: COLLECTION }, 'usfm', content, []);
     const docId: string = pk.gqlQuerySync('{ documents { id } }').data.documents[0].id;
 
     const root = document.createElement('div');

@@ -1,5 +1,6 @@
 import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { parseCustomTags } from '../../../../convert/convertConfig';
 import { renderUsfm, type RenderOptions } from './renderUsfm';
 
 /**
@@ -1570,18 +1571,37 @@ describe('verses continued into a paragraph that starts another verse', () => {
     });
 });
 describe('custom tags', () => {
+    afterEach(() => vi.restoreAllMocks());
+    const styles = [
+        { name: '.lp1', type: 'paragraph', category: 'custom', properties: {} },
+        { name: '.lp2', type: 'paragraph', category: 'custom', properties: {} },
+        { name: '.lw', type: 'character', category: 'custom', properties: {} },
+        { name: 'la', type: 'character', properties: {} }
+    ];
+
+    test('custom tags are parsed from config', () => {
+        const mockLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+        expect(
+            parseCustomTags([
+                ...styles,
+                { name: '.LW', type: 'character', category: 'custom', properties: {} }
+            ])
+        ).toEqual({ paragraph: ['lp'], char: ['lw'] });
+        expect(mockLog).toHaveBeenCalledWith(`⚠️ Skipping invalid custom SFM tag: 'LW'`);
+    });
+
     test('custom paragraph tags are rendered', () => {
-        const root = renderUsfm(chapter('\\lp custom paragraph'), {
-            styles: [{ name: '.lp', type: 'paragraph', category: 'custom', properties: {} }]
+        const root = renderUsfm(chapter('\\lp custom paragraph \\lp1 custom 1 \\lp2 custom 2'), {
+            styles
         });
 
-        expect(root.querySelector('div.lp')?.textContent).toBe('custom paragraph');
+        expect(root.querySelectorAll('div.lp')[0]?.textContent).toBe('custom paragraph');
+        expect(root.querySelectorAll('div.lp')[1]?.textContent).toBe('custom 1');
+        expect(root.querySelector('div.lp2')?.textContent).toBe('custom 2');
     });
 
     test('custom character tags are rendered', () => {
-        const root = renderUsfm(chapter('\\lw custom word \\lw*'), {
-            styles: [{ name: '.lw', type: 'character', category: 'custom', properties: {} }]
-        });
+        const root = renderUsfm(chapter('\\lw custom word \\lw*'), { styles });
 
         expect(root.querySelector('span.lw')?.textContent).toBe('custom word');
     });

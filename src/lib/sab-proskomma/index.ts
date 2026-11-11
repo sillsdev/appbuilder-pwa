@@ -3,6 +3,15 @@
 
 import { Proskomma } from 'proskomma-core';
 
+type CustomTags = {
+    heading: string[];
+    paragraph: string[];
+    char: string[];
+    word: string[];
+    intro: string[];
+    introHeading: string[];
+};
+
 /**
  * a custom extension of Proskomma to use BCP47 language tags instead of ISO 639-3
  * and whatever else may be needed in the future for use with SAB
@@ -10,17 +19,10 @@ import { Proskomma } from 'proskomma-core';
 export class SABProskomma extends Proskomma {
     selectors: { name: string; type: string; regex: string }[];
     filters: any;
-    customTags: {
-        heading: string[];
-        paragraph: string[];
-        char: string[];
-        word: string[];
-        intro: string[];
-        introHeading: string[];
-    };
+    customTags: CustomTags;
     emptyBlocks: any[];
 
-    constructor() {
+    constructor(customTags?: Partial<CustomTags>) {
         super();
 
         //language tag regex sourced from: https://stackoverflow.com/a/60899733
@@ -73,12 +75,12 @@ export class SABProskomma extends Proskomma {
         this.validateSelectors();
         this.filters = {};
         this.customTags = {
-            heading: [],
-            paragraph: [],
-            char: [],
-            word: [],
-            intro: [],
-            introHeading: []
+            heading: this.mergeArray([], customTags?.heading),
+            paragraph: this.mergeArray([], customTags?.paragraph),
+            char: this.mergeArray([], customTags?.char),
+            word: this.mergeArray([], customTags?.word),
+            intro: this.mergeArray([], customTags?.intro),
+            introHeading: this.mergeArray([], customTags?.introHeading)
         };
         this.emptyBlocks = [];
     }
@@ -106,29 +108,13 @@ export class SABProskomma extends Proskomma {
         return Array.from(new Set([...a, ...(b ?? [])]));
     }
 
-    importDoc(
-        selectors: any,
-        contentType: string,
-        content: string,
-        tags: string[],
-        customTags?: Partial<(typeof this)['customTags']>
-    ) {
+    importDoc(selectors: any, contentType: string, content: string, tags: string[]) {
         return super.importDocument(
             selectors,
             contentType,
             content,
             null,
-            {
-                heading: this.mergeArray(this.customTags.heading, customTags?.heading),
-                paragraph: this.mergeArray(this.customTags.paragraph, customTags?.paragraph),
-                char: this.mergeArray(this.customTags.char, customTags?.char),
-                word: this.mergeArray(this.customTags.word, customTags?.word),
-                intro: this.mergeArray(this.customTags.intro, customTags?.intro),
-                introHeading: this.mergeArray(
-                    this.customTags.introHeading,
-                    customTags?.introHeading
-                )
-            },
+            this.customTags,
             null,
             tags
         );
