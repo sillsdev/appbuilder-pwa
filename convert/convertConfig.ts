@@ -75,6 +75,7 @@ export function parseStyles(stylesTag: Element, verbose: number) {
     for (const tag of styleTags) {
         //console.log(tag.outerHTML);
         const name = tag.attributes.getNamedItem('name')!.value;
+        const type = tag.attributes.getNamedItem('type')?.value;
         const category = tag.attributes.getNamedItem('category')?.value;
         const properties: { [key: string]: string } = {};
         const propertyTags = tag.getElementsByTagName('sd');
@@ -93,6 +94,7 @@ export function parseStyles(stylesTag: Element, verbose: number) {
         }
         styles.push({
             name,
+            type,
             category,
             properties
         });
@@ -239,6 +241,36 @@ function extractProgramType(document: Document) {
     return { appDefinition, programType };
 }
 
+export function parseCustomTags(styles: ScriptureConfig['styles']) {
+    const customStyles = styles?.filter((s) => s.category === 'custom');
+
+    function getTags(styles: ScriptureConfig['styles'], type: string) {
+        return Array.from(
+            new Set(
+                styles
+                    ?.filter((s) => s.type === type)
+                    .map((s) => s.name.split('.').at(1))
+                    .filter((s) => {
+                        if (s) {
+                            const ret = /^[a-z-]+([1-9][0-9]*)?$/.test(s);
+                            if (!ret) {
+                                console.log(`⚠️ Skipping invalid custom SFM tag: '${s}'`);
+                            }
+                            return ret;
+                        }
+                    })
+                    .map((s) => s?.match(/^([a-z-]+)/)?.at(1))
+                    .filter((s) => !!s) as string[] | undefined
+            )
+        );
+    }
+
+    return {
+        paragraph: getTags(customStyles, 'paragraph'),
+        char: getTags(customStyles, 'character')
+    };
+}
+
 async function convertConfig(dataDir: string, verbose: number) {
     const genAssets = path.join('src/gen-assets');
     if (!existsSync(genAssets)) {
@@ -294,6 +326,22 @@ async function convertConfig(dataDir: string, verbose: number) {
             data.singleEntryStyles = parseStyles(singleEntryStyles, verbose);
         } else if (verbose) {
             console.log('No single-entry styles found in the XML document');
+        }
+    }
+
+    if (isSAB(data)) {
+        data.customTags = parseCustomTags(data.styles);
+        if (verbose) {
+            if (data.customTags?.paragraph?.length) {
+                console.log(
+                    `Adding ${data.customTags.paragraph.length} custom paragraph tag(s): ${data.customTags.paragraph.join(', ')}`
+                );
+            }
+            if (data.customTags.char?.length) {
+                console.log(
+                    `Adding ${data.customTags.char.length} custom character tag(s): ${data.customTags.char.join(', ')}`
+                );
+            }
         }
     }
 
