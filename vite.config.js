@@ -11,6 +11,7 @@ import tailwindcss from '@tailwindcss/vite';
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { createLogger, defineConfig } from 'vite';
+import { configDefaults } from 'vitest/config';
 import { androidDevice } from './scripts/vite-plugin-android-device';
 
 const logger = createLogger();
@@ -133,7 +134,24 @@ export default defineConfig(({ mode }) => {
             }
         },
         test: {
-            environment: 'jsdom'
+            projects: [
+                {
+                    extends: true,
+                    test: {
+                        name: 'unit',
+                        environment: 'jsdom',
+                        exclude: [...configDefaults.exclude, '**/*.bloom.test.ts']
+                    }
+                },
+                {
+                    extends: true,
+                    test: {
+                        name: 'bloom',
+                        environment: 'jsdom',
+                        include: ['**/*.bloom.test.ts']
+                    }
+                }
+            ]
         },
         customLogger: logger
     };

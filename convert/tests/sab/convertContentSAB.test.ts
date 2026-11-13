@@ -482,8 +482,7 @@ test('convertContents: Check Links if assigned match type with target (that a re
         //expect(link.linkTarget).not.toBeUndefined();  // Because of having to remove Object.keys(tag).length === 0 on parseItemLink this check will fail
 
         if (link.linkType === 'reference' && link.linkTarget !== undefined) {
-            console.log(link.linkTarget);
-            // NOTE: Based on my test data this regex is sufficent, however I only have the Gospels in my testing
+            // NOTE: Based on my test data this regex is sufficient, however I only have the Gospels in my testing
             expect(link.linkTarget.match(/^[A-Z]{3}\.[0-9]*\.[0-9]*$/i)).not.toBeNull();
         }
 

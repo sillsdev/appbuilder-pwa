@@ -4,8 +4,10 @@ import {
     copyFileSync,
     existsSync,
     mkdirSync,
+    readdirSync,
     readFileSync,
     rmSync,
+    statSync,
     writeFileSync
 } from 'fs';
 import { basename, extname, join, posix } from 'path';
@@ -34,6 +36,28 @@ export function getHashedNameFromContents(contents: string, src: string) {
     const fname = basename(src, ext);
 
     return src.replace(`${fname}${ext}`, `${fname}.${digest}${ext}`);
+}
+
+export function getDirHash(dirPath: string) {
+    if (!existsSync(dirPath)) {
+        console.warn(`Could not locate ${dirPath}`);
+        return '';
+    }
+    const hash = createHash('md5');
+    const walk = (dir: string, rel: string) => {
+        for (const name of readdirSync(dir).sort()) {
+            const fullPath = join(dir, name);
+            const relPath = posix.join(rel, name);
+            if (statSync(fullPath).isDirectory()) {
+                walk(fullPath, relPath);
+            } else {
+                hash.update(relPath);
+                hash.update(readFileSync(fullPath));
+            }
+        }
+    };
+    walk(dirPath, '');
+    return hash.digest('base64url');
 }
 
 export function createHashedFile(dataDir: string, src: string, verbose: number, destPrefix = '') {
