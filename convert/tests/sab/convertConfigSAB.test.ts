@@ -89,7 +89,7 @@ if (programType === 'DAB') {
     });
 
     test('convertConfig: parse book collections', () => {
-        const result = parseBookCollections(document, dataDir, 1);
+        const result = parseBookCollections(document, dataDir, 1, new Map<string, string>());
         expect(result).not.toHaveLength(0);
         for (const bookCol in result) {
             const bc = result[bookCol];

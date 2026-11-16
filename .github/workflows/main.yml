@@ -6,12 +6,16 @@ on:
     pull_request:
         branches: ['*']
 
+env:
+    TEST_INDEX_URL: https://sil-app-builders-pwa-test-files.s3.us-east-1.amazonaws.com/index.json
+
 jobs:
     setup:
         runs-on: ubuntu-latest
 
         outputs:
             appbuilder_version: ${{ steps.get_version.outputs.appbuilder_version }}
+            projects_cache_key: ${{ steps.projects_cache_key.outputs.key }}
 
         steps:
             - uses: actions/checkout@v6
@@ -48,12 +52,20 @@ jobs:
               run: |
                   npx ts-node convert/fetchTags.ts >> $GITHUB_OUTPUT
 
+            - name: Fetch Test Projects Index
+              id: projects_cache_key
+              run: |
+                  mkdir -p test_data/projects
+                  curl -fsSL "$TEST_INDEX_URL" -o test_data/projects/index.json
+                  INDEX_HASH=$(sha256sum test_data/projects/index.json | awk '{print $1}')
+                  echo "key=${{ runner.os }}-projects-${INDEX_HASH}-${{ hashFiles('convert/*.ts') }}-${{ steps.get_version.outputs.appbuilder_version }}" >> $GITHUB_OUTPUT
+
             - name: Restore Projects cache
               id: restore-projects-cache
               uses: actions/cache@v5
               with:
                   path: project_data
-                  key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ steps.get_version.outputs.appbuilder_version }}
+                  key: ${{ steps.projects_cache_key.outputs.key }}
 
             - name: Setup Java
               if: steps.restore-projects-cache.outputs.cache-hit != 'true'
@@ -81,6 +93,11 @@ jobs:
                   java -version
                   $HOME/app-builders/sab.sh -? | head -n 4
 
+            - name: Download Test Projects
+              if: steps.restore-projects-cache.outputs.cache-hit != 'true'
+              run: |
+                  npm run extract:example -- --download-all --index "$TEST_INDEX_URL"
+
             - name: Convert Projects
               if: steps.restore-projects-cache.outputs.cache-hit != 'true'
               run: |
@@ -98,15 +115,14 @@ jobs:
                       
                       # Iterate through projects using index
                       for ((i=0; i<$NUM_PROJECTS; i++)); do
-                          # Get project path
-                          PROJECT_ZIP=$(echo "$PROJECTS_JSON" | jq -r ".[$i].path")
-                          
-                          PROJECT_NAME=$(basename "$PROJECT_ZIP" .zip)
+                          # Get project zip, downloaded to test_data/projects/<program>/
+                          PROJECT_NAME=$(basename "$(echo "$PROJECTS_JSON" | jq -r ".[$i].file")" .zip)
+                          PROJECT_ZIP="test_data/projects/${PROGRAM}/${PROJECT_NAME}.zip"
                           echo "Project: $PROJECT_NAME"
                           PROJECT_DIR="$HOME/projects/${PROGRAM}/$PROJECT_NAME"
                           mkdir -p "$PROJECT_DIR"
-                          echo "Project hash: $(sha256sum "test_data/projects/${PROGRAM}/$PROJECT_ZIP" | awk '{print $1}')"
-                          unzip -q "test_data/projects/${PROGRAM}/$PROJECT_ZIP" -d "$PROJECT_DIR"
+                          echo "Project hash: $(sha256sum "$PROJECT_ZIP" | awk '{print $1}')"
+                          unzip -q "$PROJECT_ZIP" -d "$PROJECT_DIR"
                           npm run clean:all > /dev/null
                           pushd "$PROJECT_DIR" > /dev/null
                           PROJECT_FILE=$(find . -type f -name "*.appDef")
@@ -120,6 +136,7 @@ jobs:
                       done
                   done
 
+                  cp test_data/projects/index.json project_data/index.json
                   du -h project_data
 
             - name: Cache Extracted Projects
@@ -127,7 +144,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: project_data
-                  key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ steps.get_version.outputs.appbuilder_version }}
+                  key: ${{ steps.projects_cache_key.outputs.key }}
 
     lint:
         runs-on: ubuntu-latest
@@ -149,7 +166,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: project_data
-                  key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ needs.setup.outputs.appbuilder_version }}
+                  key: ${{ needs.setup.outputs.projects_cache_key }}
 
             - name: Convert minimal project
               run: |
@@ -189,7 +206,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: project_data
-                  key: ${{ runner.os }}-projects-${{ hashFiles('test_data/projects', 'convert/*.ts') }}-${{ needs.setup.outputs.appbuilder_version }}
+                  key: ${{ needs.setup.outputs.projects_cache_key }}
 
             - name: Run Tests
               run: |
@@ -199,18 +216,17 @@ jobs:
                       mkdir -p "$HOME/projects/$PROGRAM"
 
                       # Get all projects as JSON array
-                      PROJECTS_JSON=$(jq -r ".${PROGRAM}.projects" "test_data/projects/index.json")
+                      PROJECTS_JSON=$(jq -r ".${PROGRAM}.projects" "project_data/index.json")
 
                       # Get number of projects
                       NUM_PROJECTS=$(echo "$PROJECTS_JSON" | jq '. | length')
 
                       # Iterate through projects using index
                       for ((i=0; i<$NUM_PROJECTS; i++)); do
-                          # Get project path and test directories
-                          PROJECT_ZIP=$(echo "$PROJECTS_JSON" | jq -r ".[$i].path")
+                          # Get project name and test directories
+                          PROJECT_NAME=$(basename "$(echo "$PROJECTS_JSON" | jq -r ".[$i].file")" .zip)
                           TEST_DIRS=$(echo "$PROJECTS_JSON" | jq -r ".[$i].tests[]")
                           
-                          PROJECT_NAME=$(basename "$PROJECT_ZIP" .zip)
                           echo "Project: $PROJECT_NAME"
                           npm run clean:all > /dev/null
                           cp -r "project_data/$PROJECT_NAME/." data

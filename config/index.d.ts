@@ -43,6 +43,17 @@ export type BookTabsConfig = {
     tabs: BookTabConfig[];
 };
 
+export type BloomMetaData = {
+    titles?: {
+        lang: string;
+        name: string;
+    }[];
+    languages?: {
+        lang: string;
+        name: string;
+    }[];
+    features?: string[];
+};
 export type BookSourceType =
     | 'none'
     | 'sfm'
@@ -72,7 +83,10 @@ export type BookConfig = {
     chaptersLabels?: { [key: string]: string };
     fonts: string[];
     file: string;
-    hashedFileName?: string; // currently just for HTML books
+    hashedFileName?: string; // currently just for HTML Books
+    hashedDir?: string; // currently just for Bloom Books
+    bloomMeta?: BloomMetaData;
+    resolvedLang?: string; // bloom-player: language code resolved against the collection via langtags.json
     audio: BookCollectionAudioConfig[];
     features: FeatureConfig;
     quizFeatures?: FeatureConfig;
