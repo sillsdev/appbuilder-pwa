@@ -5,17 +5,9 @@
 
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import {
-        convertStyle,
-        footnotes,
-        refs,
-        s,
-        themeColors,
-        type FootnoteItem
-    } from '$lib/data/stores';
+    import { convertStyle, footnotes, monoIconColor, s, type FootnoteItem } from '$lib/data/stores';
     import { navigateToText } from '$lib/navigate';
     import type { AnchorReference } from '$lib/scripts/scripture-reference-utils';
-    import { splitString } from '$lib/scripts/stringUtils';
     import ScriptureViewProskomma from './ScriptureViewProskomma.svelte';
 
     interface Props {
@@ -29,7 +21,6 @@
 
     let stack: HTMLDivElement | undefined = $state();
     let listening = false;
-    const PrimaryColor = $derived($themeColors['PrimaryColor']);
 
     function clickOutside(event: Event) {
         if (event.target && stack && !stack.contains(event.target as HTMLElement)) {
@@ -49,29 +40,8 @@
     }
 
     const openInNewIcon = () => {
-        return `<svg fill='${PrimaryColor}' xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"/></svg>`;
+        return `<svg fill='${$monoIconColor}' xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"/></svg>`;
     };
-    // handles clicks on in text markdown reference links
-    function referenceLinkClickHandler(target: HTMLElement) {
-        const linkRef = target.getAttribute('ref') ?? '';
-        const splitRef = splitString(linkRef, '.');
-        const splitSet = splitRef[0];
-        const refBook = splitRef[1];
-        const splitChapter = splitRef[2];
-        const splitVerse = splitRef[3];
-
-        let refDocSet = $refs.docSet;
-        const refBc = scriptureConfig.bookCollections?.find((x) => x.id === splitSet);
-        if (refBc) {
-            refDocSet = refBc.languageCode + '_' + refBc.id;
-        } else {
-            // Invalid collection
-            return;
-        }
-        refs.set({ docSet: refDocSet, book: refBook, chapter: splitChapter, verse: splitVerse });
-        footnotes.reset();
-        return;
-    }
     async function insideClick(target: HTMLElement, item: FootnoteItem) {
         const closest = target.closest('#icon')?.querySelector('[data-reference]');
         if (target.hasAttribute('data-start-ref')) {
