@@ -15,9 +15,9 @@ export const direction = derived([refs, userSettings], ([$refs, $userSettings]) 
             direction = config.interfaceLanguages?.writingSystems[code]?.textDirection ?? direction;
         }
     } else if (direction === 'text') {
-        direction =
-            scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection)?.style
-                ?.textDirection ?? direction;
+        const collection = scriptureConfig.bookCollections?.find((x) => x.id === $refs.collection);
+        const book = collection?.books.find((x) => x.id === $refs.book);
+        direction = book?.style?.textDirection ?? collection?.style?.textDirection ?? direction;
     }
     // A failed lookup leaves a sentinel ('interface-language' or 'text'), so default to ltr
     return (direction?.toLowerCase() === 'rtl' ? 'rtl' : 'ltr') as 'ltr' | 'rtl';
