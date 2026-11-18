@@ -50,7 +50,7 @@ Custom list of collections for the LayoutOptions menu
                         <img class="layout-image" src={illustrations['./' + d.image]} />
                     </div>
                 {/if}
-                <div class="layout-text-block">
+                <div class="layout-text-block" class:w-[85%]!={d.image}>
                     <div class="layout-item-name">
                         {d.name}
                     </div>
