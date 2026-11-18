@@ -46,6 +46,7 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { isDAB, isSAB } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
+    import type { Snippet } from 'svelte';
     import { showTextAppearance } from './TextAppearanceSelector.svelte';
 
     const menuIcons = import.meta.glob('./*', {
@@ -55,7 +56,12 @@ The sidebar/drawer.
         base: '/src/gen-assets/icons/menu-items'
     }) as Record<string, string>;
 
-    let { children } = $props();
+    interface Props {
+        children?: Snippet;
+        debugTheme?: string;
+    }
+
+    let { children, debugTheme }: Props = $props();
 
     const drawerId = 'sidebar';
     let menuToggle = $state(false);
@@ -131,11 +137,17 @@ The sidebar/drawer.
 
 <svelte:window onkeydown={(e) => closeOnEscape(e.key)} />
 
-<div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
+<div
+    class="dy-drawer"
+    class:dy-drawer-mobile={$showDesktopSidebar}
+    dir={$direction}
+    data-theme={debugTheme}
+    data-color-theme={$theme}
+>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div class="dy-drawer-content flex flex-col" style:background-color={$backgroundColor}>
         <!-- Page content here -->
-        {@render children()}
+        {@render children?.()}
     </div>
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div class="dy-drawer-side" onclick={closeDrawer} onkeydown={closeDrawer} role="navigation">

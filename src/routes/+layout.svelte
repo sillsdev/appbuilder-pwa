@@ -28,7 +28,8 @@
         NAVBAR_HEIGHT,
         refs,
         s,
-        theme
+        theme,
+        userSettings
     } from '$lib/data/stores';
     import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
@@ -199,7 +200,7 @@
 </svelte:head>
 
 {#if showPage}
-    <Sidebar>
+    <Sidebar {debugTheme}>
         <!-- `debugTheme` sets the *allegedly* unused DaisyUI theme to all-red when dev server is running -->
         <div
             id="container"
