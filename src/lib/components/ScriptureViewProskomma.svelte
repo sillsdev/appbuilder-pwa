@@ -52,6 +52,7 @@ LOGGING:
         currentPlanData,
         currentPlanState,
         footnotes,
+        getTextDirFromText,
         language,
         logWhichPanes,
         modal,
@@ -133,8 +134,7 @@ LOGGING:
     const fontSize = $derived(bodyFontSize + 'px');
     const lineHeight = $derived(bodyLineHeight + '%');
     const direction = $derived(
-        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
-            ?.textDirection || 'ltr'
+        getTextDirFromText(scriptureConfig.bookCollections, references.collection, references.book)
     );
     const numeralSystem = $derived(
         numerals.systemForBook(scriptureConfig.bookCollections, references.collection, currentBook)
