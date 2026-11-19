@@ -3,7 +3,6 @@
     import faviconHref from '$assets/icons/favicon.png';
     import manifestHref from '$assets/manifestUrl.json';
     import '$lib/styles/app.css';
-    import { dev } from '$app/environment';
     import config from '$assets/config';
     import AnnotationHintToast from '$lib/components/AnnotationHintToast.svelte';
     import AudioAlertModal, {
@@ -29,7 +28,7 @@
         refs,
         s,
         theme,
-        userSettings
+        userSettingsOrDefault
     } from '$lib/data/stores';
     import { onMount } from 'svelte';
     import { fromStore } from 'svelte/store';
@@ -58,12 +57,12 @@
         refs.init();
     }
 
-    const debugTheme = dev
-        ? (() => {
-              console.warn('DEBUG color theme enabled');
-              return 'debug';
-          })()
-        : undefined;
+    const debugTheme = $derived.by(() => {
+        if ($userSettingsOrDefault['debug-theme']) {
+            console.warn('DEBUG color theme enabled');
+            return 'debug';
+        }
+    });
 
     if (!$analytics.initialized) {
         analytics.init();
