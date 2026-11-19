@@ -154,7 +154,9 @@ The sidebar/drawer.
         <div class="dy-drawer-overlay"></div>
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
-            style:background-color={drawerBackgroundColor}
+            style:--drawer-bg-color={drawerBackgroundColor}
+            style:--color-base-content={textColor}
+            style:--color-neutral-content={textColor}
             style:direction={$direction}
             style:font-size="{fontSize}%"
             style:font-family="system-ui, roboto"
@@ -326,5 +328,12 @@ The sidebar/drawer.
         flex-shrink: 0;
         min-width: 100%;
         min-height: 100%;
+    }
+    ul.dy-menu {
+        background-color: var(--drawer-bg-color);
+        --color-neutral: var(--drawer-bg-color);
+        @supports (color: color-mix(in lab, red, red)) {
+            --color-neutral: color-mix(in oklab, var(--color-base-content) 15%, transparent);
+        }
     }
 </style>
