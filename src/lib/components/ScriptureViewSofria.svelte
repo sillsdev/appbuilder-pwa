@@ -59,6 +59,7 @@ LOGGING:
         currentPlanState,
         defaultPlanStore,
         footnotes,
+        getTextDirFromText,
         language,
         logs,
         modal,
@@ -2893,8 +2894,7 @@ LOGGING:
     /**list of books in current docSet*/
     const books = $derived(references.catalog.documents);
     const direction = $derived(
-        scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.style
-            ?.textDirection || 'ltr'
+        getTextDirFromText(scriptureConfig.bookCollections, references.collection, references.book)
     );
     const verseRangeSeparator = $derived(
         scriptureConfig.bookCollections?.find((x) => x.id === references.collection)?.features[

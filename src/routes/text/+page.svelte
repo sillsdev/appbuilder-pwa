@@ -56,7 +56,6 @@
         showDesktopSidebar,
         t,
         themeColors,
-        userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
     import {
