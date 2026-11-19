@@ -4,41 +4,30 @@ import { getElement } from './common';
 export const annotations = new FeatureSpec('Annotations', {
     endDocument: {
         stage: 'standard',
-        details: () => undefined,
+        details: ({ workspace }) => ({
+            verses: workspace.root.querySelectorAll('[data-verse]:not([data-phrase])').length
+        }),
         guard: ({ workspace }) => !workspace.hackRenderIntro,
         action({ workspace }) {
+            const verseDivs = Array.from(
+                workspace.root.querySelectorAll('[data-verse]:not([data-phrase])')
+            ) as HTMLDivElement[];
+            verseDivs.forEach((div) => {
+                addSpanAfterVerse(workspace, 'bookmarks', div);
+                addSpanAfterVerse(workspace, 'notes', div);
+            });
             workspace.events.updateAnnotations();
-        }
-    },
-    endVerses: {
-        stage: 'standard',
-        details: ({ context }) => ({
-            v: getElement(context).atts['number']
-        }),
-        guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
-        action({ workspace }) {
-            addSpanAfterVerse(workspace, 'bookmarks');
-            addSpanAfterVerse(workspace, 'notes');
         }
     }
 });
 
-function addSpanAfterVerse(workspace: RenderWorkspace, idPrefix: string) {
+function addSpanAfterVerse(workspace: RenderWorkspace, idPrefix: string, verseDiv: HTMLDivElement) {
     const span = workspace.document.createElement('span');
-    span.id = idPrefix + workspace.currentTextPosition.verse;
-    const verseDiv = workspace.scopeManager.find(
-        `verses:${workspace.currentTextPosition.verse}`
-    )?.root;
-    if (verseDiv) {
-        verseDiv.append(span);
+    span.id = idPrefix + verseDiv.getAttribute('data-verse');
+    const lastChild = verseDiv.lastElementChild;
+    if (lastChild?.getAttribute('data-phrase') || lastChild?.tagName === 'SPAN') {
+        lastChild.after(span);
     } else {
-        const queryString = `div[data-verse="${workspace.currentTextPosition.verse}"]:not([data-phrase])`;
-        let el: HTMLElement | null = null;
-        for (let i = 0; i < workspace.scopeManager.depth(); i++) {
-            if ((el = workspace.scopeManager.at(i).root.querySelector(queryString))) {
-                break;
-            }
-        }
-        el?.parentNode?.append(span);
+        lastChild?.appendChild(span);
     }
 }

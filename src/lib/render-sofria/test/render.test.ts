@@ -1569,3 +1569,5 @@ describe('verses continued into a paragraph that starts another verse', () => {
         });
     });
 });
+
+describe.todo('bookmarks and notes are placed at the end of the verse');
