@@ -240,6 +240,7 @@ export type AppConfig = {
     }[];
     styles?: {
         name: string;
+        type?: string;
         category?: string;
         properties: {
             [key: string]: string;
@@ -359,6 +360,10 @@ export type ScriptureConfig = AppConfig & {
         };
         plans: PlanItem[];
     };
+    customTags?: Partial<{
+        paragraph: string[];
+        char: string[];
+    }>;
 };
 
 export type PlanItem = {
