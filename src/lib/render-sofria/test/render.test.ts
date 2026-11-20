@@ -909,8 +909,8 @@ describe('illustrations', () => {
         test('\\fig is moved to the end of its paragraph (convert moveFigureToNextNonVerseMarker)', () => {
             const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'));
             const block = imageBlock(root)!;
-            expect(block.closest('[data-verse]')?.getAttribute('data-verse')).toBe('2');
-            expect(block.previousElementSibling?.textContent).toBe('Two.');
+            expect(block.previousElementSibling?.id).toBe('bookmarks2');
+            expect(block.parentElement?.textContent).toContain('Two.');
         });
 
         test('USFM 3 \\fig without a caption renders no caption', () => {
@@ -1567,5 +1567,19 @@ describe('verses continued into a paragraph that starts another verse', () => {
             over(none.find((el) => el.textContent?.includes('Intro'))!);
             expect(hovered(root).filter((h) => h.startsWith('none'))).toEqual([]);
         });
+    });
+});
+
+describe('bookmarks and notes are placed at the end of the verse', () => {
+    test.each([
+        ['several verses in a paragraph', '\\v 1 One.\n\\v 2 Two.', 'One. '],
+        ['several paragraphs in a verse', '\\v 1 One a.\n\\p One b.\n\\p\n\\v 2 Two.\n', 'One b.'],
+        ['discontinuous verse', '\\v 1 One a.\n\\p One b.\n\\v 2 Two.', 'One b. ']
+    ])('for %s in bible text', (_name, body, content) => {
+        const root = renderUsfm(chapter(body));
+        const noteSpan = root.querySelector('#notes1');
+        expect(noteSpan?.previousElementSibling?.textContent).toBe(content);
+        const bookmarkSpan = root.querySelector('#bookmarks1');
+        expect(bookmarkSpan?.previousElementSibling).toBe(noteSpan);
     });
 });
