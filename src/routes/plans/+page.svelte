@@ -216,3 +216,12 @@
         <BottomNavigationBar {barType} />
     {/if}
 </div>
+
+<style>
+    @media (hover: hover) and (pointer: fine) {
+        div.plan-chooser-plan:hover {
+            cursor: pointer;
+            transform: translate(-1px, -1px);
+        }
+    }
+</style>
