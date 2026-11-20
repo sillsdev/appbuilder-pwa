@@ -1570,4 +1570,16 @@ describe('verses continued into a paragraph that starts another verse', () => {
     });
 });
 
-describe.todo('bookmarks and notes are placed at the end of the verse');
+describe('bookmarks and notes are placed at the end of the verse', () => {
+    test.each([
+        ['several verses in a paragraph', '\\v 1 One.\n\\v 2 Two.', 'One. '],
+        ['several paragraphs in a verse', '\\v 1 One a.\n\\p One b.\n\\p\n\\v 2 Two.\n', 'One b.'],
+        ['discontinuous verse', '\\v 1 One a.\n\\p One b.\n\\v 2 Two.', 'One b. ']
+    ])('for %s in bible text', (_name, body, content) => {
+        const root = renderUsfm(chapter(body));
+        const noteSpan = root.querySelector('#notes1');
+        expect(noteSpan?.previousElementSibling?.textContent).toBe(content);
+        const bookmarkSpan = root.querySelector('#bookmarks1');
+        expect(bookmarkSpan?.previousElementSibling).toBe(noteSpan);
+    });
+});
