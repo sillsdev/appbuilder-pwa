@@ -1,4 +1,5 @@
 import { goto } from '$app/navigation';
+import { docSetFromCollections } from '$lib/data/navigation';
 import { getNextPlanReference } from '$lib/data/planProgressItems';
 import { defaultPlanStore, t, type PlanStore } from '$lib/data/stores';
 import type { ReferenceStore } from '$lib/data/stores/reference';
@@ -210,7 +211,6 @@ function planClicked(workspace: RenderWorkspace) {
 }
 
 async function gotoPlanReference(workspace: RenderWorkspace) {
-    const currentBookCollectionId = workspace.stores.references.collection;
     const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
         workspace.stores.plan.planNextReference,
         workspace.config.bookCollections
@@ -241,7 +241,11 @@ async function gotoPlanReference(workspace: RenderWorkspace) {
         });
 
         workspace.events.navigate({
-            docSet: currentBookCollectionId,
+            docSet:
+                docSetFromCollections(
+                    workspace.config.bookCollections,
+                    workspace.stores.references.collection
+                ) || workspace.stores.references.collection,
             book: book,
             chapter: toChapter.toString(),
             verse: destinationVerse.toString()

@@ -1,7 +1,24 @@
 import { scriptureConfig } from '$assets/config';
-import type { BookCollectionAudioConfig, BookCollectionConfig, BookSourceType } from '$config';
+import type {
+    BookCollectionAudioConfig,
+    BookCollectionConfig,
+    BookSourceType,
+    ScriptureConfig
+} from '$config';
 import { isPositiveInteger } from '$lib/scripts/stringUtils';
 import { loadCatalog, type CatalogData } from './catalogData';
+
+export function docSetFromCollection(coll: Pick<BookCollectionConfig, 'id' | 'languageCode'>) {
+    return `${coll.languageCode}_${coll.id}`;
+}
+
+export function docSetFromCollections(
+    collections: Pick<BookCollectionConfig, 'id' | 'languageCode'>[] | undefined,
+    collectionId: string
+) {
+    const collection = collections?.find((c) => c.id === collectionId);
+    return collection && docSetFromCollection(collection);
+}
 
 /**
  *  Maintains the currently active scripture reference.
@@ -33,10 +50,6 @@ export class NavigationContext {
     private books: string[];
     private versesByChapters: { [chapter: string]: { [verse: string]: string } } = {}; // Blank object so that if a bloom book is served with out Scripture the PWA displays properly
 
-    private docSetFromCollection(coll: Pick<BookCollectionConfig, 'id' | 'languageCode'>) {
-        return `${coll.languageCode}_${coll.id}`;
-    }
-
     private parseReference(ref: string = '') {
         const parts = ref.split('.');
         const hasCollection =
@@ -46,13 +59,13 @@ export class NavigationContext {
         const docSet = hasCollection ? parts[0] : this.docSets[0];
 
         const collection = this.config.bookCollections?.find(
-            (c) => docSet === c.id || docSet === this.docSetFromCollection(c)
+            (c) => docSet === c.id || docSet === docSetFromCollection(c)
         );
 
         const book = parts[hasCollection ? 1 : 0];
 
         return {
-            docSet: collection ? this.docSetFromCollection(collection) : docSet,
+            docSet: collection ? docSetFromCollection(collection) : docSet,
             book: book,
             chapter: parts[hasCollection ? 2 : 1],
             verse: parts[hasCollection ? 3 : 2] || '1'
@@ -63,11 +76,9 @@ export class NavigationContext {
         let useFallbackDocSet = false;
         const fallbackDocSet = this.docSets[0];
         const collection =
-            this.config.bookCollections?.find((c) => docSet === this.docSetFromCollection(c)) ??
-            this.config.bookCollections?.find(
-                (c) => fallbackDocSet === this.docSetFromCollection(c)
-            );
-        if (!collection || docSet !== this.docSetFromCollection(collection)) {
+            this.config.bookCollections?.find((c) => docSet === docSetFromCollection(c)) ??
+            this.config.bookCollections?.find((c) => fallbackDocSet === docSetFromCollection(c));
+        if (!collection || docSet !== docSetFromCollection(collection)) {
             console.error(
                 `docSet '${docSet}' not found in collections. Defaulting to '${fallbackDocSet}'.`
             );
@@ -164,7 +175,7 @@ export class NavigationContext {
             this.catalog = await this.fetchCatalog(this.docSet);
             this.books = this.catalog.documents.map((b) => b.bookCode);
             const collection = this.config.bookCollections?.find(
-                (c) => docSet === c.id || docSet === this.docSetFromCollection(c)
+                (c) => docSet === c.id || docSet === docSetFromCollection(c)
             );
             const quizzes =
                 collection?.books.filter((x) => x.type === 'quiz').map((x) => x.id) || [];
@@ -187,7 +198,7 @@ export class NavigationContext {
         }
         this.sourceFormat =
             this.config.bookCollections
-                ?.find((c) => docSet === this.docSetFromCollection(c))
+                ?.find((c) => docSet === docSetFromCollection(c))
                 ?.books?.find((b) => b.id === book)?.sourceFormat || 'none';
         this.updateChapterVerse(chapter, verse, newBook);
     }

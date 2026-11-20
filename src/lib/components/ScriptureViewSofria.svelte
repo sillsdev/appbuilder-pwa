@@ -44,6 +44,7 @@ LOGGING:
     import { hasAudioPlayed, seekToVerse } from '$lib/data/audio';
     import type { BookmarkItem } from '$lib/data/bookmarks';
     import type { HighlightItem } from '$lib/data/highlights';
+    import { docSetFromCollections } from '$lib/data/navigation';
     import type { NoteItem } from '$lib/data/notes';
     import {
         addPlanProgressItem,
@@ -1069,7 +1070,6 @@ LOGGING:
         return displayString;
     }
     async function gotoPlanReference() {
-        let currentBookCollectionId = references.collection;
         const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
             $plan.planNextReference,
             scriptureConfig.bookCollections
@@ -1099,7 +1099,9 @@ LOGGING:
                 completed: false
             };
             setReference({
-                docSet: currentBookCollectionId,
+                docSet:
+                    docSetFromCollections(scriptureConfig.bookCollections, references.collection) ||
+                    references.collection,
                 book: book,
                 chapter: toChapter.toString(),
                 verse: destinationVerse.toString()

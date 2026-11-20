@@ -6,6 +6,7 @@
 
 import { scriptureConfig } from '$assets/config';
 import type { BookCollectionConfig, FeatureConfig, ScriptureConfig } from '$config';
+import { docSetFromCollections } from '$lib/data/navigation';
 import type { ReferenceStore } from '$lib/data/stores/reference';
 import { get } from 'svelte/store';
 import type { CatalogData } from '../data/catalogData';
@@ -811,7 +812,8 @@ function getLinkText(
 
     const startAnchor = {
         phrase: reference.text,
-        docSet: reference.collection,
+        docSet:
+            docSetFromCollections(bookCollections, reference.collection) || reference.collection,
         collection: reference.collection,
         book: reference.bookId,
         chapter: reference.fromChapter,
@@ -823,7 +825,9 @@ function getLinkText(
         ? undefined
         : ({
               phrase: reference.text,
-              docSet: reference.collection,
+              docSet:
+                  docSetFromCollections(bookCollections, reference.collection) ||
+                  reference.collection,
               collection: reference.collection,
               book: reference.bookId,
               chapter: isNotBlank(reference.toChapter)
