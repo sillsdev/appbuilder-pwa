@@ -46,6 +46,7 @@ The sidebar/drawer.
     } from '$lib/icons';
     import { isDAB, isSAB } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
+    import type { Snippet } from 'svelte';
     import { showTextAppearance } from './TextAppearanceSelector.svelte';
 
     const menuIcons = import.meta.glob('./*', {
@@ -55,7 +56,12 @@ The sidebar/drawer.
         base: '/src/gen-assets/icons/menu-items'
     }) as Record<string, string>;
 
-    let { children } = $props();
+    interface Props {
+        children?: Snippet;
+        debugTheme?: string;
+    }
+
+    let { children, debugTheme }: Props = $props();
 
     const drawerId = 'sidebar';
     let menuToggle = $state(false);
@@ -131,18 +137,26 @@ The sidebar/drawer.
 
 <svelte:window onkeydown={(e) => closeOnEscape(e.key)} />
 
-<div class="dy-drawer" class:dy-drawer-mobile={$showDesktopSidebar} dir={$direction}>
+<div
+    class="dy-drawer"
+    class:dy-drawer-mobile={$showDesktopSidebar}
+    dir={$direction}
+    data-theme={debugTheme}
+    data-color-theme={$theme}
+>
     <input id={drawerId} type="checkbox" class="dy-drawer-toggle" bind:checked={menuToggle} />
     <div class="dy-drawer-content flex flex-col" style:background-color={$backgroundColor}>
         <!-- Page content here -->
-        {@render children()}
+        {@render children?.()}
     </div>
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div class="dy-drawer-side" onclick={closeDrawer} onkeydown={closeDrawer} role="navigation">
         <div class="dy-drawer-overlay"></div>
         <ul
             class="dy-menu p-1 w-3/4 sm:w-80 text-base-content min-h-full"
-            style:background-color={drawerBackgroundColor}
+            style:--drawer-bg-color={drawerBackgroundColor}
+            style:--color-base-content={textColor}
+            style:--color-neutral-content={textColor}
             style:direction={$direction}
             style:font-size="{fontSize}%"
             style:font-family="system-ui, roboto"
@@ -314,5 +328,12 @@ The sidebar/drawer.
         flex-shrink: 0;
         min-width: 100%;
         min-height: 100%;
+    }
+    ul.dy-menu {
+        background-color: var(--drawer-bg-color);
+        --color-neutral: var(--drawer-bg-color);
+        @supports (color: color-mix(in lab, red, red)) {
+            --color-neutral: color-mix(in oklab, var(--color-base-content) 15%, transparent);
+        }
     }
 </style>

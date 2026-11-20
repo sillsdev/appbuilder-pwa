@@ -50,7 +50,7 @@ The verse on image component.
     });
     const barColor = $derived($themeColors['SliderBarColor']);
     const progressColor = $derived($themeColors['SliderProgressColor']);
-    const unselectedColor = $derived('grey');
+    const unselectedColor = $derived($themeColors['DrawerItemIconColor']);
 
     const viewportWidth_in_px = $derived(
         Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
@@ -1454,7 +1454,7 @@ The verse on image component.
     }
 
     .editorPane_button {
-        background-color: var(--SliderBarColor);
+        background-color: var(--LayoutButtonColor);
         border-radius: 3px;
         width: fit-content;
         margin: 1rem 0.25rem 0rem 0.25rem;

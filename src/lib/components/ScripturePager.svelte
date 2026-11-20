@@ -21,7 +21,7 @@ concern of the caller, not the pager).
 
 <script lang="ts">
     import config, { scriptureConfig } from '$assets/config';
-    import { bodyFontSize, direction, refs, userSettings } from '$lib/data/stores';
+    import { bodyFontSize, direction, refs, s, userSettings } from '$lib/data/stores';
     import { ChevronIcon } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
@@ -37,6 +37,8 @@ concern of the caller, not the pager).
         query: '?url',
         base: '/src/gen-assets/borders'
     }) as Record<string, string>;
+
+    const barIconSelectedColor = $derived($s?.['ui.bottom-navigation.item.icon']['color']);
 
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
@@ -430,7 +432,11 @@ concern of the caller, not the pager).
                 ? 'visible'
                 : 'invisible'}"
         >
-            <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 180 : 0} />
+            <ChevronIcon
+                size={36}
+                color={barIconSelectedColor}
+                deg={$direction === 'ltr' ? 180 : 0}
+            />
         </button>
     </div>
     <div
@@ -496,7 +502,11 @@ concern of the caller, not the pager).
                 ? 'visible'
                 : 'invisible'}"
         >
-            <ChevronIcon size={36} color="gray" deg={$direction === 'ltr' ? 0 : 180} />
+            <ChevronIcon
+                size={36}
+                color={barIconSelectedColor}
+                deg={$direction === 'ltr' ? 0 : 180}
+            />
         </button>
     </div>
 </div>

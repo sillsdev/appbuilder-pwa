@@ -68,15 +68,11 @@ export const s = derived(themeColors, ($themeColors) => {
         (styleProperties, style) => {
             const properties = style.properties;
             const newProperties = { ...properties };
-            if (Object.prototype.hasOwnProperty.call(newProperties, 'background-color')) {
-                newProperties['background-color'] = resolveColor(
-                    newProperties['background-color'],
-                    $themeColors
-                );
-            }
-            if (Object.prototype.hasOwnProperty.call(newProperties, 'color')) {
-                newProperties['color'] = resolveColor(newProperties['color'], $themeColors);
-            }
+            Object.keys(newProperties).forEach((prop) => {
+                if (prop.endsWith('color')) {
+                    newProperties[prop] = resolveColor(newProperties[prop], $themeColors);
+                }
+            });
             styleProperties[style.name] = newProperties;
             return styleProperties;
         },

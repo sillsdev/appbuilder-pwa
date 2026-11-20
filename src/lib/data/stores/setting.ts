@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import config, { scriptureConfig } from '$assets/config';
 import type { FeatureConfig, FeatureValue } from '$config';
 import { isFileSystemAccessSupported } from '$lib/data/audioFileSystem';
@@ -25,7 +26,8 @@ const commonDefaultSettings: FeatureConfig = {
     'app-layout-direction': config.mainFeatures['app-layout-direction'],
     'keep-screen-on': false,
     'audio-access-method': config.mainFeatures['audio-access-method'],
-    'audio-auto-download': 'prompt'
+    'audio-auto-download': 'prompt',
+    'debug-theme': dev
 };
 
 const sabDefaultSettings = {
@@ -50,7 +52,8 @@ const sabDefaultSettings = {
     'share-usage-data': true,
     'app-layout-direction': config.mainFeatures['app-layout-direction'],
     'desktop-sidebar': false,
-    'scripture-logs': false
+    'scripture-logs': false,
+    'scripture-log-panes': 'all'
 };
 
 export const defaultSettings: FeatureConfig = isSAB(config)
@@ -73,10 +76,16 @@ export const devPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
             title: 'Log which panes?',
             key: 'scripture-log-panes',
             entries: ['All Panes', 'Active Pane', 'Footnote Popup'],
-            values: ['all', 'active', 'footnote'],
-            defaultValue: 'all'
+            values: ['all', 'active', 'footnote']
         });
     }
+
+    settings.push({
+        type: 'checkbox',
+        category: SettingsCategory.Interface,
+        title: 'Use Debugging Theme (Hotdog Stand)',
+        key: 'debug-theme'
+    });
 
     return settings;
 })();
@@ -418,7 +427,7 @@ export const userPreferenceSettings = ((): Array<App.UserPreferenceSetting> => {
 
 export const userSettings = persistedLocal('userSettings', {
     ...Object.fromEntries(
-        userPreferenceSettings.map((setting) => [
+        [...devPreferenceSettings, ...userPreferenceSettings].map((setting) => [
             setting.key,
             setting.defaultValue ?? defaultSettings[setting.key]
         ])

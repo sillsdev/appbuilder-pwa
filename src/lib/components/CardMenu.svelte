@@ -36,7 +36,34 @@ Dispatches a menuaction event when an option is selected from the menu.
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_missing_attribute -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <li><a onclick={() => handleAction(a)}>{a}</a></li>
+            <li><a color={$monoIconColor} onclick={() => handleAction(a)}>{a}</a></li>
         {/each}
     </ul>
 </div>
+
+<style>
+    .dy-dropdown-content {
+        background-color: var(--AnnotationItemBackgroundColor);
+        outline: 1px solid var(--PrimaryColor);
+        --dy-menu-active-fg: var(--TextColor);
+        --dy-menu-active-bg: var(--ButtonSelectedColor);
+    }
+    .dy-menu {
+        &
+            :where(
+                li:not(.dy-menu-title, .dy-disabled)
+                    > :not(ul, details, .dy-menu-title):not(
+                        .dy-menu-active,
+                        :active,
+                        .dy-btn
+                    ):hover,
+                li:not(.dy-menu-title, .dy-disabled)
+                    > details
+                    > summary:not(.dy-menu-title):not(.dy-menu-active, :active, .dy-btn):hover
+            ) {
+            @supports (color: color-mix(in lab, red, red)) {
+                background-color: color-mix(in oklab, var(--PrimaryColor) 15%, transparent);
+            }
+        }
+    }
+</style>
