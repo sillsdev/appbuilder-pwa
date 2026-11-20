@@ -5,6 +5,7 @@ import {
     type RenderWorkspace
 } from '../common';
 import { getElement } from './common';
+import { verseInRange } from './common/text';
 
 export const annotations = new FeatureSpec<{ verses?: { numbers?: string[] } }>('Annotations', {
     startVerses: {
@@ -12,38 +13,53 @@ export const annotations = new FeatureSpec<{ verses?: { numbers?: string[] } }>(
         details: ({ context }) => ({ verse: getElement(context).atts['number'] }),
         guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
         action: ({ context, workspace }) => {
-            const numbers = workspace.scratch.verses?.numbers ?? [];
-            numbers.push(getElement(context).atts['number']);
-            addToScratchPad(workspace.scratch, 'verses', { numbers });
+            const num = getElement(context).atts['number'];
+            if (verseInRange(workspace, num)) {
+                const numbers = workspace.scratch.verses?.numbers ?? [];
+                numbers.push(getElement(context).atts['number']);
+                addToScratchPad(workspace.scratch, 'verses', { numbers });
+            }
         }
     },
-    endDocument: {
-        stage: 'standard',
-        details: ({ workspace }) => ({
-            verses: workspace.scratch.verses?.numbers
-        }),
-        guard: ({ workspace }) => !workspace.hackRenderIntro,
-        action({ workspace }) {
-            workspace.scratch.verses?.numbers?.forEach((num) => {
-                const lastPhrase = Array.from(
-                    workspace.root.querySelectorAll(`[data-verse="${num}"][data-phrase]`)
-                ).at(-1) as HTMLDivElement | null;
-                // add in reverse order so .after adds in correct order...
-                addSpanAfterVerse(workspace, 'notes', lastPhrase);
-                addSpanAfterVerse(workspace, 'bookmarks', lastPhrase);
-            });
-            workspace.events.updateAnnotations();
-            addToScratchPad(workspace.scratch, 'verses', { numbers: undefined });
+    endDocument: [
+        {
+            stage: 'init',
+            details: ({ workspace }) => ({
+                verses: workspace.scratch.verses?.numbers
+            }),
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                workspace.scratch.verses?.numbers?.forEach((num) => {
+                    let lastPhrase = Array.from(
+                        workspace.root.querySelectorAll(`[data-verse="${num}"]`)
+                    ).at(-1) as Element | null | undefined;
+                    if (!lastPhrase?.getAttribute('data-phrase')) {
+                        lastPhrase = lastPhrase?.lastElementChild;
+                    }
+                    if (lastPhrase) {
+                        // add in reverse order so .after adds in correct order...
+                        addSpanAfterVerse(workspace, `bookmarks${num}`, lastPhrase);
+                        addSpanAfterVerse(workspace, `notes${num}`, lastPhrase);
+                    } else {
+                        console.warn(`Failed to place annotation spans for verse ${num}`);
+                    }
+                });
+                addToScratchPad(workspace.scratch, 'verses', { numbers: undefined });
+            }
+        },
+        {
+            stage: 'standard',
+            details: () => undefined,
+            guard: ({ workspace }) => renderIfRegularOrIfHackedIntro(workspace),
+            action({ workspace }) {
+                workspace.events.updateAnnotations();
+            }
         }
-    }
+    ]
 });
 
-function addSpanAfterVerse(
-    workspace: RenderWorkspace,
-    idPrefix: string,
-    lastPhrase: HTMLDivElement | null
-) {
+function addSpanAfterVerse(workspace: RenderWorkspace, id: string, lastPhrase: Element) {
     const span = workspace.document.createElement('span');
-    span.id = idPrefix + lastPhrase?.getAttribute('data-verse');
-    lastPhrase?.after(span);
+    span.id = id;
+    lastPhrase.after(span);
 }

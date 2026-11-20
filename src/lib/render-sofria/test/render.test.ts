@@ -909,8 +909,8 @@ describe('illustrations', () => {
         test('\\fig is moved to the end of its paragraph (convert moveFigureToNextNonVerseMarker)', () => {
             const root = renderUsfm(twoParagraphs('\\fig A caption|src="pic.jpg"\\fig*'));
             const block = imageBlock(root)!;
-            expect(block.closest('[data-verse]')?.getAttribute('data-verse')).toBe('2');
-            expect(block.previousElementSibling?.textContent).toBe('Two.');
+            expect(block.previousElementSibling?.id).toBe('bookmarks2');
+            expect(block.parentElement?.textContent).toContain('Two.');
         });
 
         test('USFM 3 \\fig without a caption renders no caption', () => {
