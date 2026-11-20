@@ -6,7 +6,10 @@ const verNumRegExp = /^\d+(\.\d+){0,2}$/;
 async function getDigest(token: string, ref: string) {
     return (
         await fetch(`https://ghcr.io/v2/sillsdev/app-builders/manifests/${ref}`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.oci.image.manifest.v1+json'
+            }
         }).then((r) => r.json())
     ).config.digest as string;
 }
