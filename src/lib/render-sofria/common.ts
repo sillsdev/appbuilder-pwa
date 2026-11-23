@@ -268,6 +268,8 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
                 | 'bookTab'
                 | 'hasAudio'
                 | 'sourceFormat'
+                | 'next'
+                | 'prev'
             >;
             plan: PlanStore;
             currentPlanState: string;

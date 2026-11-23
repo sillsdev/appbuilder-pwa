@@ -3,7 +3,7 @@
 Display an HTML Book.
 -->
 <script module lang="ts">
-    export interface Props {
+    export type Props = {
         references: {
             collection: string;
             book: string;
@@ -11,12 +11,13 @@ Display an HTML Book.
         bodyLineHeight: number;
         bodyFontSize: number;
         fetch: any;
-    }
+    } & PanelProps;
 </script>
 
 <script lang="ts">
     import { asset } from '$app/paths';
     import { scriptureConfig } from '$assets/config';
+    import type { PanelProps } from './ScripturePager.svelte';
 
     let { references, bodyLineHeight, bodyFontSize, fetch }: Props = $props();
 

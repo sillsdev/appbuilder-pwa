@@ -132,7 +132,11 @@
                                                         ?.find((c) => c.id === item.start.docSet)
                                                         ?.books.find(
                                                             (b) => b.id === item.start.book
-                                                        )?.sourceFormat || 'none'
+                                                        )?.sourceFormat || 'none',
+                                                // these aren't actually used in ScriptureViewProskomma
+                                                // these are just here to make the type system happy for the ScripturePager component...
+                                                prev: item.props.references.prev,
+                                                next: item.props.references.next
                                             }}
                                             verseRange={{
                                                 start: Number(item.start.verse),

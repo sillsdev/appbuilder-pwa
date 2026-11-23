@@ -11,7 +11,7 @@
         type Props as HtmlBookViewProps
     } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import ScripturePager from '$lib/components/ScripturePager.svelte';
+    import ScripturePager, { type PanelProps } from '$lib/components/ScripturePager.svelte';
     import ScriptureViewProskomma, {
         type Props as ScriptureViewProskommaProps
     } from '$lib/components/ScriptureViewProskomma.svelte';
@@ -135,7 +135,7 @@
         }
     }
 
-    let pager: ScripturePager;
+    let pager: ScripturePager<typeof viewSettings>;
     let activePanel: HTMLElement | undefined = $state();
 
     const book = $derived(
@@ -166,16 +166,23 @@
     const showSearch = !!config.mainFeatures['search'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
-    const viewSettings = $derived(
+    const viewSettings: (
+        | ({ type: 'html' } & HtmlBookViewProps)
+        | ({ type: 'rich' } & ScriptureViewProskommaProps)
+        | { type: 'none' }
+    ) &
+        PanelProps = $derived(
         book?.format === 'html'
-            ? ({
+            ? {
+                  type: 'html',
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
                   fetch: data.fetch
-              } satisfies HtmlBookViewProps)
+              }
             : book?.testament !== 'quiz'
-              ? ({
+              ? {
+                    type: 'rich',
                     audioPhraseEndChars: audioPhraseEndChars,
                     bodyFontSize: $bodyFontSize,
                     bodyLineHeight: $bodyLineHeight,
@@ -193,10 +200,9 @@
                     proskomma: data?.proskomma,
                     setReference: refs.set,
                     setBookTab: refs.setBookTab,
-                    selectedVerses,
-                    isActivePanel: false
-                } satisfies ScriptureViewProskommaProps)
-              : {}
+                    selectedVerses
+                }
+              : { type: 'none' }
     );
 
     const stackSettings = $derived({
@@ -502,24 +508,82 @@
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
         >
-            <ScripturePager bind:this={pager} bind:activePanel {viewSettings}>
+            <ScripturePager
+                bind:this={pager}
+                bind:activePanel
+                {viewSettings}
+                setMainSettings={(viewSettings) => ({
+                    ...viewSettings
+                })}
+                setSideSettings={(viewSettings, side) => ({
+                    ...viewSettings,
+                    ...(viewSettings.type === 'rich'
+                        ? {
+                              highlights: Promise.resolve([]),
+                              bookmarks: Promise.resolve([]),
+                              notes: Promise.resolve([]),
+                              references: {
+                                  ...viewSettings.references!,
+                                  book:
+                                      (side === 'next'
+                                          ? viewSettings.references!.next.book
+                                          : viewSettings.references!.prev.book) ||
+                                      viewSettings.references!.book,
+                                  chapter:
+                                      (side === 'next'
+                                          ? viewSettings.references!.next.chapter
+                                          : viewSettings.references!.prev.chapter) || '1'
+                              }
+                          }
+                        : {})
+                })}
+                bookmarks={$bookmarks}
+                notes={$notes}
+                highlights={$highlights}
+                setAnnotations={(viewSettings, annotations) => {
+                    if (viewSettings.type === 'rich') {
+                        if (annotations.bookmarks) {
+                            viewSettings.bookmarks = annotations.bookmarks;
+                        }
+                        if (annotations.notes) {
+                            viewSettings.notes = annotations.notes;
+                        }
+                        if (annotations.highlights) {
+                            viewSettings.highlights = annotations.highlights;
+                        }
+                    }
+                }}
+                triggerReset={(prev, curr) =>
+                    prev.type !== curr.type ||
+                    (prev.type !== 'none' &&
+                        curr.type !== 'none' &&
+                        (prev.bodyFontSize !== curr.bodyFontSize ||
+                            prev.bodyLineHeight !== curr.bodyLineHeight ||
+                            (prev.type === 'rich' &&
+                                curr.type === 'rich' &&
+                                (prev.font !== curr.font ||
+                                    prev.themeColors !== curr.themeColors))))}
+            >
                 {#snippet panel(settings)}
-                    {@const showBorder = !!(
-                        scriptureConfig.traits?.['has-borders'] &&
-                        (($userSettings['show-border'] ?? settings.references.chapter === 'i')
-                            ? getFeatureValueBoolean(
-                                  scriptureConfig,
-                                  'show-border-intro',
-                                  settings.references.collection,
-                                  settings.references.book
-                              )
-                            : getFeatureValueBoolean(
-                                  scriptureConfig,
-                                  'show-border',
-                                  settings.references.collection,
-                                  settings.references.book
-                              ))
-                    )}
+                    {@const showBorder =
+                        settings.type !== 'none' &&
+                        !!(
+                            scriptureConfig.traits?.['has-borders'] &&
+                            (($userSettings['show-border'] ??
+                            (settings.type === 'rich' && settings.references.chapter === 'i'))
+                                ? getFeatureValueBoolean(
+                                      scriptureConfig,
+                                      'show-border-intro',
+                                      settings.references.collection,
+                                      settings.references.book
+                                  )
+                                : getFeatureValueBoolean(
+                                      scriptureConfig,
+                                      'show-border',
+                                      settings.references.collection,
+                                      settings.references.book
+                                  ))
+                        )}
                     {#if bookType === 'story'}
                         {@const illustrationFile = getCurrentIllustrationFile()}
                         {#if illustrationFile}
