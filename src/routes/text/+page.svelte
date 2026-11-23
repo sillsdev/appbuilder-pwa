@@ -56,6 +56,7 @@
         showDesktopSidebar,
         t,
         themeColors,
+        userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
     import {
@@ -67,7 +68,7 @@
         TriangleRightIcon
     } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import { getFeatureValueString } from '$lib/scripts/configUtils';
+    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
     import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
@@ -78,6 +79,13 @@
         import: 'default',
         query: '?url',
         base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
+
+    const borders = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        query: '?url',
+        base: '/src/gen-assets/borders'
     }) as Record<string, string>;
 
     interface Props {
@@ -489,22 +497,6 @@
     </div>
 
     <div class="flex flex-col overflow-y-auto">
-        {#if bookType === 'story'}
-            {@const illustrationFile = getCurrentIllustrationFile()}
-            {#if illustrationFile}
-                <!-- svelte-ignore a11y_missing_attribute -->
-                <img
-                    src={illustrationFile}
-                    class="w-screen md:max-w-2xl mx-auto object-cover"
-                    use:swipe={{
-                        timeframe: 300,
-                        minSwipeDistance: 60,
-                        touchAction: 'pan-y'
-                    }}
-                    onswipe={doSwipe}
-                />
-            {/if}
-        {/if}
         <div
             class="overflow-y-auto grow overflow-x-hidden"
             bind:this={scrollingDiv}
@@ -512,14 +504,51 @@
         >
             <ScripturePager bind:this={pager} bind:activePanel {viewSettings}>
                 {#snippet panel(settings)}
-                    {#if book?.format === 'html'}
-                        <HtmlBookView {...settings as HtmlBookViewProps} />
-                    {:else if book?.testament !== 'quiz'}
-                        <!-- <ScriptureViewSofria -->
-                        <!-- {...settings as ScriptureViewSofriaProps} -->
-                        <!-- /> -->
-                        <ScriptureViewProskomma {...settings as ScriptureViewProskommaProps} />
+                    {@const showBorder = !!(
+                        scriptureConfig.traits?.['has-borders'] &&
+                        (($userSettings['show-border'] ?? settings.references.chapter === 'i')
+                            ? getFeatureValueBoolean(
+                                  scriptureConfig,
+                                  'show-border-intro',
+                                  settings.references.collection,
+                                  settings.references.book
+                              )
+                            : getFeatureValueBoolean(
+                                  scriptureConfig,
+                                  'show-border',
+                                  settings.references.collection,
+                                  settings.references.book
+                              ))
+                    )}
+                    {#if bookType === 'story'}
+                        {@const illustrationFile = getCurrentIllustrationFile()}
+                        {#if illustrationFile}
+                            <!-- svelte-ignore a11y_missing_attribute -->
+                            <img
+                                src={illustrationFile}
+                                class="w-screen md:max-w-2xl mx-auto object-cover"
+                                use:swipe={{
+                                    timeframe: 300,
+                                    minSwipeDistance: 60,
+                                    touchAction: 'pan-y'
+                                }}
+                                onswipe={doSwipe}
+                            />
+                        {/if}
                     {/if}
+                    <div
+                        style="--borderImageSource: url({borders['./border.png']});"
+                        class:borderimg={showBorder}
+                    >
+                        {#if book?.format === 'html'}
+                            <HtmlBookView {...settings as HtmlBookViewProps} />
+                        {:else if book?.testament !== 'quiz'}
+                            <!-- <ScriptureViewSofria -->
+                            <!-- {...settings as ScriptureViewSofriaProps} -->
+                            <!-- /> -->
+                            <ScriptureViewProskomma {...settings as ScriptureViewProskommaProps} />
+                        {/if}
+                    </div>
                 {/snippet}
             </ScripturePager>
         </div>
@@ -569,5 +598,11 @@
         .audio-bar-desktop {
             left: 320px;
         }
+    }
+
+    .borderimg {
+        border: 30px solid transparent;
+        border-image-source: var(--borderImageSource);
+        border-image-slice: 100;
     }
 </style>

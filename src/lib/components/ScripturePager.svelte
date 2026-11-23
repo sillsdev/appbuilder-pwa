@@ -20,23 +20,15 @@ concern of the caller, not the pager).
 </script>
 
 <script lang="ts">
-    import config, { scriptureConfig } from '$assets/config';
-    import { bodyFontSize, direction, refs, userSettings } from '$lib/data/stores';
+    import config from '$assets/config';
+    import { bodyFontSize, direction, refs } from '$lib/data/stores';
     import { ChevronIcon } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import { tick, untrack } from 'svelte';
     import { pinch, swipe, type PinchPointerEventDetail } from 'svelte-gestures';
     import { Tween } from 'svelte/motion';
 
     let { viewSettings, panel, activePanel = $bindable() }: Props = $props();
-
-    const borders = import.meta.glob('./*', {
-        import: 'default',
-        eager: true,
-        query: '?url',
-        base: '/src/gen-assets/borders'
-    }) as Record<string, string>;
 
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
@@ -439,23 +431,6 @@ concern of the caller, not the pager).
         use:measure
     >
         {#each [0, 1, 2] as i (i)}
-            {@const settings = settingsCache[i]}
-            {@const showBorder = !!(
-                scriptureConfig.traits?.['has-borders'] &&
-                (($userSettings['show-border'] ?? settings.references.chapter === 'i')
-                    ? getFeatureValueBoolean(
-                          scriptureConfig,
-                          'show-border-intro',
-                          settings.references.collection,
-                          settings.references.book
-                      )
-                    : getFeatureValueBoolean(
-                          scriptureConfig,
-                          'show-border',
-                          settings.references.collection,
-                          settings.references.book
-                      ))
-            )}
             <div
                 bind:this={panelElements[i]}
                 class="p-2 w-full overflow-y-hidden"
@@ -469,8 +444,6 @@ concern of the caller, not the pager).
             >
                 <main>
                     <div
-                        style="--borderImageSource: url({borders['./border.png']});"
-                        class:borderimg={showBorder}
                         aria-hidden="true"
                         class="max-w-screen-md mx-auto"
                         onpointerdown={handleMouseDown}
@@ -482,7 +455,7 @@ concern of the caller, not the pager).
                             touchAction: 'pan-y'
                         }}
                     >
-                        {@render panel(settings)}
+                        {@render panel(settingsCache[i])}
                     </div>
                 </main>
             </div>
@@ -500,11 +473,3 @@ concern of the caller, not the pager).
         </button>
     </div>
 </div>
-
-<style>
-    .borderimg {
-        border: 30px solid transparent;
-        border-image-source: var(--borderImageSource);
-        border-image-slice: 100;
-    }
-</style>
