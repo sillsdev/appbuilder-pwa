@@ -419,7 +419,7 @@ concern of the caller, not the pager).
             >
                 <main>
                     <div
-                        aria-hidden="true"
+                        aria-hidden={settingsCache[i].isActivePanel}
                         class="max-w-screen-md mx-auto"
                         onpointerdown={handleMouseDown}
                         use:pinch

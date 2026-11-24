@@ -538,6 +538,12 @@
                                     prev.themeColors !== curr.themeColors))))}
             >
                 {#snippet panel(settings)}
+                    {@const book =
+                        settings.type === 'none'
+                            ? null
+                            : scriptureConfig.bookCollections
+                                  ?.find((x) => x.id === settings.references.collection)
+                                  ?.books.find((x) => x.id === settings.references.book)}
                     {@const showBorder =
                         settings.type !== 'none' &&
                         !!(
@@ -557,16 +563,13 @@
                                       settings.references.book
                                   ))
                         )}
-                    {#if bookType === 'story' && settings.type === 'rich'}
+                    {#if book?.type === 'story' && settings.type === 'rich'}
                         {@const illustrationFile =
                             illustrationURLs[
                                 `./${
-                                    scriptureConfig.bookCollections
-                                        ?.find((x) => x.id === settings.references.collection)
-                                        ?.books.find((x) => x.id === settings.references.book)
-                                        ?.pageIllustrations?.find(
-                                            (x) => x.num === Number(settings.references.chapter)
-                                        )?.filename
+                                    book?.pageIllustrations?.find(
+                                        (x) => x.num === Number(settings.references.chapter)
+                                    )?.filename
                                 }`
                             ]}
                         {#if illustrationFile}
