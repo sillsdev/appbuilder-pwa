@@ -123,13 +123,16 @@ The navbar component.
             $nextRef.book = text;
             $nextRef.chapter = '1';
             $nextRef.verse = '';
-            await navigateToText({
-                docSet: $refs.docSet,
-                collection: $refs.collection,
-                book: $nextRef.book,
-                chapter: $nextRef.chapter,
-                verse: $nextRef.verse
-            });
+            await navigateToText(
+                {
+                    docSet: $refs.docSet,
+                    collection: $refs.collection,
+                    book: $nextRef.book,
+                    chapter: $nextRef.chapter,
+                    verse: $nextRef.verse
+                },
+                { replaceState: true }
+            );
             navigateToUrl({
                 collection: $refs.collection,
                 book: text,
@@ -191,13 +194,16 @@ The navbar component.
         //document.activeElement.blur();
     }
     async function completeNavigation() {
-        await navigateToText({
-            docSet: $refs.docSet,
-            collection: $refs.collection,
-            book: $nextRef.book,
-            chapter: $nextRef.chapter,
-            verse: $nextRef.verse
-        });
+        await navigateToText(
+            {
+                docSet: $refs.docSet,
+                collection: $refs.collection,
+                book: $nextRef.book,
+                chapter: $nextRef.chapter,
+                verse: $nextRef.verse
+            },
+            { replaceState: true }
+        );
         // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
         onBookSelection?.();
         close();

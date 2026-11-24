@@ -180,7 +180,7 @@ function getPlanReferenceString(
 
 export function planClicked(workspace: RenderWorkspace) {
     if (workspace.stores.plan.planNextReference === '') {
-        if (workspace.stores.currentPlanState === 'completed') {
+        if (workspace.stores.currentPlanState() === 'completed') {
             goto(resolve(`/plans`));
         } else {
             goto(resolve(`/plans/${workspace.stores.plan.planId}`));

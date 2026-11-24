@@ -89,13 +89,16 @@ The navbar component.
     }
 
     async function completeNavigation() {
-        await navigateToText({
-            docSet: $refs.docSet,
-            collection: $refs.collection,
-            book: $refs.book,
-            chapter: $nextRef.chapter,
-            verse: $nextRef.verse
-        });
+        await navigateToText(
+            {
+                docSet: $refs.docSet,
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: $nextRef.chapter,
+                verse: $nextRef.verse
+            },
+            { replaceState: true }
+        );
         // this event handler notifies the PWA that the selection process has been complete and the page content can be reloaded
         onChapterSelection?.();
         close();

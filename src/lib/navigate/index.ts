@@ -19,13 +19,16 @@ export function navigateToUrl(item: { collection: string; book: string; url: str
     goto(item.url);
 }
 
-export async function navigateToText(item: {
-    docSet: string;
-    collection?: string;
-    book: string;
-    chapter?: string;
-    verse?: string;
-}) {
+export async function navigateToText(
+    item: {
+        docSet: string;
+        collection?: string;
+        book: string;
+        chapter?: string;
+        verse?: string;
+    },
+    { replaceState = false } = {}
+) {
     const { docSet, collection = collectionFromDocSet(docSet), book, chapter, verse } = item;
     if (chapter) {
         playStop();
@@ -36,7 +39,7 @@ export async function navigateToText(item: {
             verse
         });
         addHistory({ collection, book, chapter, verse }, logHistoryItemAdded);
-        goto(resolve(`/text`));
+        goto(resolve(`/text`), { replaceState });
     }
 }
 

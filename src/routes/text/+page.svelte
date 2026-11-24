@@ -185,7 +185,9 @@
                     font: $currentFont!,
                     proskomma: data?.proskomma,
                     setReference: (ref: Reference) =>
-                        navigateToText(ref).then(() => pager?.setupSettingsCache()),
+                        navigateToText(ref, { replaceState: true }).then(() =>
+                            pager?.setupSettingsCache()
+                        ),
                     setBookTab: refs.setBookTab,
                     selectedVerses,
                     isActivePanel: false

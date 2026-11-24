@@ -494,7 +494,7 @@ LOGGING:
                     stores: {
                         references,
                         plan: $plan,
-                        currentPlanState: $currentPlanState,
+                        currentPlanState: () => $currentPlanState,
                         currentPlanData: $currentPlanData,
                         t: $t,
                         language: $language,

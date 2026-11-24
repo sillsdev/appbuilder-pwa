@@ -30,13 +30,16 @@
 
     function navigate(reference: AnchorReference) {
         footnotes.reset();
-        navigateToText({
-            docSet: reference.docSet,
-            collection: reference.collection,
-            book: reference.book,
-            chapter: reference.chapter,
-            verse: reference.verse
-        }).then(() => onNavigate?.());
+        navigateToText(
+            {
+                docSet: reference.docSet,
+                collection: reference.collection,
+                book: reference.book,
+                chapter: reference.chapter,
+                verse: reference.verse
+            },
+            { replaceState: true }
+        ).then(() => onNavigate?.());
     }
 
     const openInNewIcon = () => {
