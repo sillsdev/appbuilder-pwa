@@ -356,12 +356,12 @@ LOGGING:
             '{documents { docSetId id bookCode: header(id: "bookCode") } }'
         );
 
-        if (logThisPanel && $scriptureLogs.docResult) {
+        if (untrack(() => logThisPanel) && $scriptureLogs.docResult) {
             console.warn('book query result: %o', bookDocuments);
         }
 
         for (const doc of bookDocuments?.data?.documents ?? []) {
-            if (logThisPanel && $scriptureLogs.docResult) {
+            if (untrack(() => logThisPanel) && $scriptureLogs.docResult) {
                 console.warn(`Checking current doc ${doc.bookCode} against id ${bookCode}`);
             }
             if (doc.docSetId === docSet && doc.bookCode === bookCode) {
@@ -389,7 +389,7 @@ LOGGING:
                     verse: 'none',
                     render: !verseRange
                 },
-                logSettings: logThisPanel ? $scriptureLogs : {},
+                logSettings: untrack(() => logThisPanel) ? $scriptureLogs : {},
                 scratch: {},
                 textConfig: {
                     numeralSystem,
@@ -522,7 +522,7 @@ LOGGING:
             'pk-query-books-start',
             'pk-query-books-end'
         );
-        if (logThisPanel && $scriptureLogs.docResult) {
+        if (untrack(() => logThisPanel) && $scriptureLogs.docResult) {
             console.warn(`found docId ${docId}`);
         }
 
@@ -540,7 +540,7 @@ LOGGING:
         performance.mark('cl-render-end');
         performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
 
-        if (logThisPanel && $scriptureLogs.root) {
+        if (untrack(() => logThisPanel) && $scriptureLogs.root) {
             console.warn('Final rendering output: %o', output.root);
         }
         loading = false;
