@@ -146,12 +146,13 @@ LOGGING:
 
     let planDivObserver: IntersectionObserver | null = $state(null); // To store the observer instance
     let planObservationCompleted = $state(false);
+    function disconnectObserver() {
+        planDivObserver?.disconnect(); // Disconnect any previous observer before creating a new one
+        planDivObserver = null; // Clear the observer reference
+    }
     // Function to observe the visibility of the plan div
     function observeVisibility() {
-        if (planDivObserver) {
-            planDivObserver.disconnect(); // Disconnect any previous observer before creating a new one
-            planDivObserver = null; // Clear the observer reference
-        }
+        disconnectObserver();
         if (planDivInChapter($plan, references) && !$plan.completed) {
             const target = scriptureRoot.querySelector('#PLAN-next');
             if (target) {
@@ -162,8 +163,7 @@ LOGGING:
                             if (entry.isIntersecting && !planObservationCompleted) {
                                 $plan.completed = true;
                                 planObservationCompleted = true;
-                                planDivObserver?.disconnect(); // Stop observing after it becomes visible
-                                planDivObserver = null; // Clear the observer reference after disconnecting
+                                planDivObserver?.disconnect();
                                 addPlanProgressItem({
                                     id: $plan.planId,
                                     day: $plan.planDay,
@@ -184,15 +184,12 @@ LOGGING:
                     }
                 );
 
-                planDivObserver.observe(target);
+                planDivObserver?.observe(target);
             }
         }
     }
     onDestroy(() => {
-        if (planDivObserver) {
-            planDivObserver.disconnect();
-            planDivObserver = null;
-        }
+        disconnectObserver();
     });
 
     let nextPlanDay: number | null = $state(null);
@@ -356,12 +353,12 @@ LOGGING:
             '{documents { docSetId id bookCode: header(id: "bookCode") } }'
         );
 
-        if (untrack(() => logThisPanel) && $scriptureLogs.docResult) {
+        if (logThisPanel && $scriptureLogs.docResult) {
             console.warn('book query result: %o', bookDocuments);
         }
 
         for (const doc of bookDocuments?.data?.documents ?? []) {
-            if (untrack(() => logThisPanel) && $scriptureLogs.docResult) {
+            if (logThisPanel && $scriptureLogs.docResult) {
                 console.warn(`Checking current doc ${doc.bookCode} against id ${bookCode}`);
             }
             if (doc.docSetId === docSet && doc.bookCode === bookCode) {
@@ -373,181 +370,185 @@ LOGGING:
     }
 
     async function renderDocumentSofria(docSet: string, bookCode: string, chapter: string) {
-        console.warn(`Rendering Document ${docSet}.${bookCode}.${chapter}`);
+        await untrack(async () => {
+            console.warn(`Rendering Document ${docSet}.${bookCode}.${chapter}`);
 
-        if (hackRenderIntro) {
-            chapter = '1';
-        }
+            if (hackRenderIntro) {
+                chapter = '1';
+            }
 
-        const actions: { [key in RenderEvent]?: ProskommaRenderAction[] } = compileRenderActions(
-            renderFeatures,
-            {
-                document: document,
-                root: scriptureRoot,
-                scopeManager: new ScopeManager(),
-                currentTextPosition: {
-                    verse: 'none',
-                    render: !verseRange
-                },
-                logSettings: untrack(() => logThisPanel) ? $scriptureLogs : {},
-                scratch: {},
-                textConfig: {
-                    numeralSystem,
-                    separatorRegex: getSeparatorRegex(audioPhraseEndChars),
-                    verseRangeSeparator: scriptureConfig.bookCollections?.find(
-                        (x) => x.id === references.collection
-                    )?.features['ref-verse-range-separator'] as string
-                },
-                config: scriptureConfig,
-                hackRenderIntro,
-                viewSettings: {
-                    isBibleBook: isBibleBook(references, scriptureConfig),
-                    redLetters,
-                    verseLayout,
-                    verseRange: verseRange
-                        ? { start: verseRange.start, end: verseRange.end ?? verseRange.start }
-                        : undefined,
-                    attachHoverListeners: window.matchMedia('(hover: hover) and (pointer: fine)')
-                        .matches
-                },
-                events: {
-                    navigate(ref: Reference) {
-                        setReference(ref);
-                        footnotes.reset();
+            const actions: { [key in RenderEvent]?: ProskommaRenderAction[] } =
+                compileRenderActions(renderFeatures, {
+                    document: document,
+                    root: scriptureRoot,
+                    scopeManager: new ScopeManager(),
+                    currentTextPosition: {
+                        verse: 'none',
+                        render: !verseRange
                     },
-                    openFootnote(event: MouseEvent, footnoteId: string) {
-                        if ($footnotes.length === 0) {
-                            event.stopPropagation();
-                            const footnote = scriptureRoot.querySelector(`div[id="${footnoteId}"]`);
-                            const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
-                            const spans = workingSpan?.querySelectorAll('span.xt');
-                            // Loop through each span and modify its inner HTML
-                            spans.forEach((span) => {
-                                span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
-                            });
-                            const parsed = workingSpan?.innerHTML;
-                            footnotes.push({
-                                type: 'plain',
-                                body: parsed,
-                                style: 'footnote',
-                                props
-                            });
-                        }
+                    logSettings: logThisPanel ? $scriptureLogs : {},
+                    scratch: {},
+                    textConfig: {
+                        numeralSystem,
+                        separatorRegex: getSeparatorRegex(audioPhraseEndChars),
+                        verseRangeSeparator: scriptureConfig.bookCollections?.find(
+                            (x) => x.id === references.collection
+                        )?.features['ref-verse-range-separator'] as string
                     },
-                    openGlossary(glossaryLink: string, block: GlossaryBlock) {
-                        if ($footnotes.length === 0) {
-                            const glossaryDiv = document.createElement('div');
-                            glossaryDiv.classList.add('txs');
-                            const glossarySpan = document.createElement('span');
-                            glossarySpan.classList.add('k');
-                            //const titleText = document.createTextNode(glossaryLink);
-                            glossarySpan.append(block.key);
-                            glossaryDiv.append(glossarySpan);
-                            const blockText = block.text.slice(glossaryLink?.length);
-                            glossaryDiv.innerHTML += cleanText(blockText);
-                            const glossaryHTML = glossaryDiv.outerHTML;
-                            footnotes.push({
-                                type: 'plain',
-                                body: glossaryHTML,
-                                style: 'glossary',
-                                props
-                            });
-                        }
+                    config: scriptureConfig,
+                    hackRenderIntro,
+                    viewSettings: {
+                        isBibleBook: isBibleBook(references, scriptureConfig),
+                        redLetters,
+                        verseLayout,
+                        verseRange: verseRange
+                            ? { start: verseRange.start, end: verseRange.end ?? verseRange.start }
+                            : undefined,
+                        attachHoverListeners: window.matchMedia(
+                            '(hover: hover) and (pointer: fine)'
+                        ).matches
                     },
-                    setPlanStore(data: PlanStore) {
-                        plan.set(data);
-                    },
-                    openCrossRef(
-                        event: MouseEvent,
-                        target: HTMLElement,
-                        workspace: RenderWorkspace
-                    ) {
-                        if ($footnotes.length === 0) {
-                            event.stopPropagation();
-                            const start: AnchorReference = JSON.parse(
-                                target.getAttribute('data-start-ref') || '{}'
-                            );
-                            const end: AnchorReference | undefined =
-                                target.getAttribute('data-end-ref') === 'undefined'
-                                    ? undefined
-                                    : JSON.parse(target.getAttribute('data-end-ref') || '{}');
-                            if (
-                                workspace.config.mainFeatures['scripture-refs-display'] === 'viewer'
-                            ) {
-                                workspace.events.navigate(start);
-                            } else {
+                    events: {
+                        navigate(ref: Reference) {
+                            setReference(ref);
+                            footnotes.reset();
+                        },
+                        openFootnote(event: MouseEvent, footnoteId: string) {
+                            if ($footnotes.length === 0) {
+                                event.stopPropagation();
+                                const footnote = scriptureRoot.querySelector(
+                                    `div[id="${footnoteId}"]`
+                                );
+                                const workingSpan = footnote?.cloneNode(true) as HTMLDivElement;
+                                const spans = workingSpan?.querySelectorAll('span.xt');
+                                // Loop through each span and modify its inner HTML
+                                spans.forEach((span) => {
+                                    span.innerHTML = generateReferenceLinkHTML(span.innerHTML, ''); // Change inner HTML as needed
+                                });
+                                const parsed = workingSpan?.innerHTML;
                                 footnotes.push({
-                                    type: 'rich',
-                                    start,
-                                    end,
-                                    props,
-                                    style: 'crossref'
+                                    type: 'plain',
+                                    body: parsed,
+                                    style: 'footnote',
+                                    props
                                 });
                             }
-                        }
+                        },
+                        openGlossary(glossaryLink: string, block: GlossaryBlock) {
+                            if ($footnotes.length === 0) {
+                                const glossaryDiv = document.createElement('div');
+                                glossaryDiv.classList.add('txs');
+                                const glossarySpan = document.createElement('span');
+                                glossarySpan.classList.add('k');
+                                //const titleText = document.createTextNode(glossaryLink);
+                                glossarySpan.append(block.key);
+                                glossaryDiv.append(glossarySpan);
+                                const blockText = block.text.slice(glossaryLink?.length);
+                                glossaryDiv.innerHTML += cleanText(blockText);
+                                const glossaryHTML = glossaryDiv.outerHTML;
+                                footnotes.push({
+                                    type: 'plain',
+                                    body: glossaryHTML,
+                                    style: 'glossary',
+                                    props
+                                });
+                            }
+                        },
+                        setPlanStore(data: PlanStore) {
+                            plan.set(data);
+                        },
+                        openCrossRef(
+                            event: MouseEvent,
+                            target: HTMLElement,
+                            workspace: RenderWorkspace
+                        ) {
+                            if ($footnotes.length === 0) {
+                                event.stopPropagation();
+                                const start: AnchorReference = JSON.parse(
+                                    target.getAttribute('data-start-ref') || '{}'
+                                );
+                                const end: AnchorReference | undefined =
+                                    target.getAttribute('data-end-ref') === 'undefined'
+                                        ? undefined
+                                        : JSON.parse(target.getAttribute('data-end-ref') || '{}');
+                                if (
+                                    workspace.config.mainFeatures['scripture-refs-display'] ===
+                                    'viewer'
+                                ) {
+                                    workspace.events.navigate(start);
+                                } else {
+                                    footnotes.push({
+                                        type: 'rich',
+                                        start,
+                                        end,
+                                        props,
+                                        style: 'crossref'
+                                    });
+                                }
+                            }
+                        },
+                        clickText: (e) => {
+                            if (!$audioPlayer.playing) {
+                                onClickText(e, selectedVerses, maxSelections);
+                            }
+                        },
+                        updateAnnotations: applyAnnotations
                     },
-                    clickText: (e) => {
-                        if (!$audioPlayer.playing) {
-                            onClickText(e, selectedVerses, maxSelections);
-                        }
+                    stores: {
+                        references,
+                        plan: $plan,
+                        currentPlanState: $currentPlanState,
+                        currentPlanData: $currentPlanData,
+                        t: $t,
+                        language: $language,
+                        lastPlanReference,
+                        settings: userSettings
                     },
-                    updateAnnotations: applyAnnotations
-                },
-                stores: {
-                    references,
-                    plan: $plan,
-                    currentPlanState: $currentPlanState,
-                    currentPlanData: $currentPlanData,
-                    t: $t,
-                    language: $language,
-                    lastPlanReference,
-                    settings: userSettings
-                },
-                queries: {
-                    glossary
-                },
-                functions: {
-                    generateReferenceLinkHTML
-                }
+                    queries: {
+                        glossary
+                    },
+                    functions: {
+                        generateReferenceLinkHTML
+                    }
+                });
+
+            await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
+
+            performance.mark('pk-query-books-start');
+            const docId = await getCurrentDocumentID(docSet, bookCode);
+            performance.mark('pk-query-books-end');
+            performance.measure(
+                'pk-query-books-duration',
+                'pk-query-books-start',
+                'pk-query-books-end'
+            );
+            if (logThisPanel && $scriptureLogs.docResult) {
+                console.warn(`found docId ${docId}`);
             }
-        );
 
-        await loadDocSetIfNotLoaded(proskomma, docSet, fetch);
+            const pkRenderer = new SofriaRenderFromProskomma({
+                proskomma,
+                actions: actions,
+                debugLevel: 0
+            });
+            performance.mark('cl-render-start');
+            pkRenderer.renderDocument({
+                docId,
+                config: chapterCount(references.book) ? { chapters: [chapter] } : {},
+                output
+            });
+            performance.mark('cl-render-end');
+            performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
 
-        performance.mark('pk-query-books-start');
-        const docId = await getCurrentDocumentID(docSet, bookCode);
-        performance.mark('pk-query-books-end');
-        performance.measure(
-            'pk-query-books-duration',
-            'pk-query-books-start',
-            'pk-query-books-end'
-        );
-        if (untrack(() => logThisPanel) && $scriptureLogs.docResult) {
-            console.warn(`found docId ${docId}`);
-        }
+            if (logThisPanel && $scriptureLogs.root) {
+                console.warn('Final rendering output: %o', output.root);
+            }
+            loading = false;
 
-        const pkRenderer = new SofriaRenderFromProskomma({
-            proskomma,
-            actions: actions,
-            debugLevel: 0
+            if (references) {
+                observeVisibility();
+            }
         });
-        performance.mark('cl-render-start');
-        pkRenderer.renderDocument({
-            docId,
-            config: chapterCount(references.book) ? { chapters: [chapter] } : {},
-            output
-        });
-        performance.mark('cl-render-end');
-        performance.measure('cl-render-duration', 'cl-render-start', 'cl-render-end');
-
-        if (untrack(() => logThisPanel) && $scriptureLogs.root) {
-            console.warn('Final rendering output: %o', output.root);
-        }
-        loading = false;
-
-        if (references) {
-            observeVisibility();
-        }
     }
 
     $effect(() => {
