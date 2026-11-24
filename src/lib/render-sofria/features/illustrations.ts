@@ -163,6 +163,7 @@ function createIllustrationBlock(
 
     const imageBlockDiv = workspace.document.createElement('div');
     imageBlockDiv.classList.add('image-block');
+    imageBlockDiv.style.textIndent = '0';
 
     const imageSpan = workspace.document.createElement('span');
     imageSpan.classList.add('image');
