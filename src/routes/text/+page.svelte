@@ -67,11 +67,9 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
-    import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
     import type { PageData } from './$types';
 
     const illustrationURLs = import.meta.glob('./*', {
@@ -121,19 +119,6 @@
     refs.subscribe((value) => {
         savedScrollPosition = 0;
     });
-
-    let innerWidth = $state(0);
-    const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
-    async function doSwipe(event: CustomEvent<SwipePointerEventDetail>) {
-        const swipeDirection = event.detail.direction;
-        if (
-            swipeBetweenBooks ||
-            ($refs.prev.book === $refs.book && swipeDirection === 'right') ||
-            ($refs.next.book === $refs.book && swipeDirection === 'left')
-        ) {
-            await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
-        }
-    }
 
     let pager: ScripturePager<typeof viewSettings>;
     let activePanel: HTMLElement | undefined = $state();
@@ -392,19 +377,7 @@
         // stop audio when changing routes
         playStop();
     });
-    function getCurrentIllustrationFile() {
-        let illustrations = book?.pageIllustrations;
-        if (illustrations) {
-            for (let i = 0; i < illustrations.length; i++) {
-                if (illustrations[i].num === Number($refs.chapter)) {
-                    return illustrationURLs[`./${illustrations[i].filename}`];
-                }
-            }
-        }
-    }
 </script>
-
-<svelte:window bind:innerWidth />
 
 <div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
@@ -584,19 +557,24 @@
                                       settings.references.book
                                   ))
                         )}
-                    {#if bookType === 'story'}
-                        {@const illustrationFile = getCurrentIllustrationFile()}
+                    {#if bookType === 'story' && settings.type === 'rich'}
+                        {@const illustrationFile =
+                            illustrationURLs[
+                                `./${
+                                    scriptureConfig.bookCollections
+                                        ?.find((x) => x.id === settings.references.collection)
+                                        ?.books.find((x) => x.id === settings.references.book)
+                                        ?.pageIllustrations?.find(
+                                            (x) => x.num === Number(settings.references.chapter)
+                                        )?.filename
+                                }`
+                            ]}
                         {#if illustrationFile}
                             <!-- svelte-ignore a11y_missing_attribute -->
                             <img
+                                draggable="false"
                                 src={illustrationFile}
                                 class="w-screen md:max-w-2xl mx-auto object-cover"
-                                use:swipe={{
-                                    timeframe: 300,
-                                    minSwipeDistance: 60,
-                                    touchAction: 'pan-y'
-                                }}
-                                onswipe={doSwipe}
                             />
                         {/if}
                     {/if}
