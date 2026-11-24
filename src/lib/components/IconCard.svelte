@@ -6,7 +6,7 @@ TODO:
 -->
 <script lang="ts">
     import { scriptureConfig } from '$assets/config';
-    import { direction, refs } from '$lib/data/stores';
+    import { direction, refs, themeColors } from '$lib/data/stores';
     import { resolve } from '$lib/utils/paths';
     import CardMenu from './CardMenu.svelte';
 
@@ -68,7 +68,12 @@ TODO:
             </a>
         </div>
 
-        <div class="annotation-item-date col-span-3 justify-self-end">{date}</div>
+        <div
+            style:color={$themeColors['TextColor']}
+            class="annotation-item-date col-span-3 justify-self-end"
+        >
+            {date}
+        </div>
     </div>
 </div>
 

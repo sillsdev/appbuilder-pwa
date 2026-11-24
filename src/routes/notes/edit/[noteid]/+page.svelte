@@ -127,4 +127,12 @@
         height: 100%;
         position: fixed;
     }
+
+    .dy-textarea {
+        border-color: var(--TextColor);
+    }
+
+    .dy-textarea:focus {
+        outline: 2px solid var(--PrimaryColor);
+    }
 </style>
