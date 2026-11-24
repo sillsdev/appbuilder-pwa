@@ -409,10 +409,7 @@ LOGGING:
                         ).matches
                     },
                     events: {
-                        navigate(ref: Reference) {
-                            setReference(ref);
-                            footnotes.reset();
-                        },
+                        navigate: setReference,
                         openFootnote(event: MouseEvent, footnoteId: string) {
                             if ($footnotes.length === 0) {
                                 event.stopPropagation();

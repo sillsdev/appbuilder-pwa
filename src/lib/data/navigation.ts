@@ -20,6 +20,10 @@ export function docSetFromCollections(
     return collection && docSetFromCollection(collection);
 }
 
+export function collectionFromDocSet(docSetId: string) {
+    return docSetId.split('_').slice(1).join('_');
+}
+
 /**
  *  Maintains the currently active scripture reference.
  */
