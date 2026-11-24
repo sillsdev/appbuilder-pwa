@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation';
     import config, { scriptureConfig } from '$assets/config';
     import Navbar from '$lib/components/Navbar.svelte';
+    import { docSetFromCollections } from '$lib/data/navigation';
     import { getFirstIncompleteDay, getNextPlanReference } from '$lib/data/planProgressItems';
     import type { PlanDataItem } from '$lib/data/plansData';
     import { getLastPlanStateRecord } from '$lib/data/planStates';
@@ -123,6 +124,7 @@
         // Only go to reference if in an active plan
         if (inUse) {
             let currentBookCollectionId = $refs.collection;
+            console.log($refs);
             const [collection, book, fromChapter, toChapter, verseRanges] = getReferenceFromString(
                 ref,
                 scriptureConfig.bookCollections
@@ -146,7 +148,11 @@
                             completed: false
                         };
                         refs.set({
-                            docSet: currentBookCollectionId,
+                            docSet:
+                                docSetFromCollections(
+                                    scriptureConfig.bookCollections,
+                                    $refs.collection
+                                ) || $refs.collection,
                             book: book,
                             chapter: toChapter.toString(),
                             verse: destinationVerse.toString()
@@ -357,7 +363,7 @@
                         <tbody>
                             {#each selectedDay?.refs as ref, index}
                                 <tr
-                                    class="plan-item"
+                                    class="plan-item cursor-pointer"
                                     id={'R-' + index}
                                     onclick={() =>
                                         selectedDay && goToDailyReference(selectedDay, ref, index)}
@@ -370,9 +376,9 @@
                                         {/if}
                                     </td>
                                     <td class="plan-item-title">
-                                        <span class="plan-item-reference"
-                                            >{getReferenceString(ref)}</span
-                                        >
+                                        <span class="plan-item-reference">
+                                            {getReferenceString(ref)}
+                                        </span>
                                     </td>
                                 </tr>
                             {/each}

@@ -2,6 +2,7 @@ import { goto } from '$app/navigation';
 import { logScreenView } from '$lib/data/analytics';
 import { playStop } from '$lib/data/audio';
 import { addHistory, type HistoryItem } from '$lib/data/history';
+import { collectionFromDocSet } from '$lib/data/navigation';
 import { refs } from '$lib/data/stores';
 import { resolve } from '$lib/utils/paths';
 import { get } from 'svelte/store';
@@ -18,14 +19,17 @@ export function navigateToUrl(item: { collection: string; book: string; url: str
     goto(item.url);
 }
 
-export async function navigateToText(item: {
-    docSet: string;
-    collection: string;
-    book: string;
-    chapter?: string;
-    verse?: string;
-}) {
-    const { docSet, collection, book, chapter, verse } = item;
+export async function navigateToText(
+    item: {
+        docSet: string;
+        collection?: string;
+        book: string;
+        chapter?: string;
+        verse?: string;
+    },
+    { replaceState = false } = {}
+) {
+    const { docSet, collection = collectionFromDocSet(docSet), book, chapter, verse } = item;
     if (chapter) {
         playStop();
         await refs.set({
@@ -35,7 +39,7 @@ export async function navigateToText(item: {
             verse
         });
         addHistory({ collection, book, chapter, verse }, logHistoryItemAdded);
-        goto(resolve(`/text`));
+        goto(resolve(`/text`), { replaceState });
     }
 }
 

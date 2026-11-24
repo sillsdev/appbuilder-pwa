@@ -173,7 +173,7 @@ export function renderUsfm(usfm: string, options: RenderOptions = {}): HTMLDivEl
             stores: {
                 references: refs,
                 plan: { planEntry: -1 } as never,
-                currentPlanState: '',
+                currentPlanState: () => '',
                 currentPlanData: null,
                 t: {},
                 language: 'eng',

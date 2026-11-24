@@ -3,6 +3,7 @@
     import Navbar from '$lib/components/Navbar.svelte';
     import { getAudioSourceInfo, getAudioSourceType } from '$lib/data/audio';
     import { deleteDownloadedAudio } from '$lib/data/audioFilesDB';
+    import { docSetFromCollection } from '$lib/data/navigation';
     import { actionBarColor, modal, ModalType, t, theme, themeIsDark } from '$lib/data/stores';
     import { getWorker } from '$lib/download-worker/workerSingleton';
     import { DownloadIcon } from '$lib/icons';
@@ -105,7 +106,7 @@
                     if (numToDownload > 0) {
                         downloadItems.push({
                             name: collection.collectionName || '',
-                            docSet: collection.languageCode + '_' + collection.id,
+                            docSet: docSetFromCollection(collection),
                             id: collection.id,
                             numDownloaded,
                             numToDownload,

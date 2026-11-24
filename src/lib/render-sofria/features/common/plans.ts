@@ -1,4 +1,5 @@
 import { goto } from '$app/navigation';
+import { docSetFromCollections } from '$lib/data/navigation';
 import { getNextPlanReference } from '$lib/data/planProgressItems';
 import { defaultPlanStore, t, type PlanStore } from '$lib/data/stores';
 import type { ReferenceStore } from '$lib/data/stores/reference';
@@ -46,6 +47,7 @@ function matchesVerse(planToVerse: number, verseNumber: string): boolean {
 }
 
 export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
+    const clickIDs: string[] = [];
     if (
         planDivInChapter(workspace.stores.plan, workspace.stores.references) &&
         matchesVerse(workspace.stores.plan.planToVerse, verseNumber)
@@ -59,17 +61,13 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                 planDiv,
                 'plan-progress-title',
                 '',
-                workspace.stores.t['Plans_Progress_Congratulations'],
-                false,
-                workspace
+                workspace.stores.t['Plans_Progress_Congratulations']
             );
             appendPlanProgressTextDiv(
                 planDiv,
                 'plan-progress-info',
                 '',
-                workspace.stores.t['Plans_Progress_Plan_Completed'],
-                false,
-                workspace
+                workspace.stores.t['Plans_Progress_Plan_Completed']
             );
             appendPlanProgressTextDiv(
                 planDiv,
@@ -77,26 +75,21 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                 '',
                 workspace.stores.currentPlanData?.title?.[workspace.stores.language] ??
                     workspace.stores.currentPlanData?.title?.default ??
-                    '',
-                false,
-                workspace
+                    ''
             );
             appendPlanProgressTextDiv(
                 planDiv,
                 'plan-progress-button',
                 'PLAN-next',
-                workspace.stores.t['Plans_Button_View_Plans'],
-                true,
-                workspace
+                workspace.stores.t['Plans_Button_View_Plans']
             );
+            clickIDs.push('PLAN-next');
         } else {
             appendPlanProgressTextDiv(
                 planDiv,
                 'plan-progress-info',
                 '',
-                workspace.stores.t['Plans_Progress_Item_Completed'],
-                false,
-                workspace
+                workspace.stores.t['Plans_Progress_Item_Completed']
             );
             appendPlanProgressTextDiv(
                 planDiv,
@@ -106,9 +99,7 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                     workspace.stores.plan.planReference,
                     workspace.stores.references,
                     workspace.config
-                ),
-                false,
-                workspace
+                )
             );
             const hr = document.createElement('hr');
             if (workspace.stores.plan.planNextReference === '') {
@@ -117,19 +108,16 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                     planDiv,
                     'plan-progress-button',
                     'PLAN-next',
-                    workspace.stores.t['Plans_Button_View_Plan'],
-                    true,
-                    workspace
+                    workspace.stores.t['Plans_Button_View_Plan']
                 );
+                clickIDs.push('PLAN-next');
             } else {
                 planDiv.append(hr);
                 appendPlanProgressTextDiv(
                     planDiv,
                     'plan-progress-info',
                     '',
-                    workspace.stores.t['Plans_Progress_Next_Reading'],
-                    false,
-                    workspace
+                    workspace.stores.t['Plans_Progress_Next_Reading']
                 );
                 appendPlanProgressTextDiv(
                     planDiv,
@@ -139,18 +127,15 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
                         workspace.stores.plan.planNextReference,
                         workspace.stores.references,
                         workspace.config
-                    ),
-                    false,
-                    workspace
+                    )
                 );
                 appendPlanProgressTextDiv(
                     planDiv,
                     'plan-progress-button',
                     'PLAN-next',
-                    workspace.stores.t['Button_Next'],
-                    true,
-                    workspace
+                    workspace.stores.t['Button_Next']
                 );
+                clickIDs.push('PLAN-next');
             }
         }
         workspace.scopeManager.appendContent(planDiv);
@@ -163,22 +148,18 @@ export function addPlanDiv(workspace: RenderWorkspace, verseNumber: string) {
         // appear if you go back to that chapter
         workspace.events.setPlanStore({ ...defaultPlanStore });
     }
+    return clickIDs;
 }
 
 function appendPlanProgressTextDiv(
     progressDiv: HTMLDivElement,
     divClass: string,
     divId: string,
-    stringId: string,
-    addClick: boolean,
-    workspace: RenderWorkspace
+    stringId: string
 ) {
     const textDiv = document.createElement('div');
     if (divId !== '') {
         textDiv.id = divId;
-    }
-    if (addClick) {
-        textDiv.onclick = (event) => planClicked(workspace);
     }
     textDiv.classList.add(divClass);
     textDiv.innerHTML += stringId;
@@ -197,9 +178,9 @@ function getPlanReferenceString(
     return getDisplayString(references.collection, book, toChapter, verseRanges);
 }
 
-function planClicked(workspace: RenderWorkspace) {
+export function planClicked(workspace: RenderWorkspace) {
     if (workspace.stores.plan.planNextReference === '') {
-        if (workspace.stores.currentPlanState === 'completed') {
+        if (workspace.stores.currentPlanState() === 'completed') {
             goto(resolve(`/plans`));
         } else {
             goto(resolve(`/plans/${workspace.stores.plan.planId}`));
@@ -210,7 +191,6 @@ function planClicked(workspace: RenderWorkspace) {
 }
 
 async function gotoPlanReference(workspace: RenderWorkspace) {
-    const currentBookCollectionId = workspace.stores.references.collection;
     const [_collection, book, _fromChapter, toChapter, verseRanges] = getReferenceFromString(
         workspace.stores.plan.planNextReference,
         workspace.config.bookCollections
@@ -241,7 +221,11 @@ async function gotoPlanReference(workspace: RenderWorkspace) {
         });
 
         workspace.events.navigate({
-            docSet: currentBookCollectionId,
+            docSet:
+                docSetFromCollections(
+                    workspace.config.bookCollections,
+                    workspace.stores.references.collection
+                ) || workspace.stores.references.collection,
             book: book,
             chapter: toChapter.toString(),
             verse: destinationVerse.toString()

@@ -28,13 +28,16 @@
 
     async function completeNavigation(songNumber: string) {
         nextRef.reset();
-        await navigateToText({
-            docSet: $refs.docSet,
-            collection: $refs.collection,
-            book: $refs.book,
-            chapter: songNumber,
-            verse: $nextRef.verse
-        });
+        await navigateToText(
+            {
+                docSet: $refs.docSet,
+                collection: $refs.collection,
+                book: $refs.book,
+                chapter: songNumber,
+                verse: $nextRef.verse
+            },
+            { replaceState: true }
+        );
     }
 </script>
 

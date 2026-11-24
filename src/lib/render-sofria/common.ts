@@ -270,7 +270,7 @@ export type RenderWorkspace<Scratch extends DefaultScratchpad = DefaultScratchpa
                 | 'sourceFormat'
             >;
             plan: PlanStore;
-            currentPlanState: string;
+            currentPlanState: () => string;
             currentPlanData: PlansData | null;
             t: Record<string, string>;
             language: string;

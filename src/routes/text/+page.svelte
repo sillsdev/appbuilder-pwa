@@ -58,6 +58,7 @@
         themeColors,
         userSettingsOrDefault
     } from '$lib/data/stores';
+    import type { Reference } from '$lib/data/stores/reference';
     import {
         AudioIcon,
         BibleIcon,
@@ -66,7 +67,7 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { navigateToTextChapterInDirection } from '$lib/navigate';
+    import { navigateToText, navigateToTextChapterInDirection } from '$lib/navigate';
     import { getFeatureValueString } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
@@ -183,7 +184,10 @@
                     userSettings: $userSettingsOrDefault,
                     font: $currentFont!,
                     proskomma: data?.proskomma,
-                    setReference: refs.set,
+                    setReference: (ref: Reference) =>
+                        navigateToText(ref, { replaceState: true }).then(() =>
+                            pager?.setupSettingsCache()
+                        ),
                     setBookTab: refs.setBookTab,
                     selectedVerses,
                     isActivePanel: false
