@@ -45,7 +45,9 @@ const parseChapterVerseMapInDocSets = (_ref: docSetsType) => {
                     const versesObject: { [number: string]: number } = {};
 
                     verses.forEach(({ number, range }: { [number: string]: number }) => {
-                        versesObject[number] = range;
+                        if (number !== 0) {
+                            versesObject[number] = range;
+                        }
                     });
                     chaptersVersesObject[chapter] = versesObject;
                 });
