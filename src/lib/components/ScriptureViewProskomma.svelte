@@ -10,7 +10,7 @@ LOGGING:
     { "scripture" : {"root": 1, "docResult": 1, "document":1, "paragraph": 1, "phrase" :1 , "chapter": 1, "verses": 1, "text": 1, "sequence": 1, "wrapper":1, "milestone":1, "blockGraft": 1, "inlineGraft": 1, "mark": 1, "meta": 1, "row": 1} }
 -->
 <script module lang="ts">
-    export interface Props {
+    export type Props = {
         audioPhraseEndChars: string;
         bodyFontSize: number;
         bodyLineHeight: number;
@@ -29,9 +29,8 @@ LOGGING:
         setReference: (value: Reference) => void;
         setBookTab: (value: number) => void;
         selectedVerses: SelectedVersesStore;
-        isActivePanel: boolean;
         verseRange?: { start: number; end?: number };
-    }
+    } & PanelProps;
 </script>
 
 <script lang="ts">
@@ -88,8 +87,8 @@ LOGGING:
     import type { ProskommaRenderAction } from 'proskomma-core';
     import { SofriaRenderFromProskomma } from 'proskomma-json-tools';
     import { onDestroy, untrack } from 'svelte';
+    import type { PanelProps } from './ScripturePager.svelte';
 
-    // eslint-disable-next-line svelte/no-unused-props
     let props: Props = $props();
 
     let {

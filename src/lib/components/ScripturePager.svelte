@@ -8,35 +8,59 @@ view settings and a `panel` snippet that knows how to render one panel given
 its settings (the panel content format - Scripture, HTML book, etc. - is a
 concern of the caller, not the pager).
 -->
-<script module lang="ts">
-    import type { Snippet } from 'svelte';
 
-    export interface Props {
-        viewSettings: Record<string, any>;
-        panel: Snippet<[Record<string, any>]>;
-        /** Bindable, read-only: the panel element currently in the center (visible) position */
-        activePanel?: HTMLElement;
-    }
+<script lang="ts" module>
+    export type PanelProps = {
+        isActivePanel?: boolean;
+    };
 </script>
 
-<script lang="ts">
-    import config, { scriptureConfig } from '$assets/config';
-    import { bodyFontSize, direction, refs, userSettings } from '$lib/data/stores';
+<script lang="ts" generics="P extends Record<string, unknown> & PanelProps">
+    import config from '$assets/config';
+    import type { BookmarkItem } from '$lib/data/bookmarks';
+    import type { HighlightItem } from '$lib/data/highlights';
+    import type { NoteItem } from '$lib/data/notes';
+    import { bodyFontSize, direction, refs } from '$lib/data/stores';
     import { ChevronIcon } from '$lib/icons';
     import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import { getFeatureValueBoolean } from '$lib/scripts/configUtils';
     import { tick, untrack } from 'svelte';
+    import type { Snippet } from 'svelte';
     import { pinch, swipe, type PinchPointerEventDetail } from 'svelte-gestures';
     import { Tween } from 'svelte/motion';
 
-    let { viewSettings, panel, activePanel = $bindable() }: Props = $props();
+    interface Props {
+        viewSettings: P;
+        panel: Snippet<[P]>;
+        /** Bindable, read-only: the panel element currently in the center (visible) position */
+        activePanel?: HTMLElement;
+        setSideSettings: (viewSettings: P, side: 'next' | 'prev') => P;
+        setMainSettings: (viewSettings: P) => P;
+        highlights: Promise<HighlightItem[]>;
+        bookmarks: Promise<BookmarkItem[]>;
+        notes: Promise<NoteItem[]>;
+        setAnnotations: (
+            viewSettings: P,
+            annotations: {
+                highlights?: Promise<HighlightItem[]>;
+                bookmarks?: Promise<BookmarkItem[]>;
+                notes?: Promise<NoteItem[]>;
+            }
+        ) => void;
+        triggerReset: (previous: P, current: P) => boolean;
+    }
 
-    const borders = import.meta.glob('./*', {
-        import: 'default',
-        eager: true,
-        query: '?url',
-        base: '/src/gen-assets/borders'
-    }) as Record<string, string>;
+    let {
+        viewSettings,
+        panel,
+        activePanel = $bindable(),
+        setSideSettings,
+        setMainSettings,
+        highlights,
+        bookmarks,
+        notes,
+        setAnnotations,
+        triggerReset
+    }: Props = $props();
 
     const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
     const navigateBetweenBooksPrev = $derived(swipeBetweenBooks || $refs.prev.book === $refs.book);
@@ -65,39 +89,19 @@ concern of the caller, not the pager).
         activePanel = panelElements[panels_X.indexOf(0)];
     });
 
-    const settings0 = $derived({
-        // Initial settings for left panel
-        ...viewSettings,
-        highlights: Promise.resolve([]),
-        bookmarks: Promise.resolve([]),
-        notes: Promise.resolve([]),
-        references: {
-            ...viewSettings.references,
-            book: hasPrev ? viewSettings.references!.prev.book : viewSettings.references!.book,
-            chapter: hasPrev ? viewSettings.references!.prev.chapter : '1'
-        }
-    });
+    // Initial settings for left panel
+    const settings0 = $derived(setSideSettings(viewSettings, 'prev'));
 
     const settings1 = $derived({
         // Initial settings for center panel
-        ...viewSettings,
+        ...setMainSettings(viewSettings),
         isActivePanel: true
     });
 
-    const settings2 = $derived({
-        // Initial settings for right panel
-        ...viewSettings,
-        highlights: Promise.resolve([]),
-        bookmarks: Promise.resolve([]),
-        notes: Promise.resolve([]),
-        references: {
-            ...viewSettings.references,
-            book: hasNext ? viewSettings.references!.next.book : viewSettings.references!.book,
-            chapter: hasNext ? viewSettings.references!.next.chapter : '1'
-        }
-    });
+    // Initial settings for right panel
+    const settings2 = $derived(setSideSettings(viewSettings, 'next'));
 
-    let settingsCache: Record<string, any>[] = $state(
+    let settingsCache: P[] = $state(
         // svelte-ignore state_referenced_locally
         [settings0, settings1, settings2]
     );
@@ -109,13 +113,7 @@ concern of the caller, not the pager).
 
     // Update the panels for any updates from different format changes
     $effect(() => {
-        if (
-            previousSettings.bodyFontSize !== viewSettings.bodyFontSize ||
-            previousSettings.bodyLineHeight !== viewSettings.bodyLineHeight ||
-            previousSettings.font !== viewSettings.font ||
-            previousSettings.themeColors !== viewSettings.themeColors ||
-            previousSettings.viewShowVerses !== viewSettings.viewShowVerses
-        ) {
+        if (triggerReset(previousSettings, viewSettings)) {
             setupSettingsCache();
             previousSettings = { ...viewSettings };
         }
@@ -127,35 +125,19 @@ concern of the caller, not the pager).
     export async function setupSettingsCache() {
         settingsCache[0] = {
             // Initial settings for left panel
-            ...viewSettings,
-            highlights: Promise.resolve([]),
-            bookmarks: Promise.resolve([]),
-            notes: Promise.resolve([]),
-            references: {
-                ...viewSettings.references,
-                book: hasPrev ? viewSettings.references!.prev.book : viewSettings.references!.book,
-                chapter: hasPrev ? viewSettings.references!.prev.chapter : '1'
-            },
+            ...setSideSettings(viewSettings, 'prev'),
             isActivePanel: false
         };
 
         settingsCache[1] = {
             // Initial settings for center panel
-            ...viewSettings,
+            ...setMainSettings(viewSettings),
             isActivePanel: true
         };
 
         settingsCache[2] = {
             // Initial settings for right panel
-            ...viewSettings,
-            highlights: Promise.resolve([]),
-            bookmarks: Promise.resolve([]),
-            notes: Promise.resolve([]),
-            references: {
-                ...viewSettings.references,
-                book: hasNext ? viewSettings.references!.next.book : viewSettings.references!.book,
-                chapter: hasNext ? viewSettings.references!.next.chapter : '1'
-            },
+            ...setSideSettings(viewSettings, 'next'),
             isActivePanel: false
         };
 
@@ -176,15 +158,8 @@ concern of the caller, not the pager).
             if (hasPrev) {
                 idx = panels_X.indexOf(Math.min(...panels_X));
                 settingsCache[idx] = {
-                    ...viewSettings, // load in the page before
-                    highlights: Promise.resolve([]),
-                    bookmarks: Promise.resolve([]),
-                    notes: Promise.resolve([]),
-                    references: {
-                        ...viewSettings.references,
-                        book: viewSettings.references!.prev.book,
-                        chapter: viewSettings.references!.prev.chapter
-                    }
+                    // load in the page before
+                    ...setSideSettings(viewSettings, 'prev')
                 };
             }
         } else if (direction === 1) {
@@ -192,15 +167,8 @@ concern of the caller, not the pager).
             if (hasNext) {
                 idx = panels_X.indexOf(Math.max(...panels_X));
                 settingsCache[idx] = {
-                    ...viewSettings, // load in the next page
-                    highlights: Promise.resolve([]),
-                    bookmarks: Promise.resolve([]),
-                    notes: Promise.resolve([]),
-                    references: {
-                        ...viewSettings.references,
-                        book: viewSettings.references!.next.book,
-                        chapter: viewSettings.references!.next.chapter
-                    }
+                    // load in the next page
+                    ...setSideSettings(viewSettings, 'next')
                 };
             }
         }
@@ -210,44 +178,43 @@ concern of the caller, not the pager).
         });
 
         idx = panels_X.indexOf(0);
-        settingsCache[idx].highlights = viewSettings.highlights;
-        settingsCache[idx].bookmarks = viewSettings.bookmarks;
-        settingsCache[idx].notes = viewSettings.notes;
+
+        setAnnotations(settingsCache[idx], { highlights, bookmarks, notes });
         settingsCache[idx].isActivePanel = true;
     }
 
     $effect(() => {
-        const highlights = viewSettings.highlights;
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        highlights;
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
             if (x.current === 0 && transitionDone) {
                 const idx = panels_X.indexOf(0);
-                settingsCache[idx].highlights = highlights;
+                setAnnotations(settingsCache[idx], { highlights });
             }
         });
     });
 
     $effect(() => {
-        const bookmarks = viewSettings.bookmarks;
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        bookmarks;
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
             if (x.current === 0 && transitionDone) {
                 const idx = panels_X.indexOf(0);
-                settingsCache[idx].bookmarks = bookmarks;
+                setAnnotations(settingsCache[idx], { bookmarks });
             }
         });
     });
 
     $effect(() => {
-        const notes = viewSettings.notes;
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        notes;
         // untrack prevents these reads from becoming dependencies
         untrack(() => {
             if (x.current === 0 && transitionDone) {
                 const idx = panels_X.indexOf(0);
-                settingsCache[idx].notes = notes;
+                setAnnotations(settingsCache[idx], { notes });
             }
         });
     });
@@ -439,23 +406,6 @@ concern of the caller, not the pager).
         use:measure
     >
         {#each [0, 1, 2] as i (i)}
-            {@const settings = settingsCache[i]}
-            {@const showBorder = !!(
-                scriptureConfig.traits?.['has-borders'] &&
-                (($userSettings['show-border'] ?? settings.references.chapter === 'i')
-                    ? getFeatureValueBoolean(
-                          scriptureConfig,
-                          'show-border-intro',
-                          settings.references.collection,
-                          settings.references.book
-                      )
-                    : getFeatureValueBoolean(
-                          scriptureConfig,
-                          'show-border',
-                          settings.references.collection,
-                          settings.references.book
-                      ))
-            )}
             <div
                 bind:this={panelElements[i]}
                 class="p-2 w-full overflow-y-hidden"
@@ -469,9 +419,7 @@ concern of the caller, not the pager).
             >
                 <main>
                     <div
-                        style="--borderImageSource: url({borders['./border.png']});"
-                        class:borderimg={showBorder}
-                        aria-hidden="true"
+                        aria-hidden={settingsCache[i].isActivePanel}
                         class="max-w-screen-md mx-auto"
                         onpointerdown={handleMouseDown}
                         use:pinch
@@ -482,7 +430,7 @@ concern of the caller, not the pager).
                             touchAction: 'pan-y'
                         }}
                     >
-                        {@render panel(settings)}
+                        {@render panel(settingsCache[i])}
                     </div>
                 </main>
             </div>
@@ -500,11 +448,3 @@ concern of the caller, not the pager).
         </button>
     </div>
 </div>
-
-<style>
-    .borderimg {
-        border: 30px solid transparent;
-        border-image-source: var(--borderImageSource);
-        border-image-slice: 100;
-    }
-</style>

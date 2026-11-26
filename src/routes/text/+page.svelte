@@ -11,7 +11,7 @@
         type Props as HtmlBookViewProps
     } from '$lib/components/HtmlBookView.svelte';
     import Navbar from '$lib/components/Navbar.svelte';
-    import ScripturePager from '$lib/components/ScripturePager.svelte';
+    import ScripturePager, { type PanelProps } from '$lib/components/ScripturePager.svelte';
     import ScriptureViewProskomma, {
         type Props as ScriptureViewProskommaProps
     } from '$lib/components/ScriptureViewProskomma.svelte';
@@ -56,6 +56,7 @@
         showDesktopSidebar,
         t,
         themeColors,
+        userSettings,
         userSettingsOrDefault
     } from '$lib/data/stores';
     import {
@@ -66,11 +67,9 @@
         TriangleLeftIcon,
         TriangleRightIcon
     } from '$lib/icons';
-    import { navigateToTextChapterInDirection } from '$lib/navigate';
-    import { getFeatureValueString } from '$lib/scripts/configUtils';
+    import { getFeatureValueBoolean, getFeatureValueString } from '$lib/scripts/configUtils';
     import { resolve } from '$lib/utils/paths';
     import { onDestroy, onMount } from 'svelte';
-    import { swipe, type SwipePointerEventDetail } from 'svelte-gestures';
     import type { PageData } from './$types';
 
     const illustrationURLs = import.meta.glob('./*', {
@@ -78,6 +77,13 @@
         import: 'default',
         query: '?url',
         base: '/src/gen-assets/illustrations'
+    }) as Record<string, string>;
+
+    const borders = import.meta.glob('./*', {
+        import: 'default',
+        eager: true,
+        query: '?url',
+        base: '/src/gen-assets/borders'
     }) as Record<string, string>;
 
     interface Props {
@@ -114,20 +120,7 @@
         savedScrollPosition = 0;
     });
 
-    let innerWidth = $state(0);
-    const swipeBetweenBooks = config.mainFeatures['book-swipe-between-books'];
-    async function doSwipe(event: CustomEvent<SwipePointerEventDetail>) {
-        const swipeDirection = event.detail.direction;
-        if (
-            swipeBetweenBooks ||
-            ($refs.prev.book === $refs.book && swipeDirection === 'right') ||
-            ($refs.next.book === $refs.book && swipeDirection === 'left')
-        ) {
-            await navigateToTextChapterInDirection(swipeDirection === 'right' ? -1 : 1);
-        }
-    }
-
-    let pager: ScripturePager;
+    let pager: ScripturePager<typeof viewSettings>;
     let activePanel: HTMLElement | undefined = $state();
 
     const book = $derived(
@@ -158,16 +151,23 @@
     const showSearch = !!config.mainFeatures['search'];
     const showAudio = !!config.mainFeatures['audio-allow-turn-on-off'];
 
-    const viewSettings = $derived(
+    const viewSettings: (
+        | ({ type: 'html' } & HtmlBookViewProps)
+        | ({ type: 'rich' } & ScriptureViewProskommaProps)
+        | { type: 'none' }
+    ) &
+        PanelProps = $derived(
         book?.format === 'html'
-            ? ({
+            ? {
+                  type: 'html',
                   references: $refs,
                   bodyFontSize: $bodyFontSize,
                   bodyLineHeight: $bodyLineHeight,
                   fetch: data.fetch
-              } satisfies HtmlBookViewProps)
+              }
             : book?.testament !== 'quiz'
-              ? ({
+              ? {
+                    type: 'rich',
                     audioPhraseEndChars: audioPhraseEndChars,
                     bodyFontSize: $bodyFontSize,
                     bodyLineHeight: $bodyLineHeight,
@@ -185,10 +185,9 @@
                     proskomma: data?.proskomma,
                     setReference: refs.set,
                     setBookTab: refs.setBookTab,
-                    selectedVerses,
-                    isActivePanel: false
-                } satisfies ScriptureViewProskommaProps)
-              : {}
+                    selectedVerses
+                }
+              : { type: 'none' }
     );
 
     const stackSettings = $derived({
@@ -378,19 +377,7 @@
         // stop audio when changing routes
         playStop();
     });
-    function getCurrentIllustrationFile() {
-        let illustrations = book?.pageIllustrations;
-        if (illustrations) {
-            for (let i = 0; i < illustrations.length; i++) {
-                if (illustrations[i].num === Number($refs.chapter)) {
-                    return illustrationURLs[`./${illustrations[i].filename}`];
-                }
-            }
-        }
-    }
 </script>
-
-<svelte:window bind:innerWidth />
 
 <div class="grid grid-rows-[auto_1fr_auto]" style="height:100vh;height:100dvh;">
     <div class="navbar">
@@ -489,37 +476,124 @@
     </div>
 
     <div class="flex flex-col overflow-y-auto">
-        {#if bookType === 'story'}
-            {@const illustrationFile = getCurrentIllustrationFile()}
-            {#if illustrationFile}
-                <!-- svelte-ignore a11y_missing_attribute -->
-                <img
-                    src={illustrationFile}
-                    class="w-screen md:max-w-2xl mx-auto object-cover"
-                    use:swipe={{
-                        timeframe: 300,
-                        minSwipeDistance: 60,
-                        touchAction: 'pan-y'
-                    }}
-                    onswipe={doSwipe}
-                />
-            {/if}
-        {/if}
         <div
             class="overflow-y-auto grow overflow-x-hidden"
             bind:this={scrollingDiv}
             onscroll={saveScrollPosition}
         >
-            <ScripturePager bind:this={pager} bind:activePanel {viewSettings}>
+            <ScripturePager
+                bind:this={pager}
+                bind:activePanel
+                {viewSettings}
+                setMainSettings={(viewSettings) => ({
+                    ...viewSettings
+                })}
+                setSideSettings={(viewSettings, side) => ({
+                    ...viewSettings,
+                    ...(viewSettings.type === 'rich'
+                        ? {
+                              highlights: Promise.resolve([]),
+                              bookmarks: Promise.resolve([]),
+                              notes: Promise.resolve([]),
+                              references: {
+                                  ...viewSettings.references!,
+                                  book:
+                                      (side === 'next'
+                                          ? viewSettings.references!.next.book
+                                          : viewSettings.references!.prev.book) ||
+                                      viewSettings.references!.book,
+                                  chapter:
+                                      (side === 'next'
+                                          ? viewSettings.references!.next.chapter
+                                          : viewSettings.references!.prev.chapter) || '1'
+                              }
+                          }
+                        : {})
+                })}
+                bookmarks={$bookmarks}
+                notes={$notes}
+                highlights={$highlights}
+                setAnnotations={(viewSettings, annotations) => {
+                    if (viewSettings.type === 'rich') {
+                        if (annotations.bookmarks) {
+                            viewSettings.bookmarks = annotations.bookmarks;
+                        }
+                        if (annotations.notes) {
+                            viewSettings.notes = annotations.notes;
+                        }
+                        if (annotations.highlights) {
+                            viewSettings.highlights = annotations.highlights;
+                        }
+                    }
+                }}
+                triggerReset={(prev, curr) =>
+                    prev.type !== curr.type ||
+                    (prev.type !== 'none' &&
+                        curr.type !== 'none' &&
+                        (prev.bodyFontSize !== curr.bodyFontSize ||
+                            prev.bodyLineHeight !== curr.bodyLineHeight ||
+                            (prev.type === 'rich' &&
+                                curr.type === 'rich' &&
+                                (prev.font !== curr.font ||
+                                    prev.themeColors !== curr.themeColors))))}
+            >
                 {#snippet panel(settings)}
-                    {#if book?.format === 'html'}
-                        <HtmlBookView {...settings as HtmlBookViewProps} />
-                    {:else if book?.testament !== 'quiz'}
-                        <!-- <ScriptureViewSofria -->
-                        <!-- {...settings as ScriptureViewSofriaProps} -->
-                        <!-- /> -->
-                        <ScriptureViewProskomma {...settings as ScriptureViewProskommaProps} />
+                    {@const book =
+                        settings.type === 'none'
+                            ? null
+                            : scriptureConfig.bookCollections
+                                  ?.find((x) => x.id === settings.references.collection)
+                                  ?.books.find((x) => x.id === settings.references.book)}
+                    {@const showBorder =
+                        settings.type !== 'none' &&
+                        !!(
+                            scriptureConfig.traits?.['has-borders'] &&
+                            (($userSettings['show-border'] ??
+                            (settings.type === 'rich' && settings.references.chapter === 'i'))
+                                ? getFeatureValueBoolean(
+                                      scriptureConfig,
+                                      'show-border-intro',
+                                      settings.references.collection,
+                                      settings.references.book
+                                  )
+                                : getFeatureValueBoolean(
+                                      scriptureConfig,
+                                      'show-border',
+                                      settings.references.collection,
+                                      settings.references.book
+                                  ))
+                        )}
+                    {#if book?.type === 'story' && settings.type === 'rich'}
+                        {@const illustrationFile =
+                            illustrationURLs[
+                                `./${
+                                    book?.pageIllustrations?.find(
+                                        (x) => x.num === Number(settings.references.chapter)
+                                    )?.filename
+                                }`
+                            ]}
+                        {#if illustrationFile}
+                            <!-- svelte-ignore a11y_missing_attribute -->
+                            <img
+                                draggable="false"
+                                src={illustrationFile}
+                                class="w-screen md:max-w-2xl mx-auto object-cover"
+                            />
+                        {/if}
                     {/if}
+                    <div
+                        style="--borderImageSource: url({borders['./border.png']});"
+                        class:borderimg={showBorder}
+                    >
+                        {#if book?.format === 'html'}
+                            <HtmlBookView {...settings as HtmlBookViewProps} />
+                        {:else if book?.testament !== 'quiz'}
+                            <!-- <ScriptureViewSofria -->
+                            <!-- {...settings as ScriptureViewSofriaProps} -->
+                            <!-- /> -->
+                            <ScriptureViewProskomma {...settings as ScriptureViewProskommaProps} />
+                        {/if}
+                    </div>
                 {/snippet}
             </ScripturePager>
         </div>
@@ -569,5 +643,11 @@
         .audio-bar-desktop {
             left: 320px;
         }
+    }
+
+    .borderimg {
+        border: 30px solid transparent;
+        border-image-source: var(--borderImageSource);
+        border-image-slice: 100;
     }
 </style>
